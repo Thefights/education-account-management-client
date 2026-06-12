@@ -1,0 +1,73 @@
+{
+  "button": {
+    "add_file": "Add file",
+    "add_row": "Add row",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "create": "Create",
+    "delete": "Delete",
+    "deselect_all": "Deselect All",
+    "edit": "Edit",
+    "filter": "Filter",
+    "reset_filter": "Reset Filter",
+    "save": "Save",
+    "select_all": "Select All",
+    "submit": "Submit",
+    "update": "Update"
+  },
+  "error": {
+    "duplicate_values_not_allowed": "Duplicate values are not allowed",
+    "invalid_email": "Please enter a valid email",
+    "invalid_number": "Please enter a valid number",
+    "invalid_percentage": "Percentage must be between 0 and 100",
+    "invalid_phone": "Please enter a valid phone number",
+    "invalid_phone_or_email": "Please enter a valid phone number or email",
+    "max_length": "Can't exceed {max} characters, currently {current}/{max}",
+    "max_number": "Maximum number is {max}",
+    "min_length": "Must be at least {min} characters, currently {current}",
+    "min_number": "Minimum number is {min}",
+    "must_be_different": "Values must be different",
+    "not_match": "Values do not match",
+    "number_higher_than": "Number must be higher than {min}",
+    "number_higher_than_or_equal": "Number must be higher than or equal to {min}",
+    "number_less_than": "Number must be less than {max}",
+    "number_less_than_or_equal": "Number must be less than or equal to {max}",
+    "past_date": "Date cannot be in the past",
+    "required": "This field is required",
+    "weak_password": "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character"
+  },
+  "pagination": {
+    "items_per_page": "/ page",
+    "jump_to": "Go to",
+    "jump_to_confirm": "confirm",
+    "next_3": "Next 3 pages",
+    "next_5": "Next 5 pages",
+    "next_page": "Next page",
+    "page": "Page",
+    "page_size": "Page size",
+    "prev_3": "Previous 3 pages",
+    "prev_5": "Previous 5 pages",
+    "prev_page": "Previous page"
+  },
+  "text": {
+    "all": "All",
+    "available": "Available",
+    "items": "items",
+    "loading": "Loading...",
+    "page_of": "Page {page} of {totalPage}",
+    "placeholder": {
+      "no_data": "No data available..."
+    },
+    "rows_per_page": "Rows per page",
+    "search": "Search...",
+    "select_options": "Select options",
+    "selected": "Selected",
+    "total": "Total"
+  },
+  "tooltip": {
+    "menu": "Menu",
+    "switch_dark": "Switch to dark mode",
+    "switch_light": "Switch to light mode"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "audit_log": {
+    "action": {
+      "add_favorite_product": "Add favorite product",
+      "create_account": "Create account",
+      "create_product": "Create product",
+      "delete_account": "Delete account",
+      "delete_accounts": "Delete accounts",
+      "delete_product": "Delete product",
+      "delete_products": "Delete products",
+      "forgot_password": "Forgot password",
+      "import_accounts": "Import accounts",
+      "import_products": "Import products",
+      "login": "Login",
+      "login_failed": "Login failed",
+      "logout": "Logout",
+      "refresh_token": "Refresh token",
+      "register": "Register",
+      "remove_favorite_product": "Remove favorite product",
+      "reset_password": "Reset password",
+      "save_email_whitelist": "Save email whitelist",
+      "send_register_email_otp": "Send register email OTP",
+      "social_login": "Social login",
+      "update_account": "Update account",
+      "update_account_status": "Update account status",
+      "update_email_whitelist_setting": "Update email whitelist setting",
+      "update_mfa_setting": "Update MFA setting",
+      "update_product": "Update product",
+      "verify_mfa_otp": "Verify MFA OTP",
+      "verify_register_email_otp": "Verify register email OTP",
+      "view_audit_logs": "View audit logs"
+    },
+    "button": {
+      "export": "Export"
+    },
+    "category": {
+      "account_management": "Account Management",
+      "audit_log": "Audit Log",
+      "authentication": "Authentication",
+      "email_whitelist": "Email Whitelist",
+      "favorite_product": "Favorite Product",
+      "product": "Product",
+      "security_setting": "Security Setting"
+    },
+    "field": {
+      "action": "Action",
+      "actor_full_name": "Actor Full Name",
+      "actor_user_id": "Actor User Id",
+      "actor_user_id_text": "Actor User ID",
+      "category": "Category",
+      "created_at": "Created At",
+      "export_fields": "Export Fields",
+      "id": "ID",
+      "ip_address": "IP Address",
+      "object": "Object",
+      "search": "Search"
+    },
+    "placeholder": {
+      "created_from": "Created from",
+      "created_to": "Created to",
+      "search_text": "Search"
+    },
+    "title": {
+      "audit_log_management": "Audit Log Management",
+      "export": "Export Audit Logs"
+    },
+    "validation": {
+      "from_date_not_future": "From date cannot be greater than current date",
+      "to_date_before_from_date": "To date cannot be earlier than From date"
+    }
+  }
+}

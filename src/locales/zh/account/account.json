@@ -1,0 +1,55 @@
+{
+  "account": {
+    "button": {
+      "activate_selected": "激活",
+      "batch_import": "批量导入",
+      "deactivate_selected": "停用",
+      "delete_selected": "删除所选内容",
+      "unlock_selected": "解锁"
+    },
+    "confirm": {
+      "activate_selected_description": "您确定要激活所选的 {number} 个帐户吗？",
+      "activate_selected_title": "激活选定的帐户？",
+      "deactivate_selected_description": "您确定要停用所选的 {number} 个帐户吗？",
+      "deactivate_selected_title": "停用选定的帐户？",
+      "delete_selected_description": "您确定要删除所选的 {number} 个帐户吗？",
+      "delete_selected_title": "删除选定的帐户？",
+      "unlock_selected_description": "您确定要解锁所选的 {number} 个帐户吗？",
+      "unlock_selected_title": "解锁选定的帐户？"
+    },
+    "field": {
+      "email": "电子邮件",
+      "file": "导入文件",
+      "full_name": "姓名",
+      "gender": "性别",
+      "id": "ID",
+      "image": "图像",
+      "phone_number": "电话号码",
+      "product": "产品",
+      "product_assignments": "产品分配",
+      "role_in_product": "在产品中的作用",
+      "roles": "角色",
+      "send_email": "发送激活邮件",
+      "status": "地位",
+      "user_id_text": "用户身份"
+    },
+    "import": {
+      "errors": "导入错误",
+      "failed": "失败的",
+      "field": "场地",
+      "message": "信息",
+      "row_number": "排",
+      "succeeded": "成功了",
+      "total": "全部的"
+    },
+    "placeholder": {
+      "search_text": "搜索"
+    },
+    "title": {
+      "account_management": "账户管理",
+      "batch_import": "批量导入账户",
+      "create_account": "创建账户",
+      "edit_account": "编辑帐户"
+    }
+  }
+}

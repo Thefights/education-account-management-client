@@ -1,0 +1,12 @@
+{
+  "email_notification": {
+    "description": {
+      "allow_list": "Thêm địa chỉ email của những người dùng có thể nhận thông báo email.",
+      "enable_allow_list": "Theo mặc định, thông báo email từ MaivenPoint có thể được gửi đến bất kỳ ai. Bật công tắc này nếu bạn muốn chặn thông báo email gửi đến người dùng, ngoại trừ những địa chỉ nằm trong danh sách cho phép."
+    },
+    "example": "Ví dụ: name1@example.com;name2@example.com",
+    "title": {
+      "enable_allow_list": "Bật danh sách cho phép nhận thông báo email"
+    }
+  }
+}

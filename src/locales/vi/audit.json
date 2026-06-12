@@ -1,0 +1,72 @@
+{
+  "audit_log": {
+    "action": {
+      "add_favorite_product": "Thêm sản phẩm yêu thích",
+      "create_account": "Tạo tài khoản",
+      "create_product": "Tạo sản phẩm",
+      "delete_account": "Xóa tài khoản",
+      "delete_accounts": "Xóa nhiều tài khoản",
+      "delete_product": "Xóa sản phẩm",
+      "delete_products": "Xóa nhiều sản phẩm",
+      "forgot_password": "Quên mật khẩu",
+      "import_accounts": "Nhập tài khoản",
+      "import_products": "Nhập sản phẩm",
+      "login": "Đăng nhập",
+      "login_failed": "Đăng nhập thất bại",
+      "logout": "Đăng xuất",
+      "refresh_token": "Làm mới token",
+      "register": "Đăng ký",
+      "remove_favorite_product": "Xóa sản phẩm yêu thích",
+      "reset_password": "Đặt lại mật khẩu",
+      "save_email_whitelist": "Lưu email whitelist",
+      "send_register_email_otp": "Gửi OTP email đăng ký",
+      "social_login": "Đăng nhập mạng xã hội",
+      "update_account": "Cập nhật tài khoản",
+      "update_account_status": "Cập nhật trạng thái tài khoản",
+      "update_email_whitelist_setting": "Cập nhật cài đặt email whitelist",
+      "update_mfa_setting": "Cập nhật cài đặt MFA",
+      "update_product": "Cập nhật sản phẩm",
+      "verify_mfa_otp": "Xác minh OTP MFA",
+      "verify_register_email_otp": "Xác minh OTP email đăng ký",
+      "view_audit_logs": "Xem nhật ký kiểm tra"
+    },
+    "button": {
+      "export": "Xuất"
+    },
+    "category": {
+      "account_management": "Quản lý tài khoản",
+      "audit_log": "Nhật ký kiểm tra",
+      "authentication": "Xác thực",
+      "email_whitelist": "Email whitelist",
+      "favorite_product": "Sản phẩm yêu thích",
+      "product": "Sản phẩm",
+      "security_setting": "Cài đặt bảo mật"
+    },
+    "field": {
+      "action": "Hành động",
+      "actor_full_name": "Tên người thực hiện",
+      "actor_user_id": "ID người thực hiện",
+      "actor_user_id_text": "User ID người thực hiện",
+      "category": "Hạng mục",
+      "created_at": "Thời gian tạo",
+      "export_fields": "Trường xuất dữ liệu",
+      "id": "ID",
+      "ip_address": "Địa chỉ IP",
+      "object": "Đối tượng",
+      "search": "Search"
+    },
+    "placeholder": {
+      "created_from": "Tạo từ ngày",
+      "created_to": "Tạo đến ngày",
+      "search_text": "Tìm người thực hiện, đối tượng hoặc địa chỉ IP"
+    },
+    "title": {
+      "audit_log_management": "Quản lý nhật ký kiểm tra",
+      "export": "Xuất nhật ký kiểm tra"
+    },
+    "validation": {
+      "from_date_not_future": "Ngày bắt đầu không được lớn hơn ngày hiện tại",
+      "to_date_before_from_date": "Ngày kết thúc không được nhỏ hơn ngày bắt đầu"
+    }
+  }
+}

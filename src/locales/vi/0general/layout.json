@@ -1,0 +1,19 @@
+{
+  "header": {
+    "title": "Chào mừng {name}",
+    "user_menu": {
+      "logout": "Đăng xuất"
+    }
+  },
+  "sidebar": {
+    "items": {
+      "favorite_products": "Sản phẩm yêu thích",
+      "home": "Trang chủ",
+      "profile": "Hồ sơ"
+    },
+    "shared": {
+      "favorites": "Yêu thích",
+      "general": "Chung"
+    }
+  }
+}

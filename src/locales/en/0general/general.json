@@ -1,0 +1,16 @@
+{
+  "general": {
+    "cancel": "Cancel",
+    "input_keyword": "Input keyword",
+    "ok": "OK",
+    "select_all": "Select all"
+  },
+  "tenant_home": {
+    "dashboard": {
+      "tabs": {
+        "app_store": "App Store ({count})",
+        "my_apps": "My Services ({count})"
+      }
+    }
+  }
+}

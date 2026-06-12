@@ -1,0 +1,55 @@
+{
+  "account": {
+    "button": {
+      "activate_selected": "Kích hoạt",
+      "batch_import": "Nhập hàng loạt",
+      "deactivate_selected": "Vô hiệu hóa",
+      "delete_selected": "Xóa đã chọn",
+      "unlock_selected": "Mở khóa"
+    },
+    "confirm": {
+      "activate_selected_description": "Bạn có chắc muốn kích hoạt {number} tài khoản đã chọn?",
+      "activate_selected_title": "Kích hoạt tài khoản đã chọn?",
+      "deactivate_selected_description": "Bạn có chắc muốn vô hiệu hóa {number} tài khoản đã chọn?",
+      "deactivate_selected_title": "Vô hiệu hóa tài khoản đã chọn?",
+      "delete_selected_description": "Bạn có chắc muốn xóa {number} tài khoản đã chọn?",
+      "delete_selected_title": "Xóa tài khoản đã chọn?",
+      "unlock_selected_description": "Bạn có chắc muốn mở khóa {number} tài khoản đã chọn?",
+      "unlock_selected_title": "Mở khóa tài khoản đã chọn?"
+    },
+    "field": {
+      "email": "Email",
+      "file": "File nhập",
+      "full_name": "Họ tên",
+      "gender": "Giới tính",
+      "id": "ID",
+      "image": "Hình ảnh",
+      "phone_number": "Số điện thoại",
+      "product": "Sản phẩm",
+      "product_assignments": "Phân quyền sản phẩm",
+      "role_in_product": "Vai trò trong sản phẩm",
+      "roles": "Vai trò",
+      "send_email": "Gửi email kích hoạt",
+      "status": "Trạng thái",
+      "user_id_text": "Mã người dùng"
+    },
+    "import": {
+      "errors": "Lỗi nhập dữ liệu",
+      "failed": "Thất bại",
+      "field": "Trường",
+      "message": "Thông báo",
+      "row_number": "Dòng",
+      "succeeded": "Thành công",
+      "total": "Tổng"
+    },
+    "placeholder": {
+      "search_text": "Search"
+    },
+    "title": {
+      "account_management": "Quản lý tài khoản",
+      "batch_import": "Nhập tài khoản hàng loạt",
+      "create_account": "Tạo tài khoản",
+      "edit_account": "Chỉnh sửa tài khoản"
+    }
+  }
+}

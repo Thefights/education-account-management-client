@@ -1,0 +1,17 @@
+{
+  "profile": {
+    "field": {
+      "displayName": "显示名称",
+      "email": "电子邮件",
+      "gender": "性别",
+      "imageUrl": "图像",
+      "phone": "电话号码",
+      "status": "状态",
+      "userId": "用户 ID"
+    },
+    "title": {
+      "editProfile": "编辑资料",
+      "myProfile": "我的资料"
+    }
+  }
+}

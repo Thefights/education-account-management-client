@@ -1,0 +1,66 @@
+:root {
+  --app-bg: #f5f7fa;
+  --app-header-bg: #ffffff;
+  --app-sider-bg: #1f2937;
+  --app-sider-text: #f8fafc;
+  --app-sider-text-muted: #94a3b8;
+  --app-sider-border: rgba(148, 163, 184, 0.24);
+  --app-sider-hover-bg: rgba(255, 255, 255, 0.08);
+  --app-sider-active-bg: rgba(99, 106, 188, 0.24);
+  --app-sider-active-text: #858dd2;
+  --app-border-color: #e5e7eb;
+
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: none !important;
+  transition-delay: 0s !important;
+  transition-duration: 0s !important;
+}
+
+*::before,
+*::after {
+  transition: none !important;
+  transition-delay: 0s !important;
+  transition-duration: 0s !important;
+}
+
+html,
+body,
+#root {
+	min-height: 100%;
+}
+
+html {
+  font-family: 'lexend', sans-serif;
+}
+
+body {
+	background: var(--app-bg);
+	min-width: 0;
+	overflow-x: hidden;
+}
+
+a {
+  cursor: pointer;
+}
+
+.ant-table-cell {
+  padding: 10px 12px !important;
+}

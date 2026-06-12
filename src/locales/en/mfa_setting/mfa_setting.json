@@ -1,0 +1,14 @@
+{
+  "mfa_setting": {
+    "description": {
+      "two_factor_authentication": "Two-factor authentication (2FA) is an identity and access management security method that requires two forms of identification to access resources and data. We use a one-time code to verify the identity in addition to the user credentials. You have the option to receive the verification code via email, text message, or both. If you select both, your tenant users can choose their preferred method for receiving the verification code."
+    },
+    "method": {
+      "email": "Email",
+      "email_description": "Sent an email to user's email address."
+    },
+    "title": {
+      "two_factor_authentication": "Two-factor authentication"
+    }
+  }
+}

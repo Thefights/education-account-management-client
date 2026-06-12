@@ -1,0 +1,31 @@
+{
+  "enum": {
+    "auth_account_status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other",
+      "unknown": "Unknown"
+    },
+    "product_assignment_role": {
+      "staff": "Staff",
+      "student": "Student",
+      "trainer": "Trainer"
+    },
+    "product_status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "role": {
+      "admin": "Admin",
+      "tenant_user": "Tenant User"
+    },
+    "user_status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  }
+}

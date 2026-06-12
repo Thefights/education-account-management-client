@@ -1,0 +1,73 @@
+{
+  "button": {
+    "add_file": "添加文件",
+    "add_row": "添加行",
+    "cancel": "取消",
+    "close": "关闭",
+    "confirm": "确认",
+    "create": "创造",
+    "delete": "删除",
+    "deselect_all": "取消全选",
+    "edit": "编辑",
+    "filter": "筛选",
+    "reset_filter": "重置过滤器",
+    "save": "节省",
+    "select_all": "选择全部",
+    "submit": "提交",
+    "update": "更新"
+  },
+  "error": {
+    "duplicate_values_not_allowed": "不允许重复值",
+    "invalid_email": "请输入有效的电子邮件",
+    "invalid_number": "请输入有效号码",
+    "invalid_percentage": "百分比必须介于 0 到 100 之间",
+    "invalid_phone": "请输入有效的电话号码",
+    "invalid_phone_or_email": "请输入有效的电话号码或电子邮件",
+    "max_length": "不能超过 {max} 个字符，目前为 {current}/{max}",
+    "max_number": "最大数量为{max}",
+    "min_length": "必须至少有 {min} 个字符，当前为 {current}",
+    "min_number": "最小数量为{min}",
+    "must_be_different": "值必须不同",
+    "not_match": "值不匹配",
+    "number_higher_than": "数字必须大于 {min}",
+    "number_higher_than_or_equal": "数字必须大于或等于 {min}",
+    "number_less_than": "数量必须小于 {max}",
+    "number_less_than_or_equal": "数量必须小于或等于 {max}",
+    "past_date": "日期不能是过去的日期",
+    "required": "此字段是必需的",
+    "weak_password": "密码必须至少包含8个字符，包括大写、小写、数字和特殊字符"
+  },
+  "pagination": {
+    "items_per_page": "/ 页",
+    "jump_to": "前往",
+    "jump_to_confirm": "确认",
+    "next_3": "下 3 页",
+    "next_5": "接下来 5 页",
+    "next_page": "下一页",
+    "page": "页",
+    "page_size": "页面尺寸",
+    "prev_3": "前 3 页",
+    "prev_5": "前 5 页",
+    "prev_page": "上一页"
+  },
+  "text": {
+    "all": "全部",
+    "available": "可用的",
+    "items": "项目",
+    "loading": "加载中...",
+    "page_of": "第 {page} 页，共 {totalPage}",
+    "placeholder": {
+      "no_data": "无可用数据..."
+    },
+    "rows_per_page": "每页行数",
+    "search": "搜索...",
+    "select_options": "选择选项",
+    "selected": "已选择",
+    "total": "全部的"
+  },
+  "tooltip": {
+    "menu": "菜单",
+    "switch_dark": "切换到深色模式",
+    "switch_light": "切换到灯光模式"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "button": {
+    "add_file": "Thêm file",
+    "add_row": "Thêm dòng",
+    "cancel": "Hủy",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "create": "Tạo",
+    "delete": "Xóa",
+    "deselect_all": "Bỏ chọn tất cả",
+    "edit": "Chỉnh sửa",
+    "filter": "Lọc",
+    "reset_filter": "Đặt lại",
+    "save": "Lưu",
+    "select_all": "Chọn tất cả",
+    "submit": "Gửi",
+    "update": "Cập nhật"
+  },
+  "error": {
+    "duplicate_values_not_allowed": "Không được phép có giá trị trùng lặp",
+    "invalid_email": "Vui lòng nhập email hợp lệ",
+    "invalid_number": "Vui lòng nhập số hợp lệ",
+    "invalid_percentage": "Phần trăm phải từ 0 đến 100",
+    "invalid_phone": "Vui lòng nhập số điện thoại hợp lệ",
+    "invalid_phone_or_email": "Vui lòng nhập số điện thoại hoặc email hợp lệ",
+    "max_length": "Không được vượt quá {max} ký tự, hiện tại {current}/{max}",
+    "max_number": "Số tối đa là {max}",
+    "min_length": "Phải có ít nhất {min} ký tự, hiện tại {current}",
+    "min_number": "Số tối thiểu là {min}",
+    "must_be_different": "Giá trị phải khác nhau",
+    "not_match": "Giá trị không khớp",
+    "number_higher_than": "Số phải lớn hơn {min}",
+    "number_higher_than_or_equal": "Số phải lớn hơn hoặc bằng {min}",
+    "number_less_than": "Số phải nhỏ hơn {max}",
+    "number_less_than_or_equal": "Số phải nhỏ hơn hoặc bằng {max}",
+    "past_date": "Ngày không được ở quá khứ",
+    "required": "Trường này là bắt buộc",
+    "weak_password": "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
+  },
+  "pagination": {
+    "items_per_page": "/ trang",
+    "jump_to": "Đến",
+    "jump_to_confirm": "xác nhận",
+    "next_3": "Tiến 3 trang",
+    "next_5": "Tiến 5 trang",
+    "next_page": "Trang sau",
+    "page": "Trang",
+    "page_size": "Kích thước trang",
+    "prev_3": "Lùi 3 trang",
+    "prev_5": "Lùi 5 trang",
+    "prev_page": "Trang trước"
+  },
+  "text": {
+    "all": "Tất cả",
+    "available": "Có sẵn",
+    "items": "mục",
+    "loading": "Đang tải...",
+    "page_of": "Trang {page} / {totalPage}",
+    "placeholder": {
+      "no_data": "Không có dữ liệu..."
+    },
+    "rows_per_page": "Số dòng mỗi trang",
+    "search": "Tìm kiếm...",
+    "select_options": "Chọn tùy chọn",
+    "selected": "Đã chọn",
+    "total": "Tổng"
+  },
+  "tooltip": {
+    "menu": "Menu",
+    "switch_dark": "Chuyển sang chế độ tối",
+    "switch_light": "Chuyển sang chế độ sáng"
+  }
+}

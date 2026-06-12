@@ -1,0 +1,19 @@
+{
+  "header": {
+    "title": "Welcome {name}",
+    "user_menu": {
+      "logout": "Logout"
+    }
+  },
+  "sidebar": {
+    "items": {
+      "favorite_products": "Favorite Products",
+      "home": "Home",
+      "profile": "Profile"
+    },
+    "shared": {
+      "favorites": "Favorites",
+      "general": "General"
+    }
+  }
+}

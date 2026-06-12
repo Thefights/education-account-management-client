@@ -1,0 +1,45 @@
+{
+  "product": {
+    "button": {
+      "activate_selected": "Activate",
+      "add_favorite": "Add to favorites",
+      "browse_app_store": "Browse App Store",
+      "deactivate_selected": "Deactivate",
+      "delete_selected": "Delete Selected",
+      "remove_favorite": "Remove from favorites"
+    },
+    "confirm": {
+      "activate_selected_description": "Are you sure you want to activate {number} selected products?",
+      "activate_selected_title": "Activate Selected Products?",
+      "deactivate_selected_description": "Are you sure you want to deactivate {number} selected products?",
+      "deactivate_selected_title": "Deactivate Selected Products?",
+      "delete_selected_description": "Are you sure you want to delete {number} selected products?",
+      "delete_selected_title": "Delete Selected Products?"
+    },
+    "empty": {
+      "app_store_description": "Active products will appear here when they are published.",
+      "app_store_title": "No apps available",
+      "favorite_description": "Mark apps as favorites to find them quickly here.",
+      "favorite_title": "No favorite apps yet",
+      "my_apps_description": "Your assigned apps will appear here when an administrator adds you to a product.",
+      "my_apps_title": "No apps assigned yet"
+    },
+    "field": {
+      "description": "Description",
+      "id": "ID",
+      "image": "Image",
+      "name": "Name",
+      "status": "Status"
+    },
+    "placeholder": {
+      "search_product": "Search product name",
+      "search_text": "Search"
+    },
+    "text": {
+      "favorite_apps_count": "Favorite apps ({count})"
+    },
+    "title": {
+      "product_management": "Product Management"
+    }
+  }
+}

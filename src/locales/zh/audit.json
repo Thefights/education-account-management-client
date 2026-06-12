@@ -1,0 +1,72 @@
+{
+  "audit_log": {
+    "action": {
+      "add_favorite_product": "添加最喜欢的产品",
+      "create_account": "创建账户",
+      "create_product": "创建产品",
+      "delete_account": "删除帐户",
+      "delete_accounts": "删除账户",
+      "delete_product": "删除产品",
+      "delete_products": "删除产品",
+      "forgot_password": "忘记密码",
+      "import_accounts": "导入账户",
+      "import_products": "进口产品",
+      "login": "登录",
+      "login_failed": "登录失败",
+      "logout": "退出",
+      "refresh_token": "刷新令牌",
+      "register": "登记",
+      "remove_favorite_product": "删除最喜欢的产品",
+      "reset_password": "重置密码",
+      "save_email_whitelist": "保存邮件白名单",
+      "send_register_email_otp": "发送注册电子邮件 OTP",
+      "social_login": "社交登录",
+      "update_account": "更新帐户",
+      "update_account_status": "更新账户状态",
+      "update_email_whitelist_setting": "更新电子邮件白名单设置",
+      "update_mfa_setting": "更新 MFA 设置",
+      "update_product": "更新产品",
+      "verify_mfa_otp": "验证 MFA OTP",
+      "verify_register_email_otp": "验证注册电子邮件 OTP",
+      "view_audit_logs": "查看审核日志"
+    },
+    "button": {
+      "export": "出口"
+    },
+    "category": {
+      "account_management": "账户管理",
+      "audit_log": "审核日志",
+      "authentication": "验证",
+      "email_whitelist": "电子邮件白名单",
+      "favorite_product": "最喜欢的产品",
+      "product": "产品",
+      "security_setting": "安全设置"
+    },
+    "field": {
+      "action": "行动",
+      "actor_full_name": "演员全名",
+      "actor_user_id": "演员用户 ID",
+      "actor_user_id_text": "演员用户 ID",
+      "category": "类别",
+      "created_at": "创建于",
+      "export_fields": "导出字段",
+      "id": "ID",
+      "ip_address": "IP地址",
+      "object": "目的",
+      "search": "搜索"
+    },
+    "placeholder": {
+      "created_from": "创建自",
+      "created_to": "创建于",
+      "search_text": "搜索参与者、对象或 IP 地址"
+    },
+    "title": {
+      "audit_log_management": "审计日志管理",
+      "export": "导出审核日志"
+    },
+    "validation": {
+      "from_date_not_future": "起始日期不能大于当前日期",
+      "to_date_before_from_date": "截止日期不能早于起始日期"
+    }
+  }
+}

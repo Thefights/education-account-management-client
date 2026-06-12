@@ -1,0 +1,55 @@
+{
+  "account": {
+    "button": {
+      "activate_selected": "Activate",
+      "batch_import": "Batch Import",
+      "deactivate_selected": "Deactivate",
+      "delete_selected": "Delete Selected",
+      "unlock_selected": "Unlock"
+    },
+    "confirm": {
+      "activate_selected_description": "Are you sure you want to activate {number} selected accounts?",
+      "activate_selected_title": "Activate Selected Accounts?",
+      "deactivate_selected_description": "Are you sure you want to deactivate {number} selected accounts?",
+      "deactivate_selected_title": "Deactivate Selected Accounts?",
+      "delete_selected_description": "Are you sure you want to delete {number} selected accounts?",
+      "delete_selected_title": "Delete Selected Accounts?",
+      "unlock_selected_description": "Are you sure you want to unlock {number} selected accounts?",
+      "unlock_selected_title": "Unlock Selected Accounts?"
+    },
+    "field": {
+      "email": "Email",
+      "file": "Import file",
+      "full_name": "Full name",
+      "gender": "Gender",
+      "id": "ID",
+      "image": "Image",
+      "phone_number": "Phone number",
+      "product": "Product",
+      "product_assignments": "Product assignments",
+      "role_in_product": "Role in product",
+      "roles": "Roles",
+      "send_email": "Send activation email",
+      "status": "Status",
+      "user_id_text": "User ID"
+    },
+    "import": {
+      "errors": "Import errors",
+      "failed": "Failed",
+      "field": "Field",
+      "message": "Message",
+      "row_number": "Row",
+      "succeeded": "Succeeded",
+      "total": "Total"
+    },
+    "placeholder": {
+      "search_text": "Search"
+    },
+    "title": {
+      "account_management": "Account Management",
+      "batch_import": "Batch Import Accounts",
+      "create_account": "Create Account",
+      "edit_account": "Edit Account"
+    }
+  }
+}

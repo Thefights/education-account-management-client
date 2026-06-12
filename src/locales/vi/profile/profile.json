@@ -1,0 +1,17 @@
+{
+  "profile": {
+    "field": {
+      "displayName": "Tên hiển thị",
+      "email": "Email",
+      "gender": "Giới tính",
+      "imageUrl": "Hình ảnh",
+      "phone": "Số điện thoại",
+      "status": "Trạng thái",
+      "userId": "Mã người dùng"
+    },
+    "title": {
+      "editProfile": "Chỉnh sửa hồ sơ",
+      "myProfile": "Hồ sơ của tôi"
+    }
+  }
+}

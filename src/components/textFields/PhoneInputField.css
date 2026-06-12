@@ -1,0 +1,10 @@
+.app-phone-input .PhoneInputInput {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  outline: 0;
+}
+
+.app-phone-input .PhoneInputCountrySelect {
+  cursor: pointer;
+}

@@ -1,0 +1,19 @@
+{
+  "header": {
+    "title": "欢迎 {name}",
+    "user_menu": {
+      "logout": "退出"
+    }
+  },
+  "sidebar": {
+    "items": {
+      "favorite_products": "最喜欢的产品",
+      "home": "家",
+      "profile": "轮廓"
+    },
+    "shared": {
+      "favorites": "收藏夹",
+      "general": "一般的"
+    }
+  }
+}

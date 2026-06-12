@@ -1,0 +1,31 @@
+{
+  "enum": {
+    "auth_account_status": {
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "gender": {
+      "female": "Nữ",
+      "male": "Nam",
+      "other": "Khác",
+      "unknown": "Không xác định"
+    },
+    "product_assignment_role": {
+      "staff": "Nhân viên",
+      "student": "Học viên",
+      "trainer": "Giảng viên"
+    },
+    "product_status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "role": {
+      "admin": "Quản trị viên",
+      "tenant_user": "Người dùng tenant"
+    },
+    "user_status": {
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động"
+    }
+  }
+}
