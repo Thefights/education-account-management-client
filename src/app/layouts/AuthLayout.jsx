@@ -54,10 +54,13 @@ export function LayoutAuth({
         style={{
           width: '100%',
           maxWidth: hasImage ? 520 : contentMaxWidth,
-          height: hasImage ? '90dvh' : 'auto',
+          height: hasImage ? '100dvh' : 'auto',
           padding: contentPadding ?? (hasImage ? '30px 48px 32px ' : 0),
           boxSizing: 'border-box',
           margin: hasImage ? 0 : 'auto',
+          display: hasImage ? 'flex' : undefined,
+          flexDirection: hasImage ? 'column' : undefined,
+          justifyContent: hasImage ? 'center' : undefined,
         }}
       >
         {children}

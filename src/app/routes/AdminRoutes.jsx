@@ -21,7 +21,7 @@ const adminRoutes = [
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route element={<ProtectedRoute allowRoles={[EnumConfig.RoleEnum.Admin]} />}>
+      <Route element={<ProtectedRoute allowRoles={[EnumConfig.RoleEnum.SystemAdmin]} />}>
         <Route element={<AdminLayout />}>
           <Route
             index

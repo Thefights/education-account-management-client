@@ -2,6 +2,10 @@ export const routeUrls = {
   BASE_ROUTE: {
     AUTH: (route = '') => `/auth${route}`,
     ADMIN: (route = '') => `/admin${route}`,
+    SYSTEM_ADMIN: (route = '') => `/system-admin${route}`,
+    FINANCE_ADMIN: (route = '') => `/finance-admin${route}`,
+    COURSE_ADMIN: (route = '') => `/course-admin${route}`,
+    ACCOUNT_HOLDER: (route = '') => `/account-holder${route}`,
   },
 
   AUTH: {
@@ -29,6 +33,10 @@ export const routeUrls = {
     ACCOUNT_MANAGEMENT: {
       INDEX: '/account-management',
     },
+  },
+
+  ROLE_HOME: {
+    INDEX: '/',
   },
 }
 

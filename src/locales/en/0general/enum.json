@@ -20,8 +20,10 @@
       "inactive": "Inactive"
     },
     "role": {
-      "admin": "Admin",
-      "tenant_user": "Tenant User"
+      "account_holder": "Account Holder",
+      "course_admin": "Course Admin",
+      "finance_admin": "Finance Admin",
+      "system_admin": "System Admin"
     },
     "user_status": {
       "active": "Active",
