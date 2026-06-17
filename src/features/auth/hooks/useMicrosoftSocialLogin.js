@@ -1,9 +1,12 @@
-import { EnumConfig } from '@/shared/config/enumConfig'
 import { getMicrosoftClient, getMicrosoftLoginRequest } from '@/features/auth/config/microsoftAuthConfig'
-import useSocialLoginSubmit from '@/features/auth/hooks/useSocialLoginSubmit'
+import axiosConfig from '@/shared/api/axiosClient'
+import { ApiUrls } from '@/shared/api/apiUrls'
+import useAuth from '@/shared/hooks/useAuth'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getReturnUrlByAuthTokens } from '@/shared/utils/authRouteUtil'
 import { showErrorToast } from '@/shared/utils/toastUtil'
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 let microsoftRedirectResultPromise
 let microsoftRedirectExchangeStarted = false
@@ -23,9 +26,10 @@ const getMicrosoftRedirectResult = async () => {
 }
 
 export default function useMicrosoftSocialLogin() {
+  const navigate = useNavigate()
+  const { login } = useAuth()
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
-  const { submitProviderToken } = useSocialLoginSubmit()
 
   const setLoginError = useCallback(
     (error) => {
@@ -46,12 +50,29 @@ export default function useMicrosoftSocialLogin() {
         return
       }
 
-      await submitProviderToken({
-        provider: EnumConfig.SocialProvider.Microsoft365,
-        providerToken: idToken,
+      const response = await axiosConfig.request({
+        url: ApiUrls.AUTH.ADMIN_AZURE_AD_LOGIN,
+        method: 'POST',
+        data: {
+          idToken,
+        },
       })
+
+      if (!response) return
+
+      const loginResult = response?.data
+      const tokens = loginResult?.tokens || loginResult
+      const accessToken = tokens?.accessToken
+
+      if (!accessToken) {
+        showErrorToast(t('auth.error.missing_access_token'))
+        return
+      }
+
+      await login(tokens)
+      navigate(getReturnUrlByAuthTokens(tokens), { replace: true })
     },
-    [submitProviderToken, t]
+    [login, navigate, t]
   )
 
   useEffect(() => {

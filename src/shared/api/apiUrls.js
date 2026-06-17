@@ -5,6 +5,8 @@ export const ApiUrls = {
     SEND_REGISTER_EMAIL_OTP: '/auth/register/email-otp/send',
     VERIFY_REGISTER_EMAIL_OTP: '/auth/register/email-otp/verify',
     LOGIN: '/auth/login',
+    ADMIN_AZURE_AD_LOGIN: '/auth/admin/azure-ad-login',
+    MOCK_SINGPASS_LOGIN: '/auth/account-holder/mock-singpass-login',
     SOCIAL_LOGIN: '/auth/social-login',
     LOGOUT: '/auth/logout',
     REFRESH_TOKEN: '/auth/refresh-token',
