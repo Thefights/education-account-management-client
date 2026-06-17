@@ -1,7 +1,6 @@
 export const routeUrls = {
   BASE_ROUTE: {
     AUTH: (route = '') => `/auth${route}`,
-    TENANT: (route = '') => `/tenant${route}`,
     ADMIN: (route = '') => `/admin${route}`,
   },
 
@@ -11,7 +10,6 @@ export const routeUrls = {
     FORGOT_PASSWORD: '/forgot-password',
     RESET_PASSWORD: '/reset-password',
     VERIFY_OTP: '/verify-otp',
-    DATA_DELETION: '/data-deletion',
   },
 
   APP: {
@@ -22,16 +20,7 @@ export const routeUrls = {
     REPORT: '/report',
   },
 
-  TENANT: {
-    HOME: '/',
-    FAVORITE_PRODUCT: {
-      INDEX: '/favorite-product',
-      DETAIL: (id) => `/favorite-product/${id}`,
-    },
-  },
-
   ADMIN: {
-    PROFILE: '/profile',
     AUDIT_LOG_MANAGEMENT: {
       INDEX: '/audit-log',
       DETAIL: (id) => `/audit-log/${id}`,
@@ -39,22 +28,6 @@ export const routeUrls = {
 
     ACCOUNT_MANAGEMENT: {
       INDEX: '/account-management',
-    },
-
-    PRODUCT_MANAGEMENT: {
-      INDEX: '/product-management',
-    },
-
-    MFA_SETTING: {
-      INDEX: '/mfa-setting',
-    },
-
-    EMAIL_WHITELIST: {
-      INDEX: '/email-whitelist',
-    },
-
-    EMAIL_WHITELIST_SETTING: {
-      INDEX: '/email-whitelist-setting',
     },
   },
 }

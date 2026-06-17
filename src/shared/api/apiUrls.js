@@ -51,38 +51,5 @@ export const ApiUrls = {
 
   PRODUCT: {
     GET_ALL: '/product/all',
-    GET_FAVORITES: '/product/favorites',
-    MY_SERVICES: '/product/my-services',
-    APP_STORE: '/product/app-store',
-    FAVORITE: (productId) => `/product/${productId}/favorite`,
-    MANAGEMENT: {
-      INDEX: '/product-management',
-      DETAIL: (id) => `/product-management/${id}`,
-      GET_ALL: '/product-management/all',
-      DELETE_SELECTED: '/product-management/selected',
-      UPDATE_STATUS: '/product-management/status',
-      IMPORT: '/product-management/import',
-      BATCH_IMPORT: '/product-management/batch-import',
-    },
-  },
-
-  USER_PRODUCT_ASSIGNMENT: {
-    INDEX: '/user-product-assignment',
-    GET_ALL: '/user-product-assignment/all',
-    BY_USER: (userId) => `/user-product-assignment/by-user/${userId}`,
-    BY_PRODUCT: (productId) => `/user-product-assignment/by-product/${productId}`,
-  },
-
-  MFA_SETTING: {
-    INDEX: '/mfa-setting',
-  },
-
-  EMAIL_WHITELIST: {
-    INDEX: '/email-whitelist',
-    GET_ALL: '/email-whitelist/all',
-  },
-
-  EMAIL_WHITELIST_SETTING: {
-    INDEX: '/email-whitelist-setting',
   },
 }

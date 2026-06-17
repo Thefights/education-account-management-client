@@ -7,12 +7,9 @@
   },
   "sidebar": {
     "items": {
-      "favorite_products": "最喜欢的产品",
-      "home": "家",
-      "profile": "轮廓"
+      "home": "家"
     },
     "shared": {
-      "favorites": "收藏夹",
       "general": "一般的"
     }
   }

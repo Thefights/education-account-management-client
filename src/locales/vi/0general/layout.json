@@ -7,12 +7,9 @@
   },
   "sidebar": {
     "items": {
-      "favorite_products": "Sản phẩm yêu thích",
-      "home": "Trang chủ",
-      "profile": "Hồ sơ"
+      "home": "Trang chủ"
     },
     "shared": {
-      "favorites": "Yêu thích",
       "general": "Chung"
     }
   }

@@ -2,9 +2,9 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAuth from '@/shared/hooks/useAuth'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useFacebookSocialLogin from '@/shared/hooks/useFacebookSocialLogin'
-import useGoogleSocialLogin from '@/shared/hooks/useGoogleSocialLogin'
-import useMicrosoftSocialLogin from '@/shared/hooks/useMicrosoftSocialLogin'
+import useFacebookSocialLogin from '@/features/auth/hooks/useFacebookSocialLogin'
+import useGoogleSocialLogin from '@/features/auth/hooks/useGoogleSocialLogin'
+import useMicrosoftSocialLogin from '@/features/auth/hooks/useMicrosoftSocialLogin'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getReturnUrlByAuthTokens } from '@/shared/utils/authRouteUtil'
 import {
@@ -17,7 +17,7 @@ import {
 import { GoogleLogin } from '@react-oauth/google'
 import { Button, Checkbox, Divider, Form, Grid, Input, Typography, theme } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { LayoutAuth } from '@/app/layouts/LayoutAuth'
+import { LayoutAuth } from '@/app/layouts/AuthLayout'
 import { showErrorToast } from '@/shared/utils/toastUtil'
 
 export function LoginPage({ onMfaRequired }) {

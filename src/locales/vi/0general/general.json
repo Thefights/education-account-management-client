@@ -4,13 +4,5 @@
     "input_keyword": "Nhập từ khóa",
     "ok": "OK",
     "select_all": "Chọn tất cả"
-  },
-  "tenant_home": {
-    "dashboard": {
-      "tabs": {
-        "app_store": "Kho ứng dụng ({count})",
-        "my_apps": "Dịch vụ của tôi ({count})"
-      }
-    }
   }
 }

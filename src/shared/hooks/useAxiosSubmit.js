@@ -1,4 +1,4 @@
-import axiosConfig from '@/shared/api/axiosConfig'
+import axiosConfig from '@/shared/api/axiosClient'
 import { isPlainObject } from '@/shared/utils/handleBooleanUtil'
 import { getObjectConvertingToFormData } from '@/shared/utils/handleObjectUtil'
 import { appendPath, getTrimString } from '@/shared/utils/handleStringUtil'

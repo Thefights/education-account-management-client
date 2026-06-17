@@ -1,23 +1,19 @@
-import ProfilePage from '@/features/profile/ProfilePage'
-import { RightOutlined, UserOutlined } from '@ant-design/icons'
+import { RightOutlined } from '@ant-design/icons'
 import { Breadcrumb, Grid, Layout, Space, Typography, theme } from 'antd'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import useTranslation from '@/shared/hooks/useTranslation'
 import MobileMenuButton from '../buttons/MobileMenuButton'
 import SwitchLanguageButton from '../buttons/SwitchLanguageButton'
 import SwitchThemeButton from '../buttons/SwitchThemeButton'
 import UserAvatarMenu from '../menus/UserAvatarMenu'
 
 const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout = () => {} }) => {
-  const { t } = useTranslation()
   const screens = Grid.useBreakpoint()
   const isDownMd = !screens.md
   const isDownSm = !screens.sm
   const navigate = useNavigate()
   const location = useLocation()
   const { token } = theme.useToken()
-  const [profileOpen, setProfileOpen] = useState(false)
 
   const { crumbs, currentLabel } = useMemo(() => {
     const rawPath = location?.pathname || '/'
@@ -84,35 +80,24 @@ const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout =
     },
   ]
 
-  const mergedUserMenuItems = [
-    {
-      key: 'profile',
-      label: t('sidebar.items.profile'),
-      icon: <UserOutlined />,
-      onClick: () => setProfileOpen(true),
-    },
-    ...userMenuItems,
-  ]
-
   return (
-    <>
-      <Layout.Header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          color: token.colorText,
-          borderBottom: `1px solid ${token.colorBorder}`,
-          padding: `0 ${isDownMd ? 8 : 16}px`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          justifyItems: 'center',
-          gap: isDownSm ? 8 : 12,
-          lineHeight: 'normal',
-          minHeight: screens.sm ? 64 : 56,
-        }}
-      >
+    <Layout.Header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        color: token.colorText,
+        borderBottom: `1px solid ${token.colorBorder}`,
+        padding: `0 ${isDownMd ? 8 : 16}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        justifyItems: 'center',
+        gap: isDownSm ? 8 : 12,
+        lineHeight: 'normal',
+        minHeight: screens.sm ? 64 : 56,
+      }}
+    >
         <div
           style={{
             display: 'flex',
@@ -206,12 +191,9 @@ const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout =
         >
           <SwitchThemeButton />
           <SwitchLanguageButton />
-          <UserAvatarMenu profile={profile} items={mergedUserMenuItems} onLogout={onLogout} />
+          <UserAvatarMenu profile={profile} items={userMenuItems} onLogout={onLogout} />
         </Space>
-      </Layout.Header>
-
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} />
-    </>
+    </Layout.Header>
   )
 }
 

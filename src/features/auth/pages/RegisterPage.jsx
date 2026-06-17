@@ -9,7 +9,7 @@ import { Alert, Button, Form, Grid, Input, Radio, Tooltip, Typography, theme } f
 import { useState } from 'react'
 import { isPossiblePhoneNumber } from 'react-phone-number-input'
 import { useNavigate } from 'react-router-dom'
-import { LayoutAuth } from '@/app/layouts/LayoutAuth'
+import { LayoutAuth } from '@/app/layouts/AuthLayout'
 
 const initialValues = {
   userId: '',

@@ -1,7 +1,7 @@
 import SkeletonLoadingPage from '@/shared/components/skeletons/SkeletonLoadingPage'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAuth from '@/shared/hooks/useAuth'
-import PageNotFound from '@/features/not-found/PageNotFound'
+import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 const ProtectedRoute = ({

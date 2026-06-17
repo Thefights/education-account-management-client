@@ -7,12 +7,9 @@
   },
   "sidebar": {
     "items": {
-      "favorite_products": "Favorite Products",
-      "home": "Home",
-      "profile": "Profile"
+      "home": "Home"
     },
     "shared": {
-      "favorites": "Favorites",
       "general": "General"
     }
   }

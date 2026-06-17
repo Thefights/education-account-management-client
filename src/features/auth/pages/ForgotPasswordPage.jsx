@@ -6,7 +6,7 @@ import { Alert, Button, Form, Grid, Input, Space, Typography } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { useNavigate } from 'react-router-dom'
-import { LayoutAuth } from '@/app/layouts/LayoutAuth'
+import { LayoutAuth } from '@/app/layouts/AuthLayout'
 
 const RESEND_COOLDOWN_SECONDS = 60
 

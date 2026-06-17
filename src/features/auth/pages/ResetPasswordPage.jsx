@@ -6,7 +6,7 @@ import { PASSWORD_REGEX } from '@/shared/utils/authValidateUtil'
 import { Alert, Button, Form, Grid, Input, Typography } from 'antd'
 import { useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { LayoutAuth } from '@/app/layouts/LayoutAuth'
+import { LayoutAuth } from '@/app/layouts/AuthLayout'
 
 export function ResetPasswordPage({ onSuccess }) {
   const navigate = useNavigate()

@@ -5,15 +5,14 @@ import { Navigate, Route, BrowserRouter as RouterProvider, Routes } from 'react-
 import { Slide, ToastContainer } from 'react-toastify'
 import AuthProvider from '@/app/providers/AuthProvider'
 import ConfirmationProvider from '@/app/providers/ConfirmationProvider'
-import { platformDarkTheme, platformLightTheme } from '@/app/theme/themeConfig'
-import { darkPalette, lightPalette } from '@/app/theme/themePaletteConfig'
+import AdminRoutes from '@/app/routes/AdminRoutes'
+import AuthRoutes from '@/app/routes/AuthRoutes'
 import { envConfig } from '@/shared/config/envConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
+import { platformDarkTheme, platformLightTheme } from '@/shared/config/theme/themeConfig'
+import { darkPalette, lightPalette } from '@/shared/config/theme/themePaletteConfig'
 import ScrollToTop from '@/shared/hooks/ScrollToTop'
 import { useLocalStorage } from '@/shared/hooks/useStorage'
-import RouteAdmin from './routes/RouteAdmin'
-import RouteAuth from './routes/RouteAuth'
-import RouteTenant from './routes/RouteTenant'
 
 const fixedDashboardDrawerPalette = {
   background: darkPalette.background.sider,
@@ -88,9 +87,8 @@ function App() {
                     <Navigate to={routeUrls.BASE_ROUTE.AUTH(routeUrls.AUTH.LOGIN)} replace />
                   }
                 />
-                <Route path={`${routeUrls.BASE_ROUTE.TENANT()}/*`} element={<RouteTenant />} />
-                <Route path={`${routeUrls.BASE_ROUTE.AUTH()}/*`} element={<RouteAuth />} />
-                <Route path={`${routeUrls.BASE_ROUTE.ADMIN()}/*`} element={<RouteAdmin />} />
+                <Route path={`${routeUrls.BASE_ROUTE.AUTH()}/*`} element={<AuthRoutes />} />
+                <Route path={`${routeUrls.BASE_ROUTE.ADMIN()}/*`} element={<AdminRoutes />} />
               </Routes>
               <ToastContainer
                 autoClose={3000}

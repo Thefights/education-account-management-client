@@ -4,13 +4,5 @@
     "input_keyword": "输入关键词",
     "ok": "好的",
     "select_all": "选择全部"
-  },
-  "tenant_home": {
-    "dashboard": {
-      "tabs": {
-        "app_store": "应用商店 ({count})",
-        "my_apps": "我的服务 ({count})"
-      }
-    }
   }
 }

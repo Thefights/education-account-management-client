@@ -7,7 +7,7 @@ import { MailOutlined } from '@ant-design/icons'
 import { Alert, Button, Flex, Form, Grid, Input, Space, Typography, theme } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { LayoutAuth } from '@/app/layouts/LayoutAuth'
+import { LayoutAuth } from '@/app/layouts/AuthLayout'
 
 const MFA_EXPIRATION_MS = 3 * 60 * 1000
 
