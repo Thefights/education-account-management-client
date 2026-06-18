@@ -7,6 +7,7 @@ import AuthProvider from '@/app/providers/AuthProvider'
 import ConfirmationProvider from '@/app/providers/ConfirmationProvider'
 import AdminRoutes from '@/app/routes/AdminRoutes'
 import AuthRoutes from '@/app/routes/AuthRoutes'
+import RoleRoutes from '@/app/routes/RoleRoutes'
 import { envConfig } from '@/shared/config/envConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { platformDarkTheme, platformLightTheme } from '@/shared/config/theme/themeConfig'
@@ -89,6 +90,7 @@ function App() {
                 />
                 <Route path={`${routeUrls.BASE_ROUTE.AUTH()}/*`} element={<AuthRoutes />} />
                 <Route path={`${routeUrls.BASE_ROUTE.ADMIN()}/*`} element={<AdminRoutes />} />
+                <Route path="/*" element={<RoleRoutes />} />
               </Routes>
               <ToastContainer
                 autoClose={3000}

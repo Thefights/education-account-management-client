@@ -5,8 +5,10 @@ export const EnumConfig = {
   },
 
   RoleId: {
-    Admin: 1,
-    TenantUser: 2,
+    SystemAdmin: 1,
+    FinanceAdmin: 2,
+    CourseAdmin: 3,
+    AccountHolder: 4,
   },
 
   ProductAssignmentRole: {
@@ -21,8 +23,10 @@ export const EnumConfig = {
   },
 
   RoleEnum: {
-    Admin: 'Admin',
-    TenantUser: 'TenantUser',
+    SystemAdmin: 'SystemAdmin',
+    FinanceAdmin: 'FinanceAdmin',
+    CourseAdmin: 'CourseAdmin',
+    AccountHolder: 'AccountHolder',
   },
 
   UserGender: {

@@ -20,8 +20,10 @@ export const defaultUserStatusStyle = (status) => {
 
 export const defaultRoleStyle = (role) => {
   const map = {
-    [EnumConfig.RoleEnum.Admin]: 'processing',
-    [EnumConfig.RoleEnum.TenantUser]: 'default',
+    [EnumConfig.RoleEnum.SystemAdmin]: 'processing',
+    [EnumConfig.RoleEnum.FinanceAdmin]: 'green',
+    [EnumConfig.RoleEnum.CourseAdmin]: 'blue',
+    [EnumConfig.RoleEnum.AccountHolder]: 'default',
   }
 
   return map[role] || 'default'

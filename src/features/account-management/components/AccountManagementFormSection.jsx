@@ -36,12 +36,12 @@ const normalizeProductAssignments = (assignments = []) =>
 
 const hasRole = (roleIds = [], roleId) => normalizeIdArray(roleIds).includes(roleId)
 
-const hasAdminRole = (roleIds = []) => hasRole(roleIds, EnumConfig.RoleId.Admin)
+const hasAdminRole = (roleIds = []) => hasRole(roleIds, EnumConfig.RoleId.SystemAdmin)
 
-const hasTenantUserRole = (roleIds = []) => hasRole(roleIds, EnumConfig.RoleId.TenantUser)
+const hasAccountHolderRole = (roleIds = []) => hasRole(roleIds, EnumConfig.RoleId.AccountHolder)
 
 const canAssignProductPermissions = (roleIds = []) =>
-  hasTenantUserRole(roleIds) && !hasAdminRole(roleIds)
+  hasAccountHolderRole(roleIds) && !hasAdminRole(roleIds)
 
 const createAccountPayload = (values, { includeUserIdText = true } = {}) => {
   const roleIds = normalizeIdArray(values.roleIds)

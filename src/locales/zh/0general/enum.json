@@ -20,8 +20,10 @@
       "inactive": "不活跃"
     },
     "role": {
-      "admin": "行政",
-      "tenant_user": "租户用户"
+      "account_holder": "账户持有人",
+      "course_admin": "课程管理员",
+      "finance_admin": "财务管理员",
+      "system_admin": "系统管理员"
     },
     "user_status": {
       "active": "积极的",
