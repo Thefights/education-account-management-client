@@ -14,27 +14,57 @@ export function LayoutAuth({
   const { token } = theme.useToken()
   const screens = Grid.useBreakpoint()
   const isMobile = !screens.md
-  const hasImage = imageLayout && Boolean(imageSrc) && !isMobile
+  const hasBackgroundImage = imageLayout && Boolean(imageSrc)
 
   return (
     <main
       style={{
         minHeight: '100dvh',
-        display: hasImage ? 'grid' : 'flex',
-        flexDirection: hasImage ? undefined : 'column',
-        gridTemplateColumns: hasImage ? 'minmax(480px, 34vw) 1fr' : undefined,
-        alignItems: hasImage ? undefined : 'center',
-        justifyContent: hasImage ? undefined : 'flex-start',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: hasBackgroundImage ? 'center' : 'flex-start',
         background: token.colorBgLayout,
         color: token.colorText,
         fontFamily: token.fontFamily,
-        padding: hasImage ? 0 : isMobile ? '24px 16px' : '24px',
+        padding: hasBackgroundImage
+          ? isMobile
+            ? '72px 16px'
+            : '72px 24px'
+          : isMobile
+            ? '24px 16px'
+            : '24px',
         boxSizing: 'border-box',
         position: 'relative',
-        overflow: hasImage ? 'hidden' : 'auto',
+        overflow: 'hidden auto',
       }}
     >
-      {showBrand && <AuthBrand fixed={hasImage} />}
+      {hasBackgroundImage && (
+        <>
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: -16,
+              backgroundImage: `url(${imageSrc})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              filter: 'blur(7px)',
+              transform: 'scale(1.03)',
+            }}
+          />
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(8, 18, 33, 0.48)',
+            }}
+          />
+        </>
+      )}
+
+      {showBrand && <AuthBrand fixed={hasBackgroundImage} />}
 
       <Flex
         align="center"
@@ -53,39 +83,22 @@ export function LayoutAuth({
       <section
         style={{
           width: '100%',
-          maxWidth: hasImage ? 520 : contentMaxWidth,
-          height: hasImage ? '100dvh' : 'auto',
-          padding: contentPadding ?? (hasImage ? '30px 48px 32px ' : 0),
+          maxWidth: contentMaxWidth,
+          padding:
+            contentPadding ??
+            (hasBackgroundImage ? (isMobile ? '28px 22px' : '40px 48px') : 0),
           boxSizing: 'border-box',
-          margin: hasImage ? 0 : 'auto',
-          display: hasImage ? 'flex' : undefined,
-          flexDirection: hasImage ? 'column' : undefined,
-          justifyContent: hasImage ? 'center' : undefined,
+          margin: hasBackgroundImage ? 0 : 'auto',
+          position: 'relative',
+          zIndex: 1,
+          background: hasBackgroundImage ? token.colorBgContainer : undefined,
+          border: hasBackgroundImage ? `1px solid ${token.colorBorderSecondary}` : undefined,
+          borderRadius: hasBackgroundImage ? token.borderRadiusLG * 2 : undefined,
+          boxShadow: hasBackgroundImage ? token.boxShadowSecondary : undefined,
         }}
       >
         {children}
       </section>
-
-      {hasImage && (
-        <section
-          style={{
-            height: '100dvh',
-            overflow: 'hidden',
-          }}
-        >
-          <img
-            src={imageSrc}
-            alt=""
-            aria-hidden="true"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-            }}
-          />
-        </section>
-      )}
     </main>
   )
 }

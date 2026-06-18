@@ -54,4 +54,8 @@ export const ApiUrls = {
   PRODUCT: {
     GET_ALL: '/product/all',
   },
+
+  AI_ASSISTANT_SETTING: {
+    INDEX: '/ai-assistant-setting',
+  },
 }

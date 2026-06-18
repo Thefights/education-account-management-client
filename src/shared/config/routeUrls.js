@@ -35,6 +35,12 @@ export const routeUrls = {
     },
   },
 
+  SYSTEM_ADMIN: {
+    AI_ASSISTANT_SETTING: {
+      INDEX: '/ai-assistant-setting',
+    },
+  },
+
   ROLE_HOME: {
     INDEX: '/',
   },

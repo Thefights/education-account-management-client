@@ -1,0 +1,14 @@
+{
+  "ai_assistant_setting": {
+    "menu_label": "Trợ lý AI",
+    "title": "Cài đặt Trợ lý AI",
+    "description": "Kiểm soát việc Trợ lý AI có được sử dụng trong toàn hệ thống hay không. Khi tắt, người dùng sẽ không thể truy cập các tính năng Trợ lý AI cho đến khi được bật lại.",
+    "field_label": "Bật Trợ lý AI",
+    "enabled": "Bật",
+    "disabled": "Tắt",
+    "enabled_description": "Người dùng hiện có thể sử dụng Trợ lý AI.",
+    "disabled_description": "Người dùng hiện không thể sử dụng Trợ lý AI.",
+    "load_error": "Không thể tải cài đặt Trợ lý AI.",
+    "retry": "Thử lại"
+  }
+}
