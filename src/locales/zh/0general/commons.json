@@ -61,6 +61,7 @@
     },
     "rows_per_page": "每页行数",
     "search": "搜索...",
+    "search_label": "搜索",
     "select_options": "选择选项",
     "selected": "已选择",
     "total": "全部的"

@@ -1,0 +1,9 @@
+{
+  "school_management": {
+    "menu_label": "学校管理",
+    "title": { "management": "学校管理", "create": "创建学校", "update": "更新学校" },
+    "field": { "id": "ID", "school_name": "学校名称", "status": "状态", "address": "地址", "phone_number": "电话号码", "email": "电子邮件" },
+    "placeholder": { "search": "搜索学校名称、电子邮件、电话号码或地址" },
+    "confirm": { "delete_title": "删除学校？", "delete_description": "确定要删除 {name} 吗？" }
+  }
+}

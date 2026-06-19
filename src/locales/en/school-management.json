@@ -1,0 +1,9 @@
+{
+  "school_management": {
+    "menu_label": "School Management",
+    "title": { "management": "School Management", "create": "Create School", "update": "Update School" },
+    "field": { "id": "ID", "school_name": "School name", "status": "Status", "address": "Address", "phone_number": "Phone number", "email": "Email" },
+    "placeholder": { "search": "Search school name, email, phone number, or address" },
+    "confirm": { "delete_title": "Delete school?", "delete_description": "Are you sure you want to delete {name}?" }
+  }
+}

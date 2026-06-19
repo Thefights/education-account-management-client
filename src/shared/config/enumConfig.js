@@ -7,7 +7,7 @@ export const EnumConfig = {
   RoleId: {
     SystemAdmin: 1,
     FinanceAdmin: 2,
-    CourseAdmin: 3,
+    SchoolAdmin: 3,
     AccountHolder: 4,
   },
 
@@ -25,8 +25,18 @@ export const EnumConfig = {
   RoleEnum: {
     SystemAdmin: 'SystemAdmin',
     FinanceAdmin: 'FinanceAdmin',
-    CourseAdmin: 'CourseAdmin',
+    SchoolAdmin: 'SchoolAdmin',
     AccountHolder: 'AccountHolder',
+  },
+
+  SchoolStatus: {
+    Active: 'Active',
+    Inactive: 'Inactive',
+  },
+
+  CourseStatus: {
+    Active: 'Active',
+    Inactive: 'Inactive',
   },
 
   UserGender: {

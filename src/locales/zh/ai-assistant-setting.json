@@ -1,0 +1,14 @@
+{
+  "ai_assistant_setting": {
+    "menu_label": "AI 助手",
+    "title": "AI 助手设置",
+    "description": "控制整个系统是否可以使用 AI 助手。关闭后，用户将无法访问 AI 助手功能，直到再次启用。",
+    "field_label": "启用 AI 助手",
+    "enabled": "开启",
+    "disabled": "关闭",
+    "enabled_description": "用户目前可以使用 AI 助手。",
+    "disabled_description": "用户目前无法使用 AI 助手。",
+    "load_error": "无法加载 AI 助手设置。",
+    "retry": "重试"
+  }
+}

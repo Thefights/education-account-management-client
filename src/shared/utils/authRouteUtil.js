@@ -1,7 +1,7 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import AccountHolderLayout from '@/app/layouts/AccountHolderLayout'
-import CourseAdminLayout from '@/app/layouts/CourseAdminLayout'
+import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
 import FinanceAdminLayout from '@/app/layouts/FinanceAdminLayout'
 import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import { getRoleFromAccessToken } from '@/shared/utils/authTokenUtil'
@@ -13,8 +13,8 @@ export const getReturnUrlByRole = (role) => {
       return routeUrls.BASE_ROUTE.SYSTEM_ADMIN()
     case EnumConfig.RoleEnum.FinanceAdmin.toLowerCase():
       return routeUrls.BASE_ROUTE.FINANCE_ADMIN()
-    case EnumConfig.RoleEnum.CourseAdmin.toLowerCase():
-      return routeUrls.BASE_ROUTE.COURSE_ADMIN()
+    case EnumConfig.RoleEnum.SchoolAdmin.toLowerCase():
+      return routeUrls.BASE_ROUTE.SCHOOL_ADMIN()
     case EnumConfig.RoleEnum.AccountHolder.toLowerCase():
       return routeUrls.BASE_ROUTE.ACCOUNT_HOLDER()
     default:
@@ -28,8 +28,8 @@ export const getLayoutByRole = (role) => {
       return SystemAdminLayout
     case EnumConfig.RoleEnum.FinanceAdmin.toLowerCase():
       return FinanceAdminLayout
-    case EnumConfig.RoleEnum.CourseAdmin.toLowerCase():
-      return CourseAdminLayout
+    case EnumConfig.RoleEnum.SchoolAdmin.toLowerCase():
+      return SchoolAdminLayout
     case EnumConfig.RoleEnum.AccountHolder.toLowerCase():
       return AccountHolderLayout
     default:

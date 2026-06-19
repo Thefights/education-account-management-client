@@ -1,5 +1,6 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
@@ -7,12 +8,10 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Col, Flex, Row, Space } from 'antd'
 import { useMemo } from 'react'
 
-const AccountManagementFilterSection = ({ filters = {}, onFilter, onReset, loading = false }) => {
+const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOptions, schoolsLoading, loading = false }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
-
   const { renderField } = useFieldRenderer(
     values,
     setField,
@@ -23,57 +22,64 @@ const AccountManagementFilterSection = ({ filters = {}, onFilter, onReset, loadi
     'medium'
   )
 
-  const filterFields = useMemo(
+  const adminRoleOptions = useMemo(
+    () =>
+      _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
+    [_enum.roleIdOptions]
+  )
+  const fields = useMemo(
     () => [
       {
         key: 'search',
-        title: t('account.placeholder.search_text'),
+        title: t('admin_management.placeholder.search'),
         label: t('text.search_label'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,
       },
       {
-        key: 'status',
-        title: t('account.field.status'),
+        key: 'roles',
+        title: t('admin_management.field.role'),
         type: 'select',
-        options: [{ value: '', label: t('text.all') }, ..._enum.authAccountStatusOptions],
+        multiple: true,
+        options: adminRoleOptions,
         required: false,
       },
       {
-        key: 'gender',
-        title: t('account.field.gender'),
+        key: 'statuses',
+        title: t('admin_management.field.status'),
         type: 'select',
-        options: [{ value: '', label: t('text.all') }, ..._enum.genderOptions],
+        multiple: true,
+        options: _enum.authAccountStatusOptions,
         required: false,
       },
       {
-        key: 'role',
-        title: t('account.field.roles'),
+        key: 'schoolId',
+        title: t('admin_management.field.school'),
         type: 'select',
-        options: [{ value: '', label: t('text.all') }, ..._enum.roleOptions],
+        options: schoolOptions,
+        props: { loading: schoolsLoading, showSearch: true, allowClear: true, optionFilterProp: 'label' },
         required: false,
       },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.genderOptions, _enum.roleOptions]
+    [t, adminRoleOptions, _enum.authAccountStatusOptions, schoolOptions, schoolsLoading]
   )
 
   const handleReset = () => {
-    reset({})
+    reset({ search: '', roles: [], statuses: [], schoolId: '' })
     onReset?.()
   }
 
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        {filterFields.map((field, index) => (
+        {fields.map((field, index) => (
           <Col key={field.key} xs={24} md={index === 0 ? 8 : 4}>
             {renderField(field)}
           </Col>
         ))}
-
         <Col xs={24} md={4}>
-          <Flex justify="end" style={{ height: '100%' }}>
+          <Flex justify="end">
             <Space>
               <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
               <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
@@ -85,4 +91,4 @@ const AccountManagementFilterSection = ({ filters = {}, onFilter, onReset, loadi
   )
 }
 
-export default AccountManagementFilterSection
+export default AdminManagementFilterSection

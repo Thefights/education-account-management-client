@@ -231,7 +231,7 @@ export default function useFieldRenderer(
         remainOptions={remainOpts}
         renderOption={field.renderOption}
         renderOptionValue={field.renderOptionValue}
-        value={getObjectValueFromStringPath(currentValues, field.key) || ''}
+        value={getObjectValueFromStringPath(currentValues, field.key) ?? ''}
         onChange={context.handleChange}
         validate={field.validate}
         minValue={field.minValue}

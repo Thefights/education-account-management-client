@@ -19,9 +19,11 @@
       "active": "积极的",
       "inactive": "不活跃"
     },
+    "school_status": { "active": "启用", "inactive": "停用" },
+    "course_status": { "active": "启用", "inactive": "停用" },
     "role": {
       "account_holder": "账户持有人",
-      "course_admin": "课程管理员",
+      "school_admin": "学校管理员",
       "finance_admin": "财务管理员",
       "system_admin": "系统管理员"
     },

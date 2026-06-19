@@ -4,7 +4,7 @@ export const routeUrls = {
     ADMIN: (route = '') => `/admin${route}`,
     SYSTEM_ADMIN: (route = '') => `/system-admin${route}`,
     FINANCE_ADMIN: (route = '') => `/finance-admin${route}`,
-    COURSE_ADMIN: (route = '') => `/course-admin${route}`,
+    SCHOOL_ADMIN: (route = '') => `/school-admin${route}`,
     ACCOUNT_HOLDER: (route = '') => `/account-holder${route}`,
   },
 
@@ -32,6 +32,24 @@ export const routeUrls = {
 
     ACCOUNT_MANAGEMENT: {
       INDEX: '/account-management',
+    },
+  },
+
+  SYSTEM_ADMIN: {
+    SCHOOL_MANAGEMENT: {
+      INDEX: '/school-management',
+    },
+    ADMIN_MANAGEMENT: {
+      INDEX: '/admin-management',
+    },
+    AI_ASSISTANT_SETTING: {
+      INDEX: '/ai-assistant-setting',
+    },
+  },
+
+  SCHOOL_ADMIN: {
+    COURSE_MANAGEMENT: {
+      INDEX: '/course-management',
     },
   },
 

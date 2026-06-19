@@ -1,0 +1,26 @@
+{
+  "admin_management": {
+    "menu_label": "Admin Management",
+    "title": {
+      "management": "Admin Management",
+      "create": "Create Admin Account",
+      "update": "Update Admin Account"
+    },
+    "field": {
+      "user_id": "User ID",
+      "auth_account_id": "Auth Account ID",
+      "role": "Role",
+      "status": "Status",
+      "azure_object_id": "Azure Object ID",
+      "staff_code": "Staff code",
+      "full_name": "Full name",
+      "email": "Email",
+      "phone_number": "Phone number",
+      "school_id": "School ID",
+      "school": "School"
+    },
+    "placeholder": {
+      "search": "Search staff code, full name, or email"
+    }
+  }
+}

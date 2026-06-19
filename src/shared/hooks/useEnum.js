@@ -26,13 +26,23 @@ export default function useEnum() {
         label: t('enum.role.finance_admin'),
       },
       {
-        value: EnumConfig.RoleId.CourseAdmin,
-        label: t('enum.role.course_admin'),
+        value: EnumConfig.RoleId.SchoolAdmin,
+        label: t('enum.role.school_admin'),
       },
       {
         value: EnumConfig.RoleId.AccountHolder,
         label: t('enum.role.account_holder'),
       },
+    ],
+
+    schoolStatusOptions: [
+      { value: EnumConfig.SchoolStatus.Active, label: t('enum.school_status.active') },
+      { value: EnumConfig.SchoolStatus.Inactive, label: t('enum.school_status.inactive') },
+    ],
+
+    courseStatusOptions: [
+      { value: EnumConfig.CourseStatus.Active, label: t('enum.course_status.active') },
+      { value: EnumConfig.CourseStatus.Inactive, label: t('enum.course_status.inactive') },
     ],
 
     productAssignmentRoleOptions: [
@@ -71,8 +81,8 @@ export default function useEnum() {
         label: t('enum.role.finance_admin'),
       },
       {
-        value: EnumConfig.RoleEnum.CourseAdmin,
-        label: t('enum.role.course_admin'),
+        value: EnumConfig.RoleEnum.SchoolAdmin,
+        label: t('enum.role.school_admin'),
       },
       {
         value: EnumConfig.RoleEnum.AccountHolder,

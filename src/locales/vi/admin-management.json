@@ -1,0 +1,26 @@
+{
+  "admin_management": {
+    "menu_label": "Quản lý quản trị viên",
+    "title": {
+      "management": "Quản lý quản trị viên",
+      "create": "Tạo tài khoản quản trị viên",
+      "update": "Cập nhật tài khoản quản trị viên"
+    },
+    "field": {
+      "user_id": "ID người dùng",
+      "auth_account_id": "ID tài khoản xác thực",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "azure_object_id": "Azure Object ID",
+      "staff_code": "Mã nhân viên",
+      "full_name": "Họ và tên",
+      "email": "Email",
+      "phone_number": "Số điện thoại",
+      "school_id": "ID trường",
+      "school": "Trường"
+    },
+    "placeholder": {
+      "search": "Tìm mã nhân viên, họ tên hoặc email"
+    }
+  }
+}
