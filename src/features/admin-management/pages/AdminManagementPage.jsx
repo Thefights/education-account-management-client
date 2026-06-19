@@ -1,8 +1,8 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
-import useSchoolOptions from '@/shared/hooks/useSchoolOptions'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
@@ -22,7 +22,11 @@ const AdminManagementPage = () => {
   const [openCreate, setOpenCreate] = useState(false)
   const [openUpdate, setOpenUpdate] = useState(false)
   const [selectedRow, setSelectedRow] = useState({})
-  const schools = useSchoolOptions()
+  const schools = useApiOptions({
+    url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
+    valueKey: 'id',
+    labelKey: 'schoolName',
+  })
 
   const queryParams = useMemo(
     () => ({ sort: `${sort.key} ${sort.direction}`, ...filters, page, pageSize }),

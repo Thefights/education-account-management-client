@@ -26,6 +26,7 @@ export const ApiUrls = {
 
   SCHOOL_MANAGEMENT: {
     INDEX: '/school-management',
+    GET_ALL: '/school-management/all',
     DETAIL: (id) => `/school-management/${id}`,
   },
 
@@ -50,6 +51,7 @@ export const ApiUrls = {
   },
   TOPUP_RULE: {
     INDEX: '/topup-rule',
+    GET_ALL: '/topup-rule/all',
     DETAIL: (id) => `/topup-rule/${id}`,
     UPDATE_STATUS: '/topup-rule/status',
   },

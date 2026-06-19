@@ -20,6 +20,8 @@ export default function useFetch(url, params = {}, dependencies = [], fetchOnMou
   const paramsKey = JSON.stringify(params)
 
   const fetchData = useCallback(async () => {
+    if (!url) return undefined
+
     const controller = new AbortController()
     const currentReqId = Date.now()
     reqIdRef.current = currentReqId

@@ -1,9 +1,9 @@
+import AccountHolderLayout from '@/app/layouts/AccountHolderLayout'
+import FinanceAdminLayout from '@/app/layouts/FinanceAdminLayout'
+import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
+import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import AccountHolderLayout from '@/app/layouts/AccountHolderLayout'
-import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
-import FinanceAdminLayout from '@/app/layouts/FinanceAdminLayout'
-import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import { getRoleFromAccessToken } from '@/shared/utils/authTokenUtil'
 import React from 'react'
 
