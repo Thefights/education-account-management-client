@@ -1,11 +1,14 @@
 import AccountHolderLayout from '@/app/layouts/AccountHolderLayout'
-import CourseAdminLayout from '@/app/layouts/CourseAdminLayout'
+import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
 import FinanceAdminLayout from '@/app/layouts/FinanceAdminLayout'
 import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import ProtectedRoute from '@/app/routes/ProtectedRoute'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
+import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
+import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
+import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Route, Routes } from 'react-router-dom'
@@ -16,6 +19,14 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.SystemAdmin,
     Layout: SystemAdminLayout,
     routes: [
+      {
+        path: routeUrls.SYSTEM_ADMIN.SCHOOL_MANAGEMENT.INDEX,
+        element: <SchoolManagementPage />,
+      },
+      {
+        path: routeUrls.SYSTEM_ADMIN.ADMIN_MANAGEMENT.INDEX,
+        element: <AdminManagementPage />,
+      },
       {
         path: routeUrls.SYSTEM_ADMIN.AI_ASSISTANT_SETTING.INDEX,
         element: <AiAssistantSettingPage />,
@@ -28,9 +39,15 @@ const roleRouteGroups = [
     Layout: FinanceAdminLayout,
   },
   {
-    basePath: 'course-admin',
-    role: EnumConfig.RoleEnum.CourseAdmin,
-    Layout: CourseAdminLayout,
+    basePath: 'school-admin',
+    role: EnumConfig.RoleEnum.SchoolAdmin,
+    Layout: SchoolAdminLayout,
+    routes: [
+      {
+        path: routeUrls.SCHOOL_ADMIN.COURSE_MANAGEMENT.INDEX,
+        element: <CourseManagementPage />,
+      },
+    ],
   },
   {
     basePath: 'account-holder',

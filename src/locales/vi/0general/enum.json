@@ -19,9 +19,11 @@
       "active": "Hoạt động",
       "inactive": "Không hoạt động"
     },
+    "school_status": { "active": "Hoạt động", "inactive": "Ngừng hoạt động" },
+    "course_status": { "active": "Hoạt động", "inactive": "Ngừng hoạt động" },
     "role": {
       "account_holder": "Chủ tài khoản",
-      "course_admin": "Quản trị khóa học",
+      "school_admin": "Quản trị trường",
       "finance_admin": "Quản trị tài chính",
       "system_admin": "Quản trị hệ thống"
     },

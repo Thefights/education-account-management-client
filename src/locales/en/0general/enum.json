@@ -19,9 +19,11 @@
       "active": "Active",
       "inactive": "Inactive"
     },
+    "school_status": { "active": "Active", "inactive": "Inactive" },
+    "course_status": { "active": "Active", "inactive": "Inactive" },
     "role": {
       "account_holder": "Account Holder",
-      "course_admin": "Course Admin",
+      "school_admin": "School Admin",
       "finance_admin": "Finance Admin",
       "system_admin": "System Admin"
     },

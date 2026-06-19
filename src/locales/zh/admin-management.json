@@ -1,0 +1,26 @@
+{
+  "admin_management": {
+    "menu_label": "管理员管理",
+    "title": {
+      "management": "管理员管理",
+      "create": "创建管理员帐户",
+      "update": "更新管理员帐户"
+    },
+    "field": {
+      "user_id": "用户 ID",
+      "auth_account_id": "认证帐户 ID",
+      "role": "角色",
+      "status": "状态",
+      "azure_object_id": "Azure 对象 ID",
+      "staff_code": "员工代码",
+      "full_name": "姓名",
+      "email": "电子邮件",
+      "phone_number": "电话号码",
+      "school_id": "学校 ID",
+      "school": "学校"
+    },
+    "placeholder": {
+      "search": "搜索员工代码、姓名或电子邮件"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "course_management": {
+    "menu_label": "Course Management",
+    "title": { "management": "Course Management", "create": "Create Course", "update": "Update Course" },
+    "field": { "id": "ID", "school": "School", "status": "Status", "course_name": "Course name", "description": "Description", "course_fee_amount": "Course fee", "misc_fee_amount": "Miscellaneous fee", "gst_amount": "GST amount" },
+    "placeholder": { "search": "Search course name" },
+    "confirm": { "delete_title": "Delete course?", "delete_description": "Are you sure you want to delete {name}?" }
+  }
+}

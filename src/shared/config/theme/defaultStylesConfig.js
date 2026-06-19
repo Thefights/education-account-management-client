@@ -22,11 +22,26 @@ export const defaultRoleStyle = (role) => {
   const map = {
     [EnumConfig.RoleEnum.SystemAdmin]: 'processing',
     [EnumConfig.RoleEnum.FinanceAdmin]: 'green',
-    [EnumConfig.RoleEnum.CourseAdmin]: 'blue',
+    [EnumConfig.RoleEnum.SchoolAdmin]: 'blue',
     [EnumConfig.RoleEnum.AccountHolder]: 'default',
+    [EnumConfig.RoleId.SystemAdmin]: 'processing',
+    [EnumConfig.RoleId.FinanceAdmin]: 'green',
+    [EnumConfig.RoleId.SchoolAdmin]: 'blue',
+    [EnumConfig.RoleId.AccountHolder]: 'default',
   }
 
   return map[role] || 'default'
+}
+
+export const defaultManagementStatusStyle = (status) => {
+  const map = {
+    [EnumConfig.SchoolStatus.Active]: 'success',
+    [EnumConfig.SchoolStatus.Inactive]: 'default',
+    [EnumConfig.CourseStatus.Active]: 'success',
+    [EnumConfig.CourseStatus.Inactive]: 'default',
+  }
+
+  return map[status] || 'default'
 }
 
 export const defaultGenderStyle = (gender) => {

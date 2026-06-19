@@ -58,4 +58,19 @@ export const ApiUrls = {
   AI_ASSISTANT_SETTING: {
     INDEX: '/ai-assistant-setting',
   },
+
+  ADMIN_MANAGEMENT: {
+    INDEX: '/admin-management',
+    DETAIL: (id) => `/admin-management/${id}`,
+  },
+
+  SCHOOL_MANAGEMENT: {
+    INDEX: '/school-management',
+    DETAIL: (id) => `/school-management/${id}`,
+  },
+
+  COURSE_MANAGEMENT: {
+    INDEX: '/course-management',
+    DETAIL: (id) => `/course-management/${id}`,
+  },
 }

@@ -16,7 +16,6 @@ const AiAssistantSettingPage = () => {
   const updateSetting = useAxiosSubmit({
     url: ApiUrls.AI_ASSISTANT_SETTING.INDEX,
     method: 'PUT',
-    asJson: true,
   })
 
   const handleSubmit = async () => {

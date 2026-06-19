@@ -50,7 +50,7 @@ const AuditLogFilterSection = ({
         title: t('audit_log.field.search'),
         type: 'search',
         required: false,
-        label: t('audit_log.placeholder.search_text'),
+        label: t('text.search_label'),
         reserveLabelSpace: true,
       },
       {
