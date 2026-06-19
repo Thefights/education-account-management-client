@@ -1,0 +1,39 @@
+{
+  "topup": {
+    "manual_title": "Manual Top-up",
+    "rules_title": "Top-up Rules",
+    "schedules_title": "Top-up Schedules",
+    "account_ids_placeholder": "Account IDs separated by commas",
+    "amount": "Amount",
+    "reason": "Disbursement reason",
+    "execute": "Execute top-up",
+    "rule_name": "Rule name",
+    "status": "Status",
+    "conditions": "Conditions",
+    "created_at": "Created at",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "schedule_name": "Schedule name",
+    "schedule_type": "Schedule type",
+    "next_execution": "Next execution",
+    "last_execution": "Last execution",
+    "rules_count": "Rules"
+  },
+  "account_profile": {
+    "title": "My Education Account",
+    "balance": "Education credit balance",
+    "account_number": "Account number",
+    "name": "Name",
+    "date_of_birth": "Date of birth",
+    "email": "Email",
+    "phone": "Phone",
+    "residential_address": "Residential address",
+    "mailing_address": "Mailing address"
+  },
+  "navigation": {
+    "education_accounts": "Education Accounts",
+    "manual_account_creation": "Manual Account Creation",
+    "batch_reports": "Batch Reports",
+    "audit_logs": "Audit Logs"
+  }
+}

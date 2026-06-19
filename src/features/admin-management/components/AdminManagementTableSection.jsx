@@ -15,18 +15,6 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
   const fields = useMemo(
     () => [
       {
-        key: 'userId',
-        title: t('admin_management.field.user_id'),
-        width: 90,
-        sortable: true,
-        fixedColumn: true,
-      },
-      {
-        key: 'authAccountId',
-        title: t('admin_management.field.auth_account_id'),
-        width: 130,
-      },
-      {
         key: 'staffCode',
         title: t('admin_management.field.staff_code'),
         width: 140,
@@ -45,6 +33,12 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         sortable: true,
       },
       {
+        key: 'nric',
+        title: t('admin_management.field.nric'),
+        width: 130,
+        sortable: true,
+      },
+      {
         key: 'phoneNumber',
         title: t('admin_management.field.phone_number'),
         width: 150,
@@ -55,7 +49,7 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         width: 150,
         sortable: true,
         type: 'tag',
-        options: _enum.roleIdOptions,
+        options: _enum.roleOptions,
         color: defaultRoleStyle,
       },
       {
@@ -82,13 +76,11 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         title: '',
         width: 70,
         render: (_, row) => (
-          <ActionMenu
-            actions={[{ title: t('button.edit'), onClick: () => onEdit?.(row) }]}
-          />
+          <ActionMenu actions={[{ title: t('button.edit'), onClick: () => onEdit?.(row) }]} />
         ),
       },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.roleIdOptions, onEdit]
+    [t, _enum.authAccountStatusOptions, _enum.roleOptions, onEdit]
   )
 
   return (

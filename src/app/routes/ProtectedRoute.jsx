@@ -1,7 +1,7 @@
+import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import SkeletonLoadingPage from '@/shared/components/skeletons/SkeletonLoadingPage'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAuth from '@/shared/hooks/useAuth'
-import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 const ProtectedRoute = ({
@@ -21,11 +21,11 @@ const ProtectedRoute = ({
     return <SkeletonLoadingPage />
   }
 
-  if (allowRoles.length === 0) return <Outlet />
-
   if (!auth?.role) {
     return <Navigate to={redirectPath} replace state={{ from: location }} />
   }
+
+  if (allowRoles.length === 0) return <Outlet />
 
   if (!hasRole(allowRoles)) {
     return <PageNotFound />

@@ -10,6 +10,7 @@ const initialValues = {
   azureObjectId: '',
   staffCode: '',
   fullName: '',
+  nric: '',
   email: '',
   phoneNumber: '',
   schoolId: '',
@@ -43,8 +44,7 @@ const AdminManagementFormSection = ({
   const { t } = useTranslation()
   const _enum = useEnum()
   const adminRoleOptions = useMemo(
-    () =>
-      _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
+    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
   )
   const fields = useMemo(
@@ -68,7 +68,12 @@ const AdminManagementFormSection = ({
       {
         key: 'fullName',
         title: t('admin_management.field.full_name'),
-        validate: [maxLen(100)],
+        validate: [maxLen(150)],
+      },
+      {
+        key: 'nric',
+        title: t('admin_management.field.nric'),
+        validate: [maxLen(9)],
       },
       {
         key: 'email',
@@ -87,19 +92,26 @@ const AdminManagementFormSection = ({
         title: t('admin_management.field.school'),
         type: 'select',
         options: schoolOptions,
-        props: { loading: schoolsLoading, showSearch: true, allowClear: true, optionFilterProp: 'label' },
+        props: {
+          loading: schoolsLoading,
+          showSearch: true,
+          allowClear: true,
+          optionFilterProp: 'label',
+        },
         required: false,
       },
     ],
     [t, adminRoleOptions, schoolOptions, schoolsLoading]
   )
 
-  const handleSubmit = (submit) => async ({ values, closeDrawer }) => {
-    const response = await submit({ overrideData: toPayload(values) })
-    if (!response) return
-    closeDrawer()
-    await refetch()
-  }
+  const handleSubmit =
+    (submit) =>
+    async ({ values, closeDrawer }) => {
+      const response = await submit({ overrideData: toPayload(values) })
+      if (!response) return
+      closeDrawer()
+      await refetch()
+    }
 
   return (
     <>

@@ -1,0 +1,25 @@
+{
+  "education_account": {
+    "detail_title": "Education Account Detail",
+    "account_number": "Account number",
+    "balance": "Current balance",
+    "date_of_birth": "Date of birth",
+    "created_date": "Created date",
+    "email": "Email",
+    "phone": "Phone",
+    "residential_address": "Residential address",
+    "mailing_address": "Mailing address"
+  },
+  "transaction": {
+    "title": "Transaction History",
+    "search": "Search description",
+    "code": "Transaction code",
+    "type": "Type",
+    "direction": "Direction",
+    "description": "Description",
+    "amount": "Amount",
+    "balance_before": "Balance before",
+    "balance_after": "Balance after",
+    "created_at": "Created at"
+  }
+}

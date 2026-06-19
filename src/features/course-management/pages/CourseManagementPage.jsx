@@ -2,8 +2,10 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useAuth from '@/shared/hooks/useAuth'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
+import useSchoolOptions from '@/shared/hooks/useSchoolOptions'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
@@ -11,10 +13,13 @@ import CourseManagementFilterSection from '../components/CourseManagementFilterS
 import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
 
-const defaultFilters = { search: '', statuses: [] }
+const defaultFilters = { search: '', statuses: [], schoolId: '' }
 
 const CourseManagementPage = () => {
   const { t } = useTranslation()
+  const { auth } = useAuth()
+  const isSystemAdmin = auth?.role === 'SystemAdmin'
+  const schools = useSchoolOptions(isSystemAdmin)
   const confirm = useConfirm()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
@@ -66,6 +71,9 @@ const CourseManagementPage = () => {
           loading={courses.loading}
           onFilter={handleFilter}
           onReset={() => handleFilter(defaultFilters)}
+          canSelectSchool={isSystemAdmin}
+          schoolOptions={schools.options}
+          schoolsLoading={schools.loading}
         />
         <CourseManagementTableSection
           courses={courses.data?.collection}
@@ -98,6 +106,9 @@ const CourseManagementPage = () => {
         onCreateSubmit={createCourse.submit}
         onUpdateSubmit={updateCourse.submit}
         refetch={courses.fetch}
+        canSelectSchool={isSystemAdmin}
+        schoolOptions={schools.options}
+        schoolsLoading={schools.loading}
       />
     </Card>
   )

@@ -1,6 +1,9 @@
-import { getMicrosoftClient, getMicrosoftLoginRequest } from '@/features/auth/config/microsoftAuthConfig'
-import axiosConfig from '@/shared/api/axiosClient'
+import {
+  getMicrosoftClient,
+  getMicrosoftLoginRequest,
+} from '@/features/auth/config/microsoftAuthConfig'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import axiosConfig from '@/shared/api/axiosClient'
 import useAuth from '@/shared/hooks/useAuth'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getReturnUrlByAuthTokens } from '@/shared/utils/authRouteUtil'

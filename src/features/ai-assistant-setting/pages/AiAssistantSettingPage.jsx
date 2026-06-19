@@ -74,9 +74,7 @@ const AiAssistantSettingPage = () => {
               }}
             >
               <div>
-                <Typography.Text strong>
-                  {t('ai_assistant_setting.field_label')}
-                </Typography.Text>
+                <Typography.Text strong>{t('ai_assistant_setting.field_label')}</Typography.Text>
                 <br />
                 <Typography.Text type="secondary">
                   {t(

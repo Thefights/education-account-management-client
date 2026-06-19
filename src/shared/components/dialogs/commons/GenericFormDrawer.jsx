@@ -22,6 +22,7 @@ const GenericFormDrawer = ({
     Promise.resolve({ values, closeDrawer, setField }),
   additionalButtons = [],
   showSubmit = true,
+  isSubmitDisabled = () => false,
   destroyOnClose = false,
   children,
 }) => {
@@ -132,6 +133,7 @@ const GenericFormDrawer = ({
               type="primary"
               danger={submitButtonColor === 'danger'}
               loading={loading}
+              disabled={loading || isSubmitDisabled(values)}
             >
               {submitLabel || t('button.submit')}
             </Button>

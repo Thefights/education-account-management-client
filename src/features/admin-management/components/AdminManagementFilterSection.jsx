@@ -8,7 +8,14 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Col, Flex, Row, Space } from 'antd'
 import { useMemo } from 'react'
 
-const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOptions, schoolsLoading, loading = false }) => {
+const AdminManagementFilterSection = ({
+  filters,
+  onFilter,
+  onReset,
+  schoolOptions,
+  schoolsLoading,
+  loading = false,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
@@ -23,8 +30,7 @@ const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOption
   )
 
   const adminRoleOptions = useMemo(
-    () =>
-      _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
+    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
   )
   const fields = useMemo(
@@ -58,7 +64,12 @@ const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOption
         title: t('admin_management.field.school'),
         type: 'select',
         options: schoolOptions,
-        props: { loading: schoolsLoading, showSearch: true, allowClear: true, optionFilterProp: 'label' },
+        props: {
+          loading: schoolsLoading,
+          showSearch: true,
+          allowClear: true,
+          optionFilterProp: 'label',
+        },
         required: false,
       },
     ],

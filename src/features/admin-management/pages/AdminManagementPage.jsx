@@ -1,6 +1,3 @@
-/**
- * System administrator page for listing, creating, and updating administrator accounts.
- */
 import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'

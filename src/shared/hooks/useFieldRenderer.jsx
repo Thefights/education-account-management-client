@@ -78,18 +78,21 @@ export default function useFieldRenderer(
     }
   }
 
-  const getImageCount = useCallback((f) => {
-    const { remainKey, newKey } = getImageKeyNames(f.key)
+  const getImageCount = useCallback(
+    (f) => {
+      const { remainKey, newKey } = getImageKeyNames(f.key)
 
-    const remain = Array.isArray(getObjectValueFromStringPath(values, remainKey))
-      ? getObjectValueFromStringPath(values, remainKey)
-      : []
-    const news = Array.isArray(getObjectValueFromStringPath(values, newKey))
-      ? getObjectValueFromStringPath(values, newKey)
-      : []
+      const remain = Array.isArray(getObjectValueFromStringPath(values, remainKey))
+        ? getObjectValueFromStringPath(values, remainKey)
+        : []
+      const news = Array.isArray(getObjectValueFromStringPath(values, newKey))
+        ? getObjectValueFromStringPath(values, newKey)
+        : []
 
-    return (remain?.length || 0) + (news?.length || 0)
-  }, [values])
+      return (remain?.length || 0) + (news?.length || 0)
+    },
+    [values]
+  )
 
   const getValueFromEvent = (event) => {
     const target = event?.target

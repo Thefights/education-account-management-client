@@ -14,13 +14,14 @@
       "azure_object_id": "Azure Object ID",
       "staff_code": "Staff code",
       "full_name": "Full name",
+      "nric": "NRIC",
       "email": "Email",
       "phone_number": "Phone number",
       "school_id": "School ID",
       "school": "School"
     },
     "placeholder": {
-      "search": "Search staff code, full name, or email"
+      "search": "Search staff code, full name, NRIC, or email"
     }
   }
 }

@@ -14,13 +14,14 @@
       "azure_object_id": "Azure 对象 ID",
       "staff_code": "员工代码",
       "full_name": "姓名",
+      "nric": "NRIC",
       "email": "电子邮件",
       "phone_number": "电话号码",
       "school_id": "学校 ID",
       "school": "学校"
     },
     "placeholder": {
-      "search": "搜索员工代码、姓名或电子邮件"
+      "search": "搜索员工代码、姓名、NRIC 或电子邮件"
     }
   }
 }

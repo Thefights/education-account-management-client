@@ -1,9 +1,23 @@
 {
   "school_management": {
     "menu_label": "Quản lý trường",
-    "title": { "management": "Quản lý trường", "create": "Tạo trường", "update": "Cập nhật trường" },
-    "field": { "id": "ID", "school_name": "Tên trường", "status": "Trạng thái", "address": "Địa chỉ", "phone_number": "Số điện thoại", "email": "Email" },
+    "title": {
+      "management": "Quản lý trường",
+      "create": "Tạo trường",
+      "update": "Cập nhật trường"
+    },
+    "field": {
+      "id": "ID",
+      "school_name": "Tên trường",
+      "status": "Trạng thái",
+      "address": "Địa chỉ",
+      "phone_number": "Số điện thoại",
+      "email": "Email"
+    },
     "placeholder": { "search": "Tìm tên trường, email, số điện thoại hoặc địa chỉ" },
-    "confirm": { "delete_title": "Xóa trường?", "delete_description": "Bạn có chắc muốn xóa {name}?" }
+    "confirm": {
+      "delete_title": "Xóa trường?",
+      "delete_description": "Bạn có chắc muốn xóa {name}?"
+    }
   }
 }
