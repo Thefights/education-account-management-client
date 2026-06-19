@@ -1,8 +1,5 @@
-/**
- * Audit log management page for browsing, filtering, sorting, and exporting logs.
- */
-import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsv } from '@/shared/utils/downloadFile'
@@ -15,23 +12,14 @@ import AuditLogTableSection from '../components/AuditLogTableSection'
 const defaultFilters = {
   search: '',
   categories: [],
-  actions: [],
-  createdFrom: '',
-  createdTo: '',
+  action: '',
+  occurredFrom: '',
+  occurredTo: '',
 }
 
 const defaultSort = {
-  key: 'createdAt',
+  key: 'occurredAt',
   direction: 'desc',
-}
-
-const auditLogSortFieldMap = {
-  createdAt: 'CreatedAt',
-}
-
-const getAuditLogExportSort = (sort) => {
-  const field = auditLogSortFieldMap[sort.key] || sort.key
-  return `${field} ${sort.direction}`
 }
 
 const getNullableDateTime = (value) => value || null
@@ -69,12 +57,12 @@ const AuditLogPage = () => {
 
   const handleExport = async (fields) => {
     const exportFilter = {
-      sort: getAuditLogExportSort(sort),
+      sort: `${sort.key} ${sort.direction}`,
       search: filters.search ?? '',
       categories: filters.categories ?? [],
-      actions: filters.actions ?? [],
-      createdFrom: getNullableDateTime(filters.createdFrom),
-      createdTo: getNullableDateTime(filters.createdTo),
+      action: filters.action ?? '',
+      occurredFrom: getNullableDateTime(filters.occurredFrom),
+      occurredTo: getNullableDateTime(filters.occurredTo),
     }
 
     await downloadCsv(

@@ -1,6 +1,5 @@
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
-  defaultAuditLogActionStyle,
   defaultAuditLogCategoryStyle,
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
@@ -25,16 +24,15 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         fixedColumn: true,
       },
       {
-        key: 'actorUserIdText',
-        title: t('audit_log.field.actor_user_id_text'),
+        key: 'actorUserId',
+        title: t('audit_log.field.actor_user_id'),
         width: 160,
         sortable: true,
       },
       {
-        key: 'actorFullName',
-        title: t('audit_log.field.actor_full_name'),
+        key: 'actorUserRole',
+        title: t('account.field.roles'),
         width: 180,
-        sortable: true,
       },
       {
         key: 'category',
@@ -50,15 +48,17 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         title: t('audit_log.field.action'),
         width: 220,
         sortable: true,
-        type: 'tag',
-        options: _enum.auditLogActionOptions,
-        color: defaultAuditLogActionStyle,
       },
       {
-        key: 'object',
-        title: t('audit_log.field.object'),
-        width: 260,
+        key: 'nric',
+        title: 'NRIC',
+        width: 140,
         sortable: true,
+      },
+      {
+        key: 'payloadJson',
+        title: 'Payload',
+        width: 300,
       },
       {
         key: 'ipAddress',
@@ -67,7 +67,7 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         sortable: true,
       },
       {
-        key: 'createdAt',
+        key: 'occurredAt',
         title: t('audit_log.field.created_at'),
         width: 180,
         sortable: true,
@@ -75,7 +75,7 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
           formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
       },
     ],
-    [t, _enum.auditLogActionOptions, _enum.auditLogCategoryOptions]
+    [t, _enum.auditLogCategoryOptions]
   )
 
   return (
