@@ -4,7 +4,7 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { isEmail, maxLen } from '@/shared/utils/validateUtil'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 const initialValues = {
   role: '',
@@ -47,6 +47,7 @@ const AdminManagementFormSection = ({
   const { t } = useTranslation()
   const _enum = useEnum()
   const [currentRole, setCurrentRole] = useState('')
+  const updateInitialValues = useMemo(() => normalizeInitialValues(selectedRow), [selectedRow])
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
@@ -118,11 +119,9 @@ const AdminManagementFormSection = ({
       await refetch()
     }
 
-  const handleValuesChange = (values) => {
-    if (values.role !== currentRole) {
-      setCurrentRole(values.role)
-    }
-  }
+  const handleValuesChange = useCallback((values) => {
+    setCurrentRole((prev) => (values.role !== prev ? values.role : prev))
+  }, [])
 
   return (
     <>
@@ -135,18 +134,18 @@ const AdminManagementFormSection = ({
         fields={fields}
         destroyOnClose
         onSubmit={handleSubmit(onCreateSubmit)}
-        onValuesChange={handleValuesChange}
+        onValuesChange={openCreate ? handleValuesChange : undefined}
       />
       <GenericFormDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         title={t('admin_management.title.update')}
         submitLabel={t('button.update')}
-        initialValues={normalizeInitialValues(selectedRow)}
+        initialValues={updateInitialValues}
         fields={fields}
         destroyOnClose
         onSubmit={handleSubmit(onUpdateSubmit)}
-        onValuesChange={handleValuesChange}
+        onValuesChange={openUpdate ? handleValuesChange : undefined}
       />
     </>
   )
