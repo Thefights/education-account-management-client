@@ -25,6 +25,7 @@ export const ApiUrls = {
     GET_ALL: '/admin-management/all',
     DETAIL: (id) => `/admin-management/${id}`,
     UPDATE_STATUS: '/admin-management/status',
+    IMPORT: '/admin-management/import',
   },
 
   SCHOOL_MANAGEMENT: {
@@ -32,12 +33,14 @@ export const ApiUrls = {
     GET_ALL: '/school-management/all',
     DETAIL: (id) => `/school-management/${id}`,
     UPDATE_STATUS: '/school-management/status',
+    IMPORT: '/school-management/import',
   },
 
   COURSE_MANAGEMENT: {
     INDEX: '/course-management',
     GET_ALL: '/course-management/all',
     DETAIL: (id) => `/course-management/${id}`,
+    IMPORT: '/course-management/import',
   },
 
   EDUCATION_ACCOUNT: {

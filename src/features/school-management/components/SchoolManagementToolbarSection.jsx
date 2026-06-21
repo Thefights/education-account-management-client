@@ -1,7 +1,7 @@
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Button, Flex, Space } from 'antd'
 
-const SchoolManagementToolbarSection = ({ onCreate, selectedIds, onChangeStatus, loading }) => {
+const SchoolManagementToolbarSection = ({ onCreate, onImport, selectedIds, onChangeStatus, loading }) => {
   const { t } = useTranslation()
 
   return (
@@ -21,6 +21,9 @@ const SchoolManagementToolbarSection = ({ onCreate, selectedIds, onChangeStatus,
           onClick={() => onChangeStatus(2)}
         >
           {t('button.deactivate')}
+        </Button>
+        <Button onClick={onImport}>
+          {t('button.import')}
         </Button>
         <Button type="primary" onClick={onCreate}>
           {t('button.create')}

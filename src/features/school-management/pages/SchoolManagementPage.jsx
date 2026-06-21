@@ -1,5 +1,6 @@
 /** System administrator page for managing schools. */
 import { ApiUrls } from '@/shared/api/apiUrls'
+import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
@@ -23,6 +24,8 @@ const SchoolManagementPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(false)
   const [openUpdate, setOpenUpdate] = useState(false)
+  const [openImport, setOpenImport] = useState(false)
+  const [importResult, setImportResult] = useState(null)
   const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
 
@@ -44,6 +47,10 @@ const SchoolManagementPage = () => {
     method: 'PUT',
   })
   const deleteSchool = useAxiosSubmit({ method: 'DELETE' })
+  const submitImport = useAxiosSubmit({
+    url: ApiUrls.SCHOOL_MANAGEMENT.IMPORT,
+    method: 'POST',
+  })
 
   const handleFilter = (values) => {
     setFilters(values)
@@ -72,14 +79,26 @@ const SchoolManagementPage = () => {
     if (response) await schools.fetch()
   }
 
+  const handleImport = async (values) => {
+    if (!values.file?.name?.toLowerCase().endsWith('.csv')) return
+
+    const formData = new FormData()
+    formData.append('file', values.file)
+    const response = await submitImport.submit({ overrideData: formData })
+    const result = response?.data
+    setImportResult(result || null)
+    if (result?.succeeded) await schools.fetch()
+  }
+
   return (
     <Card style={{ flex: 1, width: '100%', border: 0, borderRadius: 0 }}>
       <Flex vertical gap={16}>
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('school_management.title.management')}
         </Typography.Title>
-        <SchoolManagementToolbarSection 
-          onCreate={() => setOpenCreate(true)} 
+        <SchoolManagementToolbarSection
+          onCreate={() => setOpenCreate(true)}
+          onImport={() => setOpenImport(true)}
           selectedIds={selectedIds}
           onChangeStatus={handleChangeStatus}
           loading={updateStatus.loading}
@@ -123,6 +142,15 @@ const SchoolManagementPage = () => {
         onCreateSubmit={createSchool.submit}
         onUpdateSubmit={updateSchool.submit}
         refetch={schools.fetch}
+      />
+      <GenericImportSection
+        open={openImport}
+        onClose={() => {
+          setImportResult(null)
+          setOpenImport(false)
+        }}
+        result={importResult}
+        onSubmit={handleImport}
       />
     </Card>
   )

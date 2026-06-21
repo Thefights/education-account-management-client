@@ -1,14 +1,19 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex } from 'antd'
+import { Button, Flex, Space } from 'antd'
 
-const CourseManagementToolbarSection = ({ onCreate }) => {
+const CourseManagementToolbarSection = ({ onCreate, onImport }) => {
   const { t } = useTranslation()
 
   return (
     <Flex justify="end">
-      <Button type="primary" onClick={onCreate}>
-        {t('button.create')}
-      </Button>
+      <Space wrap>
+        <Button onClick={onImport}>
+          {t('button.import')}
+        </Button>
+        <Button type="primary" onClick={onCreate}>
+          {t('button.create')}
+        </Button>
+      </Space>
     </Flex>
   )
 }

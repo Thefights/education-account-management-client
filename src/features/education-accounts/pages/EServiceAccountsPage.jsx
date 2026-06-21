@@ -1,4 +1,5 @@
 import ManualAccountResultSection from '@/features/manual-account-creation/components/ManualAccountResultSection'
+import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
@@ -75,6 +76,21 @@ const EServiceAccountsPage = () => {
     [t]
   )
   const accounts = useFetch(ApiUrls.EDUCATION_ACCOUNT.INDEX, queryParams, [queryParams])
+
+  const handleImport = async (values) => {
+    if (!values.file?.name?.toLowerCase().endsWith('.csv')) {
+      message.error(t('education_account.csv_only'))
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', values.file)
+    const response = await submitImport({ overrideData: formData })
+    const result = response?.data
+    setImportResult(result || null)
+    if (result?.succeeded) await accounts.fetch()
+  }
+
   return (
     <Card>
       <Flex vertical gap={16}>
@@ -137,7 +153,7 @@ const EServiceAccountsPage = () => {
           await accounts.fetch()
         }}
       />
-      <GenericFormDialog
+      <GenericImportSection
         open={openImport}
         onClose={() => {
           setImportResult(null)
@@ -145,26 +161,11 @@ const EServiceAccountsPage = () => {
         }}
         title={t('education_account.import_title')}
         submitLabel={t('education_account.import_csv')}
-        initialValues={{ file: null }}
         fields={importFields}
-        destroyOnClose
-        onSubmit={async ({ values, setField }) => {
-          if (!values.file?.name?.toLowerCase().endsWith('.csv')) {
-            message.error(t('education_account.csv_only'))
-            return
-          }
-          const formData = new FormData()
-          formData.append('file', values.file)
-          const response = await submitImport({ overrideData: formData })
-          const result = response?.data
-          setImportResult(result || null)
-          if (!result) return
-          setField('file', null)
-          if (result.succeeded) await accounts.fetch()
-        }}
-      >
-        <ManualAccountResultSection result={importResult} />
-      </GenericFormDialog>
+        result={importResult}
+        renderResult={(result) => <ManualAccountResultSection result={result} />}
+        onSubmit={handleImport}
+      />
     </Card>
   )
 }

@@ -37,6 +37,18 @@
     "required": "This field is required",
     "weak_password": "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character"
   },
+  "import": {
+    "errors": "Errors",
+    "failed": "Failed",
+    "field": "Field",
+    "file": "CSV file",
+    "message": "Message",
+    "row_number": "Row",
+    "submit": "Import",
+    "succeeded": "Succeeded",
+    "title": "Batch import",
+    "total": "Total"
+  },
   "pagination": {
     "items_per_page": "/ page",
     "jump_to": "Go to",

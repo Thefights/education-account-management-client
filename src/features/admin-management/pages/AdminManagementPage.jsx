@@ -1,4 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
+import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -22,6 +23,8 @@ const AdminManagementPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(false)
   const [openUpdate, setOpenUpdate] = useState(false)
+  const [openImport, setOpenImport] = useState(false)
+  const [importResult, setImportResult] = useState(null)
   const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const schools = useApiOptions({
@@ -47,6 +50,10 @@ const AdminManagementPage = () => {
     url: ApiUrls.ADMIN_MANAGEMENT.UPDATE_STATUS,
     method: 'PUT',
   })
+  const submitImport = useAxiosSubmit({
+    url: ApiUrls.ADMIN_MANAGEMENT.IMPORT,
+    method: 'POST',
+  })
 
   const handleFilter = (values) => {
     setFilters(values)
@@ -61,14 +68,26 @@ const AdminManagementPage = () => {
     await getAdmins.fetch()
   }
 
+  const handleImport = async (values) => {
+    if (!values.file?.name?.toLowerCase().endsWith('.csv')) return
+
+    const formData = new FormData()
+    formData.append('file', values.file)
+    const response = await submitImport.submit({ overrideData: formData })
+    const result = response?.data
+    setImportResult(result || null)
+    if (result?.succeeded) await getAdmins.fetch()
+  }
+
   return (
     <Card style={{ flex: 1, width: '100%', border: 0, borderRadius: 0 }}>
       <Flex vertical gap={16}>
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('admin_management.title.management')}
         </Typography.Title>
-        <AdminManagementToolbarSection 
-          onCreate={() => setOpenCreate(true)} 
+        <AdminManagementToolbarSection
+          onCreate={() => setOpenCreate(true)}
+          onImport={() => setOpenImport(true)}
           selectedIds={selectedIds}
           onChangeStatus={handleChangeStatus}
           loading={updateStatus.loading}
@@ -115,6 +134,15 @@ const AdminManagementPage = () => {
         refetch={getAdmins.fetch}
         schoolOptions={schools.options}
         schoolsLoading={schools.loading}
+      />
+      <GenericImportSection
+        open={openImport}
+        onClose={() => {
+          setImportResult(null)
+          setOpenImport(false)
+        }}
+        result={importResult}
+        onSubmit={handleImport}
       />
     </Card>
   )
