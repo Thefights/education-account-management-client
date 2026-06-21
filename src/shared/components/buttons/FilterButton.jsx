@@ -11,19 +11,19 @@ import { Button } from 'antd'
  * @param {Object & CustomProps} props
  */
 const FilterButton = ({ onFilterClick, loading = false, ...props }) => {
-	const { t } = useTranslation()
+  const { t } = useTranslation()
 
-	return (
-		<Button
-			onClick={onFilterClick}
-			type='primary'
-			icon={<FilterOutlined />}
-			loading={loading}
-			{...props}
-		>
-			{loading ? t('text.loading') : t('button.filter')}
-		</Button>
-	)
+  return (
+    <Button
+      onClick={onFilterClick}
+      type="primary"
+      icon={<FilterOutlined />}
+      loading={loading}
+      {...props}
+    >
+      {loading ? t('text.loading') : t('button.filter')}
+    </Button>
+  )
 }
 
 export default FilterButton

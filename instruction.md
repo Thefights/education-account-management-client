@@ -31,7 +31,7 @@ Cấu trúc khuyến nghị:
 ```txt
 src/pages/exampleManagementPage/
   ExampleManagementPage.jsx
-  sections/
+  components/
     ExampleManagementFilterSection.jsx
     ExampleManagementTableSection.jsx
     ExampleManagementFormSection.jsx
@@ -384,7 +384,7 @@ Không comment kiểu hiển nhiên như “import thư viện” hoặc “set 
 
 ## Chia folder theo section
 
-Nếu page có nhiều hơn một nhóm UI hoặc có nhiều trách nhiệm, phải chia `sections`.
+Nếu page có nhiều hơn một nhóm UI hoặc có nhiều trách nhiệm, phải chia `sections` (đặt trong thư mục `components/`).
 
 Nên chia theo chức năng:
 
