@@ -180,6 +180,44 @@ export default function useEnum() {
       { value: EnumConfig.TopupMatchMode.Or, label: 'OR' },
     ],
 
+    topupExecutionSourceTypeIdOptions: [
+      { value: EnumConfig.TopupExecutionSourceTypeId.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupExecutionSourceTypeId.Schedule, label: t('topup.schedule_tab') },
+      { value: EnumConfig.TopupExecutionSourceTypeId.Manual, label: t('topup.manual_tab') },
+    ],
+
+    topupExecutionSourceTypeOptions: [
+      { value: EnumConfig.TopupExecutionSourceType.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupExecutionSourceType.Schedule, label: t('topup.schedule_tab') },
+      { value: EnumConfig.TopupExecutionSourceType.Manual, label: t('topup.manual_tab') },
+    ],
+
+    topupExecutionStatusIdOptions: [
+      { value: EnumConfig.TopupExecutionStatusId.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupExecutionStatusId.Executing, label: t('topup.executing') },
+      { value: EnumConfig.TopupExecutionStatusId.Completed, label: t('topup.completed') },
+    ],
+
+    topupExecutionStatusOptions: [
+      { value: EnumConfig.TopupExecutionStatus.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupExecutionStatus.Executing, label: t('topup.executing') },
+      { value: EnumConfig.TopupExecutionStatus.Completed, label: t('topup.completed') },
+    ],
+
+    topupTargetStatusIdOptions: [
+      { value: EnumConfig.TopupTargetStatusId.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupTargetStatusId.Processing, label: t('topup.processing') },
+      { value: EnumConfig.TopupTargetStatusId.Success, label: t('topup.succeeded') },
+      { value: EnumConfig.TopupTargetStatusId.Failed, label: t('topup.failed') },
+    ],
+
+    topupTargetStatusOptions: [
+      { value: EnumConfig.TopupTargetStatus.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupTargetStatus.Processing, label: t('topup.processing') },
+      { value: EnumConfig.TopupTargetStatus.Success, label: t('topup.succeeded') },
+      { value: EnumConfig.TopupTargetStatus.Failed, label: t('topup.failed') },
+    ],
+
     topupScheduleTypeIdOptions: [
       { value: EnumConfig.TopupScheduleTypeId.OneTime, label: t('topup_form.one_time') },
       { value: EnumConfig.TopupScheduleTypeId.Monthly, label: t('topup_form.monthly') },

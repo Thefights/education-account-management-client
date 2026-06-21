@@ -8,6 +8,11 @@
   "topup": {
     "details": "Chi tiết",
     "reason_placeholder": "Nhập lý do",
-    "target_selection": "Chọn đối tượng nạp tiền"
+    "target_selection": "Chọn đối tượng nạp tiền",
+    "pending": "Đang chờ",
+    "executing": "Đang thực thi",
+    "processing": "Đang xử lý",
+    "completed": "Hoàn tất",
+    "execution_targets": "Đối tượng thực thi"
   }
 }

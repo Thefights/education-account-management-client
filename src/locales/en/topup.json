@@ -50,7 +50,12 @@
     "create_title": "Create Top-up",
     "rule_type": "Rule type",
     "schedule_rule": "Schedule Rule",
-    "schedule_configuration": "Schedule Configuration"
+    "schedule_configuration": "Schedule Configuration",
+    "pending": "Pending",
+    "executing": "Executing",
+    "processing": "Processing",
+    "completed": "Completed",
+    "execution_targets": "Execution targets"
   },
   "account_profile": {
     "title": "My Education Account",

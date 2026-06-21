@@ -127,6 +127,21 @@ export const defaultTopupMatchModeStyle = (mode) => {
   return map[mode] || 'default'
 }
 
+export const defaultTopupExecutionSourceStyle = (source) => {
+  const map = { System: 'blue', Schedule: 'purple', Manual: 'cyan' }
+  return map[source] || 'default'
+}
+
+export const defaultTopupExecutionStatusStyle = (status) => {
+  const map = { Pending: 'default', Executing: 'processing', Completed: 'success' }
+  return map[status] || 'default'
+}
+
+export const defaultTopupTargetStatusStyle = (status) => {
+  const map = { Pending: 'default', Processing: 'processing', Success: 'success', Failed: 'error' }
+  return map[status] || 'default'
+}
+
 export const defaultAuditLogActionStyle = (action) => {
   const map = {
     [EnumConfig.AuditLogAction.Login]: 'success',
