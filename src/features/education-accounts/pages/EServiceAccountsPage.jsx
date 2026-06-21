@@ -1,20 +1,20 @@
+import ManualAccountResultSection from '@/features/manual-account-creation/components/ManualAccountResultSection'
+import { ApiUrls } from '@/shared/api/apiUrls'
+import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import NricInput from '@/shared/components/textFields/NricInput'
-import { ApiUrls } from '@/shared/api/apiUrls'
+import { routeUrls } from '@/shared/config/routeUrls'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import useTranslation from '@/shared/hooks/useTranslation'
+import { minLen } from '@/shared/utils/validateUtil'
 import { Card, Flex, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import EServiceAccountsFilterSection from '../components/EServiceAccountsFilterSection'
 import EServiceAccountsTableSection from '../components/EServiceAccountsTableSection'
-import ManualAccountResultSection from '@/features/manual-account-creation/components/ManualAccountResultSection'
-import { routeUrls } from '@/shared/config/routeUrls'
-import { minLen } from '@/shared/utils/validateUtil'
-import useTranslation from '@/shared/hooks/useTranslation'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 
-const defaultFilters = { search: '', status: '' }
+const defaultFilters = { search: '', statuses: [] }
 
 const EServiceAccountsPage = () => {
   const location = useLocation()
@@ -39,39 +39,47 @@ const EServiceAccountsPage = () => {
     () => ({ ...filters, sort: `${sort.key} ${sort.direction}`, page, pageSize }),
     [filters, page, pageSize, sort]
   )
-  const createFields = useMemo(() => [
-    {
-      key: 'nric',
-      title: t('education_account.nric'),
-      type: 'custom',
-      render: ({ value, onChange }) => (
-        <NricInput value={value} onChange={onChange} placeholder="S1234567D" />
-      ),
-    },
-    {
-      key: 'reason',
-      title: t('education_account.reason'),
-      multiple: 5,
-      validate: [minLen(20, t('education_account.reason_min'))],
-      props: {
-        placeholder: t('education_account.reason_placeholder'),
+  const createFields = useMemo(
+    () => [
+      {
+        key: 'nric',
+        title: t('education_account.nric'),
+        type: 'custom',
+        render: ({ value, onChange }) => (
+          <NricInput value={value} onChange={onChange} placeholder="S1234567D" />
+        ),
       },
-    },
-  ], [t])
-  const importFields = useMemo(() => [
-    {
-      key: 'file',
-      title: t('education_account.csv_file'),
-      type: 'file',
-      buttonText: t('education_account.select_csv'),
-      props: { accept: '.csv,text/csv' },
-    },
-  ], [t])
+      {
+        key: 'reason',
+        title: t('education_account.reason'),
+        multiple: 5,
+        validate: [minLen(20, t('education_account.reason_min'))],
+        props: {
+          placeholder: t('education_account.reason_placeholder'),
+        },
+      },
+    ],
+    [t]
+  )
+  const importFields = useMemo(
+    () => [
+      {
+        key: 'file',
+        title: t('education_account.csv_file'),
+        type: 'file',
+        buttonText: t('education_account.select_csv'),
+        props: { accept: '.csv,text/csv' },
+      },
+    ],
+    [t]
+  )
   const accounts = useFetch(ApiUrls.EDUCATION_ACCOUNT.INDEX, queryParams, [queryParams])
   return (
     <Card>
       <Flex vertical gap={16}>
-        <Typography.Title level={4} style={{ margin: 0 }}>{t('education_account.management_title')}</Typography.Title>
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {t('education_account.management_title')}
+        </Typography.Title>
         <EServiceAccountsFilterSection
           filters={filters}
           onFilter={(values) => {

@@ -1,6 +1,6 @@
+import useTranslation from '@/shared/hooks/useTranslation'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Card, Col, InputNumber, Row, Select, Space, Typography } from 'antd'
-import useTranslation from '@/shared/hooks/useTranslation'
 
 const emptyCondition = {
   field: 1,
@@ -26,9 +26,11 @@ const TopupRuleConditionsField = ({ value = [], onChange, matchMode = 1 }) => {
     { value: 6, label: t('topup_form.less_than_or_equal') },
   ]
   const update = (index, changes) => {
-    onChange(value.map((condition, itemIndex) =>
-      itemIndex === index ? { ...condition, ...changes } : condition
-    ))
+    onChange(
+      value.map((condition, itemIndex) =>
+        itemIndex === index ? { ...condition, ...changes } : condition
+      )
+    )
   }
 
   return (
@@ -44,12 +46,14 @@ const TopupRuleConditionsField = ({ value = [], onChange, matchMode = 1 }) => {
                   value={condition.field}
                   options={fieldOptions}
                   style={{ width: '100%' }}
-                  onChange={(field) => update(index, {
-                    field,
-                    operator: 1,
-                    valueText: null,
-                    valueNumber: null,
-                  })}
+                  onChange={(field) =>
+                    update(index, {
+                      field,
+                      operator: 1,
+                      valueText: null,
+                      valueNumber: null,
+                    })
+                  }
                 />
               </Col>
               <Col xs={24} md={7}>
@@ -87,7 +91,7 @@ const TopupRuleConditionsField = ({ value = [], onChange, matchMode = 1 }) => {
                 <Col xs={20} md={8}>
                   <InputNumber
                     value={condition.conditionAmount}
-                    placeholder={t('topup_form.condition_amount', 'Top-up amount')}
+                    placeholder={t('topup_form.condition_amount')}
                     min={0.01}
                     precision={2}
                     style={{ width: '100%' }}
@@ -114,7 +118,9 @@ const TopupRuleConditionsField = ({ value = [], onChange, matchMode = 1 }) => {
       >
         {t('topup_form.add_condition')}
       </Button>
-      {!value.length && <Typography.Text type="danger">{t('topup_form.condition_required')}</Typography.Text>}
+      {!value.length && (
+        <Typography.Text type="danger">{t('topup_form.condition_required')}</Typography.Text>
+      )}
     </Space>
   )
 }

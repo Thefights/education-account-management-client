@@ -6,48 +6,49 @@ import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Col, Flex, Row, Space } from 'antd'
 
-const emptyFilters = { search: '', statuses: [] }
+const defaultFilters = { frequencies: [], statuses: [] }
 
-const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) => {
+const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-  const { values, handleChange, setField, registerRef, reset } = useForm(filters)
+  const { values, handleChange, reset, setField, registerRef } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
   const fields = [
     {
-      key: 'search',
-      title: t('course_management.placeholder.search'),
-      label: t('course_management.placeholder.search'),
-      type: 'search',
+      key: 'frequencies',
+      title: t('topup.schedule_type'),
+      type: 'select',
+      multiple: true,
+      options: _enum.topupScheduleTypeIdOptions,
       required: false,
-      reserveLabelSpace: true,
+      props: { allowClear: true },
     },
     {
       key: 'statuses',
-      title: t('course_management.field.status'),
+      title: t('topup.status'),
       type: 'select',
       multiple: true,
-      options: _enum.courseStatusOptions,
+      options: _enum.topupScheduleStatusIdOptions,
       required: false,
+      props: { allowClear: true },
     },
   ]
 
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} md={12}>
-          {renderField(fields[0])}
-        </Col>
-        <Col xs={24} md={6}>
-          {renderField(fields[1])}
-        </Col>
-        <Col xs={24} md={6}>
+        {fields.map((field) => (
+          <Col key={field.key} xs={24} md={8}>
+            {renderField(field)}
+          </Col>
+        ))}
+        <Col xs={24} md={8}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton
                 loading={loading}
                 onResetFilterClick={() => {
-                  reset(emptyFilters)
+                  reset(defaultFilters)
                   onReset?.()
                 }}
               />
@@ -60,4 +61,4 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   )
 }
 
-export default CourseManagementFilterSection
+export default TopupScheduleFilterSection

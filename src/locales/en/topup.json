@@ -43,10 +43,10 @@
     "execution_code": "Execution code",
     "source": "Source",
     "total_targets": "Total targets",
-    "search_execution": "Execution code or rule",
+    "search_execution": "Search by execution code or rule",
     "transaction_code": "Transaction code",
     "execution_detail": "Execution detail",
-    "search_rule": "Search rule name",
+    "search_rule": "Search by rule name",
     "create_title": "Create Top-up",
     "rule_type": "Rule type",
     "schedule_rule": "Schedule Rule",
@@ -66,7 +66,7 @@
   "navigation": {
     "education_accounts": "Education Accounts",
     "manual_account_creation": "Manual Account Creation",
-    "batch_reports": "Batch Reports",
+    "batch_reports": "Account Creation Reports",
     "audit_logs": "Audit Logs"
   }
 }

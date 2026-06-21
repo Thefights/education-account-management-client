@@ -16,7 +16,7 @@
       "misc_fee_amount": "Miscellaneous fee",
       "gst_amount": "GST amount"
     },
-    "placeholder": { "search": "Search course name" },
+    "placeholder": { "search": "Search by course or school name" },
     "confirm": {
       "delete_title": "Delete course?",
       "delete_description": "Are you sure you want to delete {name}?"

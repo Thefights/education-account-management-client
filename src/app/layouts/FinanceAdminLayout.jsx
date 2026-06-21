@@ -10,7 +10,7 @@ const FinanceAdminLayout = () => {
       items: [
         {
           key: 'topup-management',
-          label: t('topup.management_title', 'Top-up Management'),
+          label: t('topup.management_title'),
           icon: DollarOutlined,
           url: routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX),
         },

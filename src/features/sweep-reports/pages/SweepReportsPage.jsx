@@ -1,11 +1,11 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { Alert, Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import SweepReportFilterSection from '../components/SweepReportFilterSection'
 import SweepReportSummarySection from '../components/SweepReportSummarySection'
 import SweepReportTargetsTable from '../components/SweepReportTargetsTable'
-import useTranslation from '@/shared/hooks/useTranslation'
 
 const getCurrentSingaporeDate = () => {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -28,7 +28,9 @@ const SweepReportsPage = () => {
   return (
     <Card>
       <Flex vertical gap={16}>
-        <Typography.Title level={4} style={{ margin: 0 }}>{t('batch_report.title', 'Sweep Report')}</Typography.Title>
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {t('batch_report.title', 'Account Creation Report')}
+        </Typography.Title>
         <SweepReportFilterSection
           key={batchDate}
           batchDate={batchDate}
@@ -48,7 +50,10 @@ const SweepReportsPage = () => {
           <Alert
             type="info"
             showIcon
-            message={t('batch_report.no_report', 'No report data available for the selected criteria.')}
+            message={t(
+              'batch_report.no_report',
+              'No report data available for the selected criteria.'
+            )}
           />
         )}
       </Flex>

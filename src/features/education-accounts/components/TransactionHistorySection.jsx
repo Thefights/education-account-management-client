@@ -6,12 +6,13 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDateToLongUS } from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Row, Space, Tag, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 
-const defaultFilters = { search: '', type: '', direction: '', createdFrom: '', createdTo: '' }
+const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
 const TransactionHistorySection = ({ url }) => {
   const { t } = useTranslation()
@@ -26,35 +27,43 @@ const TransactionHistorySection = ({ url }) => {
   const transactions = useFetch(url, params, [params])
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
-  const typeLabels = useMemo(() => ({
-    Topup: t('transaction.topup'),
-    CourseFee: t('transaction.course_fee'),
-    Refund: t('transaction.refund'),
-    Adjustment: t('transaction.adjustment'),
-    Interest: t('transaction.interest'),
-  }), [t])
-  const directionLabels = useMemo(() => ({
-    Credit: t('transaction.credit'),
-    Debit: t('transaction.debit'),
-  }), [t])
+  const typeLabels = useMemo(
+    () => ({
+      Topup: t('transaction.topup'),
+      CourseFee: t('transaction.course_fee'),
+      Refund: t('transaction.refund'),
+      Adjustment: t('transaction.adjustment'),
+      Interest: t('transaction.interest'),
+    }),
+    [t]
+  )
+  const directionLabels = useMemo(
+    () => ({
+      Credit: t('transaction.credit'),
+      Debit: t('transaction.debit'),
+    }),
+    [t]
+  )
   const filterFields = [
     { key: 'search', title: t('transaction.search'), type: 'search', required: false },
     {
-      key: 'type',
+      key: 'types',
       title: t('transaction.type'),
       type: 'select',
+      multiple: true,
       required: false,
-      options: ['', 'Topup', 'CourseFee', 'Refund', 'Adjustment', 'Interest'].map((value) => ({
+      options: ['Topup', 'CourseFee', 'Refund', 'Adjustment', 'Interest'].map((value) => ({
         value,
         label: value ? typeLabels[value] : t('text.all'),
       })),
     },
     {
-      key: 'direction',
+      key: 'directions',
       title: t('transaction.direction'),
       type: 'select',
+      multiple: true,
       required: false,
-      options: ['', 'Credit', 'Debit'].map((value) => ({
+      options: ['Credit', 'Debit'].map((value) => ({
         value,
         label: value ? directionLabels[value] : t('text.all'),
       })),
@@ -98,7 +107,13 @@ const TransactionHistorySection = ({ url }) => {
           </Tag>
         ),
       },
-      { key: 'createdAt', title: t('transaction.created_at'), width: 190, sortable: true },
+      {
+        key: 'createdAt',
+        title: t('transaction.created_at'),
+        width: 190,
+        sortable: true,
+        render: formatDateToLongUS,
+      },
     ],
     [t, typeLabels, directionLabels]
   )
@@ -117,12 +132,16 @@ const TransactionHistorySection = ({ url }) => {
       <Flex vertical gap={16}>
         <Row gutter={[12, 12]} align="bottom">
           {filterFields.map((field) => (
-            <Col key={field.key} xs={24} md={6}>{renderField(field)}</Col>
+            <Col key={field.key} xs={24} md={6}>
+              {renderField(field)}
+            </Col>
           ))}
           <Col xs={24} md={6}>
             <DatePicker.RangePicker
               showTime
-              value={values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null}
+              value={
+                values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
+              }
               onChange={(range) => {
                 setField('createdFrom', range?.[0]?.toISOString() || '')
                 setField('createdTo', range?.[1]?.toISOString() || '')
@@ -131,10 +150,15 @@ const TransactionHistorySection = ({ url }) => {
             />
           </Col>
           <Col xs={24}>
-            <Flex justify="end"><Space>
-              <ResetFilterButton loading={transactions.loading} onResetFilterClick={resetFilters} />
-              <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
-            </Space></Flex>
+            <Flex justify="end">
+              <Space>
+                <ResetFilterButton
+                  loading={transactions.loading}
+                  onResetFilterClick={resetFilters}
+                />
+                <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
+              </Space>
+            </Flex>
           </Col>
         </Row>
         <GenericTable

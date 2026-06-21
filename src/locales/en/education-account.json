@@ -13,10 +13,10 @@
   },
   "transaction": {
     "title": "Transaction History",
-    "search": "Search description",
+    "search": "Search by description",
     "code": "Transaction code",
     "type": "Type",
-    "direction": "Direction",
+    "direction": "Credit / Debit",
     "description": "Description",
     "amount": "Amount",
     "balance_before": "Balance before",

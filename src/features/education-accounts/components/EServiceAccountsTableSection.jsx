@@ -1,9 +1,10 @@
-import GenericTable from '@/shared/components/tables/GenericTable'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
-import { Button, Flex, Space, Tag } from 'antd'
-import { ImportOutlined, PlusOutlined } from '@ant-design/icons'
-import { useMemo } from 'react'
+import GenericTable from '@/shared/components/tables/GenericTable'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { ImportOutlined, PlusOutlined } from '@ant-design/icons'
+import { Button, Flex, Space, Tag } from 'antd'
+import { useMemo } from 'react'
 
 const statusColors = {
   Active: 'success',
@@ -47,12 +48,22 @@ const EServiceAccountsTableSection = ({
         render: (value) => <Tag color={statusColors[value]}>{value}</Tag>,
       },
       { key: 'balance', title: t('education_account.balance'), width: 130, sortable: true },
-      { key: 'createdDate', title: t('education_account.created'), width: 140, sortable: true },
+      {
+        key: 'createdDate',
+        title: t('education_account.created'),
+        width: 170,
+        sortable: true,
+        render: formatDateBasedOnCurrentLanguage,
+      },
       {
         key: 'action',
         title: '',
         width: 80,
-        render: (_, row) => <Button type="link" onClick={() => onView(row)}>{t('education_account.view')}</Button>,
+        render: (_, row) => (
+          <Button type="link" onClick={() => onView(row)}>
+            {t('education_account.view')}
+          </Button>
+        ),
       },
     ],
     [onView, t]
@@ -62,8 +73,12 @@ const EServiceAccountsTableSection = ({
     <>
       <Flex justify="end" style={{ marginBottom: 12 }}>
         <Space>
-          <Button icon={<ImportOutlined />} onClick={onImport}>{t('education_account.batch_import')}</Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>{t('button.create')}</Button>
+          <Button icon={<ImportOutlined />} onClick={onImport}>
+            {t('education_account.batch_import')}
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
+            {t('button.create')}
+          </Button>
         </Space>
       </Flex>
       <GenericTable

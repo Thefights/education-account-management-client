@@ -33,7 +33,7 @@
     "download_failed_csv": "Download failed CSV"
   },
   "batch_report": {
-    "title": "Batch Job Reports",
+    "title": "Account Creation Report",
     "created_successfully": "Created successfully",
     "failed": "Failed",
     "extended": "Extended",
@@ -48,7 +48,12 @@
     "nric": "NRIC",
     "action": "Action",
     "status": "Status",
-    "reason": "Reason"
+    "reason": "Reason",
+    "success_accounts": "Successfully created accounts",
+    "search_success_accounts": "Search by account number or name",
+    "account_number": "Account number",
+    "name": "Name",
+    "created_date": "Created date"
   },
   "topup_form": {
     "create_rule": "Create top-up rule",
@@ -60,13 +65,17 @@
     "delete_schedule": "Delete top-up schedule",
     "delete_schedule_confirm": "Delete {name}?",
     "rule_name": "Rule name",
+    "rule_type": "Rule type",
+    "match_mode": "Match mode",
     "topup_amount": "Top-up amount",
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
+    "completed": "Completed",
     "conditions": "Conditions",
     "add_condition": "Add condition",
     "condition_required": "At least one condition is required.",
+    "condition_amount": "Top-up amount",
     "age": "Age",
     "balance": "Balance",
     "schooling_status": "Schooling status",

@@ -12,7 +12,7 @@
       "misc_fee_amount": "杂费",
       "gst_amount": "GST 金额"
     },
-    "placeholder": { "search": "搜索课程名称" },
+    "placeholder": { "search": "按课程或学校名称搜索" },
     "confirm": { "delete_title": "删除课程？", "delete_description": "确定要删除 {name} 吗？" }
   }
 }

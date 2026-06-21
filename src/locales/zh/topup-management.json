@@ -1,0 +1,8 @@
+{
+  "topup_form": {
+    "rule_type": "规则类型",
+    "match_mode": "匹配模式",
+    "completed": "已完成",
+    "condition_amount": "充值金额"
+  }
+}

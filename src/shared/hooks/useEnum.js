@@ -159,5 +159,49 @@ export default function useEnum() {
       { value: EnumConfig.SweepTargetStatus.Success, label: t('enum.sweep_target_status.success') },
       { value: EnumConfig.SweepTargetStatus.Failed, label: t('enum.sweep_target_status.failed') },
     ],
+
+    topupRuleTypeIdOptions: [
+      { value: EnumConfig.TopupRuleTypeId.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupRuleTypeId.Schedule, label: t('topup.schedule_tab') },
+    ],
+
+    topupRuleTypeOptions: [
+      { value: EnumConfig.TopupRuleType.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupRuleType.Schedule, label: t('topup.schedule_tab') },
+    ],
+
+    topupMatchModeIdOptions: [
+      { value: EnumConfig.TopupMatchModeId.And, label: 'AND' },
+      { value: EnumConfig.TopupMatchModeId.Or, label: 'OR' },
+    ],
+
+    topupMatchModeOptions: [
+      { value: EnumConfig.TopupMatchMode.And, label: 'AND' },
+      { value: EnumConfig.TopupMatchMode.Or, label: 'OR' },
+    ],
+
+    topupScheduleTypeIdOptions: [
+      { value: EnumConfig.TopupScheduleTypeId.OneTime, label: t('topup_form.one_time') },
+      { value: EnumConfig.TopupScheduleTypeId.Monthly, label: t('topup_form.monthly') },
+      { value: EnumConfig.TopupScheduleTypeId.Yearly, label: t('topup_form.yearly') },
+    ],
+
+    topupScheduleTypeOptions: [
+      { value: 'OneTime', label: t('topup_form.one_time') },
+      { value: 'Monthly', label: t('topup_form.monthly') },
+      { value: 'Yearly', label: t('topup_form.yearly') },
+    ],
+
+    topupScheduleStatusIdOptions: [
+      { value: EnumConfig.TopupScheduleStatusId.Active, label: t('topup_form.active') },
+      { value: EnumConfig.TopupScheduleStatusId.Inactive, label: t('topup_form.inactive') },
+      { value: EnumConfig.TopupScheduleStatusId.Completed, label: t('topup_form.completed') },
+    ],
+
+    topupScheduleStatusOptions: [
+      { value: 'Active', label: t('topup_form.active') },
+      { value: 'Inactive', label: t('topup_form.inactive') },
+      { value: 'Completed', label: t('topup_form.completed') },
+    ],
   }
 }

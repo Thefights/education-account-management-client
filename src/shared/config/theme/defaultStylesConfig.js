@@ -99,6 +99,34 @@ export const defaultSweepTargetStatusStyle = (status) => {
   return map[status] || 'default'
 }
 
+export const defaultTopupStatusStyle = (status) => {
+  const map = {
+    Active: 'success',
+    Inactive: 'default',
+    Completed: 'processing',
+  }
+
+  return map[status] || 'default'
+}
+
+export const defaultTopupRuleTypeStyle = (type) => {
+  const map = {
+    System: 'blue',
+    Schedule: 'purple',
+  }
+
+  return map[type] || 'default'
+}
+
+export const defaultTopupMatchModeStyle = (mode) => {
+  const map = {
+    And: 'cyan',
+    Or: 'gold',
+  }
+
+  return map[mode] || 'default'
+}
+
 export const defaultAuditLogActionStyle = (action) => {
   const map = {
     [EnumConfig.AuditLogAction.Login]: 'success',

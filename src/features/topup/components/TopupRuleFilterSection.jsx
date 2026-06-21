@@ -6,48 +6,62 @@ import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Col, Flex, Row, Space } from 'antd'
 
-const emptyFilters = { search: '', statuses: [] }
+const defaultFilters = { search: '', types: [], statuses: [] }
 
-const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) => {
+const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-  const { values, handleChange, setField, registerRef, reset } = useForm(filters)
+  const { values, handleChange, reset, setField, registerRef } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
+  const statusOptions = [
+    { value: '', label: t('text.all') },
+    { value: 1, label: t('topup_form.active') },
+    { value: 2, label: t('topup_form.inactive') },
+  ]
   const fields = [
     {
       key: 'search',
-      title: t('course_management.placeholder.search'),
-      label: t('course_management.placeholder.search'),
+      title: t('topup.search_rule'),
+      label: t('topup.search_rule'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,
     },
     {
-      key: 'statuses',
-      title: t('course_management.field.status'),
+      key: 'types',
+      title: t('topup.rule_type'),
       type: 'select',
       multiple: true,
-      options: _enum.courseStatusOptions,
+      options: _enum.topupRuleTypeIdOptions,
       required: false,
+      props: { allowClear: true },
+    },
+    {
+      key: 'statuses',
+      title: t('topup.status'),
+      type: 'select',
+      multiple: true,
+      options: statusOptions.filter((option) => option.value !== ''),
+      required: false,
+      props: { allowClear: true },
     },
   ]
 
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} md={12}>
-          {renderField(fields[0])}
-        </Col>
-        <Col xs={24} md={6}>
-          {renderField(fields[1])}
-        </Col>
+        {fields.map((field) => (
+          <Col key={field.key} xs={24} md={6}>
+            {renderField(field)}
+          </Col>
+        ))}
         <Col xs={24} md={6}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton
                 loading={loading}
                 onResetFilterClick={() => {
-                  reset(emptyFilters)
+                  reset(defaultFilters)
                   onReset?.()
                 }}
               />
@@ -60,4 +74,4 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   )
 }
 
-export default CourseManagementFilterSection
+export default TopupRuleFilterSection

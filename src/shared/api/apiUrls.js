@@ -67,6 +67,7 @@ export const ApiUrls = {
     INDEX: '/topup-schedule-management',
     GET_ALL: '/topup-schedule-management/all',
     DETAIL: (id) => `/topup-schedule-management/${id}`,
+    UPDATE_STATUS: '/topup-schedule-management/status',
   },
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',

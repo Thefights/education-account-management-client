@@ -58,7 +58,7 @@
     "placeholder": {
       "created_from": "创建自",
       "created_to": "创建于",
-      "search_text": "搜索参与者、对象或 IP 地址"
+      "search_text": "按操作或 IP 地址搜索"
     },
     "title": {
       "audit_log_management": "审计日志管理",

@@ -58,7 +58,7 @@
     "placeholder": {
       "created_from": "Tạo từ ngày",
       "created_to": "Tạo đến ngày",
-      "search_text": "Tìm người thực hiện, đối tượng hoặc địa chỉ IP"
+      "search_text": "Tìm theo hành động hoặc địa chỉ IP"
     },
     "title": {
       "audit_log_management": "Quản lý nhật ký kiểm tra",

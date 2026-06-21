@@ -1,0 +1,8 @@
+{
+  "topup_form": {
+    "rule_type": "Loại quy tắc",
+    "match_mode": "Chế độ khớp",
+    "completed": "Hoàn tất",
+    "condition_amount": "Số tiền nạp"
+  }
+}

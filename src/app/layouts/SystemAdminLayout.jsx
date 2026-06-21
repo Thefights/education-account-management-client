@@ -28,12 +28,6 @@ const SystemAdminLayout = () => {
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.INDEX),
         },
         {
-          key: 'ai-assistant-setting',
-          label: t('ai_assistant_setting.menu_label'),
-          icon: RobotOutlined,
-          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.AI_ASSISTANT_SETTING.INDEX),
-        },
-        {
           key: 'education-accounts',
           label: t('navigation.education_accounts'),
           icon: IdcardOutlined,
@@ -41,7 +35,7 @@ const SystemAdminLayout = () => {
         },
         {
           key: 'sweep-reports',
-          label: t('navigation.sweep_reports'),
+          label: t('navigation.batch_reports'),
           icon: ScheduleOutlined,
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SWEEP_REPORTS.INDEX),
         },
@@ -50,6 +44,12 @@ const SystemAdminLayout = () => {
           label: t('navigation.audit_logs'),
           icon: AuditOutlined,
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.AUDIT_LOGS.INDEX),
+        },
+        {
+          key: 'ai-assistant-setting',
+          label: t('ai_assistant_setting.menu_label'),
+          icon: RobotOutlined,
+          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.AI_ASSISTANT_SETTING.INDEX),
         },
       ],
     },
