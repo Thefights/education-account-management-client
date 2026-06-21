@@ -52,7 +52,11 @@ const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
   }
 
   return (
-    <Card size="small">
+    <Card
+      size="small"
+      style={{ boxShadow: 'none', background: 'var(--app-filter-bg, #f8fbfe)' }}
+      styles={{ body: { padding: 16 } }}
+    >
       <Row gutter={[16, 16]} align="bottom">
         <Col xs={24} lg={12}>
           {renderField(fields[0])}

@@ -148,15 +148,17 @@ const GenericTable = ({
       }}
       onChange={handleTableChange}
       locale={{
-        emptyText: loading && !hasData ? (
-          <SkeletonTableRow colSpan={fields.length + (canSelectRows ? 1 : 0)} />
-        ) : (
-          <EmptyRow colSpan={fields.length + (canSelectRows ? 1 : 0)} />
-        ),
+        emptyText:
+          loading && !hasData ? (
+            <SkeletonTableRow colSpan={fields.length + (canSelectRows ? 1 : 0)} />
+          ) : (
+            <EmptyRow colSpan={fields.length + (canSelectRows ? 1 : 0)} />
+          ),
       }}
       style={{
         border: '1px solid var(--app-border-color)',
-        borderRadius: '8px',
+        borderRadius: '12px',
+        overflow: 'hidden',
       }}
     />
   )

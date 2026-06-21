@@ -14,7 +14,7 @@ import { useMemo, useState } from 'react'
 
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
-const TransactionHistorySection = ({ url }) => {
+const TransactionHistorySection = ({ url, pageMode = false }) => {
   const { t } = useTranslation()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
@@ -134,42 +134,51 @@ const TransactionHistorySection = ({ url }) => {
     setPage(1)
   }
 
-  return (
-    <Card title={t('transaction.title')}>
+  const content = (
+    <Card
+      title={pageMode ? undefined : t('transaction.title')}
+      styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}
+    >
       <Flex vertical gap={16}>
-        <Row gutter={[12, 12]} align="bottom">
-          {filterFields.map((field) => (
-            <Col key={field.key} xs={24} md={6}>
-              {renderField(field)}
-            </Col>
-          ))}
-          <Col xs={24} md={6}>
-            <Form.Item label={t('transaction.created_at')} style={{ marginBottom: 0 }}>
-              <DatePicker.RangePicker
-                showTime
-                value={
-                  values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
-                }
-                onChange={(range) => {
-                  setField('createdFrom', range?.[0]?.toISOString() || '')
-                  setField('createdTo', range?.[1]?.toISOString() || '')
-                }}
-                style={{ width: '100%' }}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24}>
-            <Flex justify="end">
-              <Space>
-                <ResetFilterButton
-                  loading={transactions.loading}
-                  onResetFilterClick={resetFilters}
+        <Card
+          size="small"
+          style={{ boxShadow: 'none', background: 'var(--app-filter-bg)' }}
+          styles={{ body: { padding: 16 } }}
+        >
+          <Row gutter={[12, 12]} align="bottom">
+            {filterFields.map((field) => (
+              <Col key={field.key} xs={24} md={6}>
+                {renderField(field)}
+              </Col>
+            ))}
+            <Col xs={24} md={6}>
+              <Form.Item label={t('transaction.created_at')} style={{ marginBottom: 0 }}>
+                <DatePicker.RangePicker
+                  showTime
+                  value={
+                    values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
+                  }
+                  onChange={(range) => {
+                    setField('createdFrom', range?.[0]?.toISOString() || '')
+                    setField('createdTo', range?.[1]?.toISOString() || '')
+                  }}
+                  style={{ width: '100%' }}
                 />
-                <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
-              </Space>
-            </Flex>
-          </Col>
-        </Row>
+              </Form.Item>
+            </Col>
+            <Col xs={24}>
+              <Flex justify="end">
+                <Space>
+                  <ResetFilterButton
+                    loading={transactions.loading}
+                    onResetFilterClick={resetFilters}
+                  />
+                  <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
+                </Space>
+              </Flex>
+            </Col>
+          </Row>
+        </Card>
         <GenericTable
           data={transactions.data?.collection}
           fields={fields}
@@ -189,6 +198,17 @@ const TransactionHistorySection = ({ url }) => {
         />
       </Flex>
     </Card>
+  )
+
+  if (!pageMode) return content
+
+  return (
+    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1600, margin: '0 auto' }}>
+      <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
+        {t('transaction.title')}
+      </Typography.Title>
+      {content}
+    </Flex>
   )
 }
 

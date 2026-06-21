@@ -20,10 +20,10 @@ export const platformLightTheme = {
     colorBgContainer: lightPalette.background.paper,
     colorBgElevated: '#FFFFFF',
 
-    borderRadius: 8,
-    borderRadiusLG: 10,
-    borderRadiusSM: 4,
-    borderRadiusXS: 2,
+    borderRadius: 10,
+    borderRadiusLG: 16,
+    borderRadiusSM: 8,
+    borderRadiusXS: 6,
 
     fontFamily: 'Lexend, sans-serif',
   },
@@ -38,34 +38,35 @@ export const platformLightTheme = {
 
     Card: {
       colorBorderSecondary: lightPalette.divider,
-      boxShadowTertiary: '0 1px 2px rgba(15, 23, 42, 0.04)',
+      boxShadowTertiary: '0 10px 30px rgba(39, 88, 130, 0.08)',
+      paddingLG: 20,
     },
 
     Button: {
-      borderRadius: 6,
+      borderRadius: 10,
       controlHeight: 40,
-      primaryShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+      primaryShadow: '0 6px 16px rgba(40, 120, 227, 0.22)',
     },
 
     Input: {
-      borderRadius: 6,
+      borderRadius: 10,
       controlHeight: 40,
     },
 
     Select: {
-      borderRadius: 6,
+      borderRadius: 10,
       controlHeight: 40,
     },
 
     Pagination: {
       itemActiveBg: lightPalette.primary.main,
       itemActiveColor: lightPalette.primary.contrastText,
-      itemBorderRadius: 6,
+      itemBorderRadius: 8,
     },
 
     Table: {
       borderColor: lightPalette.divider,
-      headerBg: '#F1F5F9',
+      headerBg: '#F7FAFD',
       headerSplitColor: 'transparent',
       rowHoverBg: lightPalette.primary.softBg,
     },
@@ -89,10 +90,10 @@ export const platformDarkTheme = {
     colorBgContainer: darkPalette.background.paper,
     colorBgElevated: darkPalette.background.paper,
 
-    borderRadius: 4,
-    borderRadiusLG: 6,
-    borderRadiusSM: 2,
-    borderRadiusXS: 2,
+    borderRadius: 10,
+    borderRadiusLG: 16,
+    borderRadiusSM: 8,
+    borderRadiusXS: 6,
 
     fontFamily: 'Lexend, sans-serif',
   },
@@ -107,34 +108,38 @@ export const platformDarkTheme = {
 
     Card: {
       colorBorderSecondary: darkPalette.divider,
+      boxShadowTertiary: '0 12px 34px rgba(2, 8, 20, 0.28)',
+      paddingLG: 20,
     },
 
     Button: {
-      borderRadius: 4,
-      controlHeight: 36,
-      primaryShadow: 'none',
+      borderRadius: 10,
+      controlHeight: 40,
+      primaryShadow: '0 6px 18px rgba(67, 135, 223, 0.2)',
     },
 
     Input: {
-      borderRadius: 4,
-      controlHeight: 36,
+      borderRadius: 10,
+      controlHeight: 40,
+      activeShadow: '0 0 0 3px rgba(106, 168, 247, 0.14)',
     },
 
     Select: {
-      borderRadius: 4,
-      controlHeight: 36,
+      borderRadius: 10,
+      controlHeight: 40,
+      activeOutlineColor: 'rgba(106, 168, 247, 0.14)',
     },
 
     Pagination: {
       itemActiveBg: darkPalette.primary.main,
       itemActiveColor: darkPalette.primary.contrastText,
-      itemBorderRadius: 4,
+      itemBorderRadius: 8,
     },
 
     Table: {
       borderColor: darkPalette.divider,
-      headerBg: darkPalette.grey[100],
-      headerSplitColor: darkPalette.divider,
+      headerBg: '#1B2A3A',
+      headerSplitColor: 'transparent',
       rowHoverBg: darkPalette.primary.softBg,
     },
   },
