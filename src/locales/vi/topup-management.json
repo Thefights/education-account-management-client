@@ -4,5 +4,10 @@
     "match_mode": "Chế độ khớp",
     "completed": "Hoàn tất",
     "condition_amount": "Số tiền nạp"
+  },
+  "topup": {
+    "details": "Chi tiết",
+    "reason_placeholder": "Nhập lý do",
+    "target_selection": "Chọn đối tượng nạp tiền"
   }
 }

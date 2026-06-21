@@ -4,7 +4,7 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { isEmail, maxLen } from '@/shared/utils/validateUtil'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 const initialValues = {
   role: '',

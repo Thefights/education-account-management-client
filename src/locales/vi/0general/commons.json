@@ -1,20 +1,25 @@
 {
   "button": {
+    "activate": "Kích hoạt",
     "add_file": "Thêm file",
     "add_row": "Thêm dòng",
+    "back": "Quay lại",
     "cancel": "Hủy",
     "close": "Đóng",
     "confirm": "Xác nhận",
     "create": "Tạo",
+    "deactivate": "Vô hiệu hóa",
     "delete": "Xóa",
     "deselect_all": "Bỏ chọn tất cả",
     "edit": "Chỉnh sửa",
     "filter": "Lọc",
+    "import": "Nhập",
     "reset_filter": "Đặt lại",
     "save": "Lưu",
     "select_all": "Chọn tất cả",
     "submit": "Gửi",
-    "update": "Cập nhật"
+    "update": "Cập nhật",
+    "view": "Xem"
   },
   "error": {
     "duplicate_values_not_allowed": "Không được phép có giá trị trùng lặp",
@@ -73,6 +78,7 @@
       "no_data": "Không có dữ liệu..."
     },
     "rows_per_page": "Số dòng mỗi trang",
+    "search": "Tìm kiếm",
     "search_label": "Tìm kiếm",
     "select_options": "Chọn tùy chọn",
     "selected": "Đã chọn",
