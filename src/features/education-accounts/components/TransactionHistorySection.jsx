@@ -6,7 +6,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateToLongUS } from '@/shared/utils/formatDateUtil'
+import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Row, Space, Tag, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -112,7 +112,7 @@ const TransactionHistorySection = ({ url }) => {
         title: t('transaction.created_at'),
         width: 190,
         sortable: true,
-        render: formatDateToLongUS,
+        render: formatDateBasedOnCurrentLanguage,
       },
     ],
     [t, typeLabels, directionLabels]

@@ -60,9 +60,10 @@ const AdminManagementFilterSection = ({
         required: false,
       },
       {
-        key: 'schoolId',
+        key: 'schoolIds',
         title: t('admin_management.field.school'),
         type: 'select',
+        multiple: true,
         options: schoolOptions,
         props: {
           loading: schoolsLoading,
@@ -77,7 +78,7 @@ const AdminManagementFilterSection = ({
   )
 
   const handleReset = () => {
-    reset({ search: '', roles: [], statuses: [], schoolId: '' })
+    reset({ search: '', roles: [], statuses: [], schoolIds: [] })
     onReset?.()
   }
 

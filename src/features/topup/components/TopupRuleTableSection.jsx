@@ -7,7 +7,7 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateToLongUS } from '@/shared/utils/formatDateUtil'
+import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 
 const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
 
@@ -67,7 +67,13 @@ const TopupRuleTableSection = ({
       isNumeric: true,
       render: (conditions) => conditions?.length ?? 0,
     },
-    { key: 'createdAt', title: t('topup.created_at'), width: 190, sortable: true, render: formatDateToLongUS },
+    {
+      key: 'createdAt',
+      title: t('topup.created_at'),
+      width: 190,
+      sortable: true,
+      render: formatDateBasedOnCurrentLanguage,
+    },
     {
       key: 'actions',
       title: '',

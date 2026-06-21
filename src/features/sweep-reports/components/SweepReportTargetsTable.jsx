@@ -7,7 +7,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateToLongUS } from '@/shared/utils/formatDateUtil'
+import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { Card, Col, Flex, Row, Space } from 'antd'
 import { useMemo, useState } from 'react'
 
@@ -34,7 +34,7 @@ const SweepReportTargetsTable = ({ batchDate }) => {
     {
       key: 'createdDate',
       title: t('batch_report.created_date'),
-      render: formatDateToLongUS,
+      render: formatDateBasedOnCurrentLanguage,
     },
   ]
 

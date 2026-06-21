@@ -10,7 +10,7 @@ import AdminManagementFilterSection from '../components/AdminManagementFilterSec
 import AdminManagementFormSection from '../components/AdminManagementFormSection'
 import AdminManagementTableSection from '../components/AdminManagementTableSection'
 
-const defaultFilters = { search: '', roles: [], statuses: [], schoolId: '' }
+const defaultFilters = { search: '', roles: [], statuses: [], schoolIds: [] }
 const defaultSort = { key: 'id', direction: 'desc' }
 
 const AdminManagementPage = () => {
