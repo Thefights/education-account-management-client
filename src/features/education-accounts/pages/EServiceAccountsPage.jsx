@@ -1,6 +1,6 @@
 import ManualAccountResultSection from '@/features/manual-account-creation/components/ManualAccountResultSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import NricInput from '@/shared/components/textFields/NricInput'
 import { routeUrls } from '@/shared/config/routeUrls'
@@ -118,7 +118,7 @@ const EServiceAccountsPage = () => {
           setPageSize={setPageSize}
         />
       </Flex>
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openCreate}
         onClose={() => {
           setOpenCreate(false)
@@ -137,7 +137,7 @@ const EServiceAccountsPage = () => {
           await accounts.fetch()
         }}
       />
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openImport}
         onClose={() => {
           setImportResult(null)
@@ -164,7 +164,7 @@ const EServiceAccountsPage = () => {
         }}
       >
         <ManualAccountResultSection result={importResult} />
-      </GenericFormDrawer>
+      </GenericFormDialog>
     </Card>
   )
 }

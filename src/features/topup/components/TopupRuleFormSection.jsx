@@ -1,5 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
@@ -113,7 +113,7 @@ const TopupRuleFormSection = ({
 
   if (open && ruleId && !detail.data) {
     return (
-      <GenericFormDrawer
+      <GenericFormDialog
         open
         title={t('topup_form.update_rule')}
         onClose={handleClose}
@@ -121,11 +121,11 @@ const TopupRuleFormSection = ({
         showSubmit={false}
       >
         <Skeleton active />
-      </GenericFormDrawer>
+      </GenericFormDialog>
     )
   }
 
-  const handleSubmit = async ({ values, closeDrawer }) => {
+  const handleSubmit = async ({ values, closeDialog }) => {
     const conditions = values.conditions.map((condition, index) => ({
       ...(ruleId && condition.id ? { id: condition.id } : {}),
       field: condition.field,
@@ -151,12 +151,12 @@ const TopupRuleFormSection = ({
         })
       : onCreateSubmit?.({ overrideData: payload }))
     if (!response) return
-    closeDrawer()
+    closeDialog()
     await refetch?.()
   }
 
   return (
-    <GenericFormDrawer
+    <GenericFormDialog
       key={`${ruleId || 'create'}-${detail.data?.updatedAt || ''}`}
       open={open}
       onClose={handleClose}

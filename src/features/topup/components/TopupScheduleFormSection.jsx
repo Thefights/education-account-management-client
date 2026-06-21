@@ -1,5 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
@@ -158,7 +158,7 @@ const TopupScheduleFormSection = ({
 
   if (open && scheduleId && !detail.data) {
     return (
-      <GenericFormDrawer
+      <GenericFormDialog
         open
         title={t('topup_form.update_schedule')}
         onClose={handleClose}
@@ -166,11 +166,11 @@ const TopupScheduleFormSection = ({
         showSubmit={false}
       >
         <Skeleton active />
-      </GenericFormDrawer>
+      </GenericFormDialog>
     )
   }
 
-  const handleSubmit = async ({ values, closeDrawer }) => {
+  const handleSubmit = async ({ values, closeDialog }) => {
     const payload = {
       topupRuleId: values.topupRuleId,
       frequency: values.frequency,
@@ -196,12 +196,12 @@ const TopupScheduleFormSection = ({
         })
       : onCreateSubmit?.({ overrideData: payload }))
     if (!response) return
-    closeDrawer()
+    closeDialog()
     await refetch?.()
   }
 
   return (
-    <GenericFormDrawer
+    <GenericFormDialog
       key={`${scheduleId || 'create'}-${detail.data?.updatedAt || ''}`}
       open={open}
       onClose={handleClose}

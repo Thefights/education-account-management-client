@@ -1,4 +1,4 @@
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { maxLen, numberHigherThanOrEqual } from '@/shared/utils/validateUtil'
 
@@ -70,16 +70,16 @@ const CourseManagementFormSection = ({
   ]
   const handleSubmit =
     (submit) =>
-    async ({ values, closeDrawer }) => {
+    async ({ values, closeDialog }) => {
       const response = await submit({ overrideData: toPayload(values) })
       if (!response) return
-      closeDrawer()
+      closeDialog()
       await refetch()
     }
 
   return (
     <>
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openCreate}
         onClose={() => setOpenCreate(false)}
         title={t('course_management.title.create')}
@@ -89,7 +89,7 @@ const CourseManagementFormSection = ({
         destroyOnClose
         onSubmit={handleSubmit(onCreateSubmit)}
       />
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         title={t('course_management.title.update')}

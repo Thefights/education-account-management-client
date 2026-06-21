@@ -1,4 +1,4 @@
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
@@ -70,13 +70,13 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
     [exportFieldOptions, t]
   )
 
-  const handleSubmit = async ({ values, closeDrawer }) => {
+  const handleSubmit = async ({ values, closeDialog }) => {
     await onSubmit?.(values.fields)
-    closeDrawer()
+    closeDialog()
   }
 
   return (
-    <GenericFormDrawer
+    <GenericFormDialog
       open={open}
       onClose={onClose}
       initialValues={initialExportValues}

@@ -1,4 +1,4 @@
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import NricInput from '@/shared/components/textFields/NricInput'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
@@ -106,16 +106,16 @@ const AdminManagementFormSection = ({
 
   const handleSubmit =
     (submit) =>
-    async ({ values, closeDrawer }) => {
+    async ({ values, closeDialog }) => {
       const response = await submit({ overrideData: toPayload(values) })
       if (!response) return
-      closeDrawer()
+      closeDialog()
       await refetch()
     }
 
   return (
     <>
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openCreate}
         onClose={() => setOpenCreate(false)}
         title={t('admin_management.title.create')}
@@ -125,7 +125,7 @@ const AdminManagementFormSection = ({
         destroyOnClose
         onSubmit={handleSubmit(onCreateSubmit)}
       />
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         title={t('admin_management.title.update')}
