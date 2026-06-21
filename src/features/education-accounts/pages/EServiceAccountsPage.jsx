@@ -93,12 +93,11 @@ const EServiceAccountsPage = () => {
   }
 
   return (
-    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1600, margin: '0 auto' }}>
-      <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
-        {t('education_account.management_title')}
-      </Typography.Title>
-      <Card styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}>
-        <Flex vertical gap={18}>
+    <Card>
+      <Flex vertical gap={16}>
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {t('education_account.management_title')}
+        </Typography.Title>
           <EServiceAccountsToolbarSection
             onCreate={() => setOpenCreate(true)}
             onImport={() => setOpenImport(true)}
@@ -136,7 +135,6 @@ const EServiceAccountsPage = () => {
             setPageSize={setPageSize}
           />
         </Flex>
-      </Card>
       <GenericFormDialog
         open={openCreate}
         onClose={() => {
@@ -170,7 +168,7 @@ const EServiceAccountsPage = () => {
         renderResult={(result) => <ManualAccountResultSection result={result} />}
         onSubmit={handleImport}
       />
-    </Flex>
+    </Card>
   )
 }
 

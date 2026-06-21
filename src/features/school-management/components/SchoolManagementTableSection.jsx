@@ -70,10 +70,9 @@ const SchoolManagementTableSection = ({
       loading={loading}
       sort={sort}
       setSort={setSort}
-      rowSelection={{
-        selectedRowKeys: selectedIds,
-        onChange: setSelectedIds,
-      }}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
     />
   )
 }

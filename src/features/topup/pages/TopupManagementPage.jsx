@@ -21,7 +21,7 @@ const TopupManagementPage = () => {
   )
 
   return (
-    <Card style={{ flex: 1, width: '100%', border: 0, borderRadius: 0 }}>
+    <Card>
       <Flex vertical gap={16}>
         <Flex justify="space-between" align="center" wrap="wrap" gap={12}>
           <Typography.Title level={4} style={{ margin: 0 }}>

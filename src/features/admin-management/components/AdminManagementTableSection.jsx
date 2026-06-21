@@ -92,10 +92,9 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedI
       loading={loading}
       sort={sort}
       setSort={setSort}
-      rowSelection={{
-        selectedRowKeys: selectedIds,
-        onChange: setSelectedIds,
-      }}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
     />
   )
 }

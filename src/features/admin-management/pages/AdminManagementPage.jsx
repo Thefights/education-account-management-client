@@ -81,7 +81,7 @@ const AdminManagementPage = () => {
   }
 
   return (
-    <Card style={{ flex: 1, width: '100%', border: 0, borderRadius: 0 }}>
+    <Card>
       <Flex vertical gap={16}>
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('admin_management.title.management')}

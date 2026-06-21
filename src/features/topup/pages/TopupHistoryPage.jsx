@@ -42,7 +42,7 @@ const TopupHistoryPage = () => {
   const history = useFetch(ApiUrls.TOPUP.HISTORY, params, [params])
 
   return (
-    <Card style={{ flex: 1, width: '100%', border: 0, borderRadius: 0 }}>
+    <Card>
       <Flex vertical gap={16}>
         <Flex align="center" gap={12}>
           <Button
