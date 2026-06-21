@@ -24,6 +24,8 @@ const SchoolManagementPage = () => {
   const [openCreate, setOpenCreate] = useState(false)
   const [openUpdate, setOpenUpdate] = useState(false)
   const [selectedRow, setSelectedRow] = useState({})
+  const [selectedIds, setSelectedIds] = useState([])
+
   const queryParams = useMemo(
     () => ({ sort: `${sort.key} ${sort.direction}`, ...filters, page, pageSize }),
     [sort, filters, page, pageSize]
@@ -37,11 +39,25 @@ const SchoolManagementPage = () => {
     url: ApiUrls.SCHOOL_MANAGEMENT.DETAIL(selectedRow.id),
     method: 'PUT',
   })
+  const updateStatus = useAxiosSubmit({
+    url: ApiUrls.SCHOOL_MANAGEMENT.UPDATE_STATUS,
+    method: 'PUT',
+  })
   const deleteSchool = useAxiosSubmit({ method: 'DELETE' })
+
   const handleFilter = (values) => {
     setFilters(values)
     setPage(1)
+    setSelectedIds([])
   }
+
+  const handleChangeStatus = async (status) => {
+    const response = await updateStatus.submit({ overrideData: { ids: selectedIds, status } })
+    if (!response) return
+    setSelectedIds([])
+    await schools.fetch()
+  }
+
   const handleDelete = async (school) => {
     const accepted = await confirm({
       title: t('school_management.confirm.delete_title'),
@@ -62,7 +78,12 @@ const SchoolManagementPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('school_management.title.management')}
         </Typography.Title>
-        <SchoolManagementToolbarSection onCreate={() => setOpenCreate(true)} />
+        <SchoolManagementToolbarSection 
+          onCreate={() => setOpenCreate(true)} 
+          selectedIds={selectedIds}
+          onChangeStatus={handleChangeStatus}
+          loading={updateStatus.loading}
+        />
         <SchoolManagementFilterSection
           filters={filters}
           loading={schools.loading}
@@ -74,6 +95,8 @@ const SchoolManagementPage = () => {
           loading={schools.loading || deleteSchool.loading}
           sort={sort}
           setSort={setSort}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
           onCreate={() => setOpenCreate(true)}
           onEdit={(row) => {
             setSelectedRow(row)

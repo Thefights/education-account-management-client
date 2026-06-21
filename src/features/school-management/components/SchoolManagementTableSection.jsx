@@ -9,6 +9,8 @@ const SchoolManagementTableSection = ({
   loading,
   sort,
   setSort,
+  selectedIds,
+  setSelectedIds,
   onEdit,
   onDelete,
 }) => {
@@ -68,6 +70,10 @@ const SchoolManagementTableSection = ({
       loading={loading}
       sort={sort}
       setSort={setSort}
+      rowSelection={{
+        selectedRowKeys: selectedIds,
+        onChange: setSelectedIds,
+      }}
     />
   )
 }

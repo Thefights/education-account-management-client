@@ -46,6 +46,7 @@ const AdminManagementFormSection = ({
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
+  const [currentRole, setCurrentRole] = useState('')
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
@@ -87,21 +88,25 @@ const AdminManagementFormSection = ({
         type: 'phone',
         required: false,
       },
-      {
-        key: 'schoolId',
-        title: t('admin_management.field.school'),
-        type: 'select',
-        options: schoolOptions,
-        props: {
-          loading: schoolsLoading,
-          showSearch: true,
-          allowClear: true,
-          optionFilterProp: 'label',
-        },
-        required: false,
-      },
+      ...(currentRole === EnumConfig.RoleId.SchoolAdmin
+        ? [
+            {
+              key: 'schoolId',
+              title: t('admin_management.field.school'),
+              type: 'select',
+              options: schoolOptions,
+              props: {
+                loading: schoolsLoading,
+                showSearch: true,
+                allowClear: true,
+                optionFilterProp: 'label',
+              },
+              required: false,
+            },
+          ]
+        : []),
     ],
-    [t, adminRoleOptions, schoolOptions, schoolsLoading]
+    [t, adminRoleOptions, schoolOptions, schoolsLoading, currentRole]
   )
 
   const handleSubmit =
@@ -112,6 +117,12 @@ const AdminManagementFormSection = ({
       closeDialog()
       await refetch()
     }
+
+  const handleValuesChange = (values) => {
+    if (values.role !== currentRole) {
+      setCurrentRole(values.role)
+    }
+  }
 
   return (
     <>
@@ -124,6 +135,7 @@ const AdminManagementFormSection = ({
         fields={fields}
         destroyOnClose
         onSubmit={handleSubmit(onCreateSubmit)}
+        onValuesChange={handleValuesChange}
       />
       <GenericFormDialog
         open={openUpdate}
@@ -134,6 +146,7 @@ const AdminManagementFormSection = ({
         fields={fields}
         destroyOnClose
         onSubmit={handleSubmit(onUpdateSubmit)}
+        onValuesChange={handleValuesChange}
       />
     </>
   )

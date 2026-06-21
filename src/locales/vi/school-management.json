@@ -14,7 +14,8 @@
       "phone_number": "Số điện thoại",
       "email": "Email"
     },
-    "placeholder": { "search": "Tìm tên trường, email, số điện thoại hoặc địa chỉ" },
+    "label": { "search": "Tìm tên trường, email, số điện thoại hoặc địa chỉ" },
+    "placeholder": { "search": "Tìm kiếm..." },
     "confirm": {
       "delete_title": "Xóa trường?",
       "delete_description": "Bạn có chắc muốn xóa {name}?"

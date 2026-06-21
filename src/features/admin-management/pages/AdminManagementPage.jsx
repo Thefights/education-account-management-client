@@ -23,6 +23,7 @@ const AdminManagementPage = () => {
   const [openCreate, setOpenCreate] = useState(false)
   const [openUpdate, setOpenUpdate] = useState(false)
   const [selectedRow, setSelectedRow] = useState({})
+  const [selectedIds, setSelectedIds] = useState([])
   const schools = useApiOptions({
     url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
     valueKey: 'id',
@@ -42,10 +43,22 @@ const AdminManagementPage = () => {
     url: ApiUrls.ADMIN_MANAGEMENT.DETAIL(selectedRow.userId),
     method: 'PUT',
   })
+  const updateStatus = useAxiosSubmit({
+    url: ApiUrls.ADMIN_MANAGEMENT.UPDATE_STATUS,
+    method: 'PUT',
+  })
 
   const handleFilter = (values) => {
     setFilters(values)
     setPage(1)
+    setSelectedIds([])
+  }
+
+  const handleChangeStatus = async (status) => {
+    const response = await updateStatus.submit({ overrideData: { ids: selectedIds, status } })
+    if (!response) return
+    setSelectedIds([])
+    await getAdmins.fetch()
   }
 
   return (
@@ -54,7 +67,12 @@ const AdminManagementPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('admin_management.title.management')}
         </Typography.Title>
-        <AdminManagementToolbarSection onCreate={() => setOpenCreate(true)} />
+        <AdminManagementToolbarSection 
+          onCreate={() => setOpenCreate(true)} 
+          selectedIds={selectedIds}
+          onChangeStatus={handleChangeStatus}
+          loading={updateStatus.loading}
+        />
         <AdminManagementFilterSection
           filters={filters}
           loading={getAdmins.loading}
@@ -68,6 +86,8 @@ const AdminManagementPage = () => {
           loading={getAdmins.loading}
           sort={sort}
           setSort={setSort}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
           onCreate={() => setOpenCreate(true)}
           onEdit={(row) => {
             setSelectedRow(row)

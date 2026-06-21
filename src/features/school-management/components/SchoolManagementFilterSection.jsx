@@ -16,8 +16,9 @@ const SchoolManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   const fields = [
     {
       key: 'search',
-      title: t('school_management.placeholder.search'),
-      label: t('school_management.placeholder.search'),
+      title: t('school_management.label.search'),
+      label: t('school_management.label.search'),
+      placeholder: t('school_management.placeholder.search'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,

@@ -1,14 +1,31 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex } from 'antd'
+import { Button, Flex, Space } from 'antd'
 
-const AdminManagementToolbarSection = ({ onCreate }) => {
+const AdminManagementToolbarSection = ({ onCreate, selectedIds, onChangeStatus, loading }) => {
   const { t } = useTranslation()
 
   return (
     <Flex justify="end">
-      <Button type="primary" onClick={onCreate}>
-        {t('button.create')}
-      </Button>
+      <Space wrap>
+        <Button
+          loading={loading}
+          disabled={!selectedIds?.length}
+          onClick={() => onChangeStatus(1)}
+        >
+          {t('button.activate')}
+        </Button>
+        <Button
+          danger
+          loading={loading}
+          disabled={!selectedIds?.length}
+          onClick={() => onChangeStatus(2)}
+        >
+          {t('button.deactivate')}
+        </Button>
+        <Button type="primary" onClick={onCreate}>
+          {t('button.create')}
+        </Button>
+      </Space>
     </Flex>
   )
 }

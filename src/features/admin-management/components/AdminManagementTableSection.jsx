@@ -9,7 +9,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
-const AdminManagementTableSection = ({ admins, loading, sort, setSort, onEdit }) => {
+const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedIds, setSelectedIds, onEdit }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = useMemo(
@@ -92,6 +92,10 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onEdit })
       loading={loading}
       sort={sort}
       setSort={setSort}
+      rowSelection={{
+        selectedRowKeys: selectedIds,
+        onChange: setSelectedIds,
+      }}
     />
   )
 }

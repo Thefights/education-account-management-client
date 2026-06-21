@@ -20,8 +20,11 @@
       "school_id": "School ID",
       "school": "School"
     },
-    "placeholder": {
+    "label": {
       "search": "Search staff code, full name, NRIC, or email"
+    },
+    "placeholder": {
+      "search": "Search..."
     }
   }
 }

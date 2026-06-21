@@ -14,7 +14,8 @@
       "phone_number": "Phone number",
       "email": "Email"
     },
-    "placeholder": { "search": "Search school name, email, phone number, or address" },
+    "label": { "search": "Search school name, email, phone number, or address" },
+    "placeholder": { "search": "Search..." },
     "confirm": {
       "delete_title": "Delete school?",
       "delete_description": "Are you sure you want to delete {name}?"

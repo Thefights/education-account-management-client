@@ -37,8 +37,9 @@ const AdminManagementFilterSection = ({
     () => [
       {
         key: 'search',
-        title: t('admin_management.placeholder.search'),
-        label: t('admin_management.placeholder.search'),
+        title: t('admin_management.label.search'),
+        label: t('admin_management.label.search'),
+        placeholder: t('admin_management.placeholder.search'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,

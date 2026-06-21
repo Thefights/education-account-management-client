@@ -24,12 +24,14 @@ export const ApiUrls = {
     INDEX: '/admin-management',
     GET_ALL: '/admin-management/all',
     DETAIL: (id) => `/admin-management/${id}`,
+    UPDATE_STATUS: '/admin-management/status',
   },
 
   SCHOOL_MANAGEMENT: {
     INDEX: '/school-management',
     GET_ALL: '/school-management/all',
     DETAIL: (id) => `/school-management/${id}`,
+    UPDATE_STATUS: '/school-management/status',
   },
 
   COURSE_MANAGEMENT: {
