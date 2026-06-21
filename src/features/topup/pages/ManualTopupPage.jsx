@@ -4,8 +4,10 @@ import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSe
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { routeUrls } from '@/shared/config/routeUrls'
+import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
 import {
   DollarOutlined,
   DownloadOutlined,
@@ -95,15 +97,6 @@ const ManualTopupPage = ({ embedded = false }) => {
     }
   }
 
-  const downloadTemplate = () => {
-    const url = URL.createObjectURL(new Blob(['AccountNumber\r\n'], { type: 'text/csv' }))
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = 'manual-topup-template.csv'
-    anchor.click()
-    URL.revokeObjectURL(url)
-  }
-
   const tabItems = [
     {
       key: 'selection',
@@ -148,7 +141,11 @@ const ManualTopupPage = ({ embedded = false }) => {
             >
               <Button icon={<UploadOutlined />}>{t('topup.upload_csv')}</Button>
             </Upload>
-            <Button type="link" icon={<DownloadOutlined />} onClick={downloadTemplate}>
+            <Button
+              type="link"
+              icon={<DownloadOutlined />}
+              onClick={() => downloadCsvTemplate(csvImportTemplates.manualTopup)}
+            >
               {t('topup.csv_template')}
             </Button>
           </Space>

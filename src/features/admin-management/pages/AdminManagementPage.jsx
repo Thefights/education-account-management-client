@@ -1,6 +1,7 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -142,6 +143,7 @@ const AdminManagementPage = () => {
           setOpenImport(false)
         }}
         result={importResult}
+        template={csvImportTemplates.admins}
         onSubmit={handleImport}
       />
     </Card>

@@ -1,6 +1,8 @@
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Table, Typography } from 'antd'
+import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
+import { DownloadOutlined } from '@ant-design/icons'
+import { Button, Flex, Table, Typography } from 'antd'
 import { useMemo } from 'react'
 
 const DEFAULT_INITIAL_VALUES = { file: null }
@@ -18,6 +20,7 @@ const GenericImportSection = ({
   fields,
   initialValues = DEFAULT_INITIAL_VALUES,
   renderResult,
+  template,
 }) => {
   const { t } = useTranslation()
 
@@ -113,6 +116,16 @@ const GenericImportSection = ({
       destroyOnClose
       onSubmit={handleSubmit}
     >
+      {template && (
+        <Flex justify="end" style={{ marginBottom: 16 }}>
+          <Button
+            icon={<DownloadOutlined />}
+            onClick={() => downloadCsvTemplate(template)}
+          >
+            {t('import.download_template')}
+          </Button>
+        </Flex>
+      )}
       {resultContent}
     </GenericFormDialog>
   )

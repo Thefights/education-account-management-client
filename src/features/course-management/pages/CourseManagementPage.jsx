@@ -2,6 +2,7 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
@@ -129,6 +130,7 @@ const CourseManagementPage = () => {
           setOpenImport(false)
         }}
         result={importResult}
+        template={csvImportTemplates.courses}
         onSubmit={handleImport}
       />
     </Card>

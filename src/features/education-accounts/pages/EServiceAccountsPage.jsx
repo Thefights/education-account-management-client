@@ -3,6 +3,7 @@ import GenericImportSection from '@/shared/components/dialogs/commons/GenericImp
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import NricInput from '@/shared/components/textFields/NricInput'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -163,6 +164,7 @@ const EServiceAccountsPage = () => {
         submitLabel={t('education_account.import_csv')}
         fields={importFields}
         result={importResult}
+        template={csvImportTemplates.educationAccounts}
         renderResult={(result) => <ManualAccountResultSection result={result} />}
         onSubmit={handleImport}
       />

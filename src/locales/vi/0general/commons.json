@@ -40,6 +40,7 @@
   "import": {
     "errors": "Lỗi",
     "failed": "Thất bại",
+    "download_template": "Tải mẫu CSV",
     "field": "Trường",
     "file": "Tệp CSV",
     "message": "Thông báo",
