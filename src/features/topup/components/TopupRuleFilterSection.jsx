@@ -34,7 +34,7 @@ const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
       multiple: true,
       options: _enum.topupRuleTypeIdOptions,
       required: false,
-      props: { allowClear: true },
+      props: { allowClear: true, placeholder: t('text.all') },
     },
     {
       key: 'statuses',
@@ -43,7 +43,7 @@ const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
       multiple: true,
       options: statusOptions.filter((option) => option.value !== ''),
       required: false,
-      props: { allowClear: true },
+      props: { allowClear: true, placeholder: t('text.all') },
     },
   ]
 

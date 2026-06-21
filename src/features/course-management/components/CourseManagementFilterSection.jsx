@@ -29,6 +29,7 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
       multiple: true,
       options: _enum.courseStatusOptions,
       required: false,
+      props: { allowClear: true, placeholder: t('text.all') },
     },
   ]
 

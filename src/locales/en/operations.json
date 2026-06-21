@@ -48,12 +48,7 @@
     "nric": "NRIC",
     "action": "Action",
     "status": "Status",
-    "reason": "Reason",
-    "success_accounts": "Successfully created accounts",
-    "search_success_accounts": "Search by account number or name",
-    "account_number": "Account number",
-    "name": "Name",
-    "created_date": "Created date"
+    "reason": "Reason"
   },
   "topup_form": {
     "create_rule": "Create top-up rule",

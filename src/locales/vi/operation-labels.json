@@ -1,4 +1,4 @@
 {
   "education_account": { "detail_title": "Chi tiết tài khoản giáo dục", "account_number": "Số tài khoản", "balance": "Số dư hiện tại", "date_of_birth": "Ngày sinh", "created_date": "Ngày tạo", "expected_closing_date": "Ngày đóng dự kiến", "email": "Email", "phone": "Điện thoại", "residential_address": "Địa chỉ cư trú", "mailing_address": "Địa chỉ nhận thư" },
-  "transaction": { "topup": "Nạp tiền", "course_fee": "Học phí", "refund": "Hoàn tiền", "adjustment": "Điều chỉnh", "interest": "Tiền lãi", "credit": "Tăng", "debit": "Giảm" }
+  "transaction": { "topup": "Nạp tiền", "course_fee": "Học phí", "adjustment": "Điều chỉnh", "credit": "Tăng", "debit": "Giảm" }
 }

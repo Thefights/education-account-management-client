@@ -30,6 +30,7 @@ const SchoolManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
       multiple: true,
       options: _enum.schoolStatusOptions,
       required: false,
+      props: { allowClear: true, placeholder: t('text.all') },
     },
   ]
 

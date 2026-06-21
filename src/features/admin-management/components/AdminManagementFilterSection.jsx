@@ -51,6 +51,7 @@ const AdminManagementFilterSection = ({
         multiple: true,
         options: adminRoleOptions,
         required: false,
+        props: { allowClear: true, placeholder: t('text.all') },
       },
       {
         key: 'statuses',
@@ -59,6 +60,7 @@ const AdminManagementFilterSection = ({
         multiple: true,
         options: _enum.authAccountStatusOptions,
         required: false,
+        props: { allowClear: true, placeholder: t('text.all') },
       },
       {
         key: 'schoolIds',
@@ -71,6 +73,7 @@ const AdminManagementFilterSection = ({
           showSearch: true,
           allowClear: true,
           optionFilterProp: 'label',
+          placeholder: t('text.all'),
         },
         required: false,
       },

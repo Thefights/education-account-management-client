@@ -21,7 +21,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       multiple: true,
       options: _enum.topupScheduleTypeIdOptions,
       required: false,
-      props: { allowClear: true },
+      props: { allowClear: true, placeholder: t('text.all') },
     },
     {
       key: 'statuses',
@@ -30,7 +30,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       multiple: true,
       options: _enum.topupScheduleStatusIdOptions,
       required: false,
-      props: { allowClear: true },
+      props: { allowClear: true, placeholder: t('text.all') },
     },
   ]
 

@@ -40,6 +40,7 @@ const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
           { value: 'Extended', label: t('education_account.extended') },
           { value: 'Closed', label: t('education_account.inactive') },
         ],
+        props: { allowClear: true, placeholder: t('text.all') },
       },
     ],
     [t]
