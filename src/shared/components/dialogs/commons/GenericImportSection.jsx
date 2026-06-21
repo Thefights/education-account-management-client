@@ -3,6 +3,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
 import { DownloadOutlined } from '@ant-design/icons'
 import { Button, Flex, Table, Typography } from 'antd'
+import Papa from 'papaparse'
 import { useMemo, useState } from 'react'
 
 const DEFAULT_INITIAL_VALUES = { file: null }
@@ -24,6 +25,7 @@ const GenericImportSection = ({
 }) => {
   const { t } = useTranslation()
   const [hasFile, setHasFile] = useState(false)
+  const [selectedFile, setSelectedFile] = useState(null)
 
   const defaultFields = useMemo(
     () => [
@@ -64,6 +66,52 @@ const GenericImportSection = ({
     getResultValue(result, 'succeeded') ?? getResultValue(result, 'successes')?.length ?? 0
   const failed = getResultValue(result, 'failed') ?? errors.length
   const total = getResultValue(result, 'total') ?? succeeded + failed
+
+  const handleDownloadFailedRecords = () => {
+    if (!selectedFile || !errors.length) return
+
+    Papa.parse(selectedFile, {
+      complete: (parsed) => {
+        const originalData = parsed.data
+        if (!originalData || originalData.length === 0) return
+
+        const groupedErrors = {}
+        errors.forEach((error, index) => {
+          const rowNum = error.rowNumber ?? error.RowNumber ?? index
+          if (!groupedErrors[rowNum]) groupedErrors[rowNum] = []
+          groupedErrors[rowNum].push(error)
+        })
+
+        const failedRowsData = [originalData[0].concat(['Error Message'])]
+
+        Object.keys(groupedErrors).forEach((rowNumStr) => {
+          const rowNum = parseInt(rowNumStr, 10)
+          const rowIdx = rowNum - 1
+          if (originalData[rowIdx]) {
+            const messages = groupedErrors[rowNumStr]
+              .map((e) => e.message ?? e.Message ?? e.errorMessage ?? e.ErrorMessage)
+              .filter(Boolean)
+              .join(' | ')
+            failedRowsData.push(originalData[rowIdx].concat([messages]))
+          }
+        })
+
+        const csvString = Papa.unparse(failedRowsData)
+        const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csvString], {
+          type: 'text/csv;charset=utf-8;',
+        })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `failed_records_${selectedFile.name}`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      },
+    })
+  }
+
   const defaultResult = result ? (
     <Flex vertical gap={16}>
       <Flex gap={24} wrap>
@@ -86,7 +134,18 @@ const GenericImportSection = ({
       </Flex>
       {errors.length > 0 && (
         <Flex vertical gap={8}>
-          <Typography.Text strong>{t('import.errors')}</Typography.Text>
+          <Flex justify="space-between" align="center">
+            <Typography.Text strong>{t('import.errors')}</Typography.Text>
+            {selectedFile && (
+              <Button
+                size="small"
+                onClick={handleDownloadFailedRecords}
+                icon={<DownloadOutlined />}
+              >
+                Download failed records
+              </Button>
+            )}
+          </Flex>
           <Table
             size="small"
             columns={columns}
@@ -116,6 +175,7 @@ const GenericImportSection = ({
       open={open}
       onClose={() => {
         setHasFile(false)
+        setSelectedFile(null)
         onClose?.()
       }}
       initialValues={initialValues}
@@ -125,7 +185,10 @@ const GenericImportSection = ({
       width={720}
       destroyOnClose
       onSubmit={handleSubmit}
-      onValuesChange={(values) => setHasFile(!!values.file)}
+      onValuesChange={(values) => {
+        setHasFile(!!values.file)
+        setSelectedFile(values.file || null)
+      }}
     >
       {template && !hasFile && (
         <Flex justify="end" style={{ marginBottom: 16 }}>

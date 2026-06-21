@@ -32,15 +32,19 @@ const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
       {
         key: 'statuses',
         title: t('education_account.status'),
-        type: 'select',
-        multiple: true,
+        type: 'multi-check-dropdown',
         required: false,
         options: [
           { value: 'Active', label: t('education_account.active') },
           { value: 'Extended', label: t('education_account.extended') },
           { value: 'Closed', label: t('education_account.inactive') },
         ],
-        props: { allowClear: true, placeholder: t('text.all') },
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        cancelText: t('general.cancel'),
+        okText: t('general.ok'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
       },
     ],
     [t]

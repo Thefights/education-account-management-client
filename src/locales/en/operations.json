@@ -42,7 +42,7 @@
     "total_duration": "Total duration",
     "select_date": "Select batch date",
     "no_report": "No batch report exists for the selected date.",
-    "targets": "Sweep targets",
+    "targets": "Account list",
     "search_nric": "Search by NRIC",
     "all_statuses": "All statuses",
     "nric": "NRIC",

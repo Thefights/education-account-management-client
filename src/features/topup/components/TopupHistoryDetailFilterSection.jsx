@@ -30,11 +30,15 @@ const TopupHistoryDetailFilterSection = ({ filters, loading, onFilter, onReset }
     {
       key: 'statuses',
       title: t('topup.status'),
-      type: 'select',
-      multiple: true,
+      type: 'multi-check-dropdown',
       options: _enum.topupTargetStatusIdOptions,
       required: false,
-      props: { allowClear: true, placeholder: t('text.all') },
+      placeholder: t('text.all'),
+      selectAllText: t('general.select_all'),
+      searchPlaceholder: t('general.input_keyword'),
+      cancelText: t('general.cancel'),
+      okText: t('general.ok'),
+      selectedText: (count) => `${count} ${t('text.items')}`,
       colProps: { xs: 24, md: 8 },
     },
   ]

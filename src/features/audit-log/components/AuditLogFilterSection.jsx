@@ -131,7 +131,7 @@ const AuditLogFilterSection = ({
         </Col>
 
         <Col xs={24} md={5}>
-          <FieldBox title={filterFields[1].title}>{renderField(filterFields[1])}</FieldBox>
+          {renderField(filterFields[1])}
         </Col>
 
         <Col xs={24} md={5}>

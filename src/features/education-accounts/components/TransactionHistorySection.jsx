@@ -7,10 +7,21 @@ import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Tag, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
+
+const DATE_FORMAT = 'D/M/YYYY'
+
+const FieldBox = ({ title, children }) => (
+  <div>
+    <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
+      {title}
+    </Typography.Text>
+    {children}
+  </div>
+)
 
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
@@ -54,26 +65,34 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
     {
       key: 'types',
       title: t('transaction.type'),
-      type: 'select',
-      multiple: true,
+      type: 'multi-check-dropdown',
       required: false,
       options: ['Topup', 'CourseFee', 'Adjustment'].map((value) => ({
         value,
         label: typeLabels[value],
       })),
-      props: { allowClear: true, placeholder: t('text.all') },
+      placeholder: t('text.all'),
+      selectAllText: t('general.select_all'),
+      searchPlaceholder: t('general.input_keyword'),
+      cancelText: t('general.cancel'),
+      okText: t('general.ok'),
+      selectedText: (count) => `${count} ${t('text.items')}`,
     },
     {
       key: 'directions',
       title: t('transaction.direction'),
-      type: 'select',
-      multiple: true,
+      type: 'multi-check-dropdown',
       required: false,
       options: ['Credit', 'Debit'].map((value) => ({
         value,
         label: directionLabels[value],
       })),
-      props: { allowClear: true, placeholder: t('text.all') },
+      placeholder: t('text.all'),
+      selectAllText: t('general.select_all'),
+      searchPlaceholder: t('general.input_keyword'),
+      cancelText: t('general.cancel'),
+      okText: t('general.ok'),
+      selectedText: (count) => `${count} ${t('text.items')}`,
     },
   ]
   const fields = useMemo(
@@ -152,19 +171,22 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
               </Col>
             ))}
             <Col xs={24} md={6}>
-              <Form.Item label={t('transaction.created_at')} style={{ marginBottom: 0 }}>
-                <DatePicker.RangePicker
-                  showTime
-                  value={
-                    values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
-                  }
-                  onChange={(range) => {
-                    setField('createdFrom', range?.[0]?.toISOString() || '')
-                    setField('createdTo', range?.[1]?.toISOString() || '')
-                  }}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
+              <FieldBox title={t('transaction.created_at')}>
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <DatePicker.RangePicker
+                    showTime
+                    value={
+                      values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
+                    }
+                    onChange={(range) => {
+                      setField('createdFrom', range?.[0]?.toISOString() || '')
+                      setField('createdTo', range?.[1]?.toISOString() || '')
+                    }}
+                    suffixIcon={<CalendarOutlined />}
+                    style={{ width: '100%', height: 40 }}
+                  />
+                </Form.Item>
+              </FieldBox>
             </Col>
             <Col xs={24}>
               <Flex justify="end">

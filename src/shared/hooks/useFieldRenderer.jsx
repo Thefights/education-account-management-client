@@ -353,7 +353,7 @@ export default function useFieldRenderer(
     const value = getObjectValueFromStringPath(context.values, field.key)
     const disabled = !!(field.props?.disabled || field.props?.readOnly)
 
-    return (
+    const dropdown = (
       <MultipleCheckDropdownField
         key={field.key}
         value={value}
@@ -369,6 +369,20 @@ export default function useFieldRenderer(
         onApply={(nextValue) => context.setField(field.key, nextValue)}
       />
     )
+
+    const title = field.label || field.title
+    if (title && !field.hideLabel) {
+      return (
+        <div key={field.key} style={{ width: '100%' }}>
+          <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
+            {title}
+          </Typography.Text>
+          {dropdown}
+        </div>
+      )
+    }
+
+    return dropdown
   }
 
   const renderRadio = (field, context = baseRenderContext) => {

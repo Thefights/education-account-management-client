@@ -26,11 +26,15 @@ const SchoolManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
     {
       key: 'statuses',
       title: t('school_management.field.status'),
-      type: 'select',
-      multiple: true,
+      type: 'multi-check-dropdown',
       options: _enum.schoolStatusOptions,
       required: false,
-      props: { allowClear: true, placeholder: t('text.all') },
+      placeholder: t('text.all'),
+      selectAllText: t('general.select_all'),
+      searchPlaceholder: t('general.input_keyword'),
+      cancelText: t('general.cancel'),
+      okText: t('general.ok'),
+      selectedText: (count) => `${count} ${t('text.items')}`,
     },
   ]
 

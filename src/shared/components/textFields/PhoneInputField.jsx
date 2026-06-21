@@ -20,7 +20,7 @@ const PhoneInputField = ({
       className="app-phone-input"
       international
       countryCallingCodeEditable={false}
-      defaultCountry="VN"
+      defaultCountry="SG"
       placeholder={placeholder}
       value={value || undefined}
       onChange={(nextValue) => onChange?.(nextValue || '')}
