@@ -7,7 +7,7 @@ import SwitchLanguageButton from '../buttons/SwitchLanguageButton'
 import SwitchThemeButton from '../buttons/SwitchThemeButton'
 import UserAvatarMenu from '../menus/UserAvatarMenu'
 
-const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout = () => {} }) => {
+const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
   const screens = Grid.useBreakpoint()
   const isDownMd = !screens.md
   const isDownSm = !screens.sm
@@ -194,7 +194,7 @@ const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout =
       >
         <SwitchThemeButton />
         <SwitchLanguageButton />
-        <UserAvatarMenu profile={profile} items={userMenuItems} onLogout={onLogout} />
+        <UserAvatarMenu profile={profile} onLogout={onLogout} />
       </Space>
     </Layout.Header>
   )

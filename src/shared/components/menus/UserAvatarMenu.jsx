@@ -5,7 +5,7 @@ import { Avatar, Button, Dropdown, Space, Typography, theme } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const UserAvatarMenu = ({ profile, items = [], onLogout }) => {
+const UserAvatarMenu = ({ profile, onLogout }) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -49,23 +49,6 @@ const UserAvatarMenu = ({ profile, items = [], onLogout }) => {
       ),
       disabled: true,
     },
-    { type: 'divider' },
-
-    // Menu items
-    ...items.map((item) => ({
-      key: item.key || item.url || item.label,
-      label: item.label,
-      icon: item.icon,
-      onClick: () => {
-        setOpen(false)
-        if (item.onClick) {
-          item.onClick()
-          return
-        }
-        navigate(item.url)
-      },
-    })),
-
     { type: 'divider' },
 
     // Logout
