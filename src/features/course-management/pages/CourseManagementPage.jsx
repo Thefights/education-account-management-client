@@ -2,8 +2,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useApiOptions from '@/shared/hooks/useApiOptions'
-import useAuth from '@/shared/hooks/useAuth'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -13,18 +11,10 @@ import CourseManagementFilterSection from '../components/CourseManagementFilterS
 import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
 
-const defaultFilters = { search: '', statuses: [], schoolId: '' }
+const defaultFilters = { search: '', statuses: [] }
 
 const CourseManagementPage = () => {
   const { t } = useTranslation()
-  const { auth } = useAuth()
-  const isSystemAdmin = auth?.role === 'SystemAdmin'
-  const schools = useApiOptions({
-    url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
-    valueKey: 'id',
-    labelKey: 'schoolName',
-    fetchOnMount: isSystemAdmin,
-  })
   const confirm = useConfirm()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
@@ -76,9 +66,6 @@ const CourseManagementPage = () => {
           loading={courses.loading}
           onFilter={handleFilter}
           onReset={() => handleFilter(defaultFilters)}
-          canSelectSchool={isSystemAdmin}
-          schoolOptions={schools.options}
-          schoolsLoading={schools.loading}
         />
         <CourseManagementTableSection
           courses={courses.data?.collection}
@@ -111,9 +98,6 @@ const CourseManagementPage = () => {
         onCreateSubmit={createCourse.submit}
         onUpdateSubmit={updateCourse.submit}
         refetch={courses.fetch}
-        canSelectSchool={isSystemAdmin}
-        schoolOptions={schools.options}
-        schoolsLoading={schools.loading}
       />
     </Card>
   )

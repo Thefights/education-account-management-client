@@ -20,9 +20,9 @@ export const platformLightTheme = {
     colorBgContainer: lightPalette.background.paper,
     colorBgElevated: '#FFFFFF',
 
-    borderRadius: 4,
-    borderRadiusLG: 6,
-    borderRadiusSM: 2,
+    borderRadius: 8,
+    borderRadiusLG: 10,
+    borderRadiusSM: 4,
     borderRadiusXS: 2,
 
     fontFamily: 'Lexend, sans-serif',
@@ -42,31 +42,31 @@ export const platformLightTheme = {
     },
 
     Button: {
-      borderRadius: 4,
-      controlHeight: 36,
-      primaryShadow: 'none',
+      borderRadius: 6,
+      controlHeight: 40,
+      primaryShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
     },
 
     Input: {
-      borderRadius: 4,
-      controlHeight: 36,
+      borderRadius: 6,
+      controlHeight: 40,
     },
 
     Select: {
-      borderRadius: 4,
-      controlHeight: 36,
+      borderRadius: 6,
+      controlHeight: 40,
     },
 
     Pagination: {
       itemActiveBg: lightPalette.primary.main,
       itemActiveColor: lightPalette.primary.contrastText,
-      itemBorderRadius: 4,
+      itemBorderRadius: 6,
     },
 
     Table: {
       borderColor: lightPalette.divider,
-      headerBg: lightPalette.grey[100],
-      headerSplitColor: lightPalette.divider,
+      headerBg: '#F1F5F9',
+      headerSplitColor: 'transparent',
       rowHoverBg: lightPalette.primary.softBg,
     },
   },

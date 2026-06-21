@@ -67,16 +67,36 @@ export const defaultProductAssignmentRoleStyle = (role) => {
 
 export const defaultAuditLogCategoryStyle = (category) => {
   const map = {
-    [EnumConfig.AuditLogCategory.Authentication]: 'blue',
-    [EnumConfig.AuditLogCategory.AccountManagement]: 'purple',
-    [EnumConfig.AuditLogCategory.SecuritySetting]: 'volcano',
-    [EnumConfig.AuditLogCategory.EmailWhitelist]: 'cyan',
-    [EnumConfig.AuditLogCategory.Product]: 'green',
-    [EnumConfig.AuditLogCategory.FavoriteProduct]: 'gold',
-    [EnumConfig.AuditLogCategory.AuditLog]: 'default',
+    [EnumConfig.AuditLogCategory.AccountCreation]: 'green',
+    [EnumConfig.AuditLogCategory.StatusChange]: 'orange',
+    [EnumConfig.AuditLogCategory.TopupConfig]: 'cyan',
+    [EnumConfig.AuditLogCategory.Security]: 'volcano',
+    [EnumConfig.AuditLogCategory.Transaction]: 'blue',
+    [EnumConfig.AuditLogCategory.Billing]: 'gold',
+    [EnumConfig.AuditLogCategory.AI]: 'purple',
   }
 
   return map[category] || 'default'
+}
+
+export const defaultSweepActionStyle = (action) => {
+  const map = {
+    [EnumConfig.SweepAction.Create]: 'green',
+    [EnumConfig.SweepAction.Close]: 'red',
+    [EnumConfig.SweepAction.Extend]: 'orange',
+  }
+
+  return map[action] || 'default'
+}
+
+export const defaultSweepTargetStatusStyle = (status) => {
+  const map = {
+    [EnumConfig.SweepTargetStatus.Pending]: 'default',
+    [EnumConfig.SweepTargetStatus.Success]: 'success',
+    [EnumConfig.SweepTargetStatus.Failed]: 'error',
+  }
+
+  return map[status] || 'default'
 }
 
 export const defaultAuditLogActionStyle = (action) => {

@@ -16,6 +16,7 @@
     "search_label": "Search by NRIC, account number, or name",
     "status": "Status",
     "all_statuses": "All statuses",
+    "all_actions": "All actions",
     "active": "Active",
     "extended": "Extended",
     "inactive": "Inactive",
@@ -33,14 +34,21 @@
   },
   "batch_report": {
     "title": "Batch Job Reports",
-    "failed_cases": "Failed cases",
     "created_successfully": "Created successfully",
     "failed": "Failed",
+    "extended": "Extended",
+    "closed": "Closed",
+    "batch_date": "Batch date",
+    "total_duration": "Total duration",
     "select_date": "Select batch date",
     "no_report": "No batch report exists for the selected date.",
-    "full_name": "Name",
-    "failure_reason": "Failure reason",
-    "handle_manually": "Handle manually"
+    "targets": "Sweep targets",
+    "search_nric": "Search by NRIC",
+    "all_statuses": "All statuses",
+    "nric": "NRIC",
+    "action": "Action",
+    "status": "Status",
+    "reason": "Reason"
   },
   "topup_form": {
     "create_rule": "Create top-up rule",
@@ -82,7 +90,8 @@
     "day_of_month": "Day of month",
     "month": "Month",
     "execution_time": "Execution time",
-    "topup_rules": "Top-up rules"
+    "topup_rules": "Top-up rules",
+    "or_amount_hint": "OR mode uses the amount configured on each condition."
   },
   "account_profile": { "nric": "NRIC" }
 }

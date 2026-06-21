@@ -74,9 +74,6 @@ const AuditLogPage = () => {
           filter: exportFilter,
           fields,
         },
-        headers: {
-          'Content-Type': 'application/json',
-        },
         filenamePrefix: 'audit-logs',
       }
     )

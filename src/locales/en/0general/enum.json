@@ -30,6 +30,16 @@
     "user_status": {
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "sweep_action": {
+      "create": "Create",
+      "close": "Close",
+      "extend": "Extend"
+    },
+    "sweep_target_status": {
+      "pending": "Pending",
+      "success": "Success",
+      "failed": "Failed"
     }
   }
 }

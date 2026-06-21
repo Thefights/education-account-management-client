@@ -9,18 +9,20 @@ export const ApiUrls = {
 
   AUDIT_LOG: {
     MANAGEMENT: {
-      INDEX: '/audit-log',
-      DETAIL: (id) => `/audit-log/${id}`,
-      EXPORT: '/audit-log/export',
+      INDEX: '/audit-log-management',
+      GET_ALL: '/audit-log-management/all',
+      DETAIL: (id) => `/audit-log-management/${id}`,
+      EXPORT: '/audit-log-management/export',
     },
   },
 
   AI_ASSISTANT_SETTING: {
-    INDEX: '/ai-assistant-setting',
+    INDEX: '/ai-assistant-setting-management',
   },
 
   ADMIN_MANAGEMENT: {
     INDEX: '/admin-management',
+    GET_ALL: '/admin-management/all',
     DETAIL: (id) => `/admin-management/${id}`,
   },
 
@@ -32,35 +34,42 @@ export const ApiUrls = {
 
   COURSE_MANAGEMENT: {
     INDEX: '/course-management',
+    GET_ALL: '/course-management/all',
     DETAIL: (id) => `/course-management/${id}`,
   },
 
   EDUCATION_ACCOUNT: {
-    INDEX: '/education-account',
-    DETAIL: (id) => `/education-account/${id}`,
-    TRANSACTIONS: (id) => `/education-account/${id}/transactions`,
-    IMPORT: '/education-account/import',
+    INDEX: '/education-account-management',
+    GET_ALL: '/education-account-management/all',
+    DETAIL: (id) => `/education-account-management/${id}`,
+    TRANSACTIONS: (id) => `/transaction-history/admin/education-accounts/${id}`,
+    IMPORT: '/education-account-management/import',
   },
-  BATCH_REPORT: {
-    INDEX: '/batch-reports',
-    MANUAL_HANDLING: '/batch-reports/failed-records/manual-handling',
+  SWEEP_REPORT: {
+    INDEX: '/education-account-sweep-report-management',
+    TARGETS: (batchDate) => `/education-account-sweep-report-management/${batchDate}/targets`,
+    MANUAL_HANDLING: '/education-account-sweep-report-management/failed-records/manual-handling',
   },
   TOPUP: {
-    VALIDATE_MANUAL: '/topup/manual/validate',
-    EXECUTE_MANUAL: '/topup/manual/execute',
+    EXECUTE_MANUAL: '/topup-management/manual/execute',
+    ELIGIBLE_ACCOUNTS: '/topup-management/eligible-accounts',
+    HISTORY: '/topup-management/history',
+    HISTORY_DETAIL: (id) => `/topup-management/history/${id}`,
+    HISTORY_TARGETS: (id) => `/topup-management/history/${id}/targets`,
   },
   TOPUP_RULE: {
-    INDEX: '/topup-rule',
-    GET_ALL: '/topup-rule/all',
-    DETAIL: (id) => `/topup-rule/${id}`,
-    UPDATE_STATUS: '/topup-rule/status',
+    INDEX: '/topup-rule-management',
+    GET_ALL: '/topup-rule-management/all',
+    DETAIL: (id) => `/topup-rule-management/${id}`,
+    UPDATE_STATUS: '/topup-rule-management/status',
   },
   TOPUP_SCHEDULE: {
-    INDEX: '/topup-schedule',
-    DETAIL: (id) => `/topup-schedule/${id}`,
+    INDEX: '/topup-schedule-management',
+    GET_ALL: '/topup-schedule-management/all',
+    DETAIL: (id) => `/topup-schedule-management/${id}`,
   },
   ACCOUNT_HOLDER: {
-    PROFILE: '/account-management/user/profile',
-    TRANSACTIONS: '/account-management/user/transactions',
+    PROFILE: '/account-holder/profile',
+    TRANSACTIONS: '/transaction-history/account-holder/current',
   },
 }

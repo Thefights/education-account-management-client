@@ -3,7 +3,6 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { maxLen, numberHigherThanOrEqual } from '@/shared/utils/validateUtil'
 
 const initialValues = {
-  schoolId: '',
   courseName: '',
   description: '',
   courseFeeAmount: '0',
@@ -11,7 +10,6 @@ const initialValues = {
   gstAmount: '0',
 }
 const normalizeInitialValues = (course = {}) => ({
-  schoolId: course.schoolId ?? '',
   courseName: course.courseName ?? '',
   description: course.description ?? '',
   courseFeeAmount: String(course.courseFeeAmount ?? 0),
@@ -19,7 +17,6 @@ const normalizeInitialValues = (course = {}) => ({
   gstAmount: String(course.gstAmount ?? 0),
 })
 const toPayload = (values) => ({
-  schoolId: values.schoolId === '' || values.schoolId == null ? 0 : Number(values.schoolId),
   courseName: values.courseName,
   description: values.description || null,
   courseFeeAmount: Number(values.courseFeeAmount),
@@ -36,28 +33,10 @@ const CourseManagementFormSection = ({
   onCreateSubmit,
   onUpdateSubmit,
   refetch,
-  canSelectSchool = false,
-  schoolOptions = [],
-  schoolsLoading = false,
 }) => {
   const { t } = useTranslation()
   const amountValidation = [numberHigherThanOrEqual(0)]
   const fields = [
-    ...(canSelectSchool
-      ? [
-          {
-            key: 'schoolId',
-            title: t('course_management.field.school'),
-            type: 'select',
-            options: schoolOptions,
-            props: {
-              loading: schoolsLoading,
-              showSearch: true,
-              optionFilterProp: 'label',
-            },
-          },
-        ]
-      : []),
     { key: 'courseName', title: t('course_management.field.course_name'), validate: [maxLen(150)] },
     {
       key: 'description',

@@ -1,4 +1,5 @@
 import GenericTable from '@/shared/components/tables/GenericTable'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import {
   defaultAuditLogCategoryStyle,
 } from '@/shared/config/theme/defaultStylesConfig'
@@ -54,11 +55,7 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         title: 'NRIC',
         width: 140,
         sortable: true,
-      },
-      {
-        key: 'payloadJson',
-        title: 'Payload',
-        width: 300,
+        render: (value) => <MaskedNric value={value} />,
       },
       {
         key: 'ipAddress',

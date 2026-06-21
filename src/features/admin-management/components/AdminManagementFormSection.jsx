@@ -1,4 +1,5 @@
 import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import NricInput from '@/shared/components/textFields/NricInput'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -8,7 +9,6 @@ import { useMemo } from 'react'
 const initialValues = {
   role: '',
   azureObjectId: '',
-  staffCode: '',
   fullName: '',
   nric: '',
   email: '',
@@ -23,8 +23,11 @@ const toPayload = (values) => ({
 })
 
 const normalizeInitialValues = (admin = {}) => ({
-  ...initialValues,
-  ...admin,
+  role: admin.role ?? '',
+  azureObjectId: admin.azureObjectId ?? '',
+  fullName: admin.fullName ?? '',
+  nric: admin.nric ?? '',
+  email: admin.email ?? '',
   schoolId: admin.schoolId ?? '',
   phoneNumber: admin.phoneNumber ?? '',
 })
@@ -61,11 +64,6 @@ const AdminManagementFormSection = ({
         validate: [maxLen(256)],
       },
       {
-        key: 'staffCode',
-        title: t('admin_management.field.staff_code'),
-        validate: [maxLen(50)],
-      },
-      {
         key: 'fullName',
         title: t('admin_management.field.full_name'),
         validate: [maxLen(150)],
@@ -73,6 +71,8 @@ const AdminManagementFormSection = ({
       {
         key: 'nric',
         title: t('admin_management.field.nric'),
+        type: 'custom',
+        render: ({ value, onChange }) => <NricInput value={value} onChange={onChange} />,
         validate: [maxLen(9)],
       },
       {

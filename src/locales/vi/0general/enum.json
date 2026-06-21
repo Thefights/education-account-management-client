@@ -30,6 +30,16 @@
     "user_status": {
       "active": "Đang hoạt động",
       "inactive": "Không hoạt động"
+    },
+    "sweep_action": {
+      "create": "Tạo mới",
+      "close": "Đóng",
+      "extend": "Gia hạn"
+    },
+    "sweep_target_status": {
+      "pending": "Đang chờ",
+      "success": "Thành công",
+      "failed": "Thất bại"
     }
   }
 }

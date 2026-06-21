@@ -28,12 +28,19 @@ export const routeUrls = {
     INDEX: '/education-accounts',
     DETAIL: (id = ':id') => `/education-accounts/${id}`,
   },
-  BATCH_REPORTS: { INDEX: '/batch-reports' },
+  SWEEP_REPORTS: { INDEX: '/sweep-reports' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
   COURSE_MANAGEMENT: { INDEX: '/course-management' },
-  MANUAL_TOPUP: { INDEX: '/manual-topup' },
-  TOPUP_RULES: { INDEX: '/topup-rules' },
-  TOPUP_SCHEDULES: { INDEX: '/topup-schedules' },
+  TOPUP_MANAGEMENT: {
+    INDEX: '/topup-management',
+    HISTORY: '/topup-management/history',
+    HISTORY_DETAIL: (id = ':id') => `/topup-management/history/${id}`,
+  },
+  LEGACY_TOPUP: {
+    MANUAL: '/manual-topup',
+    RULES: '/topup-rules',
+    SCHEDULES: '/topup-schedules',
+  },
   PROFILE: { INDEX: '/profile' },
   TRANSACTIONS: { INDEX: '/transactions' },
 }

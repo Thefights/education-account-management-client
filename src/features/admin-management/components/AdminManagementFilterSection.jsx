@@ -84,12 +84,12 @@ const AdminManagementFilterSection = ({
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field, index) => (
-          <Col key={field.key} xs={24} md={index === 0 ? 8 : 4}>
+        {fields.map((field) => (
+          <Col key={field.key} xs={24} md={6}>
             {renderField(field)}
           </Col>
         ))}
-        <Col xs={24} md={4}>
+        <Col xs={24} md={{ span: 20, offset: 4 }}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />

@@ -5,11 +5,11 @@ import { useMemo } from 'react'
 const exportFieldKeys = [
   'id',
   'actorUserId',
+  'actorUserRole',
   'category',
   'action',
-  'nRic',
+  'nric',
   'ipAddress',
-  'payloadJson',
   'occurredAt',
 ]
 
@@ -31,6 +31,10 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
         label: t('audit_log.field.actor_user_id'),
       },
       {
+        value: 'actorUserRole',
+        label: t('account.field.roles'),
+      },
+      {
         value: 'category',
         label: t('audit_log.field.category'),
       },
@@ -39,16 +43,12 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
         label: t('audit_log.field.action'),
       },
       {
-        value: 'nRic',
+        value: 'nric',
         label: 'NRIC',
       },
       {
         value: 'ipAddress',
         label: t('audit_log.field.ip_address'),
-      },
-      {
-        value: 'payloadJson',
-        label: 'Payload JSON',
       },
       {
         value: 'occurredAt',

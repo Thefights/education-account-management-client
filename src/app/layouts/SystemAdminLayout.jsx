@@ -40,10 +40,10 @@ const SystemAdminLayout = () => {
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.INDEX),
         },
         {
-          key: 'batch-reports',
-          label: t('navigation.batch_reports'),
+          key: 'sweep-reports',
+          label: t('navigation.sweep_reports'),
           icon: ScheduleOutlined,
-          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.BATCH_REPORTS.INDEX),
+          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SWEEP_REPORTS.INDEX),
         },
         {
           key: 'audit-logs',

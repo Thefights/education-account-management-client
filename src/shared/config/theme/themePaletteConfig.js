@@ -7,12 +7,12 @@ export const lightPalette = {
   },
 
   primary: {
-    main: '#636ABC',
-    light: '#858DD2',
-    dark: '#484F92',
+    main: '#2563EB',
+    light: '#60A5FA',
+    dark: '#1D4ED8',
     contrastText: '#FFFFFF',
-    softBg: '#F0F1FA',
-    softBorder: '#C6CAEA',
+    softBg: '#EFF6FF',
+    softBorder: '#BFDBFE',
   },
 
   secondary: {
@@ -61,12 +61,12 @@ export const lightPalette = {
   },
 
   background: {
-    default: '#EEF2F6',
-    paper: '#ffffff89',
+    default: '#F8FAFC',
+    paper: '#FFFFFF',
     header: '#FFFFFF',
-    sider: '#1F2937',
-    lightBlue: '#EEF2FF',
-    lightGray: '#F8FAFC',
+    sider: '#0F172A',
+    lightBlue: '#EFF6FF',
+    lightGray: '#F1F5F9',
   },
 
   text: {

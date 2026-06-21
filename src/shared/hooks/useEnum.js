@@ -129,5 +129,35 @@ export default function useEnum() {
       { value: EnumConfig.AuditLogCategory.Billing, label: 'Billing' },
       { value: EnumConfig.AuditLogCategory.AI, label: 'AI' },
     ],
+
+    sweepActionOptions: [
+      { value: EnumConfig.SweepAction.Create, label: t('enum.sweep_action.create') },
+      { value: EnumConfig.SweepAction.Close, label: t('enum.sweep_action.close') },
+      { value: EnumConfig.SweepAction.Extend, label: t('enum.sweep_action.extend') },
+    ],
+
+    sweepActionFilterOptions: [
+      { value: EnumConfig.SweepActionId.Create, label: t('enum.sweep_action.create') },
+      { value: EnumConfig.SweepActionId.Close, label: t('enum.sweep_action.close') },
+      { value: EnumConfig.SweepActionId.Extend, label: t('enum.sweep_action.extend') },
+    ],
+
+    sweepTargetStatusFilterOptions: [
+      {
+        value: EnumConfig.SweepTargetStatusId.Pending,
+        label: t('enum.sweep_target_status.pending'),
+      },
+      {
+        value: EnumConfig.SweepTargetStatusId.Success,
+        label: t('enum.sweep_target_status.success'),
+      },
+      { value: EnumConfig.SweepTargetStatusId.Failed, label: t('enum.sweep_target_status.failed') },
+    ],
+
+    sweepTargetStatusOptions: [
+      { value: EnumConfig.SweepTargetStatus.Pending, label: t('enum.sweep_target_status.pending') },
+      { value: EnumConfig.SweepTargetStatus.Success, label: t('enum.sweep_target_status.success') },
+      { value: EnumConfig.SweepTargetStatus.Failed, label: t('enum.sweep_target_status.failed') },
+    ],
   }
 }

@@ -8,19 +8,19 @@ import AccountTransactionHistoryPage from '@/features/account-holder/pages/Accou
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
 import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
-import BatchJobReportsPage from '@/features/batch-job-reports/pages/BatchJobReportsPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
-import ManualTopupPage from '@/features/topup/pages/ManualTopupPage'
-import TopupRulesPage from '@/features/topup/pages/TopupRulesPage'
-import TopupSchedulesPage from '@/features/topup/pages/TopupSchedulesPage'
+import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
+import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
+import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
+import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 const roleRouteGroups = [
   {
@@ -49,8 +49,8 @@ const roleRouteGroups = [
         element: <EducationAccountDetailPage />,
       },
       {
-        path: routeUrls.BATCH_REPORTS.INDEX,
-        element: <BatchJobReportsPage />,
+        path: routeUrls.SWEEP_REPORTS.INDEX,
+        element: <SweepReportsPage />,
       },
       {
         path: routeUrls.AUDIT_LOGS.INDEX,
@@ -63,9 +63,36 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.FinanceAdmin,
     Layout: FinanceAdminLayout,
     routes: [
-      { path: routeUrls.MANUAL_TOPUP.INDEX, element: <ManualTopupPage /> },
-      { path: routeUrls.TOPUP_RULES.INDEX, element: <TopupRulesPage /> },
-      { path: routeUrls.TOPUP_SCHEDULES.INDEX, element: <TopupSchedulesPage /> },
+      { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
+      { path: routeUrls.TOPUP_MANAGEMENT.HISTORY, element: <TopupHistoryPage /> },
+      { path: routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(), element: <TopupHistoryDetailPage /> },
+      {
+        path: routeUrls.LEGACY_TOPUP.MANUAL,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
+          />
+        ),
+      },
+      {
+        path: routeUrls.LEGACY_TOPUP.RULES,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
+          />
+        ),
+      },
+      {
+        path: routeUrls.LEGACY_TOPUP.SCHEDULES,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
+          />
+        ),
+      },
     ],
   },
   {
@@ -97,19 +124,7 @@ const RoleRoutes = () => {
   return (
     <Routes>
       {roleRouteGroups.map(({ basePath, role, Layout, routes = [] }) => (
-        <Route
-          key={role}
-          path={`${basePath}/*`}
-          element={
-            <ProtectedRoute
-              allowRoles={
-                role === EnumConfig.RoleEnum.SystemAdmin
-                  ? [role]
-                  : [role, EnumConfig.RoleEnum.SystemAdmin]
-              }
-            />
-          }
-        >
+        <Route key={role} path={`${basePath}/*`} element={<ProtectedRoute allowRoles={[role]} />}>
           <Route element={<Layout />}>
             <Route index element={<RoleHomePage role={role} />} />
             {routes.map((route) => (

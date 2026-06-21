@@ -1,4 +1,5 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultAuthAccountStatusStyle,
@@ -37,6 +38,7 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         title: t('admin_management.field.nric'),
         width: 130,
         sortable: true,
+        render: (value) => <MaskedNric value={value} />,
       },
       {
         key: 'phoneNumber',

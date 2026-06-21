@@ -5,6 +5,7 @@
     "balance": "Current balance",
     "date_of_birth": "Date of birth",
     "created_date": "Created date",
+    "expected_closing_date": "Expected closing date",
     "email": "Email",
     "phone": "Phone",
     "residential_address": "Residential address",
