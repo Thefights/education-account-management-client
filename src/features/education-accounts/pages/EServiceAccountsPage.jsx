@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import EServiceAccountsFilterSection from '../components/EServiceAccountsFilterSection'
 import EServiceAccountsTableSection from '../components/EServiceAccountsTableSection'
+import EServiceAccountsToolbarSection from '../components/EServiceAccountsToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
 
@@ -80,6 +81,10 @@ const EServiceAccountsPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('education_account.management_title')}
         </Typography.Title>
+        <EServiceAccountsToolbarSection
+          onCreate={() => setOpenCreate(true)}
+          onImport={() => setOpenImport(true)}
+        />
         <EServiceAccountsFilterSection
           filters={filters}
           onFilter={(values) => {

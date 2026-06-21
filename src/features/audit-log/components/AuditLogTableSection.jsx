@@ -7,11 +7,9 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
-import { DownloadOutlined } from '@ant-design/icons'
-import { Button, Flex } from 'antd'
 import { useMemo } from 'react'
 
-const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = () => {} }) => {
+const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
 
@@ -76,22 +74,14 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
   )
 
   return (
-    <>
-      <Flex justify="end" align="center" gap={12} wrap="wrap" style={{ marginBottom: 12 }}>
-        <Button icon={<DownloadOutlined />} onClick={onExport}>
-          {t('audit_log.button.export')}
-        </Button>
-      </Flex>
-
-      <GenericTable
-        data={auditLogs}
-        fields={fields}
-        sort={sort}
-        setSort={setSort}
-        rowKey="id"
-        loading={loading}
-      />
-    </>
+    <GenericTable
+      data={auditLogs}
+      fields={fields}
+      sort={sort}
+      setSort={setSort}
+      rowKey="id"
+      loading={loading}
+    />
   )
 }
 

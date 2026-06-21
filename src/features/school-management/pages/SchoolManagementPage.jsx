@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react'
 import SchoolManagementFilterSection from '../components/SchoolManagementFilterSection'
 import SchoolManagementFormSection from '../components/SchoolManagementFormSection'
 import SchoolManagementTableSection from '../components/SchoolManagementTableSection'
+import SchoolManagementToolbarSection from '../components/SchoolManagementToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
 
@@ -61,6 +62,7 @@ const SchoolManagementPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('school_management.title.management')}
         </Typography.Title>
+        <SchoolManagementToolbarSection onCreate={() => setOpenCreate(true)} />
         <SchoolManagementFilterSection
           filters={filters}
           loading={schools.loading}

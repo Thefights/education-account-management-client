@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react'
 import CourseManagementFilterSection from '../components/CourseManagementFilterSection'
 import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
+import CourseManagementToolbarSection from '../components/CourseManagementToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
 
@@ -61,6 +62,7 @@ const CourseManagementPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('course_management.title.management')}
         </Typography.Title>
+        <CourseManagementToolbarSection onCreate={() => setOpenCreate(true)} />
         <CourseManagementFilterSection
           filters={filters}
           loading={courses.loading}

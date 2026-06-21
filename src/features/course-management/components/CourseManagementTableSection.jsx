@@ -3,7 +3,6 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex } from 'antd'
 
 const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
 
@@ -12,7 +11,6 @@ const CourseManagementTableSection = ({
   loading,
   sort,
   setSort,
-  onCreate,
   onEdit,
   onDelete,
 }) => {
@@ -83,21 +81,14 @@ const CourseManagementTableSection = ({
   ]
 
   return (
-    <>
-      <Flex justify="end" style={{ marginBottom: 12 }}>
-        <Button type="primary" onClick={onCreate}>
-          {t('button.create')}
-        </Button>
-      </Flex>
-      <GenericTable
-        data={courses}
-        fields={fields}
-        rowKey="id"
-        loading={loading}
-        sort={sort}
-        setSort={setSort}
-      />
-    </>
+    <GenericTable
+      data={courses}
+      fields={fields}
+      rowKey="id"
+      loading={loading}
+      sort={sort}
+      setSort={setSort}
+    />
   )
 }
 

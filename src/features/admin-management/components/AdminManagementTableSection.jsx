@@ -7,10 +7,9 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex } from 'antd'
 import { useMemo } from 'react'
 
-const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate, onEdit }) => {
+const AdminManagementTableSection = ({ admins, loading, sort, setSort, onEdit }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = useMemo(
@@ -86,21 +85,14 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
   )
 
   return (
-    <>
-      <Flex justify="end" style={{ marginBottom: 12 }}>
-        <Button type="primary" onClick={onCreate}>
-          {t('button.create')}
-        </Button>
-      </Flex>
-      <GenericTable
-        data={admins}
-        fields={fields}
-        rowKey="userId"
-        loading={loading}
-        sort={sort}
-        setSort={setSort}
-      />
-    </>
+    <GenericTable
+      data={admins}
+      fields={fields}
+      rowKey="userId"
+      loading={loading}
+      sort={sort}
+      setSort={setSort}
+    />
   )
 }
 

@@ -32,6 +32,7 @@ Cấu trúc khuyến nghị:
 src/pages/exampleManagementPage/
   ExampleManagementPage.jsx
   components/
+    ExampleManagementToolbarSection.jsx
     ExampleManagementFilterSection.jsx
     ExampleManagementTableSection.jsx
     ExampleManagementFormSection.jsx
@@ -40,8 +41,9 @@ src/pages/exampleManagementPage/
 Vai trò từng file:
 
 - `ExampleManagementPage.jsx`: giữ state chính, filter, sort, pagination, selected row, selected ids, open dialog, gọi `useFetch`, gọi `useAxiosSubmit`, xử lý refetch.
+- `ExampleManagementToolbarSection.jsx`: chứa các action buttons chung của trang (Create, Import, Export, Batch Delete...). Section này BẮT BUỘC phải đặt bên TRÊN `FilterSection` trong giao diện page.
 - `ExampleManagementFilterSection.jsx`: render các field filter, dùng `useForm` và `useFieldRenderer`, chỉ gọi `setFilters` khi người dùng bấm filter/reset.
-- `ExampleManagementTableSection.jsx`: định nghĩa columns/fields của table bằng `useMemo`, render `GenericTable`, action buttons, batch actions.
+- `ExampleManagementTableSection.jsx`: định nghĩa columns/fields của table bằng `useMemo`, render `GenericTable`. Không chứa các nút action chung (Create/Import) ở đây.
 - `ExampleManagementFormSection.jsx`: định nghĩa create/update fields, initial values, submit handler, render `GenericFormDialog`.
 
 Không nhồi filter/table/form vào page chính nếu page có nhiều UI section.

@@ -9,6 +9,7 @@ import { useMemo, useState } from 'react'
 import AdminManagementFilterSection from '../components/AdminManagementFilterSection'
 import AdminManagementFormSection from '../components/AdminManagementFormSection'
 import AdminManagementTableSection from '../components/AdminManagementTableSection'
+import AdminManagementToolbarSection from '../components/AdminManagementToolbarSection'
 
 const defaultFilters = { search: '', roles: [], statuses: [], schoolIds: [] }
 const defaultSort = { key: 'id', direction: 'desc' }
@@ -53,6 +54,7 @@ const AdminManagementPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('admin_management.title.management')}
         </Typography.Title>
+        <AdminManagementToolbarSection onCreate={() => setOpenCreate(true)} />
         <AdminManagementFilterSection
           filters={filters}
           loading={getAdmins.loading}

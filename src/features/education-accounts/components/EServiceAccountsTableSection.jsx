@@ -2,8 +2,7 @@ import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { ImportOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Flex, Space, Tag } from 'antd'
+import { Button, Tag } from 'antd'
 import { useMemo } from 'react'
 
 const statusColors = {
@@ -18,8 +17,6 @@ const EServiceAccountsTableSection = ({
   sort,
   setSort,
   onView,
-  onCreate,
-  onImport,
 }) => {
   const { t } = useTranslation()
   const fields = useMemo(
@@ -70,26 +67,14 @@ const EServiceAccountsTableSection = ({
   )
 
   return (
-    <>
-      <Flex justify="end" style={{ marginBottom: 12 }}>
-        <Space>
-          <Button icon={<ImportOutlined />} onClick={onImport}>
-            {t('education_account.batch_import')}
-          </Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
-            {t('button.create')}
-          </Button>
-        </Space>
-      </Flex>
-      <GenericTable
-        data={accounts}
-        fields={fields}
-        rowKey="id"
-        loading={loading}
-        sort={sort}
-        setSort={setSort}
-      />
-    </>
+    <GenericTable
+      data={accounts}
+      fields={fields}
+      rowKey="id"
+      loading={loading}
+      sort={sort}
+      setSort={setSort}
+    />
   )
 }
 

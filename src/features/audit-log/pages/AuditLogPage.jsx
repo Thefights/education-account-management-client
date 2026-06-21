@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react'
 import AuditLogExportSection from '../components/AuditLogExportSection'
 import AuditLogFilterSection from '../components/AuditLogFilterSection'
 import AuditLogTableSection from '../components/AuditLogTableSection'
+import AuditLogToolbarSection from '../components/AuditLogToolbarSection'
 
 const defaultFilters = {
   search: '',
@@ -85,6 +86,8 @@ const AuditLogPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('audit_log.title.audit_log_management')}
         </Typography.Title>
+
+        <AuditLogToolbarSection onExport={() => setOpenExport(true)} />
 
         <AuditLogFilterSection
           filters={filters}

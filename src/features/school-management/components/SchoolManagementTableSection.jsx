@@ -3,14 +3,12 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex } from 'antd'
 
 const SchoolManagementTableSection = ({
   schools,
   loading,
   sort,
   setSort,
-  onCreate,
   onEdit,
   onDelete,
 }) => {
@@ -63,21 +61,14 @@ const SchoolManagementTableSection = ({
   ]
 
   return (
-    <>
-      <Flex justify="end" style={{ marginBottom: 12 }}>
-        <Button type="primary" onClick={onCreate}>
-          {t('button.create')}
-        </Button>
-      </Flex>
-      <GenericTable
-        data={schools}
-        fields={fields}
-        rowKey="id"
-        loading={loading}
-        sort={sort}
-        setSort={setSort}
-      />
-    </>
+    <GenericTable
+      data={schools}
+      fields={fields}
+      rowKey="id"
+      loading={loading}
+      sort={sort}
+      setSort={setSort}
+    />
   )
 }
 
