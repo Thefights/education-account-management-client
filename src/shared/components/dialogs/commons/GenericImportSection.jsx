@@ -3,7 +3,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
 import { DownloadOutlined } from '@ant-design/icons'
 import { Button, Flex, Table, Typography } from 'antd'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 const DEFAULT_INITIAL_VALUES = { file: null }
 
@@ -23,6 +23,7 @@ const GenericImportSection = ({
   template,
 }) => {
   const { t } = useTranslation()
+  const [hasFile, setHasFile] = useState(false)
 
   const defaultFields = useMemo(
     () => [
@@ -64,21 +65,27 @@ const GenericImportSection = ({
   const failed = getResultValue(result, 'failed') ?? errors.length
   const total = getResultValue(result, 'total') ?? succeeded + failed
   const defaultResult = result ? (
-    <>
-      <Typography.Text>
-        {t('import.total')}: {total}
-      </Typography.Text>
-      <br />
-      <Typography.Text>
-        {t('import.succeeded')}: {succeeded}
-      </Typography.Text>
-      <br />
-      <Typography.Text>
-        {t('import.failed')}: {failed}
-      </Typography.Text>
-      <br />
+    <Flex vertical gap={16}>
+      <Flex gap={24} wrap>
+        <Typography.Text>
+          <Typography.Text type="secondary">{t('import.total')}: </Typography.Text>
+          <Typography.Text strong>{total}</Typography.Text>
+        </Typography.Text>
+        <Typography.Text>
+          <Typography.Text type="secondary">{t('import.succeeded')}: </Typography.Text>
+          <Typography.Text type="success" strong>
+            {succeeded}
+          </Typography.Text>
+        </Typography.Text>
+        <Typography.Text>
+          <Typography.Text type="secondary">{t('import.failed')}: </Typography.Text>
+          <Typography.Text type="danger" strong>
+            {failed}
+          </Typography.Text>
+        </Typography.Text>
+      </Flex>
       {errors.length > 0 && (
-        <>
+        <Flex vertical gap={8}>
           <Typography.Text strong>{t('import.errors')}</Typography.Text>
           <Table
             size="small"
@@ -93,9 +100,9 @@ const GenericImportSection = ({
             }))}
             pagination={false}
           />
-        </>
+        </Flex>
       )}
-    </>
+    </Flex>
   ) : null
 
   const resultContent = renderResult ? renderResult(result) : defaultResult
@@ -107,7 +114,10 @@ const GenericImportSection = ({
   return (
     <GenericFormDialog
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        setHasFile(false)
+        onClose?.()
+      }}
       initialValues={initialValues}
       fields={fields ?? defaultFields}
       submitLabel={submitLabel ?? t('import.submit')}
@@ -115,13 +125,11 @@ const GenericImportSection = ({
       width={720}
       destroyOnClose
       onSubmit={handleSubmit}
+      onValuesChange={(values) => setHasFile(!!values.file)}
     >
-      {template && (
+      {template && !hasFile && (
         <Flex justify="end" style={{ marginBottom: 16 }}>
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={() => downloadCsvTemplate(template)}
-          >
+          <Button icon={<DownloadOutlined />} onClick={() => downloadCsvTemplate(template)}>
             {t('import.download_template')}
           </Button>
         </Flex>

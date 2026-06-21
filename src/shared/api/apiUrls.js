@@ -47,6 +47,7 @@ export const ApiUrls = {
     INDEX: '/education-account-management',
     GET_ALL: '/education-account-management/all',
     DETAIL: (id) => `/education-account-management/${id}`,
+    UPDATE_STATUS: '/education-account-management/status',
     TRANSACTIONS: (id) => `/transaction-history/admin/education-accounts/${id}`,
     IMPORT: '/education-account-management/import',
   },

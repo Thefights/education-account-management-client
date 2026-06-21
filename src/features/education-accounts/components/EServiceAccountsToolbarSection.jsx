@@ -1,13 +1,30 @@
+import useTranslation from '@/shared/hooks/useTranslation'
 import { ImportOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Flex, Space } from 'antd'
-import useTranslation from '@/shared/hooks/useTranslation'
 
-const EServiceAccountsToolbarSection = ({ onImport, onCreate }) => {
+const EServiceAccountsToolbarSection = ({
+  onImport,
+  onCreate,
+  selectedIds,
+  onChangeStatus,
+  loading,
+}) => {
   const { t } = useTranslation()
 
   return (
     <Flex justify="end">
-      <Space>
+      <Space wrap>
+        <Button loading={loading} disabled={!selectedIds?.length} onClick={() => onChangeStatus(1)}>
+          {t('button.activate')}
+        </Button>
+        <Button
+          danger
+          loading={loading}
+          disabled={!selectedIds?.length}
+          onClick={() => onChangeStatus(3)}
+        >
+          {t('button.deactivate')}
+        </Button>
         <Button icon={<ImportOutlined />} onClick={onImport}>
           {t('education_account.batch_import')}
         </Button>

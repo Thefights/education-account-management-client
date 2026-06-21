@@ -1,10 +1,10 @@
 import ManualAccountResultSection from '@/features/manual-account-creation/components/ManualAccountResultSection'
-import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
+import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
-import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import NricInput from '@/shared/components/textFields/NricInput'
+import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -30,6 +30,7 @@ const EServiceAccountsPage = () => {
   const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
+  const [selectedIds, setSelectedIds] = useState([])
   const { submit: submitAccounts } = useAxiosSubmit({
     url: ApiUrls.EDUCATION_ACCOUNT.INDEX,
     method: 'POST',
@@ -37,6 +38,10 @@ const EServiceAccountsPage = () => {
   const { submit: submitImport } = useAxiosSubmit({
     url: ApiUrls.EDUCATION_ACCOUNT.IMPORT,
     method: 'POST',
+  })
+  const updateStatus = useAxiosSubmit({
+    url: ApiUrls.EDUCATION_ACCOUNT.UPDATE_STATUS,
+    method: 'PUT',
   })
   const queryParams = useMemo(
     () => ({ ...filters, sort: `${sort.key} ${sort.direction}`, page, pageSize }),
@@ -92,49 +97,63 @@ const EServiceAccountsPage = () => {
     if (result?.succeeded) await accounts.fetch()
   }
 
+  const handleChangeStatus = async (status) => {
+    const response = await updateStatus.submit({ overrideData: { ids: selectedIds, status } })
+    if (!response) return
+    setSelectedIds([])
+    await accounts.fetch()
+  }
+
   return (
     <Card>
       <Flex vertical gap={16}>
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('education_account.management_title')}
         </Typography.Title>
-          <EServiceAccountsToolbarSection
-            onCreate={() => setOpenCreate(true)}
-            onImport={() => setOpenImport(true)}
-          />
-          <EServiceAccountsFilterSection
-            filters={filters}
-            onFilter={(values) => {
-              setFilters(values)
-              setPage(1)
-            }}
-            onReset={() => {
-              setFilters(defaultFilters)
-              setPage(1)
-            }}
-          />
-          <EServiceAccountsTableSection
-            accounts={accounts.data?.collection}
-            loading={accounts.loading}
-            sort={sort}
-            setSort={setSort}
-            onView={(account) =>
-              navigate(
-                routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.DETAIL(account.id))
-              )
-            }
-            onCreate={() => setOpenCreate(true)}
-            onImport={() => setOpenImport(true)}
-          />
-          <GenericTablePagination
-            totalCount={accounts.data?.totalCount}
-            totalPage={accounts.data?.totalPage}
-            page={page}
-            setPage={setPage}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-          />
-        </Flex>
+        <EServiceAccountsToolbarSection
+          onCreate={() => setOpenCreate(true)}
+          onImport={() => setOpenImport(true)}
+          selectedIds={selectedIds}
+          onChangeStatus={handleChangeStatus}
+          loading={updateStatus.loading}
+        />
+        <EServiceAccountsFilterSection
+          filters={filters}
+          onFilter={(values) => {
+            setFilters(values)
+            setPage(1)
+            setSelectedIds([])
+          }}
+          onReset={() => {
+            setFilters(defaultFilters)
+            setPage(1)
+            setSelectedIds([])
+          }}
+        />
+        <EServiceAccountsTableSection
+          accounts={accounts.data?.collection}
+          loading={accounts.loading}
+          sort={sort}
+          setSort={setSort}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          onView={(account) =>
+            navigate(
+              routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.DETAIL(account.id))
+            )
+          }
+          onCreate={() => setOpenCreate(true)}
+          onImport={() => setOpenImport(true)}
+        />
+        <GenericTablePagination
+          totalCount={accounts.data?.totalCount}
+          totalPage={accounts.data?.totalPage}
+          page={page}
+          setPage={setPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+        />
+      </Flex>
       <GenericFormDialog
         open={openCreate}
         onClose={() => {

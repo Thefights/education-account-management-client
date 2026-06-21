@@ -16,6 +16,8 @@ const EServiceAccountsTableSection = ({
   loading,
   sort,
   setSort,
+  selectedIds,
+  setSelectedIds,
   onView,
 }) => {
   const { t } = useTranslation()
@@ -74,6 +76,10 @@ const EServiceAccountsTableSection = ({
       loading={loading}
       sort={sort}
       setSort={setSort}
+      rowSelection={{
+        selectedRowKeys: selectedIds,
+        onChange: setSelectedIds,
+      }}
     />
   )
 }
