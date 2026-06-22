@@ -1,0 +1,77 @@
+{
+  "landing": {
+    "menu": {
+      "home": "首页",
+      "faq": "常见问题",
+      "contact": "联系我们"
+    },
+    "login": "登录",
+    "home": {
+      "title": "教育账户管理",
+      "subtitle": "便捷与安全",
+      "description": "智能的校园支付平台，帮助家长和学生轻松管理支出、充值和津贴。",
+      "login_now": "立即登录",
+      "features_title": "主要功能",
+      "features_desc": "为账户持有人带来的巨大优势。",
+      "feature1_title": "Singpass 登录",
+      "feature1_desc": "通过 Singpass 国家身份网关快速安全地访问系统。",
+      "feature2_title": "自动充值",
+      "feature2_desc": "轻松设置定期充值计划或跟踪学校的自动津贴。",
+      "feature3_title": "透明历史记录",
+      "feature3_desc": "所有支出、充值和津贴交易都实时详细记录。",
+      "ready_title": "从今天开始",
+      "ready_desc": "登录体验最便捷的校园支付方式。",
+      "login_system": "登录系统",
+      "stats": {
+        "users": "10,000+",
+        "users_label": "账户持有人",
+        "schools": "50+",
+        "schools_label": "附属学校",
+        "transactions": "1M+",
+        "transactions_label": "安全交易"
+      }
+    },
+    "faq": {
+      "title": "常见问题",
+      "desc": "了解如何管理、充值和使用您的教育账户。",
+      "search_placeholder": "搜索问题...",
+      "tabs": {
+        "all": "全部",
+        "account": "账户",
+        "topup": "充值"
+      },
+      "q1": "教育账户是用来做什么的？",
+      "a1": "这是一个专为学生、家长和教职员工设计的数字账户，用于支付校园相关费用，如膳食、校车或食堂消费。",
+      "q2": "我如何登录我的账户？",
+      "a2": "账户持有人可以使用 Singpass 网关安全快速地登录，无需记住密码。",
+      "q3": "我可以通过哪些方式为账户充值？",
+      "a3": "您可以通过支付网关手动充值、设置定期自动充值计划，或通过学校的津贴计划自动接收资金。",
+      "q4": "什么是 FAS (财务援助计划) 及其工作原理？",
+      "a4": "如果学生符合 FAS 资格，学校系统将定期自动将津贴资金充值到教育账户中，用于校园支出。",
+      "q5": "我可以在哪里查看我的支出和津贴历史记录？",
+      "a5": "所有交易记录，包括充值、支出和收到的 FAS 津贴，均在您个人资料页面的“交易历史”部分详细列出。"
+    },
+    "contact": {
+      "title": "联系我们",
+      "desc": "支持团队随时准备解答有关您账户的任何问题。",
+      "office": "支持办公室",
+      "office_address": "胡志明市，守德市，灵中坊，第 6 街区，信息技术大学 (UIT)",
+      "email": "支持邮箱",
+      "email_address": "phuckhang1088@gmail.com",
+      "phone": "联系电话",
+      "phone_number": "0762826608",
+      "time": "工作时间",
+      "time_details1": "周一 - 周五：08:00 - 17:30",
+      "time_details2": "周六、周日及节假日：休息",
+      "status_online": "工作时间内 - 准备提供支持",
+      "status_offline": "工作时间外",
+      "emergency_title": "24/7 紧急支持",
+      "emergency_desc": "需要紧急锁定您的账户或报告异常交易？我们的快速响应团队随时待命。"
+    },
+    "footer": {
+      "copyright": "© 2026 Education Account Management System.",
+      "privacy": "隐私政策",
+      "terms": "服务条款"
+    }
+  }
+}

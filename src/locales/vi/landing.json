@@ -1,0 +1,77 @@
+{
+  "landing": {
+    "menu": {
+      "home": "Trang chủ",
+      "faq": "FAQ",
+      "contact": "Liên hệ"
+    },
+    "login": "Đăng nhập",
+    "home": {
+      "title": "Quản lý tài khoản giáo dục",
+      "subtitle": "Tiện lợi & An toàn",
+      "description": "Nền tảng thanh toán học đường thông minh giúp phụ huynh và học sinh dễ dàng quản lý chi tiêu, nạp tiền và theo dõi các khoản trợ cấp.",
+      "login_now": "Đăng nhập ngay",
+      "features_title": "Tính năng nổi bật",
+      "features_desc": "Những lợi ích tuyệt vời dành cho Chủ tài khoản.",
+      "feature1_title": "Đăng nhập Singpass",
+      "feature1_desc": "Truy cập hệ thống nhanh chóng và an toàn tuyệt đối thông qua cổng định danh quốc gia Singpass.",
+      "feature2_title": "Nạp tiền tự động",
+      "feature2_desc": "Dễ dàng thiết lập lịch nạp tiền định kỳ hoặc theo dõi các khoản trợ cấp tự động từ nhà trường.",
+      "feature3_title": "Lịch sử minh bạch",
+      "feature3_desc": "Toàn bộ giao dịch chi tiêu, nạp tiền và nhận trợ cấp đều được lưu lại chi tiết theo thời gian thực.",
+      "ready_title": "Bắt đầu ngay hôm nay",
+      "ready_desc": "Đăng nhập để trải nghiệm phương thức thanh toán học đường tiện lợi nhất.",
+      "login_system": "Đăng nhập vào hệ thống",
+      "stats": {
+        "users": "10,000+",
+        "users_label": "Chủ tài khoản",
+        "schools": "50+",
+        "schools_label": "Trường liên kết",
+        "transactions": "1M+",
+        "transactions_label": "Giao dịch an toàn"
+      }
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "desc": "Tìm hiểu cách quản lý, nạp tiền và sử dụng Tài khoản Giáo dục (Education Account) của bạn.",
+      "search_placeholder": "Tìm kiếm câu hỏi...",
+      "tabs": {
+        "all": "Tất cả",
+        "account": "Tài khoản",
+        "topup": "Nạp tiền"
+      },
+      "q1": "Tài khoản Giáo dục (Education Account) dùng để làm gì?",
+      "a1": "Đây là tài khoản điện tử chuyên dụng dành cho học sinh, phụ huynh và cán bộ giáo viên để thanh toán các khoản phí học đường như bữa ăn, xe đưa rước hoặc căn tin trong trường.",
+      "q2": "Làm thế nào để đăng nhập vào tài khoản của tôi?",
+      "a2": "Chủ tài khoản (Account Holder) có thể sử dụng cổng định danh Singpass để đăng nhập một cách bảo mật và nhanh chóng mà không cần phải ghi nhớ mật khẩu.",
+      "q3": "Có những cách nào để nạp tiền (Top-up) vào tài khoản?",
+      "a3": "Bạn có thể nạp tiền thủ công qua các cổng thanh toán, thiết lập nạp tiền tự động định kỳ (Schedule Top-up), hoặc nhận tiền tự động từ các chương trình trợ cấp của nhà trường.",
+      "q4": "FAS (Financial Assistance Scheme) là gì và hoạt động ra sao?",
+      "a4": "FAS là Chương trình Hỗ trợ Tài chính. Nếu học sinh thuộc diện FAS, hệ thống nhà trường sẽ tự động nạp tiền trợ cấp (Top-up) vào Tài khoản Giáo dục định kỳ theo chính sách để sử dụng cho các chi phí tại trường.",
+      "q5": "Tôi có thể xem lại lịch sử trừ tiền và nhận trợ cấp ở đâu?",
+      "a5": "Tất cả các giao dịch bao gồm nạp tiền, chi tiêu và tiền trợ cấp FAS nhận được đều được liệt kê chi tiết trong phần 'Lịch sử giao dịch' (Transaction History) trên trang thông tin cá nhân của bạn."
+    },
+    "contact": {
+      "title": "Liên hệ với chúng tôi",
+      "desc": "Đội ngũ hỗ trợ luôn sẵn sàng giải đáp mọi thắc mắc về tài khoản của bạn.",
+      "office": "Văn phòng hỗ trợ",
+      "office_address": "Trường Đại học Công nghệ Thông tin (UIT), Khu phố 6, P. Linh Trung, TP. Thủ Đức, TP. Hồ Chí Minh",
+      "email": "Email hỗ trợ",
+      "email_address": "phuckhang1088@gmail.com",
+      "phone": "Điện thoại liên hệ",
+      "phone_number": "0762826608",
+      "time": "Thời gian làm việc",
+      "time_details1": "Thứ Hai - Thứ Sáu: 08:00 - 17:30",
+      "time_details2": "Thứ Bảy, Chủ Nhật và các ngày Lễ: Nghỉ",
+      "status_online": "Đang trong giờ làm việc - Sẵn sàng hỗ trợ",
+      "status_offline": "Đang ngoài giờ làm việc",
+      "emergency_title": "Hỗ trợ khẩn cấp 24/7",
+      "emergency_desc": "Bạn cần khóa tài khoản khẩn cấp hoặc báo cáo một giao dịch bất thường? Đội ngũ phản ứng nhanh của chúng tôi luôn túc trực."
+    },
+    "footer": {
+      "copyright": "© 2026 Education Account Management System.",
+      "privacy": "Chính sách bảo mật",
+      "terms": "Điều khoản dịch vụ"
+    }
+  }
+}

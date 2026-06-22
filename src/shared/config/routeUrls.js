@@ -1,4 +1,9 @@
 export const routeUrls = {
+  LANDING: {
+    HOME: '/',
+    FAQ: '/faq',
+    CONTACT: '/contact',
+  },
   BASE_ROUTE: {
     AUTH: (route = '') => `/auth${route}`,
     SYSTEM_ADMIN: (route = '') => `/system-admin${route}`,
@@ -45,7 +50,12 @@ export const routeUrls = {
   TRANSACTIONS: { INDEX: '/transactions' },
 }
 
-export const publicRouteUrls = [routeUrls.BASE_ROUTE.AUTH(routeUrls.AUTH.LOGIN)]
+export const publicRouteUrls = [
+  routeUrls.BASE_ROUTE.AUTH(routeUrls.AUTH.LOGIN),
+  routeUrls.LANDING.HOME,
+  routeUrls.LANDING.FAQ,
+  routeUrls.LANDING.CONTACT,
+]
 
 export const isPublicRoute = (pathname = window.location.pathname) =>
   publicRouteUrls.some((route) => pathname === route || pathname.startsWith(`${route}/`))
