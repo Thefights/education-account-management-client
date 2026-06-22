@@ -1,9 +1,25 @@
 {
   "course_management": {
     "menu_label": "Quản lý khóa học",
-    "title": { "management": "Quản lý khóa học", "create": "Tạo khóa học", "update": "Cập nhật khóa học" },
-    "field": { "id": "ID", "school": "Trường", "status": "Trạng thái", "course_name": "Tên khóa học", "description": "Mô tả", "course_fee_amount": "Học phí", "misc_fee_amount": "Phí khác", "gst_amount": "Thuế GST" },
-    "placeholder": { "search": "Tìm tên khóa học" },
-    "confirm": { "delete_title": "Xóa khóa học?", "delete_description": "Bạn có chắc muốn xóa {name}?" }
+    "title": {
+      "management": "Quản lý khóa học",
+      "create": "Tạo khóa học",
+      "update": "Cập nhật khóa học"
+    },
+    "field": {
+      "id": "ID",
+      "school": "Trường",
+      "status": "Trạng thái",
+      "course_name": "Tên khóa học",
+      "description": "Mô tả",
+      "course_fee_amount": "Học phí",
+      "misc_fee_amount": "Phí khác",
+      "gst_amount": "Thuế GST"
+    },
+    "placeholder": { "search": "Tìm theo tên khóa học hoặc trường" },
+    "confirm": {
+      "delete_title": "Xóa khóa học?",
+      "delete_description": "Bạn có chắc muốn xóa {name}?"
+    }
   }
 }

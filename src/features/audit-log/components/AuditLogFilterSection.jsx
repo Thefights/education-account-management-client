@@ -47,10 +47,10 @@ const AuditLogFilterSection = ({
     () => [
       {
         key: 'search',
-        title: t('audit_log.field.search'),
+        title: t('audit_log.placeholder.search_text'),
         type: 'search',
         required: false,
-        label: t('text.search_label'),
+        label: t('audit_log.placeholder.search_text'),
         reserveLabelSpace: true,
       },
       {
@@ -68,26 +68,18 @@ const AuditLogFilterSection = ({
         required: false,
       },
       {
-        key: 'actions',
+        key: 'action',
         title: t('audit_log.field.action'),
-        type: 'multi-check-dropdown',
-        options: _enum.auditLogActionOptions,
-        loading,
-        placeholder: t('text.all'),
-        selectAllText: t('general.select_all'),
-        searchPlaceholder: t('general.input_keyword'),
-        cancelText: t('general.cancel'),
-        okText: t('general.ok'),
-        selectedText: (count) => `${count} ${t('text.items')}`,
+        type: 'text',
         required: false,
       },
     ],
-    [_enum.auditLogActionOptions, _enum.auditLogCategoryOptions, loading, t]
+    [_enum.auditLogCategoryOptions, loading, t]
   )
 
-  const validateDateRange = (createdFrom, createdTo) => {
-    const from = createdFrom && dayjs(createdFrom)
-    const to = createdTo && dayjs(createdTo)
+  const validateDateRange = (occurredFrom, occurredTo) => {
+    const from = occurredFrom && dayjs(occurredFrom)
+    const to = occurredTo && dayjs(occurredTo)
 
     if (from && from.isAfter(dayjs())) {
       setDateRangeError(t('audit_log.validation.from_date_not_future'))
@@ -104,16 +96,16 @@ const AuditLogFilterSection = ({
   }
 
   const handleDateRangeChange = (range) => {
-    const createdFrom = range?.[0]?.toISOString() || ''
-    const createdTo = range?.[1]?.toISOString() || ''
+    const occurredFrom = range?.[0]?.toISOString() || ''
+    const occurredTo = range?.[1]?.toISOString() || ''
 
-    setField('createdFrom', createdFrom)
-    setField('createdTo', createdTo)
-    validateDateRange(createdFrom, createdTo)
+    setField('occurredFrom', occurredFrom)
+    setField('occurredTo', occurredTo)
+    validateDateRange(occurredFrom, occurredTo)
   }
 
   const handleFilter = () => {
-    if (!validateDateRange(values.createdFrom, values.createdTo)) return
+    if (!validateDateRange(values.occurredFrom, values.occurredTo)) return
     onFilter?.(values)
   }
 
@@ -124,10 +116,10 @@ const AuditLogFilterSection = ({
   }
 
   const dateRangeValue =
-    values.createdFrom || values.createdTo
+    values.occurredFrom || values.occurredTo
       ? [
-          values.createdFrom ? dayjs(values.createdFrom) : null,
-          values.createdTo ? dayjs(values.createdTo) : null,
+          values.occurredFrom ? dayjs(values.occurredFrom) : null,
+          values.occurredTo ? dayjs(values.occurredTo) : null,
         ]
       : null
 
@@ -139,11 +131,11 @@ const AuditLogFilterSection = ({
         </Col>
 
         <Col xs={24} md={5}>
-          <FieldBox title={filterFields[1].title}>{renderField(filterFields[1])}</FieldBox>
+          {renderField(filterFields[1])}
         </Col>
 
         <Col xs={24} md={5}>
-          <FieldBox title={filterFields[2].title}>{renderField(filterFields[2])}</FieldBox>
+          {renderField(filterFields[2])}
         </Col>
 
         <Col xs={24} md={6}>

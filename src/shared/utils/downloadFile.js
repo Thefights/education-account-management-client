@@ -1,6 +1,6 @@
-import axios from 'axios'
 import { getAccessToken } from '@/shared/api/authTokenStore'
 import { envConfig } from '@/shared/config/envConfig'
+import axios from 'axios'
 
 const XLSX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
@@ -54,12 +54,7 @@ const serializeParams = (params = {}) =>
     .join('&')
 
 export const downloadFile = async (url, params = {}, options = {}) => {
-  const {
-    method = 'GET',
-    data,
-    headers = {},
-    filenamePrefix,
-  } = options
+  const { method = 'GET', data, headers = {}, filenamePrefix } = options
   const token = getAccessToken()
   const baseURL = envConfig.api.baseUrl
 
@@ -97,3 +92,23 @@ export const downloadFile = async (url, params = {}, options = {}) => {
 }
 
 export const downloadCsv = downloadFile
+
+const escapeCsvValue = (value) => {
+  const text = value == null ? '' : String(value)
+  return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text
+}
+
+export const downloadCsvTemplate = ({ filename, headers, sampleRows = [] }) => {
+  const content = [headers, ...sampleRows]
+    .map((row) => row.map(escapeCsvValue).join(','))
+    .join('\r\n')
+  const blob = new Blob([`\uFEFF${content}\r\n`], { type: 'text/csv;charset=utf-8' })
+  const downloadUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(downloadUrl)
+}

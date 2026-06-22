@@ -14,18 +14,55 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
   const fields = [
-    { key: 'search', title: t('course_management.placeholder.search'), label: t('text.search_label'), type: 'search', required: false, reserveLabelSpace: true },
-    { key: 'statuses', title: t('course_management.field.status'), type: 'select', multiple: true, options: _enum.courseStatusOptions, required: false },
+    {
+      key: 'search',
+      title: t('course_management.placeholder.search'),
+      label: t('course_management.placeholder.search'),
+      type: 'search',
+      required: false,
+      reserveLabelSpace: true,
+    },
+    {
+      key: 'statuses',
+      title: t('course_management.field.status'),
+      type: 'multi-check-dropdown',
+      options: _enum.courseStatusOptions,
+      required: false,
+      placeholder: t('text.all'),
+      selectAllText: t('general.select_all'),
+      searchPlaceholder: t('general.input_keyword'),
+      cancelText: t('general.cancel'),
+      okText: t('general.ok'),
+      selectedText: (count) => `${count} ${t('text.items')}`,
+    },
   ]
 
-  return <Card size="small"><Row gutter={[16, 16]} align="bottom">
-    <Col xs={24} md={12}>{renderField(fields[0])}</Col>
-    <Col xs={24} md={6}>{renderField(fields[1])}</Col>
-    <Col xs={24} md={6}><Flex justify="end"><Space>
-      <ResetFilterButton loading={loading} onResetFilterClick={() => { reset(emptyFilters); onReset?.() }} />
-      <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-    </Space></Flex></Col>
-  </Row></Card>
+  return (
+    <Card size="small">
+      <Row gutter={[16, 16]} align="bottom">
+        <Col xs={24} md={12}>
+          {renderField(fields[0])}
+        </Col>
+        <Col xs={24} md={6}>
+          {renderField(fields[1])}
+        </Col>
+        <Col xs={24} md={6}>
+          <Flex justify="end">
+            <Space>
+              <ResetFilterButton
+                loading={loading}
+                onResetFilterClick={() => {
+                  reset(emptyFilters)
+                  onReset?.()
+                }}
+              />
+              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
+            </Space>
+          </Flex>
+        </Col>
+      </Row>
+    </Card>
+  )
 }
 
 export default CourseManagementFilterSection

@@ -30,6 +30,16 @@
     "user_status": {
       "active": "积极的",
       "inactive": "不活跃"
+    },
+    "sweep_action": {
+      "create": "创建",
+      "close": "关闭",
+      "extend": "延长"
+    },
+    "sweep_target_status": {
+      "pending": "待处理",
+      "success": "成功",
+      "failed": "失败"
     }
   }
 }

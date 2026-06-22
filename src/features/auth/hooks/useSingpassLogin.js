@@ -1,5 +1,5 @@
-import axiosConfig from '@/shared/api/axiosClient'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import axiosConfig from '@/shared/api/axiosClient'
 import useAuth from '@/shared/hooks/useAuth'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getReturnUrlByAuthTokens } from '@/shared/utils/authRouteUtil'

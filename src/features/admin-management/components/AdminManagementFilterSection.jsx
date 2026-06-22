@@ -8,7 +8,14 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Col, Flex, Row, Space } from 'antd'
 import { useMemo } from 'react'
 
-const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOptions, schoolsLoading, loading = false }) => {
+const AdminManagementFilterSection = ({
+  filters,
+  onFilter,
+  onReset,
+  schoolOptions,
+  schoolsLoading,
+  loading = false,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
@@ -23,16 +30,16 @@ const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOption
   )
 
   const adminRoleOptions = useMemo(
-    () =>
-      _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
+    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
   )
   const fields = useMemo(
     () => [
       {
         key: 'search',
-        title: t('admin_management.placeholder.search'),
-        label: t('text.search_label'),
+        title: t('admin_management.label.search'),
+        label: t('admin_management.label.search'),
+        placeholder: t('admin_management.placeholder.search'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,
@@ -40,25 +47,41 @@ const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOption
       {
         key: 'roles',
         title: t('admin_management.field.role'),
-        type: 'select',
-        multiple: true,
+        type: 'multi-check-dropdown',
         options: adminRoleOptions,
         required: false,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        cancelText: t('general.cancel'),
+        okText: t('general.ok'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
       },
       {
         key: 'statuses',
         title: t('admin_management.field.status'),
-        type: 'select',
-        multiple: true,
+        type: 'multi-check-dropdown',
         options: _enum.authAccountStatusOptions,
         required: false,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        cancelText: t('general.cancel'),
+        okText: t('general.ok'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
       },
       {
-        key: 'schoolId',
+        key: 'schoolIds',
         title: t('admin_management.field.school'),
-        type: 'select',
+        type: 'multi-check-dropdown',
         options: schoolOptions,
-        props: { loading: schoolsLoading, showSearch: true, allowClear: true, optionFilterProp: 'label' },
+        loading: schoolsLoading,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        cancelText: t('general.cancel'),
+        okText: t('general.ok'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
         required: false,
       },
     ],
@@ -66,19 +89,19 @@ const AdminManagementFilterSection = ({ filters, onFilter, onReset, schoolOption
   )
 
   const handleReset = () => {
-    reset({ search: '', roles: [], statuses: [], schoolId: '' })
+    reset({ search: '', roles: [], statuses: [], schoolIds: [] })
     onReset?.()
   }
 
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field, index) => (
-          <Col key={field.key} xs={24} md={index === 0 ? 8 : 4}>
+        {fields.map((field) => (
+          <Col key={field.key} xs={24} md={6}>
             {renderField(field)}
           </Col>
         ))}
-        <Col xs={24} md={4}>
+        <Col xs={24} md={{ span: 20, offset: 4 }}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />

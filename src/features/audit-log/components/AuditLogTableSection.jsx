@@ -1,17 +1,15 @@
 import GenericTable from '@/shared/components/tables/GenericTable'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import {
-  defaultAuditLogActionStyle,
   defaultAuditLogCategoryStyle,
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
-import { DownloadOutlined } from '@ant-design/icons'
-import { Button, Flex } from 'antd'
 import { useMemo } from 'react'
 
-const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = () => {} }) => {
+const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
 
@@ -25,16 +23,15 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         fixedColumn: true,
       },
       {
-        key: 'actorUserIdText',
-        title: t('audit_log.field.actor_user_id_text'),
+        key: 'actorUserId',
+        title: t('audit_log.field.actor_user_id'),
         width: 160,
         sortable: true,
       },
       {
-        key: 'actorFullName',
-        title: t('audit_log.field.actor_full_name'),
+        key: 'actorUserRole',
+        title: t('account.field.roles'),
         width: 180,
-        sortable: true,
       },
       {
         key: 'category',
@@ -50,15 +47,13 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         title: t('audit_log.field.action'),
         width: 220,
         sortable: true,
-        type: 'tag',
-        options: _enum.auditLogActionOptions,
-        color: defaultAuditLogActionStyle,
       },
       {
-        key: 'object',
-        title: t('audit_log.field.object'),
-        width: 260,
+        key: 'nric',
+        title: 'NRIC',
+        width: 140,
         sortable: true,
+        render: (value) => <MaskedNric value={value} />,
       },
       {
         key: 'ipAddress',
@@ -67,7 +62,7 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
         sortable: true,
       },
       {
-        key: 'createdAt',
+        key: 'occurredAt',
         title: t('audit_log.field.created_at'),
         width: 180,
         sortable: true,
@@ -75,26 +70,18 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort, onExport = ()
           formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
       },
     ],
-    [t, _enum.auditLogActionOptions, _enum.auditLogCategoryOptions]
+    [t, _enum.auditLogCategoryOptions]
   )
 
   return (
-    <>
-      <Flex justify="end" align="center" gap={12} wrap="wrap" style={{ marginBottom: 12 }}>
-        <Button icon={<DownloadOutlined />} onClick={onExport}>
-          {t('audit_log.button.export')}
-        </Button>
-      </Flex>
-
-      <GenericTable
-        data={auditLogs}
-        fields={fields}
-        sort={sort}
-        setSort={setSort}
-        rowKey="id"
-        loading={loading}
-      />
-    </>
+    <GenericTable
+      data={auditLogs}
+      fields={fields}
+      sort={sort}
+      setSort={setSort}
+      rowKey="id"
+      loading={loading}
+    />
   )
 }
 

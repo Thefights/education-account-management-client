@@ -58,7 +58,7 @@
     "placeholder": {
       "created_from": "Created from",
       "created_to": "Created to",
-      "search_text": "Search"
+      "search_text": "Search by action or IP address"
     },
     "title": {
       "audit_log_management": "Audit Log Management",

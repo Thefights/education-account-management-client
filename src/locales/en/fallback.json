@@ -1,0 +1,20 @@
+{
+  "button": {
+    "activate": "Activate",
+    "back": "Back",
+    "deactivate": "Deactivate",
+    "import": "Import",
+    "view": "View"
+  },
+  "text": {
+    "search": "Search"
+  },
+  "batch_report": {
+    "all_actions": "All actions"
+  },
+  "topup": {
+    "details": "Details",
+    "reason_placeholder": "Enter reason",
+    "target_selection": "Select top-up targets"
+  }
+}

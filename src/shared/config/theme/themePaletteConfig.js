@@ -7,12 +7,12 @@ export const lightPalette = {
   },
 
   primary: {
-    main: '#636ABC',
-    light: '#858DD2',
-    dark: '#484F92',
+    main: '#2878E3',
+    light: '#69A7F4',
+    dark: '#175CB8',
     contrastText: '#FFFFFF',
-    softBg: '#F0F1FA',
-    softBorder: '#C6CAEA',
+    softBg: '#EAF4FF',
+    softBorder: '#C8E0FB',
   },
 
   secondary: {
@@ -61,12 +61,12 @@ export const lightPalette = {
   },
 
   background: {
-    default: '#EEF2F6',
-    paper: '#ffffff89',
+    default: '#F3F8FD',
+    paper: '#FFFFFF',
     header: '#FFFFFF',
-    sider: '#1F2937',
-    lightBlue: '#EEF2FF',
-    lightGray: '#F8FAFC',
+    sider: '#EAF4FF',
+    lightBlue: '#EAF4FF',
+    lightGray: '#F5F8FC',
   },
 
   text: {
@@ -75,7 +75,7 @@ export const lightPalette = {
     disabled: '#94A3B8',
   },
 
-  divider: '#D6DCE5',
+  divider: '#E2EAF3',
 
   grey: {
     50: '#F8FAFC',
@@ -109,12 +109,12 @@ export const darkPalette = {
   },
 
   primary: {
-    main: '#636ABC',
-    light: '#858DD2',
-    dark: '#484F92',
-    contrastText: '#FFFFFF',
-    softBg: '#1D2044',
-    softBorder: '#484F92',
+    main: '#6AA8F7',
+    light: '#91C0FA',
+    dark: '#4387DF',
+    contrastText: '#0F1926',
+    softBg: '#172C46',
+    softBorder: '#294D72',
   },
 
   secondary: {
@@ -163,27 +163,27 @@ export const darkPalette = {
   },
 
   background: {
-    default: '#0B1220',
-    paper: '#111827',
-    header: '#111827',
-    sider: '#1F2937',
-    lightBlue: '#1E40AF',
-    lightGray: '#1E293B',
+    default: '#0F1926',
+    paper: '#172332',
+    header: '#152130',
+    sider: '#132638',
+    lightBlue: '#183653',
+    lightGray: '#1C2A3A',
   },
 
   text: {
-    primary: '#E2E8F0',
-    secondary: '#94A3B8',
-    disabled: '#64748B',
+    primary: '#E8F0F8',
+    secondary: '#A8B8C9',
+    disabled: '#718399',
   },
 
-  divider: '#334155',
+  divider: '#2A3B4E',
 
   grey: {
-    50: '#0B1220',
-    100: '#111827',
-    200: '#1F2937',
-    300: '#374151',
+    50: '#0F1926',
+    100: '#172332',
+    200: '#1C2A3A',
+    300: '#2A3B4E',
     400: '#4B5563',
     500: '#6B7280',
     600: '#9CA3AF',

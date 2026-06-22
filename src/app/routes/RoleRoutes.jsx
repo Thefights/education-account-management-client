@@ -1,17 +1,26 @@
 import AccountHolderLayout from '@/app/layouts/AccountHolderLayout'
-import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
 import FinanceAdminLayout from '@/app/layouts/FinanceAdminLayout'
+import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
 import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import ProtectedRoute from '@/app/routes/ProtectedRoute'
+import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePage'
+import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
+import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
+import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
+import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
+import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
+import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
+import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
-import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
-import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
-import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
+import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
+import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
+import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
+import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 const roleRouteGroups = [
   {
@@ -20,16 +29,32 @@ const roleRouteGroups = [
     Layout: SystemAdminLayout,
     routes: [
       {
-        path: routeUrls.SYSTEM_ADMIN.SCHOOL_MANAGEMENT.INDEX,
+        path: routeUrls.SCHOOL_MANAGEMENT.INDEX,
         element: <SchoolManagementPage />,
       },
       {
-        path: routeUrls.SYSTEM_ADMIN.ADMIN_MANAGEMENT.INDEX,
+        path: routeUrls.ADMIN_MANAGEMENT.INDEX,
         element: <AdminManagementPage />,
       },
       {
-        path: routeUrls.SYSTEM_ADMIN.AI_ASSISTANT_SETTING.INDEX,
+        path: routeUrls.AI_ASSISTANT_SETTING.INDEX,
         element: <AiAssistantSettingPage />,
+      },
+      {
+        path: routeUrls.EDUCATION_ACCOUNTS.INDEX,
+        element: <EServiceAccountsPage />,
+      },
+      {
+        path: routeUrls.EDUCATION_ACCOUNTS.DETAIL(),
+        element: <EducationAccountDetailPage />,
+      },
+      {
+        path: routeUrls.SWEEP_REPORTS.INDEX,
+        element: <SweepReportsPage />,
+      },
+      {
+        path: routeUrls.AUDIT_LOGS.INDEX,
+        element: <AuditLogPage />,
       },
     ],
   },
@@ -37,6 +62,38 @@ const roleRouteGroups = [
     basePath: 'finance-admin',
     role: EnumConfig.RoleEnum.FinanceAdmin,
     Layout: FinanceAdminLayout,
+    routes: [
+      { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
+      { path: routeUrls.TOPUP_MANAGEMENT.HISTORY, element: <TopupHistoryPage /> },
+      { path: routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(), element: <TopupHistoryDetailPage /> },
+      {
+        path: routeUrls.LEGACY_TOPUP.MANUAL,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
+          />
+        ),
+      },
+      {
+        path: routeUrls.LEGACY_TOPUP.RULES,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
+          />
+        ),
+      },
+      {
+        path: routeUrls.LEGACY_TOPUP.SCHEDULES,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
+          />
+        ),
+      },
+    ],
   },
   {
     basePath: 'school-admin',
@@ -44,7 +101,7 @@ const roleRouteGroups = [
     Layout: SchoolAdminLayout,
     routes: [
       {
-        path: routeUrls.SCHOOL_ADMIN.COURSE_MANAGEMENT.INDEX,
+        path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <CourseManagementPage />,
       },
     ],
@@ -53,6 +110,13 @@ const roleRouteGroups = [
     basePath: 'account-holder',
     role: EnumConfig.RoleEnum.AccountHolder,
     Layout: AccountHolderLayout,
+    routes: [
+      { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
+      {
+        path: routeUrls.TRANSACTIONS.INDEX,
+        element: <AccountTransactionHistoryPage />,
+      },
+    ],
   },
 ]
 

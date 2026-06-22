@@ -109,11 +109,11 @@ const NavItemDashboard = ({
         background: active ? activeBgColor : 'transparent',
         color: active ? activeTextColor : inactiveTextColor,
         fontWeight: active ? 700 : 500,
-        height: collapsed ? 48 : 74,
-        justifyContent: 'center',
-        padding: collapsed ? '8px' : '8px 6px',
+        height: collapsed ? 48 : 46,
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        padding: collapsed ? '8px' : '0 12px',
         overflow: 'hidden',
-        borderRadius: 0,
+        borderRadius: 10,
       }}
       onMouseEnter={(event) => {
         if (!active) event.currentTarget.style.background = hoverBgColor
@@ -126,8 +126,8 @@ const NavItemDashboard = ({
         style={{
           alignItems: 'center',
           display: 'flex',
-          flexDirection: 'column',
-          gap: collapsed ? 0 : 5,
+          flexDirection: collapsed ? 'column' : 'row',
+          gap: collapsed ? 0 : 12,
           lineHeight: 1.15,
           minWidth: 0,
           width: '100%',
@@ -137,7 +137,7 @@ const NavItemDashboard = ({
         <span
           style={{
             display: 'flex',
-            fontSize: 20,
+            fontSize: 18,
             flexShrink: 0,
           }}
         >
@@ -153,9 +153,10 @@ const NavItemDashboard = ({
                 fontSize: 12,
                 maxWidth: '100%',
                 overflow: 'hidden',
-                textAlign: 'center',
+                textAlign: 'left',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
+                flex: 1,
               }}
             >
               {item.label}
@@ -164,7 +165,7 @@ const NavItemDashboard = ({
             {hasChildren && (
               <span
                 style={{
-                  width: 18,
+                  width: 20,
                   height: 18,
                   borderRadius: 999,
                   display: 'inline-flex',
@@ -191,7 +192,7 @@ const NavItemDashboard = ({
   return (
     <div
       style={{
-        padding: collapsed ? '4px 8px' : '3px 10px',
+        padding: collapsed ? '4px 6px' : '3px 4px',
         width: '100%',
         overflow: 'hidden',
       }}

@@ -1,0 +1,3 @@
+{
+  "transaction": { "topup": "Top-up", "course_fee": "Course fee", "adjustment": "Adjustment", "credit": "Credit", "debit": "Debit" }
+}

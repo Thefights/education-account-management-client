@@ -1,4 +1,5 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultAuthAccountStatusStyle,
@@ -6,26 +7,13 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex } from 'antd'
 import { useMemo } from 'react'
 
-const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate, onEdit }) => {
+const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedIds, setSelectedIds, onEdit }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = useMemo(
     () => [
-      {
-        key: 'userId',
-        title: t('admin_management.field.user_id'),
-        width: 90,
-        sortable: true,
-        fixedColumn: true,
-      },
-      {
-        key: 'authAccountId',
-        title: t('admin_management.field.auth_account_id'),
-        width: 130,
-      },
       {
         key: 'staffCode',
         title: t('admin_management.field.staff_code'),
@@ -45,6 +33,13 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         sortable: true,
       },
       {
+        key: 'nric',
+        title: t('admin_management.field.nric'),
+        width: 130,
+        sortable: true,
+        render: (value) => <MaskedNric value={value} />,
+      },
+      {
         key: 'phoneNumber',
         title: t('admin_management.field.phone_number'),
         width: 150,
@@ -55,7 +50,7 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         width: 150,
         sortable: true,
         type: 'tag',
-        options: _enum.roleIdOptions,
+        options: _enum.roleOptions,
         color: defaultRoleStyle,
       },
       {
@@ -82,31 +77,25 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, onCreate,
         title: '',
         width: 70,
         render: (_, row) => (
-          <ActionMenu
-            actions={[{ title: t('button.edit'), onClick: () => onEdit?.(row) }]}
-          />
+          <ActionMenu actions={[{ title: t('button.edit'), onClick: () => onEdit?.(row) }]} />
         ),
       },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.roleIdOptions, onEdit]
+    [t, _enum.authAccountStatusOptions, _enum.roleOptions, onEdit]
   )
 
   return (
-    <>
-      <Flex justify="end" style={{ marginBottom: 12 }}>
-        <Button type="primary" onClick={onCreate}>
-          {t('button.create')}
-        </Button>
-      </Flex>
-      <GenericTable
-        data={admins}
-        fields={fields}
-        rowKey="userId"
-        loading={loading}
-        sort={sort}
-        setSort={setSort}
-      />
-    </>
+    <GenericTable
+      data={admins}
+      fields={fields}
+      rowKey="userId"
+      loading={loading}
+      sort={sort}
+      setSort={setSort}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
+    />
   )
 }
 

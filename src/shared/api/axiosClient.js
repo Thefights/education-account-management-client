@@ -1,7 +1,7 @@
-import { showErrorToast, showSuccessToast } from '@/shared/utils/toastUtil'
-import axios from 'axios'
 import { envConfig } from '@/shared/config/envConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
+import { showErrorToast, showSuccessToast } from '@/shared/utils/toastUtil'
+import axios from 'axios'
 import { ApiUrls } from './apiUrls'
 import { clearAccessToken, getAccessToken, setAccessToken } from './authTokenStore'
 
@@ -28,18 +28,9 @@ const axiosConfig = axios.create({
 })
 
 const refreshSkippedUrls = new Set([
-  ApiUrls.AUTH.REGISTER,
-  ApiUrls.AUTH.SEND_REGISTER_EMAIL_OTP,
-  ApiUrls.AUTH.VERIFY_REGISTER_EMAIL_OTP,
-  ApiUrls.AUTH.LOGIN,
   ApiUrls.AUTH.ADMIN_AZURE_AD_LOGIN,
   ApiUrls.AUTH.MOCK_SINGPASS_LOGIN,
-  ApiUrls.AUTH.SOCIAL_LOGIN,
   ApiUrls.AUTH.REFRESH_TOKEN,
-  ApiUrls.AUTH.VERIFY_OTP,
-  ApiUrls.AUTH.RESEND_MFA_OTP,
-  ApiUrls.AUTH.FORGOT_PASSWORD,
-  ApiUrls.AUTH.RESET_PASSWORD,
 ])
 
 const shouldSkipRefresh = (url) => refreshSkippedUrls.has(url)

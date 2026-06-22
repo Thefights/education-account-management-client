@@ -1,7 +1,7 @@
+import { AuthBrand } from '@/features/auth/components/AuthBrand'
 import SwitchLanguageButton from '@/shared/components/buttons/SwitchLanguageButton'
 import SwitchThemeButton from '@/shared/components/buttons/SwitchThemeButton'
 import { Flex, Grid, theme } from 'antd'
-import { AuthBrand } from '@/features/auth/components/AuthBrand'
 
 export function LayoutAuth({
   children,
@@ -85,8 +85,7 @@ export function LayoutAuth({
           width: '100%',
           maxWidth: contentMaxWidth,
           padding:
-            contentPadding ??
-            (hasBackgroundImage ? (isMobile ? '28px 22px' : '40px 48px') : 0),
+            contentPadding ?? (hasBackgroundImage ? (isMobile ? '28px 22px' : '40px 48px') : 0),
           boxSizing: 'border-box',
           margin: hasBackgroundImage ? 0 : 'auto',
           position: 'relative',

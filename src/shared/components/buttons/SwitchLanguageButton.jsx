@@ -31,8 +31,8 @@ const SwitchLanguageButton = () => {
         style={{
           paddingLeft: 10,
           paddingRight: 10,
-          borderRadius: 999,
-          border: '2px solid',
+          borderRadius: 10,
+          border: '1px solid var(--app-border-color)',
         }}
       >
         <Space size={8}>

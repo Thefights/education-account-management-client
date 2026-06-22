@@ -7,7 +7,7 @@ import SwitchLanguageButton from '../buttons/SwitchLanguageButton'
 import SwitchThemeButton from '../buttons/SwitchThemeButton'
 import UserAvatarMenu from '../menus/UserAvatarMenu'
 
-const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout = () => {} }) => {
+const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
   const screens = Grid.useBreakpoint()
   const isDownMd = !screens.md
   const isDownSm = !screens.sm
@@ -87,112 +87,115 @@ const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout =
         top: 0,
         zIndex: 100,
         color: token.colorText,
-        borderBottom: `1px solid ${token.colorBorder}`,
-        padding: `0 ${isDownMd ? 8 : 16}px`,
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        padding: `0 ${isDownMd ? 12 : 24}px`,
+        background: 'var(--app-header-bg)',
+        backdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         justifyItems: 'center',
         gap: isDownSm ? 8 : 12,
         lineHeight: 'normal',
-        minHeight: screens.sm ? 64 : 56,
+        minHeight: screens.sm ? 68 : 58,
+        boxShadow: 'var(--app-shell-shadow)',
       }}
     >
-        <div
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: isDownSm ? 8 : 12,
+          flex: 1,
+          minWidth: 0,
+          overflow: 'hidden',
+        }}
+      >
+        {isDownMd && <MobileMenuButton onOpen={onOpenDrawer} />}
+
+        <nav
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: isDownSm ? 8 : 12,
-            flex: 1,
-            minWidth: 0,
+            height: '100%',
             overflow: 'hidden',
+            minWidth: 0,
+            flex: 1,
           }}
         >
-          {isDownMd && <MobileMenuButton onOpen={onOpenDrawer} />}
-
-          <nav
+          <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              height: '100%',
-              overflow: 'hidden',
+              height: 64,
+              transform: 'translateY(1px)',
               minWidth: 0,
-              flex: 1,
+              width: '100%',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                height: 64,
-                transform: 'translateY(1px)',
-                minWidth: 0,
-                width: '100%',
-              }}
-            >
-              {isDownSm ? (
-                <Typography.Text
-                  strong
-                  ellipsis={{ tooltip: currentLabel }}
-                  style={{
-                    maxWidth: '100%',
-                    minWidth: 0,
-                    fontSize: 15,
-                    color: token.colorText,
-                  }}
-                >
-                  {currentLabel}
-                </Typography.Text>
-              ) : (
-                <Breadcrumb
-                  items={breadcrumbItems}
-                  separator={
-                    <RightOutlined
-                      style={{
-                        fontSize: 12,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                      }}
-                    />
-                  }
-                  style={{
-                    fontSize: 16,
-                    lineHeight: '20px',
-                    margin: 0,
-                    maxWidth: '100%',
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                  }}
-                  itemRender={(route) => (
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        maxWidth: screens.lg ? 220 : 140,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        verticalAlign: 'bottom',
-                        whiteSpace: 'nowrap',
-                      }}
-                      title={typeof route.title === 'string' ? route.title : undefined}
-                    >
-                      {route.title}
-                    </span>
-                  )}
-                />
-              )}
-            </div>
-          </nav>
-        </div>
-        <Space
-          size={isDownSm ? 4 : 8}
-          align="center"
-          style={{ flex: '0 0 auto', lineHeight: 'normal' }}
-        >
-          <SwitchThemeButton />
-          <SwitchLanguageButton />
-          <UserAvatarMenu profile={profile} items={userMenuItems} onLogout={onLogout} />
-        </Space>
+            {isDownSm ? (
+              <Typography.Text
+                strong
+                ellipsis={{ tooltip: currentLabel }}
+                style={{
+                  maxWidth: '100%',
+                  minWidth: 0,
+                  fontSize: 15,
+                  color: token.colorText,
+                }}
+              >
+                {currentLabel}
+              </Typography.Text>
+            ) : (
+              <Breadcrumb
+                items={breadcrumbItems}
+                separator={
+                  <RightOutlined
+                    style={{
+                      fontSize: 12,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                    }}
+                  />
+                }
+                style={{
+                  fontSize: 14,
+                  lineHeight: '20px',
+                  margin: 0,
+                  maxWidth: '100%',
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                }}
+                itemRender={(route) => (
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      maxWidth: screens.lg ? 220 : 140,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      verticalAlign: 'bottom',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title={typeof route.title === 'string' ? route.title : undefined}
+                  >
+                    {route.title}
+                  </span>
+                )}
+              />
+            )}
+          </div>
+        </nav>
+      </div>
+      <Space
+        size={isDownSm ? 4 : 8}
+        align="center"
+        style={{ flex: '0 0 auto', lineHeight: 'normal' }}
+      >
+        <SwitchThemeButton />
+        <SwitchLanguageButton />
+        <UserAvatarMenu profile={profile} onLogout={onLogout} />
+      </Space>
     </Layout.Header>
   )
 }

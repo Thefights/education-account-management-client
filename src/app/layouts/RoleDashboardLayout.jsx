@@ -56,6 +56,7 @@ const RoleDashboardLayout = ({ homeUrl = '/', menuSections = [] }) => {
           }}
         >
           <div
+            className="dashboard-content-scroll"
             style={{
               flex: 1,
               minHeight: 0,
@@ -63,6 +64,7 @@ const RoleDashboardLayout = ({ homeUrl = '/', menuSections = [] }) => {
               flexDirection: 'column',
               overflowY: 'auto',
               overflowX: 'hidden',
+              padding: 'clamp(16px, 2.2vw, 30px)',
             }}
           >
             <Outlet />

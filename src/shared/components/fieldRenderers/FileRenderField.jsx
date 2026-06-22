@@ -43,6 +43,8 @@ const FileRenderField = ({ field, values, setField, showError }) => {
 					status: 'done',
 				}))}
 				multiple={!!field.multiple}
+				accept={field.props?.accept}
+				maxCount={field.multiple ? undefined : 1}
 			>
 				<Button icon={<UploadOutlined />}>{field.buttonText || 'Upload'}</Button>
 			</Upload>

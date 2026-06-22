@@ -16,7 +16,6 @@ const defaultErrorHandler = async (error) => Promise.resolve(error)
  * @param {Object|string} [config.params={}]
  * @param {(response) => Promise<any>} [config.onSuccess=async (response) => Promise.resolve(response)]
  * @param {(error) => Promise<any>} [config.onError=async (error) => Promise.resolve(error)]
- * @param {boolean} [config.asJson=false]
  * @returns {{loading: boolean, error: Error|null, response: any|null, submit: function({ overrideData, overrideUrl, overrideParam }): Promise<any>}}
  */
 export default function useAxiosSubmit({
@@ -26,7 +25,6 @@ export default function useAxiosSubmit({
 	params = emptyObject,
 	onSuccess = defaultSuccessHandler,
 	onError = defaultErrorHandler,
-	asJson = false,
 }) {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState(null)
@@ -54,9 +52,7 @@ export default function useAxiosSubmit({
 			try {
 				let payload = undefined
 				if (!queryOnly) {
-					if (asJson) {
-						payload = getTrimString(bodySource)
-					} else if (bodySource instanceof FormData) {
+					if (bodySource instanceof FormData) {
 						payload = bodySource
 					} else {
 						const trimmed = getTrimString(bodySource)
@@ -68,7 +64,6 @@ export default function useAxiosSubmit({
 					method: upper,
 					params: axiosParams,
 					data: payload,
-					headers: asJson ? { 'Content-Type': 'application/json' } : undefined,
 				})
 
 				setResponse(response)
@@ -82,7 +77,7 @@ export default function useAxiosSubmit({
 				setLoading(false)
 			}
 		},
-		[loading, method, data, url, params, onSuccess, onError, asJson]
+		[loading, method, data, url, params, onSuccess, onError]
 	)
 
 	return { loading, error, response, submit }

@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import SystemLogoAndName from './commons/SystemLogoAndName'
 import NavItemDashboard from './navItems/NavItemDashboard'
 
-const expandedDrawerWidth = 120
-const collapsedDrawerWidth = 72
+const expandedDrawerWidth = 248
+const collapsedDrawerWidth = 76
 
 const DashboardDrawer = ({
   sections = [],
@@ -18,7 +18,7 @@ const DashboardDrawer = ({
   const screens = Grid.useBreakpoint()
   const isDesktop = !!screens.md
 
-  const [collapsed, setCollapsed] = useState(true)
+  const [collapsed, setCollapsed] = useState(false)
   const [expanded, setExpanded] = useState({})
 
   const drawerWidth = collapsed ? collapsedDrawerWidth : expandedDrawerWidth
@@ -51,11 +51,11 @@ const DashboardDrawer = ({
         <div
           role="banner"
           style={{
-            height: 64,
+            height: 88,
             flexShrink: 0,
             color: 'var(--app-sider-text)',
             borderBottom: '1px solid var(--app-sider-border)',
-            padding: actualCollapsed ? '12px 8px' : '12px 10px',
+            padding: actualCollapsed ? '14px 8px' : '16px 20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -71,7 +71,7 @@ const DashboardDrawer = ({
             minHeight: 0,
             overflowY: 'auto',
             overflowX: 'hidden',
-            paddingTop: 8,
+            padding: '10px 8px',
           }}
         >
           {sections.map((section, idx) => (
@@ -127,7 +127,7 @@ const DashboardDrawer = ({
         {!isMobile && (
           <div
             style={{
-              height: 56,
+              height: 64,
               flexShrink: 0,
               borderTop: '1px solid var(--app-sider-border)',
               display: 'flex',
@@ -199,6 +199,7 @@ const DashboardDrawer = ({
             borderRadius: 0,
             height: '100vh',
             overflow: 'hidden',
+            boxShadow: 'var(--app-shell-shadow)',
           }}
         >
           {renderContent(false)}

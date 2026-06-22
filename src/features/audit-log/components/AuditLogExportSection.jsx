@@ -1,17 +1,16 @@
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
 const exportFieldKeys = [
   'id',
   'actorUserId',
-  'actorFullName',
-  'actorUserIdText',
+  'actorUserRole',
   'category',
   'action',
-  'object',
+  'nric',
   'ipAddress',
-  'createdAt',
+  'occurredAt',
 ]
 
 const initialExportValues = {
@@ -32,12 +31,8 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
         label: t('audit_log.field.actor_user_id'),
       },
       {
-        value: 'actorFullName',
-        label: t('audit_log.field.actor_full_name'),
-      },
-      {
-        value: 'actorUserIdText',
-        label: t('audit_log.field.actor_user_id_text'),
+        value: 'actorUserRole',
+        label: t('account.field.roles'),
       },
       {
         value: 'category',
@@ -48,15 +43,15 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
         label: t('audit_log.field.action'),
       },
       {
-        value: 'object',
-        label: t('audit_log.field.object'),
+        value: 'nric',
+        label: 'NRIC',
       },
       {
         value: 'ipAddress',
         label: t('audit_log.field.ip_address'),
       },
       {
-        value: 'createdAt',
+        value: 'occurredAt',
         label: t('audit_log.field.created_at'),
       },
     ],
@@ -75,13 +70,13 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
     [exportFieldOptions, t]
   )
 
-  const handleSubmit = async ({ values, closeDrawer }) => {
+  const handleSubmit = async ({ values, closeDialog }) => {
     await onSubmit?.(values.fields)
-    closeDrawer()
+    closeDialog()
   }
 
   return (
-    <GenericFormDrawer
+    <GenericFormDialog
       open={open}
       onClose={onClose}
       initialValues={initialExportValues}

@@ -121,149 +121,125 @@ export default function useEnum() {
     ],
 
     auditLogCategoryOptions: [
-      {
-        value: EnumConfig.AuditLogCategory.Authentication,
-        label: t('audit_log.category.authentication'),
-      },
-      {
-        value: EnumConfig.AuditLogCategory.AccountManagement,
-        label: t('audit_log.category.account_management'),
-      },
-      {
-        value: EnumConfig.AuditLogCategory.SecuritySetting,
-        label: t('audit_log.category.security_setting'),
-      },
-      {
-        value: EnumConfig.AuditLogCategory.EmailWhitelist,
-        label: t('audit_log.category.email_whitelist'),
-      },
-      {
-        value: EnumConfig.AuditLogCategory.Product,
-        label: t('audit_log.category.product'),
-      },
-      {
-        value: EnumConfig.AuditLogCategory.FavoriteProduct,
-        label: t('audit_log.category.favorite_product'),
-      },
-      {
-        value: EnumConfig.AuditLogCategory.AuditLog,
-        label: t('audit_log.category.audit_log'),
-      },
+      { value: EnumConfig.AuditLogCategory.AccountCreation, label: 'Account Creation' },
+      { value: EnumConfig.AuditLogCategory.StatusChange, label: 'Status Change' },
+      { value: EnumConfig.AuditLogCategory.TopupConfig, label: 'Top-up Config' },
+      { value: EnumConfig.AuditLogCategory.Security, label: 'Security' },
+      { value: EnumConfig.AuditLogCategory.Transaction, label: 'Transaction' },
+      { value: EnumConfig.AuditLogCategory.Billing, label: 'Billing' },
+      { value: EnumConfig.AuditLogCategory.AI, label: 'AI' },
     ],
 
-    auditLogActionOptions: [
+    sweepActionOptions: [
+      { value: EnumConfig.SweepAction.Create, label: t('enum.sweep_action.create') },
+      { value: EnumConfig.SweepAction.Close, label: t('enum.sweep_action.close') },
+      { value: EnumConfig.SweepAction.Extend, label: t('enum.sweep_action.extend') },
+    ],
+
+    sweepActionFilterOptions: [
+      { value: EnumConfig.SweepActionId.Create, label: t('enum.sweep_action.create') },
+      { value: EnumConfig.SweepActionId.Close, label: t('enum.sweep_action.close') },
+      { value: EnumConfig.SweepActionId.Extend, label: t('enum.sweep_action.extend') },
+    ],
+
+    sweepTargetStatusFilterOptions: [
       {
-        value: EnumConfig.AuditLogAction.Register,
-        label: t('audit_log.action.register'),
+        value: EnumConfig.SweepTargetStatusId.Pending,
+        label: t('enum.sweep_target_status.pending'),
       },
       {
-        value: EnumConfig.AuditLogAction.SendRegisterEmailOtp,
-        label: t('audit_log.action.send_register_email_otp'),
+        value: EnumConfig.SweepTargetStatusId.Success,
+        label: t('enum.sweep_target_status.success'),
       },
-      {
-        value: EnumConfig.AuditLogAction.VerifyRegisterEmailOtp,
-        label: t('audit_log.action.verify_register_email_otp'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.Login,
-        label: t('audit_log.action.login'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.LoginFailed,
-        label: t('audit_log.action.login_failed'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.SocialLogin,
-        label: t('audit_log.action.social_login'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.Logout,
-        label: t('audit_log.action.logout'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.RefreshToken,
-        label: t('audit_log.action.refresh_token'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.VerifyMfaOtp,
-        label: t('audit_log.action.verify_mfa_otp'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.ForgotPassword,
-        label: t('audit_log.action.forgot_password'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.ResetPassword,
-        label: t('audit_log.action.reset_password'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.CreateAccount,
-        label: t('audit_log.action.create_account'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.UpdateAccount,
-        label: t('audit_log.action.update_account'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.DeleteAccount,
-        label: t('audit_log.action.delete_account'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.DeleteAccounts,
-        label: t('audit_log.action.delete_accounts'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.UpdateAccountStatus,
-        label: t('audit_log.action.update_account_status'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.ImportAccounts,
-        label: t('audit_log.action.import_accounts'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.UpdateMfaSetting,
-        label: t('audit_log.action.update_mfa_setting'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.UpdateEmailWhitelistSetting,
-        label: t('audit_log.action.update_email_whitelist_setting'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.SaveEmailWhitelist,
-        label: t('audit_log.action.save_email_whitelist'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.CreateProduct,
-        label: t('audit_log.action.create_product'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.UpdateProduct,
-        label: t('audit_log.action.update_product'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.DeleteProduct,
-        label: t('audit_log.action.delete_product'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.DeleteProducts,
-        label: t('audit_log.action.delete_products'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.ImportProducts,
-        label: t('audit_log.action.import_products'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.AddFavoriteProduct,
-        label: t('audit_log.action.add_favorite_product'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.RemoveFavoriteProduct,
-        label: t('audit_log.action.remove_favorite_product'),
-      },
-      {
-        value: EnumConfig.AuditLogAction.ViewAuditLogs,
-        label: t('audit_log.action.view_audit_logs'),
-      },
+      { value: EnumConfig.SweepTargetStatusId.Failed, label: t('enum.sweep_target_status.failed') },
+    ],
+
+    sweepTargetStatusOptions: [
+      { value: EnumConfig.SweepTargetStatus.Pending, label: t('enum.sweep_target_status.pending') },
+      { value: EnumConfig.SweepTargetStatus.Success, label: t('enum.sweep_target_status.success') },
+      { value: EnumConfig.SweepTargetStatus.Failed, label: t('enum.sweep_target_status.failed') },
+    ],
+
+    topupRuleTypeIdOptions: [
+      { value: EnumConfig.TopupRuleTypeId.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupRuleTypeId.Schedule, label: t('topup.schedule_tab') },
+    ],
+
+    topupRuleTypeOptions: [
+      { value: EnumConfig.TopupRuleType.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupRuleType.Schedule, label: t('topup.schedule_tab') },
+    ],
+
+    topupMatchModeIdOptions: [
+      { value: EnumConfig.TopupMatchModeId.And, label: 'AND' },
+      { value: EnumConfig.TopupMatchModeId.Or, label: 'OR' },
+    ],
+
+    topupMatchModeOptions: [
+      { value: EnumConfig.TopupMatchMode.And, label: 'AND' },
+      { value: EnumConfig.TopupMatchMode.Or, label: 'OR' },
+    ],
+
+    topupExecutionSourceTypeIdOptions: [
+      { value: EnumConfig.TopupExecutionSourceTypeId.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupExecutionSourceTypeId.Schedule, label: t('topup.schedule_tab') },
+      { value: EnumConfig.TopupExecutionSourceTypeId.Manual, label: t('topup.manual_tab') },
+    ],
+
+    topupExecutionSourceTypeOptions: [
+      { value: EnumConfig.TopupExecutionSourceType.System, label: t('topup.system_tab') },
+      { value: EnumConfig.TopupExecutionSourceType.Schedule, label: t('topup.schedule_tab') },
+      { value: EnumConfig.TopupExecutionSourceType.Manual, label: t('topup.manual_tab') },
+    ],
+
+    topupExecutionStatusIdOptions: [
+      { value: EnumConfig.TopupExecutionStatusId.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupExecutionStatusId.Executing, label: t('topup.executing') },
+      { value: EnumConfig.TopupExecutionStatusId.Completed, label: t('topup.completed') },
+    ],
+
+    topupExecutionStatusOptions: [
+      { value: EnumConfig.TopupExecutionStatus.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupExecutionStatus.Executing, label: t('topup.executing') },
+      { value: EnumConfig.TopupExecutionStatus.Completed, label: t('topup.completed') },
+    ],
+
+    topupTargetStatusIdOptions: [
+      { value: EnumConfig.TopupTargetStatusId.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupTargetStatusId.Processing, label: t('topup.processing') },
+      { value: EnumConfig.TopupTargetStatusId.Success, label: t('topup.succeeded') },
+      { value: EnumConfig.TopupTargetStatusId.Failed, label: t('topup.failed') },
+    ],
+
+    topupTargetStatusOptions: [
+      { value: EnumConfig.TopupTargetStatus.Pending, label: t('topup.pending') },
+      { value: EnumConfig.TopupTargetStatus.Processing, label: t('topup.processing') },
+      { value: EnumConfig.TopupTargetStatus.Success, label: t('topup.succeeded') },
+      { value: EnumConfig.TopupTargetStatus.Failed, label: t('topup.failed') },
+    ],
+
+    topupScheduleTypeIdOptions: [
+      { value: EnumConfig.TopupScheduleTypeId.OneTime, label: t('topup_form.one_time') },
+      { value: EnumConfig.TopupScheduleTypeId.Monthly, label: t('topup_form.monthly') },
+      { value: EnumConfig.TopupScheduleTypeId.Yearly, label: t('topup_form.yearly') },
+    ],
+
+    topupScheduleTypeOptions: [
+      { value: 'OneTime', label: t('topup_form.one_time') },
+      { value: 'Monthly', label: t('topup_form.monthly') },
+      { value: 'Yearly', label: t('topup_form.yearly') },
+    ],
+
+    topupScheduleStatusIdOptions: [
+      { value: EnumConfig.TopupScheduleStatusId.Active, label: t('topup_form.active') },
+      { value: EnumConfig.TopupScheduleStatusId.Inactive, label: t('topup_form.inactive') },
+      { value: EnumConfig.TopupScheduleStatusId.Completed, label: t('topup_form.completed') },
+    ],
+
+    topupScheduleStatusOptions: [
+      { value: 'Active', label: t('topup_form.active') },
+      { value: 'Inactive', label: t('topup_form.inactive') },
+      { value: 'Completed', label: t('topup_form.completed') },
     ],
   }
 }

@@ -37,6 +37,19 @@
     "required": "此字段是必需的",
     "weak_password": "密码必须至少包含8个字符，包括大写、小写、数字和特殊字符"
   },
+  "import": {
+    "errors": "错误",
+    "failed": "失败",
+    "download_template": "下载 CSV 模板",
+    "field": "字段",
+    "file": "CSV文件",
+    "message": "消息",
+    "row_number": "行",
+    "submit": "导入",
+    "succeeded": "成功",
+    "title": "批量导入",
+    "total": "总计"
+  },
   "pagination": {
     "items_per_page": "/ 页",
     "jump_to": "前往",
@@ -60,7 +73,6 @@
       "no_data": "无可用数据..."
     },
     "rows_per_page": "每页行数",
-    "search": "搜索...",
     "search_label": "搜索",
     "select_options": "选择选项",
     "selected": "已选择",

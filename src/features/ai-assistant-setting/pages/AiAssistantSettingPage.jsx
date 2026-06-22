@@ -33,12 +33,8 @@ const AiAssistantSettingPage = () => {
   const hasChanges = pendingValue !== null && pendingValue !== savedValue
 
   return (
-    <main style={{ flex: 1, width: '100%', minHeight: '100%', display: 'flex' }}>
-      <Card
-        style={{ flex: 1, width: '100%', border: 0, borderRadius: 0 }}
-        styles={{ body: { height: '100%' } }}
-      >
-        <Flex vertical gap={24}>
+    <Card>
+      <Flex vertical gap={24}>
           <div>
             <Typography.Title level={4} style={{ marginTop: 0, marginBottom: 8 }}>
               {t('ai_assistant_setting.title')}
@@ -74,9 +70,7 @@ const AiAssistantSettingPage = () => {
               }}
             >
               <div>
-                <Typography.Text strong>
-                  {t('ai_assistant_setting.field_label')}
-                </Typography.Text>
+                <Typography.Text strong>{t('ai_assistant_setting.field_label')}</Typography.Text>
                 <br />
                 <Typography.Text type="secondary">
                   {t(
@@ -107,7 +101,6 @@ const AiAssistantSettingPage = () => {
           </Button>
         </Flex>
       </Card>
-    </main>
   )
 }
 

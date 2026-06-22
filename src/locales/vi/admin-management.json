@@ -14,13 +14,17 @@
       "azure_object_id": "Azure Object ID",
       "staff_code": "Mã nhân viên",
       "full_name": "Họ và tên",
+      "nric": "NRIC",
       "email": "Email",
       "phone_number": "Số điện thoại",
       "school_id": "ID trường",
       "school": "Trường"
     },
+    "label": {
+      "search": "Tìm mã nhân viên, họ tên, NRIC hoặc email"
+    },
     "placeholder": {
-      "search": "Tìm mã nhân viên, họ tên hoặc email"
+      "search": "Tìm kiếm..."
     }
   }
 }

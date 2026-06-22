@@ -1,0 +1,4 @@
+{
+  "education_account": { "detail_title": "教育账户详情", "account_number": "账户号码", "balance": "当前余额", "date_of_birth": "出生日期", "created_date": "创建日期", "expected_closing_date": "预计关闭日期", "email": "电子邮件", "phone": "电话", "residential_address": "居住地址", "mailing_address": "邮寄地址" },
+  "transaction": { "topup": "充值", "course_fee": "课程费用", "adjustment": "调整", "credit": "增加", "debit": "减少" }
+}

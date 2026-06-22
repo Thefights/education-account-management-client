@@ -1,15 +1,16 @@
-import GenericFormDrawer from '@/shared/components/dialogs/commons/GenericFormDrawer'
+import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
+import NricInput from '@/shared/components/textFields/NricInput'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { isEmail, maxLen } from '@/shared/utils/validateUtil'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 const initialValues = {
   role: '',
   azureObjectId: '',
-  staffCode: '',
   fullName: '',
+  nric: '',
   email: '',
   phoneNumber: '',
   schoolId: '',
@@ -22,8 +23,11 @@ const toPayload = (values) => ({
 })
 
 const normalizeInitialValues = (admin = {}) => ({
-  ...initialValues,
-  ...admin,
+  role: admin.role ?? '',
+  azureObjectId: admin.azureObjectId ?? '',
+  fullName: admin.fullName ?? '',
+  nric: admin.nric ?? '',
+  email: admin.email ?? '',
   schoolId: admin.schoolId ?? '',
   phoneNumber: admin.phoneNumber ?? '',
 })
@@ -42,9 +46,10 @@ const AdminManagementFormSection = ({
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
+  const [currentRole, setCurrentRole] = useState('')
+  const updateInitialValues = useMemo(() => normalizeInitialValues(selectedRow), [selectedRow])
   const adminRoleOptions = useMemo(
-    () =>
-      _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
+    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
   )
   const fields = useMemo(
@@ -61,14 +66,16 @@ const AdminManagementFormSection = ({
         validate: [maxLen(256)],
       },
       {
-        key: 'staffCode',
-        title: t('admin_management.field.staff_code'),
-        validate: [maxLen(50)],
-      },
-      {
         key: 'fullName',
         title: t('admin_management.field.full_name'),
-        validate: [maxLen(100)],
+        validate: [maxLen(150)],
+      },
+      {
+        key: 'nric',
+        title: t('admin_management.field.nric'),
+        type: 'custom',
+        render: ({ value, onChange }) => <NricInput value={value} onChange={onChange} />,
+        validate: [maxLen(9)],
       },
       {
         key: 'email',
@@ -82,28 +89,43 @@ const AdminManagementFormSection = ({
         type: 'phone',
         required: false,
       },
-      {
-        key: 'schoolId',
-        title: t('admin_management.field.school'),
-        type: 'select',
-        options: schoolOptions,
-        props: { loading: schoolsLoading, showSearch: true, allowClear: true, optionFilterProp: 'label' },
-        required: false,
-      },
+      ...(currentRole === EnumConfig.RoleId.SchoolAdmin
+        ? [
+            {
+              key: 'schoolId',
+              title: t('admin_management.field.school'),
+              type: 'select',
+              options: schoolOptions,
+              props: {
+                loading: schoolsLoading,
+                showSearch: true,
+                allowClear: true,
+                optionFilterProp: 'label',
+              },
+              required: false,
+            },
+          ]
+        : []),
     ],
-    [t, adminRoleOptions, schoolOptions, schoolsLoading]
+    [t, adminRoleOptions, schoolOptions, schoolsLoading, currentRole]
   )
 
-  const handleSubmit = (submit) => async ({ values, closeDrawer }) => {
-    const response = await submit({ overrideData: toPayload(values) })
-    if (!response) return
-    closeDrawer()
-    await refetch()
-  }
+  const handleSubmit =
+    (submit) =>
+    async ({ values, closeDialog }) => {
+      const response = await submit({ overrideData: toPayload(values) })
+      if (!response) return
+      closeDialog()
+      await refetch()
+    }
+
+  const handleValuesChange = useCallback((values) => {
+    setCurrentRole((prev) => (values.role !== prev ? values.role : prev))
+  }, [])
 
   return (
     <>
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openCreate}
         onClose={() => setOpenCreate(false)}
         title={t('admin_management.title.create')}
@@ -112,16 +134,18 @@ const AdminManagementFormSection = ({
         fields={fields}
         destroyOnClose
         onSubmit={handleSubmit(onCreateSubmit)}
+        onValuesChange={openCreate ? handleValuesChange : undefined}
       />
-      <GenericFormDrawer
+      <GenericFormDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         title={t('admin_management.title.update')}
         submitLabel={t('button.update')}
-        initialValues={normalizeInitialValues(selectedRow)}
+        initialValues={updateInitialValues}
         fields={fields}
         destroyOnClose
         onSubmit={handleSubmit(onUpdateSubmit)}
+        onValuesChange={openUpdate ? handleValuesChange : undefined}
       />
     </>
   )

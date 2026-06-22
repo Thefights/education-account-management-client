@@ -12,9 +12,7 @@ const SchoolAdminLayout = () => {
           key: 'course-management',
           label: t('course_management.menu_label'),
           icon: BookOutlined,
-          url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(
-            routeUrls.SCHOOL_ADMIN.COURSE_MANAGEMENT.INDEX
-          ),
+          url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.INDEX),
         },
       ],
     },
