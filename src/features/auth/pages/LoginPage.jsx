@@ -61,6 +61,12 @@ export function LoginPage() {
         <IdcardOutlined style={{ color: token.colorSuccess, marginRight: 8 }} />
         {t('auth.login.sign_in_with_singpass')}
       </Button>
+
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <Button type="link" onClick={() => (window.location.href = '/')}>
+          &larr; Back to Home Page
+        </Button>
+      </div>
     </LayoutAuth>
   )
 }

@@ -1,11 +1,9 @@
 import AppThemeProvider from '@/app/providers/AppThemeProvider'
 import AuthProvider from '@/app/providers/AuthProvider'
 import ConfirmationProvider from '@/app/providers/ConfirmationProvider'
-import AuthRoutes from '@/app/routes/AuthRoutes'
-import RoleRoutes from '@/app/routes/RoleRoutes'
-import { routeUrls } from '@/shared/config/routeUrls'
+import AppRoutes from '@/app/routes/AppRoutes'
 import ScrollToTop from '@/shared/hooks/ScrollToTop'
-import { Navigate, Route, BrowserRouter as RouterProvider, Routes } from 'react-router-dom'
+import { BrowserRouter as RouterProvider } from 'react-router-dom'
 
 function App() {
   return (
@@ -14,14 +12,7 @@ function App() {
         <ScrollToTop />
         <AuthProvider>
           <ConfirmationProvider>
-            <Routes>
-              <Route
-                path="/"
-                element={<Navigate to={routeUrls.BASE_ROUTE.AUTH(routeUrls.AUTH.LOGIN)} replace />}
-              />
-              <Route path={`${routeUrls.BASE_ROUTE.AUTH()}/*`} element={<AuthRoutes />} />
-              <Route path="/*" element={<RoleRoutes />} />
-            </Routes>
+            <AppRoutes />
           </ConfirmationProvider>
         </AuthProvider>
       </RouterProvider>
