@@ -43,6 +43,12 @@ export const ApiUrls = {
     IMPORT: '/course-management/import',
   },
 
+  SCHOOL_STUDENT_MANAGEMENT: {
+    INDEX: '/school-student-management',
+    DETAIL: (id) => `/school-student-management/${id}`,
+    IMPORT: '/school-student-management/import',
+  },
+
   EDUCATION_ACCOUNT: {
     INDEX: '/education-account-management',
     GET_ALL: '/education-account-management/all',

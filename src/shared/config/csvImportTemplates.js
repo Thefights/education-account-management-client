@@ -52,4 +52,9 @@ export const csvImportTemplates = {
     headers: ['AccountNumber'],
     sampleRows: [['EDU-2026-00000000001']],
   },
+  schoolStudents: {
+    filename: 'school-student-import-template.csv',
+    headers: ['Nric'],
+    sampleRows: [['S1234567D']],
+  },
 }

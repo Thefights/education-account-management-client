@@ -45,6 +45,17 @@ export default function useEnum() {
       { value: EnumConfig.CourseStatus.Inactive, label: t('enum.course_status.inactive') },
     ],
 
+    schoolStudentStatusOptions: [
+      {
+        value: EnumConfig.SchoolStudentStatus.Active,
+        label: t('enum.school_student_status.active'),
+      },
+      {
+        value: EnumConfig.SchoolStudentStatus.Inactive,
+        label: t('enum.school_student_status.inactive'),
+      },
+    ],
+
     productAssignmentRoleOptions: [
       {
         value: EnumConfig.ProductAssignmentRole.Student,

@@ -14,6 +14,7 @@ import EducationAccountDetailPage from '@/features/education-accounts/pages/Educ
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
+import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
@@ -103,6 +104,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <CourseManagementPage />,
+      },
+      {
+        path: routeUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
+        element: <SchoolStudentManagementPage />,
       },
     ],
   },

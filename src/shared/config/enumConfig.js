@@ -39,6 +39,11 @@ export const EnumConfig = {
     Inactive: 'Inactive',
   },
 
+  SchoolStudentStatus: {
+    Active: 'Active',
+    Inactive: 'Inactive',
+  },
+
   UserGender: {
     Unknown: 'Unknown',
     Male: 'Male',
