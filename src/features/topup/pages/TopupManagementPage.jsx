@@ -13,7 +13,7 @@ const TopupManagementPage = () => {
   const navigate = useNavigate()
   const tabItems = useMemo(
     () => [
-      { key: 'rules', label: t('topup.rules_title'), children: <TopupRulesPage /> },
+      { key: 'system', label: t('topup.system_topups_title'), children: <TopupRulesPage /> },
       { key: 'schedules', label: t('topup.schedules_title'), children: <TopupSchedulesPage /> },
       { key: 'manual', label: t('topup.manual_title'), children: <ManualTopupPage embedded /> },
     ],

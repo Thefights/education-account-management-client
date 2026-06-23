@@ -11,6 +11,13 @@ import {
 } from '@/shared/utils/dateTimeUtil'
 import { DatePicker, InputNumber, Skeleton, TimePicker } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
+import {
+  createEmptyTopupConditionGroup,
+  isTopupConditionGroupValid,
+  normalizeTopupConditionGroup,
+  serializeTopupConditionGroup,
+} from '../utils/topupRuleFormUtil'
+import TopupRuleConditionsField from './TopupRuleConditionsField'
 
 const frequencyValues = { OneTime: 1, Monthly: 2, Yearly: 3 }
 const statusValues = { Active: 1, Inactive: 2, Completed: 3 }
@@ -25,33 +32,24 @@ const TopupScheduleFormSection = ({
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-  const [currentFrequency, setCurrentFrequency] = useState(EnumConfig.TopupScheduleTypeId.OneTime)
+  const [currentFrequency, setCurrentFrequency] = useState(null)
   const detail = useFetch(
-    scheduleId ? ApiUrls.TOPUP_SCHEDULE.DETAIL(scheduleId) : '',
+    scheduleId ? ApiUrls.SCHEDULE_TOPUP.DETAIL(scheduleId) : '',
     {},
     [open, scheduleId],
-    false
-  )
-  const rules = useFetch(
-    ApiUrls.TOPUP_RULE.INDEX,
-    {
-      type: EnumConfig.TopupRuleTypeId.Schedule,
-      status: EnumConfig.TopupScheduleStatusId.Active,
-      page: 1,
-      pageSize: 100,
-    },
-    [open],
     false
   )
   const initialValues = useMemo(() => {
     if (!scheduleId) {
       return {
-        topupRuleId: null,
-        frequency: EnumConfig.TopupScheduleTypeId.OneTime,
+        name: '',
+        topupAmount: null,
+        frequency: EnumConfig.ScheduleTopupFrequencyId.OneTime,
         oneTimeExecutionAt: null,
         executeAtDay: null,
         executeAtMonth: null,
         executionTime: toSingaporeTimePickerValue(),
+        rootConditionGroup: createEmptyTopupConditionGroup(),
       }
     }
 
@@ -65,19 +63,14 @@ const TopupScheduleFormSection = ({
       oneTimeExecutionAt: detail.data?.oneTimeExecutionAt
         ? toSingaporePickerValue(detail.data.oneTimeExecutionAt)
         : null,
+      rootConditionGroup: normalizeTopupConditionGroup(detail.data?.rootConditionGroup),
     }
   }, [detail.data, scheduleId])
-  const ruleOptions = useMemo(
-    () =>
-      (rules.data?.collection || []).map((rule) => ({
-        value: rule.id,
-        label: rule.ruleName,
-      })),
-    [rules.data]
-  )
+  const displayedFrequency = currentFrequency ?? initialValues.frequency
+
   const fields = useMemo(() => {
     const frequencyFields = []
-    if (currentFrequency === EnumConfig.TopupScheduleTypeId.OneTime) {
+    if (displayedFrequency === EnumConfig.ScheduleTopupFrequencyId.OneTime) {
       frequencyFields.push({
         key: 'oneTimeExecutionAt',
         title: `${t('topup_form.execution_date')} (${t('text.singapore_time')})`,
@@ -88,55 +81,52 @@ const TopupScheduleFormSection = ({
       })
     }
     if (
-      [EnumConfig.TopupScheduleTypeId.Monthly, EnumConfig.TopupScheduleTypeId.Yearly].includes(
-        currentFrequency
-      )
+      [
+        EnumConfig.ScheduleTopupFrequencyId.Monthly,
+        EnumConfig.ScheduleTopupFrequencyId.Yearly,
+      ].includes(displayedFrequency)
     ) {
       frequencyFields.push({
         key: 'executeAtDay',
         title: t('topup_form.day_of_month'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber
-            min={1}
-            max={28}
-            value={value}
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
+          <InputNumber min={1} max={31} value={value} onChange={onChange} style={{ width: '100%' }} />
         ),
       })
     }
-    if (currentFrequency === EnumConfig.TopupScheduleTypeId.Yearly) {
+    if (displayedFrequency === EnumConfig.ScheduleTopupFrequencyId.Yearly) {
       frequencyFields.push({
         key: 'executeAtMonth',
         title: t('topup_form.month'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber
-            min={1}
-            max={12}
-            value={value}
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
+          <InputNumber min={1} max={12} value={value} onChange={onChange} style={{ width: '100%' }} />
         ),
       })
     }
 
     return [
+      { key: 'name', title: t('topup_form.topup_name') },
       {
-        key: 'topupRuleId',
-        title: t('topup_form.topup_rules'),
-        type: 'select',
-        options: ruleOptions,
-        props: { showSearch: true, optionFilterProp: 'label', loading: rules.loading },
+        key: 'topupAmount',
+        title: t('topup_form.topup_amount'),
+        type: 'custom',
+        render: ({ value, onChange }) => (
+          <InputNumber
+            min={0.01}
+            precision={2}
+            value={value}
+            onChange={onChange}
+            style={{ width: '100%' }}
+          />
+        ),
       },
       {
         key: 'frequency',
         title: t('topup_form.schedule_type'),
         type: 'select',
-        options: _enum.topupScheduleTypeIdOptions,
+        options: _enum.scheduleTopupFrequencyIdOptions,
       },
       ...frequencyFields,
       {
@@ -152,14 +142,22 @@ const TopupScheduleFormSection = ({
           />
         ),
       },
+      {
+        key: 'rootConditionGroup',
+        title: '',
+        type: 'custom',
+        render: ({ value, onChange }) => (
+          <TopupRuleConditionsField value={value} onChange={onChange} />
+        ),
+      },
     ]
-  }, [_enum.topupScheduleTypeIdOptions, currentFrequency, ruleOptions, rules.loading, t])
+  }, [_enum.scheduleTopupFrequencyIdOptions, displayedFrequency, t])
   const handleValuesChange = useCallback((values) => {
     setCurrentFrequency((current) => (current === values.frequency ? current : values.frequency))
   }, [])
   const handleClose = () => {
     detail.setData(null)
-    setCurrentFrequency(EnumConfig.TopupScheduleTypeId.OneTime)
+    setCurrentFrequency(null)
     onClose?.()
   }
 
@@ -179,26 +177,30 @@ const TopupScheduleFormSection = ({
 
   const handleSubmit = async ({ values, closeDialog }) => {
     const payload = {
-      topupRuleId: values.topupRuleId,
+      name: values.name.trim(),
+      topupAmount: values.topupAmount,
       frequency: values.frequency,
       oneTimeExecutionAt:
-        values.frequency === EnumConfig.TopupScheduleTypeId.OneTime
+        values.frequency === EnumConfig.ScheduleTopupFrequencyId.OneTime
           ? singaporeWallTimeToIso(values.oneTimeExecutionAt)
           : null,
       executeAtDay: [
-        EnumConfig.TopupScheduleTypeId.Monthly,
-        EnumConfig.TopupScheduleTypeId.Yearly,
+        EnumConfig.ScheduleTopupFrequencyId.Monthly,
+        EnumConfig.ScheduleTopupFrequencyId.Yearly,
       ].includes(values.frequency)
         ? values.executeAtDay
         : null,
       executeAtMonth:
-        values.frequency === EnumConfig.TopupScheduleTypeId.Yearly ? values.executeAtMonth : null,
+        values.frequency === EnumConfig.ScheduleTopupFrequencyId.Yearly
+          ? values.executeAtMonth
+          : null,
       executionTime: values.executionTime.format('HH:mm:ss'),
+      rootConditionGroup: serializeTopupConditionGroup(values.rootConditionGroup),
       ...(scheduleId ? { status: values.status } : {}),
     }
     const response = await (scheduleId
       ? onUpdateSubmit?.({
-          overrideUrl: ApiUrls.TOPUP_SCHEDULE.DETAIL(scheduleId),
+          overrideUrl: ApiUrls.SCHEDULE_TOPUP.DETAIL(scheduleId),
           overrideData: payload,
         })
       : onCreateSubmit?.({ overrideData: payload }))
@@ -209,7 +211,7 @@ const TopupScheduleFormSection = ({
 
   return (
     <GenericFormDialog
-      key={`${scheduleId || 'create'}-${detail.data?.updatedAt || ''}`}
+      key={`${scheduleId || 'create'}-${detail.data?.name || ''}`}
       open={open}
       onClose={handleClose}
       title={scheduleId ? t('topup_form.update_schedule') : t('topup_form.create_schedule')}
@@ -219,10 +221,20 @@ const TopupScheduleFormSection = ({
       destroyOnHidden
       onValuesChange={handleValuesChange}
       isSubmitDisabled={(values) => {
-        if (!values.topupRuleId || !values.frequency || !values.executionTime) return true
+        if (
+          !values.name?.trim() ||
+          !(Number(values.topupAmount) > 0) ||
+          !values.frequency ||
+          !values.executionTime ||
+          !isTopupConditionGroupValid(values.rootConditionGroup)
+        )
+          return true
         if (values.frequency === 1 && !values.oneTimeExecutionAt) return true
         if ([2, 3].includes(values.frequency) && !values.executeAtDay) return true
         if (values.frequency === 3 && !values.executeAtMonth) return true
+        if (values.frequency === 3 && values.executeAtDay && values.executeAtMonth) {
+          return values.executeAtDay > new Date(2024, values.executeAtMonth, 0).getDate()
+        }
         return false
       }}
       onSubmit={handleSubmit}

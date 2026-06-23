@@ -10,7 +10,7 @@ import TopupRuleFilterSection from '../components/TopupRuleFilterSection'
 import TopupRuleFormSection from '../components/TopupRuleFormSection'
 import TopupRuleTableSection from '../components/TopupRuleTableSection'
 
-const defaultFilters = { search: '', types: [], statuses: [] }
+const defaultFilters = { name: '', statuses: [] }
 const defaultSort = { key: 'id', direction: 'desc' }
 
 const TopupRulesPage = () => {
@@ -25,18 +25,17 @@ const TopupRulesPage = () => {
   const queryParams = useMemo(
     () => ({
       sort: `${sort.key} ${sort.direction}`,
-      search: filters.search,
-      types: filters.types,
+      name: filters.name,
       statuses: filters.statuses,
       page,
       pageSize,
     }),
     [sort, filters, page, pageSize]
   )
-  const rules = useFetch(ApiUrls.TOPUP_RULE.INDEX, queryParams, [queryParams])
-  const createRule = useAxiosSubmit({ url: ApiUrls.TOPUP_RULE.INDEX, method: 'POST' })
+  const rules = useFetch(ApiUrls.SYSTEM_TOPUP.INDEX, queryParams, [queryParams])
+  const createRule = useAxiosSubmit({ url: ApiUrls.SYSTEM_TOPUP.INDEX, method: 'POST' })
   const updateRule = useAxiosSubmit({ method: 'PUT' })
-  const updateStatus = useAxiosSubmit({ url: ApiUrls.TOPUP_RULE.UPDATE_STATUS, method: 'PUT' })
+  const updateStatus = useAxiosSubmit({ url: ApiUrls.SYSTEM_TOPUP.UPDATE_STATUS, method: 'PUT' })
   const deleteRule = useAxiosSubmit({ method: 'DELETE' })
   const loading =
     rules.loading ||
@@ -58,14 +57,14 @@ const TopupRulesPage = () => {
   }
   const handleDelete = async (rule) => {
     const accepted = await confirm({
-      title: t('topup_form.delete_rule'),
-      description: t('topup_form.delete_rule_confirm', { name: rule.ruleName }),
+      title: t('topup_form.delete_system_topup'),
+      description: t('topup_form.delete_system_topup_confirm', { name: rule.name }),
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
     if (!accepted) return
     const response = await deleteRule.submit({
-      overrideUrl: ApiUrls.TOPUP_RULE.DETAIL(rule.id),
+      overrideUrl: ApiUrls.SYSTEM_TOPUP.DETAIL(rule.id),
     })
     if (response) await rules.fetch()
   }

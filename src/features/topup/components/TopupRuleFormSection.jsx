@@ -1,22 +1,18 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
-import { EnumConfig } from '@/shared/config/enumConfig'
-import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { InputNumber, Skeleton, Typography } from 'antd'
+import { InputNumber, Skeleton } from 'antd'
 import { useMemo } from 'react'
-import { normalizeTopupRuleCondition } from '../utils/topupRuleFormUtil'
+import {
+  createEmptyTopupConditionGroup,
+  isTopupConditionGroupValid,
+  normalizeTopupConditionGroup,
+  serializeTopupConditionGroup,
+} from '../utils/topupRuleFormUtil'
 import TopupRuleConditionsField from './TopupRuleConditionsField'
 
-const emptyCondition = {
-  field: 1,
-  operator: 1,
-  valueText: null,
-  valueNumber: null,
-  conditionAmount: null,
-  displayOrder: 0,
-}
+const statusValues = { Active: 1, Inactive: 2 }
 
 const TopupRuleFormSection = ({
   open,
@@ -27,9 +23,8 @@ const TopupRuleFormSection = ({
   refetch,
 }) => {
   const { t } = useTranslation()
-  const _enum = useEnum()
   const detail = useFetch(
-    ruleId ? ApiUrls.TOPUP_RULE.DETAIL(ruleId) : '',
+    ruleId ? ApiUrls.SYSTEM_TOPUP.DETAIL(ruleId) : '',
     {},
     [open, ruleId],
     false
@@ -37,74 +32,44 @@ const TopupRuleFormSection = ({
   const initialValues = useMemo(() => {
     if (!ruleId) {
       return {
-        ruleName: '',
-        type: EnumConfig.TopupRuleTypeId.System,
-        matchMode: EnumConfig.TopupMatchModeId.And,
-        topupAmount: '',
-        conditions: [{ ...emptyCondition }],
+        name: '',
+        topupAmount: null,
+        rootConditionGroup: createEmptyTopupConditionGroup(),
       }
     }
-
     return {
       ...detail.data,
-      matchMode: ['Or', 'OR', EnumConfig.TopupMatchModeId.Or].includes(detail.data?.matchMode)
-        ? EnumConfig.TopupMatchModeId.Or
-        : EnumConfig.TopupMatchModeId.And,
-      status: detail.data?.status === 'Inactive' ? 2 : 1,
-      conditions: (detail.data?.conditions || []).map(normalizeTopupRuleCondition),
+      status: statusValues[detail.data?.status] ?? detail.data?.status ?? 1,
+      rootConditionGroup: normalizeTopupConditionGroup(detail.data?.rootConditionGroup),
     }
   }, [detail.data, ruleId])
   const fields = useMemo(
     () => [
-      { key: 'ruleName', title: t('topup_form.rule_name') },
-      ...(!ruleId
-        ? [
-            {
-              key: 'type',
-              title: t('topup_form.rule_type'),
-              type: 'select',
-              options: _enum.topupRuleTypeIdOptions,
-            },
-          ]
-        : []),
-      {
-        key: 'matchMode',
-        title: t('topup_form.match_mode'),
-        type: 'select',
-        options: _enum.topupMatchModeIdOptions,
-      },
+      { key: 'name', title: t('topup_form.topup_name') },
       {
         key: 'topupAmount',
         title: t('topup_form.topup_amount'),
         type: 'custom',
-        required: false,
-        render: ({ value, onChange, values }) =>
-          values.matchMode === EnumConfig.TopupMatchModeId.And ? (
-            <InputNumber
-              min={0.01}
-              precision={2}
-              value={value}
-              onChange={onChange}
-              style={{ width: '100%' }}
-            />
-          ) : (
-            <Typography.Text type="secondary">{t('topup_form.or_amount_hint')}</Typography.Text>
-          ),
-      },
-      {
-        key: 'conditions',
-        title: '',
-        type: 'custom',
-        render: ({ value, onChange, values }) => (
-          <TopupRuleConditionsField
+        render: ({ value, onChange }) => (
+          <InputNumber
+            min={0.01}
+            precision={2}
             value={value}
             onChange={onChange}
-            matchMode={values.matchMode}
+            style={{ width: '100%' }}
           />
         ),
       },
+      {
+        key: 'rootConditionGroup',
+        title: '',
+        type: 'custom',
+        render: ({ value, onChange }) => (
+          <TopupRuleConditionsField value={value} onChange={onChange} />
+        ),
+      },
     ],
-    [_enum.topupMatchModeIdOptions, _enum.topupRuleTypeIdOptions, ruleId, t]
+    [t]
   )
   const handleClose = () => {
     detail.setData(null)
@@ -115,7 +80,7 @@ const TopupRuleFormSection = ({
     return (
       <GenericFormDialog
         open
-        title={t('topup_form.update_rule')}
+        title={t('topup_form.update_system_topup')}
         onClose={handleClose}
         fields={[]}
         showSubmit={false}
@@ -126,27 +91,15 @@ const TopupRuleFormSection = ({
   }
 
   const handleSubmit = async ({ values, closeDialog }) => {
-    const conditions = values.conditions.map((condition, index) => ({
-      ...(ruleId && condition.id ? { id: condition.id } : {}),
-      field: condition.field,
-      operator: condition.operator,
-      displayOrder: index,
-      valueText: condition.field === 3 ? condition.valueText : null,
-      valueNumber: condition.field === 3 ? null : condition.valueNumber,
-      conditionAmount:
-        values.matchMode === EnumConfig.TopupMatchModeId.Or ? condition.conditionAmount : null,
-    }))
     const payload = {
-      ruleName: values.ruleName.trim(),
-      matchMode: values.matchMode,
-      topupAmount:
-        values.matchMode === EnumConfig.TopupMatchModeId.Or ? null : values.topupAmount,
-      conditions,
-      ...(ruleId ? { status: values.status } : { type: values.type }),
+      name: values.name.trim(),
+      topupAmount: values.topupAmount,
+      rootConditionGroup: serializeTopupConditionGroup(values.rootConditionGroup),
+      ...(ruleId ? { status: values.status } : {}),
     }
     const response = await (ruleId
       ? onUpdateSubmit?.({
-          overrideUrl: ApiUrls.TOPUP_RULE.DETAIL(ruleId),
+          overrideUrl: ApiUrls.SYSTEM_TOPUP.DETAIL(ruleId),
           overrideData: payload,
         })
       : onCreateSubmit?.({ overrideData: payload }))
@@ -157,21 +110,21 @@ const TopupRuleFormSection = ({
 
   return (
     <GenericFormDialog
-      key={`${ruleId || 'create'}-${detail.data?.updatedAt || ''}`}
+      key={`${ruleId || 'create'}-${detail.data?.name || ''}`}
       open={open}
       onClose={handleClose}
-      title={ruleId ? t('topup_form.update_rule') : t('topup_form.create_rule')}
+      title={
+        ruleId ? t('topup_form.update_system_topup') : t('topup_form.create_system_topup')
+      }
       submitLabel={ruleId ? t('button.update') : t('button.create')}
       initialValues={initialValues}
       fields={fields}
       destroyOnHidden
-      isSubmitDisabled={(values) => {
-        if (!values.ruleName?.trim() || !values.conditions?.length) return true
-        if (values.matchMode === EnumConfig.TopupMatchModeId.And) {
-          return !(Number(values.topupAmount) > 0)
-        }
-        return values.conditions.some((condition) => !(Number(condition.conditionAmount) > 0))
-      }}
+      isSubmitDisabled={(values) =>
+        !values.name?.trim() ||
+        !(Number(values.topupAmount) > 0) ||
+        !isTopupConditionGroupValid(values.rootConditionGroup)
+      }
       onSubmit={handleSubmit}
     />
   )

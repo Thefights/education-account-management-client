@@ -79,17 +79,17 @@ export const ApiUrls = {
     HISTORY_DETAIL: (id) => `/topup-management/history/${id}`,
     HISTORY_TARGETS: (id) => `/topup-management/history/${id}/targets`,
   },
-  TOPUP_RULE: {
-    INDEX: '/topup-rule-management',
-    GET_ALL: '/topup-rule-management/all',
-    DETAIL: (id) => `/topup-rule-management/${id}`,
-    UPDATE_STATUS: '/topup-rule-management/status',
+  SYSTEM_TOPUP: {
+    INDEX: '/system-topup-management',
+    GET_ALL: '/system-topup-management/all',
+    DETAIL: (id) => `/system-topup-management/${id}`,
+    UPDATE_STATUS: '/system-topup-management/status',
   },
-  TOPUP_SCHEDULE: {
-    INDEX: '/topup-schedule-management',
-    GET_ALL: '/topup-schedule-management/all',
-    DETAIL: (id) => `/topup-schedule-management/${id}`,
-    UPDATE_STATUS: '/topup-schedule-management/status',
+  SCHEDULE_TOPUP: {
+    INDEX: '/schedule-top-up-management',
+    GET_ALL: '/schedule-top-up-management/all',
+    DETAIL: (id) => `/schedule-top-up-management/${id}`,
+    UPDATE_STATUS: '/schedule-top-up-management/status',
   },
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',

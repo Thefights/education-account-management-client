@@ -72,7 +72,7 @@ export const defaultAuditLogCategoryStyle = (category) => {
   const map = {
     [EnumConfig.AuditLogCategory.AccountCreation]: 'green',
     [EnumConfig.AuditLogCategory.StatusChange]: 'orange',
-    [EnumConfig.AuditLogCategory.TopupConfig]: 'cyan',
+    [EnumConfig.AuditLogCategory.Topup]: 'cyan',
     [EnumConfig.AuditLogCategory.Security]: 'volcano',
     [EnumConfig.AuditLogCategory.Transaction]: 'blue',
     [EnumConfig.AuditLogCategory.Billing]: 'gold',
@@ -110,24 +110,6 @@ export const defaultTopupStatusStyle = (status) => {
   }
 
   return map[status] || 'default'
-}
-
-export const defaultTopupRuleTypeStyle = (type) => {
-  const map = {
-    System: 'blue',
-    Schedule: 'purple',
-  }
-
-  return map[type] || 'default'
-}
-
-export const defaultTopupMatchModeStyle = (mode) => {
-  const map = {
-    And: 'cyan',
-    Or: 'gold',
-  }
-
-  return map[mode] || 'default'
 }
 
 export const defaultTopupExecutionSourceStyle = (source) => {

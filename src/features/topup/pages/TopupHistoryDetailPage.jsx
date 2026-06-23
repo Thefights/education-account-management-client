@@ -57,8 +57,8 @@ const TopupHistoryDetailPage = () => {
             <Descriptions.Item label={t('topup.status')}>
               <Tag>{data?.status}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label={t('topup.rule_name')}>
-              {data?.ruleNameSnapshot}
+            <Descriptions.Item label={t('topup.topup_name')}>
+              {data?.topupNameSnapshot}
             </Descriptions.Item>
             <Descriptions.Item label={t('topup.total_targets')}>
               {data?.totalTargetCount}

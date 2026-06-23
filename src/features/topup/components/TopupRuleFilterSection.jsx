@@ -6,45 +6,27 @@ import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Col, Flex, Row, Space } from 'antd'
 
-const defaultFilters = { search: '', types: [], statuses: [] }
+const defaultFilters = { name: '', statuses: [] }
 
 const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const { values, handleChange, reset, setField, registerRef } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
-  const statusOptions = [
-    { value: '', label: t('text.all') },
-    { value: 1, label: t('topup_form.active') },
-    { value: 2, label: t('topup_form.inactive') },
-  ]
   const fields = [
     {
-      key: 'search',
-      title: t('topup.search_rule'),
-      label: t('topup.search_rule'),
+      key: 'name',
+      title: t('topup.search_topup'),
+      label: t('topup.search_topup'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,
     },
     {
-      key: 'types',
-      title: t('topup.rule_type'),
-      type: 'multi-check-dropdown',
-      options: _enum.topupRuleTypeIdOptions,
-      required: false,
-      placeholder: t('text.all'),
-      selectAllText: t('general.select_all'),
-      searchPlaceholder: t('general.input_keyword'),
-      cancelText: t('general.cancel'),
-      okText: t('general.ok'),
-      selectedText: (count) => `${count} ${t('text.items')}`,
-    },
-    {
       key: 'statuses',
       title: t('topup.status'),
       type: 'multi-check-dropdown',
-      options: statusOptions.filter((option) => option.value !== ''),
+      options: _enum.systemTopupStatusIdOptions,
       required: false,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
@@ -59,11 +41,11 @@ const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
         {fields.map((field) => (
-          <Col key={field.key} xs={24} md={6}>
+          <Col key={field.key} xs={24} md={8}>
             {renderField(field)}
           </Col>
         ))}
-        <Col xs={24} md={6}>
+        <Col xs={24} md={8}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton

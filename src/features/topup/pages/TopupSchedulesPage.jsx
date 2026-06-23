@@ -10,7 +10,7 @@ import TopupScheduleFilterSection from '../components/TopupScheduleFilterSection
 import TopupScheduleFormSection from '../components/TopupScheduleFormSection'
 import TopupScheduleTableSection from '../components/TopupScheduleTableSection'
 
-const defaultFilters = { frequencies: [], statuses: [] }
+const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
 const defaultSort = { key: 'id', direction: 'desc' }
 
 const TopupSchedulesPage = () => {
@@ -25,18 +25,21 @@ const TopupSchedulesPage = () => {
   const queryParams = useMemo(
     () => ({
       sort: `${sort.key} ${sort.direction}`,
+      name: filters.name,
       frequencies: filters.frequencies,
       statuses: filters.statuses,
+      createdFrom: filters.createdFrom,
+      createdTo: filters.createdTo,
       page,
       pageSize,
     }),
     [sort, filters, page, pageSize]
   )
-  const schedules = useFetch(ApiUrls.TOPUP_SCHEDULE.INDEX, queryParams, [queryParams])
-  const createSchedule = useAxiosSubmit({ url: ApiUrls.TOPUP_SCHEDULE.INDEX, method: 'POST' })
+  const schedules = useFetch(ApiUrls.SCHEDULE_TOPUP.INDEX, queryParams, [queryParams])
+  const createSchedule = useAxiosSubmit({ url: ApiUrls.SCHEDULE_TOPUP.INDEX, method: 'POST' })
   const updateSchedule = useAxiosSubmit({ method: 'PUT' })
   const updateStatus = useAxiosSubmit({
-    url: ApiUrls.TOPUP_SCHEDULE.UPDATE_STATUS,
+    url: ApiUrls.SCHEDULE_TOPUP.UPDATE_STATUS,
     method: 'PUT',
   })
   const deleteSchedule = useAxiosSubmit({ method: 'DELETE' })
@@ -62,14 +65,14 @@ const TopupSchedulesPage = () => {
     const accepted = await confirm({
       title: t('topup_form.delete_schedule'),
       description: t('topup_form.delete_schedule_confirm', {
-        name: schedule.topupRule?.ruleName || schedule.id,
+        name: schedule.name || schedule.id,
       }),
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
     if (!accepted) return
     const response = await deleteSchedule.submit({
-      overrideUrl: ApiUrls.TOPUP_SCHEDULE.DETAIL(schedule.id),
+      overrideUrl: ApiUrls.SCHEDULE_TOPUP.DETAIL(schedule.id),
     })
     if (response) await schedules.fetch()
   }
