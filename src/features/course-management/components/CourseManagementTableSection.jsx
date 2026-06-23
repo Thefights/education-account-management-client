@@ -3,14 +3,18 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatSingaporeDateTime } from '@/shared/utils/dateTimeUtil'
 
 const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
+const isDraft = (course) => course.status === 'Draft'
 
 const CourseManagementTableSection = ({
   courses,
   loading,
   sort,
   setSort,
+  selectedIds,
+  setSelectedIds,
   onEdit,
   onDelete,
 }) => {
@@ -25,22 +29,26 @@ const CourseManagementTableSection = ({
       fixedColumn: true,
     },
     {
+      key: 'courseCode',
+      title: t('course_management.field.course_code'),
+      width: 150,
+      sortable: true,
+    },
+    {
       key: 'courseName',
       title: t('course_management.field.course_name'),
       width: 220,
       sortable: true,
     },
-    { key: 'schoolName', title: t('course_management.field.school'), width: 200, sortable: true },
     {
       key: 'status',
       title: t('course_management.field.status'),
-      width: 120,
+      width: 130,
       sortable: true,
       type: 'tag',
       options: _enum.courseStatusOptions,
       color: defaultManagementStatusStyle,
     },
-    { key: 'description', title: t('course_management.field.description'), width: 280 },
     {
       key: 'courseFeeAmount',
       title: t('course_management.field.course_fee_amount'),
@@ -66,17 +74,54 @@ const CourseManagementTableSection = ({
       render: formatAmount,
     },
     {
+      key: 'totalFeeAmount',
+      title: t('course_management.field.total_fee_amount'),
+      width: 150,
+      isNumeric: true,
+      render: formatAmount,
+    },
+    {
+      key: 'enrollmentDueDate',
+      title: t('course_management.field.enrollment_due_date'),
+      width: 180,
+      sortable: true,
+      render: formatSingaporeDateTime,
+    },
+    {
+      key: 'fasApplicationDueDate',
+      title: t('course_management.field.fas_application_due_date'),
+      width: 190,
+      sortable: true,
+      render: formatSingaporeDateTime,
+    },
+    {
+      key: 'startDate',
+      title: t('course_management.field.start_date'),
+      width: 170,
+      sortable: true,
+      render: formatSingaporeDateTime,
+    },
+    {
+      key: 'endDate',
+      title: t('course_management.field.end_date'),
+      width: 170,
+      sortable: true,
+      render: formatSingaporeDateTime,
+    },
+    {
       key: 'actions',
       title: '',
       width: 70,
-      render: (_, row) => (
-        <ActionMenu
-          actions={[
-            { title: t('button.edit'), onClick: () => onEdit(row) },
-            { title: t('button.delete'), onClick: () => onDelete(row) },
-          ]}
-        />
-      ),
+      render: (_, row) => {
+        const actions = []
+        if (row.status === 'Draft' || row.status === 'Enrolling') {
+          actions.push({ title: t('button.edit'), onClick: () => onEdit(row) })
+        }
+        if (row.status === 'Draft') {
+          actions.push({ title: t('button.delete'), onClick: () => onDelete(row) })
+        }
+        return <ActionMenu actions={actions} />
+      },
     },
   ]
 
@@ -88,6 +133,10 @@ const CourseManagementTableSection = ({
       loading={loading}
       sort={sort}
       setSort={setSort}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
+      isRowSelectable={isDraft}
     />
   )
 }

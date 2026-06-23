@@ -21,7 +21,7 @@ const GenericFormDialog = ({
   additionalButtons = [],
   showSubmit = true,
   isSubmitDisabled = () => false,
-  destroyOnClose = false,
+  destroyOnHidden = false,
   children,
 }) => {
   const startValues = useMemo(() => {
@@ -102,7 +102,7 @@ const GenericFormDialog = ({
       onCancel={handleClose}
       open={!!open}
       width={width}
-      destroyOnClose={destroyOnClose}
+      destroyOnHidden={destroyOnHidden}
       footer={
         <Space style={{ justifyContent: 'flex-end', width: '100%' }}>
           <Button onClick={handleClose} disabled={loading}>

@@ -4,6 +4,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
 import { CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -96,8 +97,8 @@ const AuditLogFilterSection = ({
   }
 
   const handleDateRangeChange = (range) => {
-    const occurredFrom = range?.[0]?.toISOString() || ''
-    const occurredTo = range?.[1]?.toISOString() || ''
+    const occurredFrom = singaporeWallTimeToIso(range?.[0])
+    const occurredTo = singaporeWallTimeToIso(range?.[1])
 
     setField('occurredFrom', occurredFrom)
     setField('occurredTo', occurredTo)
@@ -117,10 +118,7 @@ const AuditLogFilterSection = ({
 
   const dateRangeValue =
     values.occurredFrom || values.occurredTo
-      ? [
-          values.occurredFrom ? dayjs(values.occurredFrom) : null,
-          values.occurredTo ? dayjs(values.occurredTo) : null,
-        ]
+      ? [toSingaporePickerValue(values.occurredFrom), toSingaporePickerValue(values.occurredTo)]
       : null
 
   return (
@@ -139,7 +137,7 @@ const AuditLogFilterSection = ({
         </Col>
 
         <Col xs={24} md={6}>
-          <FieldBox title={t('audit_log.field.created_at')}>
+          <FieldBox title={`${t('audit_log.field.created_at')} (${t('text.singapore_time')})`}>
             <Form.Item
               validateStatus={dateRangeError ? 'error' : undefined}
               help={dateRangeError || undefined}

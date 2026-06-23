@@ -31,7 +31,7 @@ const SchoolStudentFormSection = ({ openCreate, setOpenCreate, onCreateSubmit, r
         submitLabel={t('button.add')}
         initialValues={{ nric: '' }}
         fields={createFields}
-        destroyOnClose
+        destroyOnHidden
         onSubmit={handleSubmit(onCreateSubmit)}
       />
     </>

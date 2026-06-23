@@ -20,7 +20,13 @@
       "inactive": "不活跃"
     },
     "school_status": { "active": "启用", "inactive": "停用" },
-    "course_status": { "active": "启用", "inactive": "停用" },
+    "course_status": {
+      "draft": "草稿",
+      "enrolling": "招生中",
+      "upcoming": "即将开始",
+      "in_progress": "进行中",
+      "closed": "已结束"
+    },
     "role": {
       "account_holder": "账户持有人",
       "school_admin": "学校管理员",

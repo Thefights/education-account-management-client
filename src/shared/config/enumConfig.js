@@ -35,8 +35,11 @@ export const EnumConfig = {
   },
 
   CourseStatus: {
-    Active: 'Active',
-    Inactive: 'Inactive',
+    Draft: 'Draft',
+    Enrolling: 'Enrolling',
+    Upcoming: 'Upcoming',
+    InProgress: 'InProgress',
+    Closed: 'Closed',
   },
 
   SchoolStudentStatus: {

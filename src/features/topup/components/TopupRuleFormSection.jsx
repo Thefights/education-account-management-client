@@ -164,7 +164,7 @@ const TopupRuleFormSection = ({
       submitLabel={ruleId ? t('button.update') : t('button.create')}
       initialValues={initialValues}
       fields={fields}
-      destroyOnClose
+      destroyOnHidden
       isSubmitDisabled={(values) => {
         if (!values.ruleName?.trim() || !values.conditions?.length) return true
         if (values.matchMode === EnumConfig.TopupMatchModeId.And) {

@@ -4,6 +4,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
 import { CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -95,8 +96,8 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
   }
 
   const handleDateRangeChange = (range) => {
-    const createdFrom = range?.[0]?.toISOString() || ''
-    const createdTo = range?.[1]?.toISOString() || ''
+    const createdFrom = singaporeWallTimeToIso(range?.[0])
+    const createdTo = singaporeWallTimeToIso(range?.[1])
 
     setField('createdFrom', createdFrom)
     setField('createdTo', createdTo)
@@ -116,10 +117,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
 
   const dateRangeValue =
     values.createdFrom || values.createdTo
-      ? [
-          values.createdFrom ? dayjs(values.createdFrom) : null,
-          values.createdTo ? dayjs(values.createdTo) : null,
-        ]
+      ? [toSingaporePickerValue(values.createdFrom), toSingaporePickerValue(values.createdTo)]
       : null
 
   return (
@@ -136,7 +134,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
         ))}
 
         <Col xs={24} md={12} xl={6}>
-          <FieldBox title={t('topup.created_at')}>
+          <FieldBox title={`${t('topup.created_at')} (${t('text.singapore_time')})`}>
             <Form.Item
               validateStatus={dateRangeError ? 'error' : undefined}
               help={dateRangeError || undefined}

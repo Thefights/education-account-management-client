@@ -183,7 +183,7 @@ const GenericImportSection = ({
       submitLabel={submitLabel ?? t('import.submit')}
       title={title ?? t('import.title')}
       width={720}
-      destroyOnClose
+      destroyOnHidden
       onSubmit={handleSubmit}
       onValuesChange={(values) => {
         setHasFile(!!values.file)

@@ -41,8 +41,11 @@ export default function useEnum() {
     ],
 
     courseStatusOptions: [
-      { value: EnumConfig.CourseStatus.Active, label: t('enum.course_status.active') },
-      { value: EnumConfig.CourseStatus.Inactive, label: t('enum.course_status.inactive') },
+      { value: EnumConfig.CourseStatus.Draft, label: t('enum.course_status.draft') },
+      { value: EnumConfig.CourseStatus.Enrolling, label: t('enum.course_status.enrolling') },
+      { value: EnumConfig.CourseStatus.Upcoming, label: t('enum.course_status.upcoming') },
+      { value: EnumConfig.CourseStatus.InProgress, label: t('enum.course_status.in_progress') },
+      { value: EnumConfig.CourseStatus.Closed, label: t('enum.course_status.closed') },
     ],
 
     schoolStudentStatusOptions: [

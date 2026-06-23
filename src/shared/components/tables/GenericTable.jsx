@@ -25,6 +25,7 @@ const getTagColor = (color, value, row) => {
 }
 
 const tableSortDirections = ['ascend', 'descend', 'ascend']
+const defaultRowSelectable = () => true
 
 const renderCellValue = (field, value, row, rowIndex) => {
   if (field.render) {
@@ -70,6 +71,7 @@ const GenericTable = ({
   canSelectRows = false,
   selectedRows = [],
   setSelectedRows = () => {},
+  isRowSelectable = defaultRowSelectable,
   loading = false,
   stickyHeader = false,
 }) => {
@@ -101,10 +103,11 @@ const GenericTable = ({
             onChange: (selectedKeys) => {
               setSelectedRows(selectedKeys)
             },
+            getCheckboxProps: (row) => ({ disabled: !isRowSelectable(row) }),
             preserveSelectedRowKeys: false,
           }
         : undefined,
-    [canSelectRows, selectedRows, setSelectedRows]
+    [canSelectRows, isRowSelectable, selectedRows, setSelectedRows]
   )
 
   const tableData = useMemo(() => {

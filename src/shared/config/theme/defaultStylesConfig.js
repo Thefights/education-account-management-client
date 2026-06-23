@@ -37,8 +37,11 @@ export const defaultManagementStatusStyle = (status) => {
   const map = {
     [EnumConfig.SchoolStatus.Active]: 'success',
     [EnumConfig.SchoolStatus.Inactive]: 'default',
-    [EnumConfig.CourseStatus.Active]: 'success',
-    [EnumConfig.CourseStatus.Inactive]: 'default',
+    [EnumConfig.CourseStatus.Draft]: 'default',
+    [EnumConfig.CourseStatus.Enrolling]: 'processing',
+    [EnumConfig.CourseStatus.Upcoming]: 'warning',
+    [EnumConfig.CourseStatus.InProgress]: 'success',
+    [EnumConfig.CourseStatus.Closed]: 'default',
   }
 
   return map[status] || 'default'

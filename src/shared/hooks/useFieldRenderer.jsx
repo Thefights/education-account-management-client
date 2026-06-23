@@ -237,6 +237,7 @@ export default function useFieldRenderer(
         value={getObjectValueFromStringPath(currentValues, field.key) ?? ''}
         onChange={context.handleChange}
         validate={field.validate}
+        validationContext={currentValues}
         minValue={field.minValue}
         maxValue={field.maxValue}
         multiline={!isSelectField && !!field.multiple}

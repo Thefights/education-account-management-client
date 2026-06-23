@@ -20,7 +20,13 @@
       "inactive": "Inactive"
     },
     "school_status": { "active": "Active", "inactive": "Inactive" },
-    "course_status": { "active": "Active", "inactive": "Inactive" },
+    "course_status": {
+      "draft": "Draft",
+      "enrolling": "Enrolling",
+      "upcoming": "Upcoming",
+      "in_progress": "In progress",
+      "closed": "Closed"
+    },
     "role": {
       "account_holder": "Account Holder",
       "school_admin": "School Admin",

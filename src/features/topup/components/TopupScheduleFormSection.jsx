@@ -4,8 +4,12 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import {
+  singaporeWallTimeToIso,
+  toSingaporePickerValue,
+  toSingaporeTimePickerValue,
+} from '@/shared/utils/dateTimeUtil'
 import { DatePicker, InputNumber, Skeleton, TimePicker } from 'antd'
-import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
 
 const frequencyValues = { OneTime: 1, Monthly: 2, Yearly: 3 }
@@ -47,7 +51,7 @@ const TopupScheduleFormSection = ({
         oneTimeExecutionAt: null,
         executeAtDay: null,
         executeAtMonth: null,
-        executionTime: dayjs('00:00:00', 'HH:mm:ss'),
+        executionTime: toSingaporeTimePickerValue(),
       }
     }
 
@@ -56,10 +60,10 @@ const TopupScheduleFormSection = ({
       frequency: frequencyValues[detail.data?.frequency] ?? detail.data?.frequency ?? 1,
       status: statusValues[detail.data?.status] ?? detail.data?.status ?? 1,
       executionTime: detail.data?.executionTime
-        ? dayjs(`2000-01-01T${detail.data.executionTime}`)
-        : dayjs('00:00:00', 'HH:mm:ss'),
+        ? toSingaporeTimePickerValue(detail.data.executionTime)
+        : toSingaporeTimePickerValue(),
       oneTimeExecutionAt: detail.data?.oneTimeExecutionAt
-        ? dayjs(detail.data.oneTimeExecutionAt)
+        ? toSingaporePickerValue(detail.data.oneTimeExecutionAt)
         : null,
     }
   }, [detail.data, scheduleId])
@@ -76,7 +80,7 @@ const TopupScheduleFormSection = ({
     if (currentFrequency === EnumConfig.TopupScheduleTypeId.OneTime) {
       frequencyFields.push({
         key: 'oneTimeExecutionAt',
-        title: t('topup_form.execution_date'),
+        title: `${t('topup_form.execution_date')} (${t('text.singapore_time')})`,
         type: 'custom',
         render: ({ value, onChange }) => (
           <DatePicker showTime value={value} onChange={onChange} style={{ width: '100%' }} />
@@ -93,7 +97,13 @@ const TopupScheduleFormSection = ({
         title: t('topup_form.day_of_month'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber min={1} max={28} value={value} onChange={onChange} style={{ width: '100%' }} />
+          <InputNumber
+            min={1}
+            max={28}
+            value={value}
+            onChange={onChange}
+            style={{ width: '100%' }}
+          />
         ),
       })
     }
@@ -103,7 +113,13 @@ const TopupScheduleFormSection = ({
         title: t('topup_form.month'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber min={1} max={12} value={value} onChange={onChange} style={{ width: '100%' }} />
+          <InputNumber
+            min={1}
+            max={12}
+            value={value}
+            onChange={onChange}
+            style={{ width: '100%' }}
+          />
         ),
       })
     }
@@ -125,7 +141,7 @@ const TopupScheduleFormSection = ({
       ...frequencyFields,
       {
         key: 'executionTime',
-        title: t('topup_form.execution_time'),
+        title: `${t('topup_form.execution_time')} (${t('text.singapore_time')})`,
         type: 'custom',
         render: ({ value, onChange }) => (
           <TimePicker
@@ -137,18 +153,9 @@ const TopupScheduleFormSection = ({
         ),
       },
     ]
-  }, [
-    _enum.topupScheduleTypeIdOptions,
-    currentFrequency,
-    ruleOptions,
-    rules.loading,
-    scheduleId,
-    t,
-  ])
+  }, [_enum.topupScheduleTypeIdOptions, currentFrequency, ruleOptions, rules.loading, t])
   const handleValuesChange = useCallback((values) => {
-    setCurrentFrequency((current) =>
-      current === values.frequency ? current : values.frequency
-    )
+    setCurrentFrequency((current) => (current === values.frequency ? current : values.frequency))
   }, [])
   const handleClose = () => {
     detail.setData(null)
@@ -176,7 +183,7 @@ const TopupScheduleFormSection = ({
       frequency: values.frequency,
       oneTimeExecutionAt:
         values.frequency === EnumConfig.TopupScheduleTypeId.OneTime
-          ? values.oneTimeExecutionAt.toISOString()
+          ? singaporeWallTimeToIso(values.oneTimeExecutionAt)
           : null,
       executeAtDay: [
         EnumConfig.TopupScheduleTypeId.Monthly,
@@ -209,7 +216,7 @@ const TopupScheduleFormSection = ({
       submitLabel={scheduleId ? t('button.update') : t('button.create')}
       initialValues={initialValues}
       fields={fields}
-      destroyOnClose
+      destroyOnHidden
       onValuesChange={handleValuesChange}
       isSubmitDisabled={(values) => {
         if (!values.topupRuleId || !values.frequency || !values.executionTime) return true

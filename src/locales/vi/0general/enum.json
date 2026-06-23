@@ -20,7 +20,13 @@
       "inactive": "Không hoạt động"
     },
     "school_status": { "active": "Hoạt động", "inactive": "Ngừng hoạt động" },
-    "course_status": { "active": "Hoạt động", "inactive": "Ngừng hoạt động" },
+    "course_status": {
+      "draft": "Bản nháp",
+      "enrolling": "Đang tuyển sinh",
+      "upcoming": "Sắp diễn ra",
+      "in_progress": "Đang diễn ra",
+      "closed": "Đã kết thúc"
+    },
     "role": {
       "account_holder": "Chủ tài khoản",
       "school_admin": "Quản trị trường",
