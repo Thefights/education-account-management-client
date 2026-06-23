@@ -1,0 +1,51 @@
+{
+  "enrollment_management": {
+    "menu_label": "报名管理",
+    "title": {
+      "management": "报名管理",
+      "assign_students": "分配学生",
+      "add_students_to_course": "将学生添加到 {{course}}"
+    },
+    "placeholder": {
+      "search": "按学生姓名，电子邮件，NRIC或帐号搜索"
+    },
+    "field": {
+      "id": "报名ID",
+      "course_code": "课程代码",
+      "course_name": "课程名称",
+      "course_status": "课程状态",
+      "nric": "身份证号",
+      "full_name": "学生姓名",
+      "email": "电子邮箱",
+      "phone": "电话号码",
+      "account_number": "账号",
+      "enrolled_at": "报名时间",
+      "charge_status": "收费状态",
+      "gross_amount": "总金额",
+      "paid_amount": "已付金额",
+      "remaining_amount": "剩余金额",
+      "course": "课程",
+      "students": "学生"
+    },
+    "action": {
+      "assign": "分配",
+      "delete_selected": "删除所选",
+      "manage_students": "管理学生",
+      "view_students": "查看学生"
+    },
+    "confirm": {
+      "delete_title": "删除报名",
+      "delete_description": "您确定要删除 {{name}} 的报名吗？",
+      "delete_selected_title": "删除所选报名",
+      "delete_selected_description": "您确定要删除 {{count}} 个所选报名吗？"
+    },
+    "status": {
+      "charge": {
+        "unpaid": "未付款",
+        "partially_paid": "部分付款",
+        "paid": "已付款",
+        "outstanding": "逾期"
+      }
+    }
+  }
+}

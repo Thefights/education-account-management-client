@@ -14,6 +14,7 @@ import CourseManagementFilterSection from '../components/CourseManagementFilterS
 import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
 import CourseManagementToolbarSection from '../components/CourseManagementToolbarSection'
+import CourseStudentsDialog from '../components/CourseStudentsDialog'
 
 const defaultFilters = { search: '', statuses: [] }
 
@@ -31,6 +32,8 @@ const CourseManagementPage = () => {
   const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [selectedCourseForStudents, setSelectedCourseForStudents] = useState(null)
+  const [openStudentsDialog, setOpenStudentsDialog] = useState(false)
 
   const queryParams = useMemo(
     () => ({ sort: `${sort.key} ${sort.direction}`, ...filters, page, pageSize }),
@@ -211,6 +214,10 @@ const CourseManagementPage = () => {
             setOpenUpdate(true)
           }}
           onDelete={handleDelete}
+          onManageStudents={(row) => {
+            setSelectedCourseForStudents(row)
+            setOpenStudentsDialog(true)
+          }}
         />
         <GenericTablePagination
           totalCount={courses.data?.totalCount}
@@ -241,6 +248,15 @@ const CourseManagementPage = () => {
         result={importResult}
         template={csvImportTemplates.courses}
         onSubmit={handleImport}
+      />
+      <CourseStudentsDialog
+        open={openStudentsDialog}
+        onClose={() => {
+          setOpenStudentsDialog(false)
+          setSelectedCourseForStudents(null)
+        }}
+        course={selectedCourseForStudents}
+        onEnrollmentsChanged={courses.fetch}
       />
     </Card>
   )

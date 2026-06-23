@@ -17,6 +17,7 @@ const CourseManagementTableSection = ({
   setSelectedIds,
   onEdit,
   onDelete,
+  onManageStudents,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -109,6 +110,14 @@ const CourseManagementTableSection = ({
       render: formatSingaporeDateTime,
     },
     {
+      key: 'enrollmentCount',
+      title: t('course_management.field.enrollment_count'),
+      width: 150,
+      sortable: true,
+      isNumeric: true,
+      render: formatAmount,
+    },
+    {
       key: 'actions',
       title: '',
       width: 70,
@@ -119,6 +128,18 @@ const CourseManagementTableSection = ({
         }
         if (row.status === 'Draft') {
           actions.push({ title: t('button.delete'), onClick: () => onDelete(row) })
+        }
+        if (row.status === 'Enrolling') {
+          actions.push({
+            title: t('enrollment_management.action.manage_students'),
+            onClick: () => onManageStudents(row),
+          })
+        }
+        if (row.status === 'Upcoming' || row.status === 'InProgress' || row.status === 'Closed') {
+          actions.push({
+            title: t('enrollment_management.action.view_students'),
+            onClick: () => onManageStudents(row),
+          })
         }
         return <ActionMenu actions={actions} />
       },

@@ -20,7 +20,8 @@
       "enrollment_due_date": "Enrollment due date",
       "fas_application_due_date": "FAS application due date",
       "start_date": "Start date",
-      "end_date": "End date"
+      "end_date": "End date",
+      "enrollment_count": "Enrollments"
     },
     "action": {
       "publish": "Publish",

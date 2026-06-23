@@ -238,6 +238,7 @@ export default function useFieldRenderer(
         onChange={context.handleChange}
         validate={field.validate}
         validationContext={currentValues}
+        loadOptions={field.loadOptions}
         minValue={field.minValue}
         maxValue={field.maxValue}
         multiline={!isSelectField && !!field.multiple}

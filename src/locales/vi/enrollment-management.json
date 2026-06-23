@@ -1,0 +1,51 @@
+{
+  "enrollment_management": {
+    "menu_label": "Quản lý Ghi danh",
+    "title": {
+      "management": "Quản lý ghi danh",
+      "assign_students": "Phân công học sinh",
+      "add_students_to_course": "Thêm học sinh vào {{course}}"
+    },
+    "placeholder": {
+      "search": "Tìm kiếm theo tên học sinh, email, NRIC hoặc số tài khoản"
+    },
+    "field": {
+      "id": "Mã Ghi danh",
+      "course_code": "Mã Khóa học",
+      "course_name": "Tên Khóa học",
+      "course_status": "Trạng thái Khóa học",
+      "nric": "CMND/CCCD",
+      "full_name": "Tên Học sinh",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "account_number": "Số Tài khoản",
+      "enrolled_at": "Thời gian Ghi danh",
+      "charge_status": "Trạng thái Thu phí",
+      "gross_amount": "Tổng số tiền",
+      "paid_amount": "Số tiền đã trả",
+      "remaining_amount": "Số tiền còn lại",
+      "course": "Khóa học",
+      "students": "Học sinh"
+    },
+    "action": {
+      "assign": "Gán",
+      "delete_selected": "Xóa mục đã chọn",
+      "manage_students": "Quản lý Học sinh",
+      "view_students": "Xem Học sinh"
+    },
+    "confirm": {
+      "delete_title": "Xóa Ghi danh",
+      "delete_description": "Bạn có chắc chắn muốn xóa ghi danh của {{name}} không?",
+      "delete_selected_title": "Xóa Ghi danh đã chọn",
+      "delete_selected_description": "Bạn có chắc chắn muốn xóa {{count}} ghi danh đã chọn không?"
+    },
+    "status": {
+      "charge": {
+        "unpaid": "Chưa thanh toán",
+        "partially_paid": "Thanh toán một phần",
+        "paid": "Đã thanh toán",
+        "outstanding": "Quá hạn"
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ const ValidationTextField = (
     onChange,
     validate,
     validationContext,
+    loadOptions,
     options = [],
     remainOptions = undefined,
     renderOption,
@@ -187,6 +188,7 @@ const ValidationTextField = (
               onChange?.({ target: { name: props.name, value: selectedValues } })
             }}
             renderOption={renderOption}
+            loadOptions={loadOptions}
             title={label}
           />
         )}

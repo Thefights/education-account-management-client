@@ -1,8 +1,6 @@
 import useTranslation from '@/shared/hooks/useTranslation'
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Flex, Typography } from 'antd'
-
-const { Title } = Typography
+import { Button, Flex } from 'antd'
 
 const SchoolStudentToolbarSection = ({
   onAddClick,

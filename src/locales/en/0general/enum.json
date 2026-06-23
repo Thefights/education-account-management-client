@@ -27,6 +27,12 @@
       "in_progress": "In progress",
       "closed": "Closed"
     },
+    "charge_status": {
+      "unpaid": "Unpaid",
+      "partially_paid": "Partially Paid",
+      "paid": "Paid",
+      "outstanding": "Outstanding"
+    },
     "role": {
       "account_holder": "Account Holder",
       "school_admin": "School Admin",

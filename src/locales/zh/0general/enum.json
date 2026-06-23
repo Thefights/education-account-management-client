@@ -27,6 +27,12 @@
       "in_progress": "进行中",
       "closed": "已结束"
     },
+    "charge_status": {
+      "unpaid": "未付款",
+      "partially_paid": "部分付款",
+      "paid": "已付款",
+      "outstanding": "逾期"
+    },
     "role": {
       "account_holder": "账户持有人",
       "school_admin": "学校管理员",
@@ -40,12 +46,12 @@
     "sweep_action": {
       "create": "创建",
       "close": "关闭",
-      "extend": "延长"
+      "extend": "扩大"
     },
     "sweep_target_status": {
-      "pending": "待处理",
+      "pending": "待办的",
       "success": "成功",
-      "failed": "失败"
+      "failed": "失败的"
     }
   }
 }

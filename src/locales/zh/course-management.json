@@ -16,7 +16,8 @@
       "enrollment_due_date": "报名截止时间",
       "fas_application_due_date": "FAS 申请截止时间",
       "start_date": "开始时间",
-      "end_date": "结束时间"
+      "end_date": "结束日期",
+      "enrollment_count": "报名人数"
     },
     "action": { "publish": "发布", "delete_selected": "删除所选" },
     "placeholder": { "search": "按课程或学校名称搜索" },

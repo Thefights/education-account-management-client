@@ -43,6 +43,14 @@ export const ApiUrls = {
     PUBLISH: '/course-management/publish',
     DELETE_SELECTED: '/course-management/selected',
     IMPORT: '/course-management/import',
+    ELIGIBLE_STUDENTS: (id) => `/course-management/${id}/eligible-students`,
+    ENROLLMENTS: (id) => `/course-management/${id}/enrollments`,
+  },
+
+  ENROLLMENT_MANAGEMENT: {
+    INDEX: '/enrollment-management',
+    DETAIL: (id) => `/enrollment-management/${id}`,
+    DELETE_SELECTED: '/enrollment-management/selected',
   },
 
   SCHOOL_STUDENT_MANAGEMENT: {

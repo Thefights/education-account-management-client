@@ -48,6 +48,32 @@ export default function useEnum() {
       { value: EnumConfig.CourseStatus.Closed, label: t('enum.course_status.closed') },
     ],
 
+    chargeStatusIdOptions: [
+      { value: EnumConfig.ChargeStatusId.Unpaid, label: t('enum.charge_status.unpaid') },
+      {
+        value: EnumConfig.ChargeStatusId.PartiallyPaid,
+        label: t('enum.charge_status.partially_paid'),
+      },
+      { value: EnumConfig.ChargeStatusId.Paid, label: t('enum.charge_status.paid') },
+      {
+        value: EnumConfig.ChargeStatusId.Outstanding,
+        label: t('enum.charge_status.outstanding'),
+      },
+    ],
+
+    chargeStatusOptions: [
+      { value: EnumConfig.ChargeStatus.Unpaid, label: t('enum.charge_status.unpaid') },
+      {
+        value: EnumConfig.ChargeStatus.PartiallyPaid,
+        label: t('enum.charge_status.partially_paid'),
+      },
+      { value: EnumConfig.ChargeStatus.Paid, label: t('enum.charge_status.paid') },
+      {
+        value: EnumConfig.ChargeStatus.Outstanding,
+        label: t('enum.charge_status.outstanding'),
+      },
+    ],
+
     schoolStudentStatusOptions: [
       {
         value: EnumConfig.SchoolStudentStatus.Active,

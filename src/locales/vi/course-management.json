@@ -20,7 +20,8 @@
       "enrollment_due_date": "Hạn đăng ký",
       "fas_application_due_date": "Hạn đăng ký FAS",
       "start_date": "Ngày bắt đầu",
-      "end_date": "Ngày kết thúc"
+      "end_date": "Ngày kết thúc",
+      "enrollment_count": "Số lượng ghi danh"
     },
     "action": {
       "publish": "Phát hành",
