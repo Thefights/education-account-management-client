@@ -116,6 +116,7 @@ const FaqPage = () => {
 
           {filteredFaqs.length > 0 ? (
             <Collapse
+              // eslint-disable-next-line no-unused-vars
               items={filteredFaqs.map(({ textLabel, textContent, ...item }) => item)}
               bordered={false}
               defaultActiveKey={['1']}

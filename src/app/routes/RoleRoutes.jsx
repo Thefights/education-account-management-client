@@ -11,9 +11,11 @@ import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
+import EnrollmentManagementPage from '@/features/enrollment-management/pages/EnrollmentManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
+import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
@@ -103,6 +105,14 @@ const roleRouteGroups = [
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <CourseManagementPage />,
+      },
+      {
+        path: routeUrls.ENROLLMENT_MANAGEMENT.INDEX,
+        element: <EnrollmentManagementPage />,
+      },
+      {
+        path: routeUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
+        element: <SchoolStudentManagementPage />,
       },
     ],
   },

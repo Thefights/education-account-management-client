@@ -3,7 +3,17 @@
     "rule_type": "Loại quy tắc",
     "match_mode": "Chế độ khớp",
     "completed": "Hoàn tất",
-    "condition_amount": "Số tiền nạp"
+    "condition_amount": "Số tiền nạp",
+    "topup_name": "Tên cấu hình nạp tiền",
+    "create_system_topup": "Tạo nạp tiền hệ thống",
+    "update_system_topup": "Cập nhật nạp tiền hệ thống",
+    "delete_system_topup": "Xóa nạp tiền hệ thống",
+    "delete_system_topup_confirm": "Xóa {name}?",
+    "condition_group": "Nhóm điều kiện",
+    "add_condition_group": "Thêm nhóm điều kiện",
+    "between": "Trong khoảng",
+    "from_value": "Từ",
+    "to_value": "Đến"
   },
   "topup": {
     "details": "Chi tiết",
@@ -13,6 +23,10 @@
     "executing": "Đang thực thi",
     "processing": "Đang xử lý",
     "completed": "Hoàn tất",
-    "execution_targets": "Đối tượng thực thi"
+    "execution_targets": "Đối tượng thực thi",
+    "system_topups_title": "Nạp tiền hệ thống",
+    "topup_name": "Tên cấu hình nạp tiền",
+    "search_topup": "Tìm theo tên cấu hình nạp tiền",
+    "search_execution": "Tìm theo mã thực thi hoặc tên cấu hình nạp tiền"
   }
 }

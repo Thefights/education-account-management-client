@@ -20,7 +20,19 @@
       "inactive": "Không hoạt động"
     },
     "school_status": { "active": "Hoạt động", "inactive": "Ngừng hoạt động" },
-    "course_status": { "active": "Hoạt động", "inactive": "Ngừng hoạt động" },
+    "course_status": {
+      "draft": "Bản nháp",
+      "enrolling": "Đang ghi danh",
+      "upcoming": "Sắp diễn ra",
+      "in_progress": "Đang diễn ra",
+      "closed": "Đã kết thúc"
+    },
+    "charge_status": {
+      "unpaid": "Chưa thanh toán",
+      "partially_paid": "Thanh toán một phần",
+      "paid": "Đã thanh toán",
+      "outstanding": "Quá hạn"
+    },
     "role": {
       "account_holder": "Chủ tài khoản",
       "school_admin": "Quản trị trường",

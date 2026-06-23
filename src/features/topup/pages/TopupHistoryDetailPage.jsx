@@ -1,7 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { routeUrls } from '@/shared/config/routeUrls'
-import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
@@ -16,7 +15,6 @@ const defaultFilters = { accountNumber: '', statuses: [] }
 
 const TopupHistoryDetailPage = () => {
   const { t } = useTranslation()
-  const _enum = useEnum()
   const { id } = useParams()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
@@ -59,8 +57,8 @@ const TopupHistoryDetailPage = () => {
             <Descriptions.Item label={t('topup.status')}>
               <Tag>{data?.status}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label={t('topup.rule_name')}>
-              {data?.ruleNameSnapshot}
+            <Descriptions.Item label={t('topup.topup_name')}>
+              {data?.topupNameSnapshot}
             </Descriptions.Item>
             <Descriptions.Item label={t('topup.total_targets')}>
               {data?.totalTargetCount}

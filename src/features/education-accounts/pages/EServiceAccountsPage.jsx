@@ -163,7 +163,7 @@ const EServiceAccountsPage = () => {
         submitLabel={t('button.create')}
         initialValues={{ nric: location.state?.nric || '', reason: location.state?.reason || '' }}
         fields={createFields}
-        destroyOnClose
+        destroyOnHidden
         onSubmit={async ({ values, setField }) => {
           const response = await submitAccounts({ overrideData: values })
           if (!response?.data) return

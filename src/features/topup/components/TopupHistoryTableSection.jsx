@@ -30,7 +30,7 @@ const TopupHistoryTableSection = ({ history, loading, sort, setSort }) => {
         options: _enum.topupExecutionSourceTypeOptions,
         color: defaultTopupExecutionSourceStyle,
       },
-      { key: 'ruleNameSnapshot', title: t('topup.rule_name'), width: 200 },
+      { key: 'topupNameSnapshot', title: t('topup.topup_name'), width: 200 },
       {
         key: 'status',
         title: t('topup.status'),

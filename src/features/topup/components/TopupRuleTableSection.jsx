@@ -1,15 +1,11 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
-import {
-  defaultTopupMatchModeStyle,
-  defaultTopupRuleTypeStyle,
-  defaultTopupStatusStyle,
-} from '@/shared/config/theme/defaultStylesConfig'
+import { defaultTopupStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { countTopupConditions } from '../utils/topupRuleFormUtil'
 
-const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
+const formatAmount = (value) => (value == null ? '-' : Number(value).toLocaleString())
 
 const TopupRuleTableSection = ({
   rules,
@@ -25,25 +21,7 @@ const TopupRuleTableSection = ({
   const _enum = useEnum()
   const fields = [
     { key: 'id', title: 'ID', sortable: true, width: 80, fixedColumn: true },
-    { key: 'ruleName', title: t('topup.rule_name'), width: 220, sortable: true },
-    {
-      key: 'type',
-      title: t('topup.rule_type'),
-      width: 130,
-      sortable: true,
-      type: 'tag',
-      options: _enum.topupRuleTypeOptions,
-      color: defaultTopupRuleTypeStyle,
-    },
-    {
-      key: 'matchMode',
-      title: t('topup_form.match_mode'),
-      width: 120,
-      sortable: true,
-      type: 'tag',
-      options: _enum.topupMatchModeOptions,
-      color: defaultTopupMatchModeStyle,
-    },
+    { key: 'name', title: t('topup.topup_name'), width: 240, sortable: true },
     {
       key: 'topupAmount',
       title: t('topup.amount'),
@@ -57,22 +35,15 @@ const TopupRuleTableSection = ({
       title: t('topup.status'),
       width: 120,
       type: 'tag',
-      options: _enum.topupScheduleStatusOptions,
+      options: _enum.systemTopupStatusOptions,
       color: defaultTopupStatusStyle,
     },
     {
-      key: 'conditions',
+      key: 'rootConditionGroup',
       title: t('topup.conditions'),
       width: 120,
       isNumeric: true,
-      render: (conditions) => conditions?.length ?? 0,
-    },
-    {
-      key: 'createdAt',
-      title: t('topup.created_at'),
-      width: 190,
-      sortable: true,
-      render: formatDateBasedOnCurrentLanguage,
+      render: countTopupConditions,
     },
     {
       key: 'actions',

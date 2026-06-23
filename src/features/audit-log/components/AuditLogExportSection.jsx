@@ -84,7 +84,7 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
       submitLabel={t('audit_log.button.export')}
       title={t('audit_log.title.export')}
       width={520}
-      destroyOnClose
+      destroyOnHidden
       onSubmit={handleSubmit}
     />
   )

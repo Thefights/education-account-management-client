@@ -1,7 +1,7 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BookOutlined } from '@ant-design/icons'
+import { BookOutlined, TeamOutlined } from '@ant-design/icons'
 
 const SchoolAdminLayout = () => {
   const { t } = useTranslation()
@@ -13,6 +13,18 @@ const SchoolAdminLayout = () => {
           label: t('course_management.menu_label'),
           icon: BookOutlined,
           url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.INDEX),
+        },
+        {
+          key: 'enrollment-management',
+          label: t('enrollment_management.menu_label'),
+          icon: TeamOutlined,
+          url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.ENROLLMENT_MANAGEMENT.INDEX),
+        },
+        {
+          key: 'school-student-management',
+          label: t('school_student.title.management'),
+          icon: TeamOutlined,
+          url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX),
         },
       ],
     },

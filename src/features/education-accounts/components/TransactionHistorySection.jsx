@@ -6,13 +6,11 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Tag, Typography } from 'antd'
-import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
-
-const DATE_FORMAT = 'D/M/YYYY'
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -171,16 +169,21 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
               </Col>
             ))}
             <Col xs={24} md={6}>
-              <FieldBox title={t('transaction.created_at')}>
+              <FieldBox title={`${t('transaction.created_at')} (${t('text.singapore_time')})`}>
                 <Form.Item style={{ marginBottom: 0 }}>
                   <DatePicker.RangePicker
                     showTime
                     value={
-                      values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
+                      values.createdFrom
+                        ? [
+                            toSingaporePickerValue(values.createdFrom),
+                            toSingaporePickerValue(values.createdTo),
+                          ]
+                        : null
                     }
                     onChange={(range) => {
-                      setField('createdFrom', range?.[0]?.toISOString() || '')
-                      setField('createdTo', range?.[1]?.toISOString() || '')
+                      setField('createdFrom', singaporeWallTimeToIso(range?.[0]))
+                      setField('createdTo', singaporeWallTimeToIso(range?.[1]))
                     }}
                     suffixIcon={<CalendarOutlined />}
                     style={{ width: '100%', height: 40 }}

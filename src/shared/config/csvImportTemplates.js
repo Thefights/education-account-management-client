@@ -29,15 +29,26 @@ export const csvImportTemplates = {
   courses: {
     filename: 'course-import-template.csv',
     headers: [
-      'SchoolId',
       'CourseName',
       'Description',
       'CourseFeeAmount',
       'MiscFeeAmount',
-      'GstAmount',
+      'EnrollmentDueDate',
+      'FasApplicationDueDate',
+      'StartDate',
+      'EndDate',
     ],
     sampleRows: [
-      [1, 'Sample Mathematics Course', 'Introductory mathematics course', 1200, 100, 117],
+      [
+        'Sample Mathematics Course',
+        'Introductory mathematics course',
+        1200,
+        100,
+        '2026-08-01T10:00:00+08:00',
+        '2026-08-08T10:00:00+08:00',
+        '2026-08-15T10:00:00+08:00',
+        '2026-12-15T10:00:00+08:00',
+      ],
     ],
   },
   educationAccounts: {
@@ -51,5 +62,10 @@ export const csvImportTemplates = {
     filename: 'manual-topup-template.csv',
     headers: ['AccountNumber'],
     sampleRows: [['EDU-2026-00000000001']],
+  },
+  schoolStudents: {
+    filename: 'school-student-import-template.csv',
+    headers: ['Nric'],
+    sampleRows: [['S1234567D']],
   },
 }

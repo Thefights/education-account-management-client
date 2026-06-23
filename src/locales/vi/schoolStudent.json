@@ -1,0 +1,51 @@
+{
+  "management": {
+    "title": "Quản lý học sinh",
+    "actions": {
+      "add": "Thêm học sinh"
+    },
+    "filters": {
+      "search": "Tìm kiếm học sinh...",
+      "status": "Tất cả trạng thái"
+    },
+    "table": {
+      "accountNumber": "Số tài khoản",
+      "nric": "NRIC",
+      "fullName": "Họ và tên",
+      "email": "Email",
+      "phoneNumber": "Số điện thoại",
+      "status": "Trạng thái"
+    }
+  },
+  "school_student": {
+    "title": {
+      "management": "Quản lý học sinh",
+      "create": "Thêm học sinh",
+      "update": "Cập nhật học sinh"
+    },
+    "field": {
+      "account_number": "Số tài khoản",
+      "nric": "NRIC",
+      "full_name": "Họ và tên",
+      "email": "Email",
+      "phone_number": "Số điện thoại",
+      "status": "Trạng thái"
+    },
+    "label": {
+      "search": "Tìm kiếm"
+    },
+    "placeholder": {
+      "search": "Tìm theo Tên, NRIC, Email..."
+    },
+    "confirm": {
+      "delete_title": "Xóa học sinh",
+      "delete_description": "Bạn có chắc chắn muốn xóa học sinh {{name}} không?"
+    }
+  },
+  "enum": {
+    "school_student_status": {
+      "active": "Đang hoạt động",
+      "inactive": "Ngừng hoạt động"
+    }
+  }
+}

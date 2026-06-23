@@ -10,16 +10,38 @@
       "id": "ID",
       "school": "Trường",
       "status": "Trạng thái",
+      "course_code": "Mã khóa học",
       "course_name": "Tên khóa học",
       "description": "Mô tả",
       "course_fee_amount": "Học phí",
       "misc_fee_amount": "Phí khác",
-      "gst_amount": "Thuế GST"
+      "gst_amount": "Thuế GST (9%)",
+      "total_fee_amount": "Tổng phí",
+      "enrollment_due_date": "Hạn đăng ký",
+      "fas_application_due_date": "Hạn đăng ký FAS",
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày kết thúc",
+      "enrollment_count": "Số lượng ghi danh"
+    },
+    "action": {
+      "publish": "Phát hành",
+      "delete_selected": "Xóa đã chọn"
     },
     "placeholder": { "search": "Tìm theo tên khóa học hoặc trường" },
     "confirm": {
       "delete_title": "Xóa khóa học?",
-      "delete_description": "Bạn có chắc muốn xóa {name}?"
+      "delete_description": "Bạn có chắc muốn xóa {name}?",
+      "delete_selected_title": "Xóa các khóa học đã chọn?",
+      "delete_selected_description": "Bạn có chắc muốn xóa {count} khóa học đã chọn?",
+      "publish_title": "Phát hành các khóa học đã chọn?",
+      "publish_description": "Bạn có chắc muốn phát hành {count} khóa học đã chọn?"
+    },
+    "validation": {
+      "date_order": "Thứ tự ngày phải là: hạn đăng ký, hạn FAS, ngày bắt đầu, ngày kết thúc."
+    },
+    "message": {
+      "update_conflict": "Khóa học đã được người khác thay đổi. Dữ liệu mới nhất đã được tải lại; vui lòng sửa lại.",
+      "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn đăng ký trong tương lai."
     }
   }
 }

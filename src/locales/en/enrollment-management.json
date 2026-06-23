@@ -1,0 +1,51 @@
+{
+  "enrollment_management": {
+    "menu_label": "Enrollment Management",
+    "title": {
+      "management": "Enrollment Management",
+      "assign_students": "Assign Students",
+      "add_students_to_course": "Add Students to {{course}}"
+    },
+    "placeholder": {
+      "search": "Search by student name, email, NRIC or account number"
+    },
+    "field": {
+      "id": "Enrollment ID",
+      "course_code": "Course Code",
+      "course_name": "Course Name",
+      "course_status": "Course Status",
+      "nric": "NRIC/FIN",
+      "full_name": "Student Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "account_number": "Account Number",
+      "enrolled_at": "Enrolled At",
+      "charge_status": "Charge Status",
+      "gross_amount": "Gross Amount",
+      "paid_amount": "Paid Amount",
+      "remaining_amount": "Remaining Amount",
+      "course": "Course",
+      "students": "Students"
+    },
+    "action": {
+      "assign": "Assign",
+      "delete_selected": "Delete Selected",
+      "manage_students": "Manage Students",
+      "view_students": "View Students"
+    },
+    "confirm": {
+      "delete_title": "Delete Enrollment",
+      "delete_description": "Are you sure you want to delete the enrollment for {{name}}?",
+      "delete_selected_title": "Delete Selected Enrollments",
+      "delete_selected_description": "Are you sure you want to delete {{count}} selected enrollments?"
+    },
+    "status": {
+      "charge": {
+        "unpaid": "Unpaid",
+        "partially_paid": "Partially Paid",
+        "paid": "Paid",
+        "outstanding": "Outstanding"
+      }
+    }
+  }
+}

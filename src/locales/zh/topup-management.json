@@ -3,13 +3,27 @@
     "rule_type": "规则类型",
     "match_mode": "匹配模式",
     "completed": "已完成",
-    "condition_amount": "充值金额"
+    "condition_amount": "充值金额",
+    "topup_name": "充值名称",
+    "create_system_topup": "创建系统充值",
+    "update_system_topup": "更新系统充值",
+    "delete_system_topup": "删除系统充值",
+    "delete_system_topup_confirm": "删除{name}？",
+    "condition_group": "条件组",
+    "add_condition_group": "添加条件组",
+    "between": "介于",
+    "from_value": "从",
+    "to_value": "到"
   },
   "topup": {
     "pending": "待处理",
     "executing": "执行中",
     "processing": "处理中",
     "completed": "已完成",
-    "execution_targets": "执行目标"
+    "execution_targets": "执行目标",
+    "system_topups_title": "系统充值",
+    "topup_name": "充值名称",
+    "search_topup": "按充值名称搜索",
+    "search_execution": "按执行代码或充值名称搜索"
   }
 }

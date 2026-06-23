@@ -35,6 +35,28 @@ export const EnumConfig = {
   },
 
   CourseStatus: {
+    Draft: 'Draft',
+    Enrolling: 'Enrolling',
+    Upcoming: 'Upcoming',
+    InProgress: 'InProgress',
+    Closed: 'Closed',
+  },
+
+  ChargeStatusId: {
+    Unpaid: 1,
+    PartiallyPaid: 2,
+    Paid: 3,
+    Outstanding: 4,
+  },
+
+  ChargeStatus: {
+    Unpaid: 'Unpaid',
+    PartiallyPaid: 'PartiallyPaid',
+    Paid: 'Paid',
+    Outstanding: 'Outstanding',
+  },
+
+  SchoolStudentStatus: {
     Active: 'Active',
     Inactive: 'Inactive',
   },
@@ -60,7 +82,7 @@ export const EnumConfig = {
   AuditLogCategory: {
     AccountCreation: 'AccountCreation',
     StatusChange: 'StatusChange',
-    TopupConfig: 'TopupConfig',
+    Topup: 'Topup',
     Security: 'Security',
     Transaction: 'Transaction',
     Billing: 'Billing',
@@ -91,10 +113,8 @@ export const EnumConfig = {
     Failed: 'Failed',
   },
 
-  TopupRuleTypeId: { System: 1, Schedule: 2 },
-  TopupRuleType: { System: 'System', Schedule: 'Schedule' },
-  TopupMatchModeId: { And: 1, Or: 2 },
-  TopupMatchMode: { And: 'And', Or: 'Or' },
+  SystemTopupStatusId: { Active: 1, Inactive: 2 },
+  TopupLogicalOperatorId: { And: 1, Or: 2 },
   TopupExecutionSourceTypeId: { System: 1, Schedule: 2, Manual: 3 },
   TopupExecutionSourceType: { System: 'System', Schedule: 'Schedule', Manual: 'Manual' },
   TopupExecutionStatusId: { Pending: 1, Executing: 2, Completed: 3 },
@@ -106,6 +126,6 @@ export const EnumConfig = {
     Success: 'Success',
     Failed: 'Failed',
   },
-  TopupScheduleTypeId: { OneTime: 1, Monthly: 2, Yearly: 3 },
-  TopupScheduleStatusId: { Active: 1, Inactive: 2, Completed: 3 },
+  ScheduleTopupFrequencyId: { OneTime: 1, Monthly: 2, Yearly: 3 },
+  ScheduleTopupStatusId: { Active: 1, Inactive: 2, Completed: 3 },
 }

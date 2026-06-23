@@ -50,7 +50,7 @@ const SchoolManagementFormSection = ({
         submitLabel={t('button.create')}
         initialValues={initialValues}
         fields={fields}
-        destroyOnClose
+        destroyOnHidden
         onSubmit={handleSubmit(onCreateSubmit)}
       />
       <GenericFormDialog
@@ -60,7 +60,7 @@ const SchoolManagementFormSection = ({
         submitLabel={t('button.update')}
         initialValues={{ ...initialValues, ...selectedRow }}
         fields={fields}
-        destroyOnClose
+        destroyOnHidden
         onSubmit={handleSubmit(onUpdateSubmit)}
       />
     </>

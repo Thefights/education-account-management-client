@@ -1,22 +1,12 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getCurrentSingaporeDate } from '@/shared/utils/dateTimeUtil'
 import { Alert, Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import SweepReportFilterSection from '../components/SweepReportFilterSection'
 import SweepReportSummarySection from '../components/SweepReportSummarySection'
 import SweepReportTargetsTable from '../components/SweepReportTargetsTable'
-
-const getCurrentSingaporeDate = () => {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Singapore',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date())
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]))
-  return `${values.year}-${values.month}-${values.day}`
-}
 
 const SweepReportsPage = () => {
   const { t } = useTranslation()

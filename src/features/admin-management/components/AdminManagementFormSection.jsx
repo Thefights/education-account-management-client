@@ -132,7 +132,7 @@ const AdminManagementFormSection = ({
         submitLabel={t('button.create')}
         initialValues={initialValues}
         fields={fields}
-        destroyOnClose
+        destroyOnHidden
         onSubmit={handleSubmit(onCreateSubmit)}
         onValuesChange={openCreate ? handleValuesChange : undefined}
       />
@@ -143,7 +143,7 @@ const AdminManagementFormSection = ({
         submitLabel={t('button.update')}
         initialValues={updateInitialValues}
         fields={fields}
-        destroyOnClose
+        destroyOnHidden
         onSubmit={handleSubmit(onUpdateSubmit)}
         onValuesChange={openUpdate ? handleValuesChange : undefined}
       />

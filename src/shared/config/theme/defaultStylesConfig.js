@@ -37,8 +37,11 @@ export const defaultManagementStatusStyle = (status) => {
   const map = {
     [EnumConfig.SchoolStatus.Active]: 'success',
     [EnumConfig.SchoolStatus.Inactive]: 'default',
-    [EnumConfig.CourseStatus.Active]: 'success',
-    [EnumConfig.CourseStatus.Inactive]: 'default',
+    [EnumConfig.CourseStatus.Draft]: 'default',
+    [EnumConfig.CourseStatus.Enrolling]: 'processing',
+    [EnumConfig.CourseStatus.Upcoming]: 'warning',
+    [EnumConfig.CourseStatus.InProgress]: 'success',
+    [EnumConfig.CourseStatus.Closed]: 'default',
   }
 
   return map[status] || 'default'
@@ -69,7 +72,7 @@ export const defaultAuditLogCategoryStyle = (category) => {
   const map = {
     [EnumConfig.AuditLogCategory.AccountCreation]: 'green',
     [EnumConfig.AuditLogCategory.StatusChange]: 'orange',
-    [EnumConfig.AuditLogCategory.TopupConfig]: 'cyan',
+    [EnumConfig.AuditLogCategory.Topup]: 'cyan',
     [EnumConfig.AuditLogCategory.Security]: 'volcano',
     [EnumConfig.AuditLogCategory.Transaction]: 'blue',
     [EnumConfig.AuditLogCategory.Billing]: 'gold',
@@ -107,24 +110,6 @@ export const defaultTopupStatusStyle = (status) => {
   }
 
   return map[status] || 'default'
-}
-
-export const defaultTopupRuleTypeStyle = (type) => {
-  const map = {
-    System: 'blue',
-    Schedule: 'purple',
-  }
-
-  return map[type] || 'default'
-}
-
-export const defaultTopupMatchModeStyle = (mode) => {
-  const map = {
-    And: 'cyan',
-    Or: 'gold',
-  }
-
-  return map[mode] || 'default'
 }
 
 export const defaultTopupExecutionSourceStyle = (source) => {

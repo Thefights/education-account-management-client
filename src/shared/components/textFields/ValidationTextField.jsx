@@ -13,6 +13,8 @@ const ValidationTextField = (
     value,
     onChange,
     validate,
+    validationContext,
+    loadOptions,
     options = [],
     remainOptions = undefined,
     renderOption,
@@ -79,7 +81,7 @@ const ValidationTextField = (
         return true
       }
       for (const r of allRules) {
-        const res = r(val)
+        const res = r(val, validationContext)
         if (res !== true) {
           setError(res)
           return false
@@ -88,7 +90,7 @@ const ValidationTextField = (
       setError('')
       return true
     },
-    [allRules]
+    [allRules, validationContext]
   )
 
   const run = useCallback(() => runWith(value), [runWith, value])
@@ -186,6 +188,7 @@ const ValidationTextField = (
               onChange?.({ target: { name: props.name, value: selectedValues } })
             }}
             renderOption={renderOption}
+            loadOptions={loadOptions}
             title={label}
           />
         )}

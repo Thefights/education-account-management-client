@@ -1,0 +1,51 @@
+{
+  "management": {
+    "title": "School Student Management",
+    "actions": {
+      "add": "Add Student"
+    },
+    "filters": {
+      "search": "Search student...",
+      "status": "All Status"
+    },
+    "table": {
+      "accountNumber": "Account Number",
+      "nric": "NRIC",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "status": "Status"
+    }
+  },
+  "school_student": {
+    "title": {
+      "management": "School Student Management",
+      "create": "Add Student",
+      "update": "Update Student"
+    },
+    "field": {
+      "account_number": "Account Number",
+      "nric": "NRIC",
+      "full_name": "Full Name",
+      "email": "Email",
+      "phone_number": "Phone Number",
+      "status": "Status"
+    },
+    "label": {
+      "search": "Search"
+    },
+    "placeholder": {
+      "search": "Search by Name, NRIC, Email..."
+    },
+    "confirm": {
+      "delete_title": "Delete Student",
+      "delete_description": "Are you sure you want to delete student {{name}}?"
+    }
+  },
+  "enum": {
+    "school_student_status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  }
+}
