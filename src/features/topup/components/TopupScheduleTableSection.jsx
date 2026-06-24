@@ -1,28 +1,30 @@
-import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultTopupStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { countTopupConditions } from '../utils/topupRuleFormUtil'
+import { Space, Typography } from 'antd'
 
-const formatAmount = (value) => (value == null ? '-' : Number(value).toLocaleString())
+const formatAmount = (value) => formatCurrencyBasedOnCurrentLanguage(value) || '-'
 
-const TopupScheduleTableSection = ({
-  schedules,
-  loading,
-  sort,
-  setSort,
-  selectedIds,
-  setSelectedIds,
-  onEdit,
-  onDelete,
-}) => {
+const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = [
-    { key: 'id', title: 'ID', sortable: true, width: 80, fixedColumn: true },
-    { key: 'name', title: t('topup.topup_name'), width: 220, sortable: true },
+    {
+      key: 'name',
+      title: t('topup.topup_name'),
+      width: 250,
+      sortable: true,
+      fixedColumn: true,
+      render: (name, row) => (
+        <Space orientation="vertical" size={0}>
+          <Typography.Link onClick={() => onDetail?.(row)}>{name}</Typography.Link>
+          <Typography.Text type="secondary">#{row.id}</Typography.Text>
+        </Space>
+      ),
+    },
     {
       key: 'topupAmount',
       title: t('topup.amount'),
@@ -48,31 +50,10 @@ const TopupScheduleTableSection = ({
       color: defaultTopupStatusStyle,
     },
     {
-      key: 'rootConditionGroup',
-      title: t('topup.conditions'),
-      width: 110,
-      isNumeric: true,
-      render: countTopupConditions,
-    },
-    { key: 'executionTime', title: t('topup_form.execution_time'), width: 150 },
-    {
       key: 'nextExecutionAt',
       title: t('topup.next_execution'),
       width: 190,
       render: formatDateBasedOnCurrentLanguage,
-    },
-    {
-      key: 'actions',
-      title: '',
-      width: 70,
-      render: (_, row) => (
-        <ActionMenu
-          actions={[
-            { title: t('button.edit'), onClick: () => onEdit?.(row) },
-            { title: t('button.delete'), onClick: () => onDelete?.(row) },
-          ]}
-        />
-      ),
     },
   ]
 
@@ -84,9 +65,7 @@ const TopupScheduleTableSection = ({
       loading={loading}
       sort={sort}
       setSort={setSort}
-      canSelectRows
-      selectedRows={selectedIds}
-      setSelectedRows={setSelectedIds}
+      onRowClick={onDetail}
     />
   )
 }

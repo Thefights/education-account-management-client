@@ -30,6 +30,14 @@ export const localDateTimeToIso = (value) => {
   return date.isValid() ? date.toISOString() : ''
 }
 
+export const toLocalPickerValue = (value) => {
+  if (!value) return null
+  const date = dayjs(getLocalDateFromServerDateTime(value))
+  return date.isValid() ? date : null
+}
+
+export const toLocalTimePickerValue = (value = '00:00:00') => dayjs(`2000-01-01T${value}`)
+
 export const isDateTimeBefore = (earlier, later) => {
   if (!earlier || !later) return false
   const earlierDate = dayjs(earlier)

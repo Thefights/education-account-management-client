@@ -2,7 +2,7 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { InputNumber, Skeleton } from 'antd'
+import { Form, InputNumber, Skeleton } from 'antd'
 import { useMemo } from 'react'
 import {
   createEmptyTopupConditionGroup,
@@ -48,16 +48,26 @@ const TopupRuleFormSection = ({
       { key: 'name', title: t('topup_form.topup_name') },
       {
         key: 'topupAmount',
-        title: t('topup_form.topup_amount'),
+        title: '',
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber
-            min={0.01}
-            precision={2}
-            value={value}
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
+          <Form.Item
+            label={t('topup_form.topup_amount')}
+            labelCol={{ span: 24 }}
+            wrapperCol={{ span: 24 }}
+            labelAlign="left"
+            colon={false}
+            style={{ marginBottom: 0 }}
+          >
+            <InputNumber
+              min={0.01}
+              precision={2}
+              value={value}
+              onChange={onChange}
+              prefix="$"
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
         ),
       },
       {
@@ -113,9 +123,7 @@ const TopupRuleFormSection = ({
       key={`${ruleId || 'create'}-${detail.data?.name || ''}`}
       open={open}
       onClose={handleClose}
-      title={
-        ruleId ? t('topup_form.update_system_topup') : t('topup_form.create_system_topup')
-      }
+      title={ruleId ? t('topup_form.update_system_topup') : t('topup_form.create_system_topup')}
       submitLabel={ruleId ? t('button.update') : t('button.create')}
       initialValues={initialValues}
       fields={fields}

@@ -68,8 +68,8 @@ export const serializeTopupConditionGroup = (group, displayOrder = 0) => {
   }
 }
 
-export const isTopupConditionGroupValid = (group) => {
-  if (!group || !(group.conditions?.length || group.groups?.length)) return false
+export const isTopupConditionGroupValid = (group, depth = 1) => {
+  if (depth > 2 || !group || !(group.conditions?.length || group.groups?.length)) return false
   const conditionsValid = (group.conditions || []).every((condition) => {
     if (condition.field === 3) {
       return [1, 2].includes(condition.operator) && Boolean(condition.valueText)
@@ -77,12 +77,12 @@ export const isTopupConditionGroupValid = (group) => {
     if (condition.valueNumber == null || Number(condition.valueNumber) < 0) return false
     if (condition.field === 1 && !Number.isInteger(Number(condition.valueNumber))) return false
     if (condition.operator !== 7) return true
-    if (condition.valueNumberTo == null || condition.valueNumberTo < condition.valueNumber) return false
+    if (condition.valueNumberTo == null || condition.valueNumberTo < condition.valueNumber)
+      return false
     return condition.field !== 1 || Number.isInteger(Number(condition.valueNumberTo))
   })
-  return conditionsValid && (group.groups || []).every(isTopupConditionGroupValid)
+  return (
+    conditionsValid &&
+    (group.groups || []).every((child) => isTopupConditionGroupValid(child, depth + 1))
+  )
 }
-
-export const countTopupConditions = (group) =>
-  (group?.conditions?.length || 0) +
-  (group?.groups || []).reduce((total, child) => total + countTopupConditions(child), 0)

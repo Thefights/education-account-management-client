@@ -4,13 +4,13 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
+import { localDateTimeToIso, toLocalPickerValue } from '@/shared/utils/dateTimeUtil'
 import { CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 
-const DATE_FORMAT = 'D/M/YYYY'
+const DATE_TIME_FORMAT = 'D/M/YYYY HH:mm'
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -45,7 +45,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       type: 'search',
       required: false,
       reserveLabelSpace: true,
-      colProps: { xs: 24, md: 8, xl: 5 },
+      colProps: { xs: 24, md: 12, xl: 6 },
     },
     {
       key: 'sourceTypes',
@@ -59,7 +59,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       cancelText: t('general.cancel'),
       okText: t('general.ok'),
       selectedText: (count) => `${count} ${t('text.items')}`,
-      colProps: { xs: 24, sm: 12, md: 8, xl: 4 },
+      colProps: { xs: 24, md: 12, xl: 6 },
     },
     {
       key: 'statuses',
@@ -73,7 +73,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       cancelText: t('general.cancel'),
       okText: t('general.ok'),
       selectedText: (count) => `${count} ${t('text.items')}`,
-      colProps: { xs: 24, sm: 12, md: 8, xl: 4 },
+      colProps: { xs: 24, md: 12, xl: 6 },
     },
   ]
 
@@ -96,8 +96,8 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
   }
 
   const handleDateRangeChange = (range) => {
-    const createdFrom = singaporeWallTimeToIso(range?.[0])
-    const createdTo = singaporeWallTimeToIso(range?.[1])
+    const createdFrom = localDateTimeToIso(range?.[0])
+    const createdTo = localDateTimeToIso(range?.[1])
 
     setField('createdFrom', createdFrom)
     setField('createdTo', createdTo)
@@ -117,7 +117,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
 
   const dateRangeValue =
     values.createdFrom || values.createdTo
-      ? [toSingaporePickerValue(values.createdFrom), toSingaporePickerValue(values.createdTo)]
+      ? [toLocalPickerValue(values.createdFrom), toLocalPickerValue(values.createdTo)]
       : null
 
   return (
@@ -134,15 +134,16 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
         ))}
 
         <Col xs={24} md={12} xl={6}>
-          <FieldBox title={`${t('topup.created_at')} (${t('text.singapore_time')})`}>
+          <FieldBox title={t('topup.created_at')}>
             <Form.Item
               validateStatus={dateRangeError ? 'error' : undefined}
               help={dateRangeError || undefined}
               style={{ marginBottom: 0 }}
             >
               <DatePicker.RangePicker
+                showTime
                 allowClear
-                format={DATE_FORMAT}
+                format={DATE_TIME_FORMAT}
                 suffixIcon={<CalendarOutlined />}
                 value={dateRangeValue}
                 onChange={handleDateRangeChange}

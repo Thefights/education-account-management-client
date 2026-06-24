@@ -42,6 +42,12 @@ export const routeUrls = {
   SCHOOL_STUDENT_MANAGEMENT: { INDEX: '/school-student' },
   TOPUP_MANAGEMENT: {
     INDEX: '/topup-management',
+    SYSTEM_CREATE: '/topup-management/system/create',
+    SYSTEM_DETAIL: (id = ':id') => `/topup-management/system/${id}`,
+    SYSTEM_EDIT: (id = ':id') => `/topup-management/system/${id}/edit`,
+    SCHEDULE_CREATE: '/topup-management/schedules/create',
+    SCHEDULE_DETAIL: (id = ':id') => `/topup-management/schedules/${id}`,
+    SCHEDULE_EDIT: (id = ':id') => `/topup-management/schedules/${id}/edit`,
     HISTORY: '/topup-management/history',
     HISTORY_DETAIL: (id = ':id') => `/topup-management/history/${id}`,
   },
