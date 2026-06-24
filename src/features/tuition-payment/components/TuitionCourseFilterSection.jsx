@@ -1,5 +1,6 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import SortButton from '@/shared/components/buttons/SortButton'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
@@ -15,6 +16,8 @@ const TuitionCourseFilterSection = ({
   schoolOptions,
   schoolsLoading,
   loading = false,
+  onSort,
+  sortStatus,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -28,6 +31,8 @@ const TuitionCourseFilterSection = ({
     'outlined',
     'medium'
   )
+
+  console.log(sortStatus);
 
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
@@ -79,6 +84,7 @@ const TuitionCourseFilterSection = ({
             <Space>
               <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
               <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
+              <SortButton loading={loading} ascend={sortStatus === 'desc' ? false : true} onSortClick={() => onSort()}/>
             </Space>
           </Flex>
         </Col>

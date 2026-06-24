@@ -94,6 +94,8 @@ export const ApiUrls = {
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',
-    COURSES: '/account-holder/courses'
+    COURSES: '/account-holder/courses',
+    TUITION_SUMMARY: '/account-holder/tuition-summary',
+    TUITION_CHARGES: '/account-holder/tuition-charges',
   },
 }

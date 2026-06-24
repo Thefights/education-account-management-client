@@ -13,6 +13,8 @@ import { Button } from 'antd'
 const SortButton = ({ onSortClick, loading = false, ascend =  false, ...props }) => {
   const { t } = useTranslation()
 
+  console.log(ascend);
+
   return (
     <Button
       onClick={onSortClick}

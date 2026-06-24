@@ -14,7 +14,8 @@
     "save": "Save",
     "select_all": "Select All",
     "submit": "Submit",
-    "update": "Update"
+    "update": "Update",
+    "sort": "Sort"
   },
   "error": {
     "duplicate_values_not_allowed": "Duplicate values are not allowed",
@@ -65,6 +66,9 @@
   },
   "text": {
     "all": "All",
+    "overdue": "Overdue",
+    "due": "Due",
+    "paid": "Paid",
     "available": "Available",
     "items": "items",
     "loading": "Loading...",

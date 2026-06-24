@@ -53,7 +53,7 @@ const CourseManagementTableSection = ({
       sortable: true,
     },
     {
-      key: 'FAS',
+      key: 'id',
       title: t('FAS'),
       render: (_, record) => (
       <>

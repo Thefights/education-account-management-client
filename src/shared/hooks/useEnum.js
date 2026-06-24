@@ -271,5 +271,11 @@ export default function useEnum() {
       { value: 'Inactive', label: t('topup_form.inactive') },
       { value: 'Completed', label: t('topup_form.completed') },
     ],
+
+    tuitionstatus: [
+      { value: 1, label: t('text.overdue') },
+      { value: 2, label: t('text.due') },
+      { value: 3, label: t('text.paid') },
+    ],
   }
 }

@@ -6,109 +6,6 @@ import {
 } from "@ant-design/icons";
 import { useState } from "react";
 
-const invoices = [
-  {
-    id: "CRS-2026-000160",
-    title: "Intro to AI",
-    netPayable: 11445.0,
-    fas: "Income T1",
-    paid: 5000.0,
-    dueDate: "23/01/2026",
-    amountDue: 1445.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000161",
-    title: "Data Science Fundamentals",
-    netPayable: 9850.0,
-    fas: "Income T1",
-    paid: 4000.0,
-    dueDate: "28/01/2026",
-    amountDue: 1350.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000162",
-    title: "Machine Learning Basics",
-    netPayable: 12500.0,
-    fas: "Income T1",
-    paid: 6000.0,
-    dueDate: "05/02/2026",
-    amountDue: 1250.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000163",
-    title: "Python for Data Analysis",
-    netPayable: 8300.0,
-    fas: "Income T1",
-    paid: 3000.0,
-    dueDate: "12/02/2026",
-    amountDue: 1300.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000164",
-    title: "Deep Learning Essentials",
-    netPayable: 14200.0,
-    fas: "Income T1",
-    paid: 7000.0,
-    dueDate: "19/02/2026",
-    amountDue: 1700.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000165",
-    title: "Natural Language Processing",
-    netPayable: 10750.0,
-    fas: "Income T1",
-    paid: 4500.0,
-    dueDate: "26/02/2026",
-    amountDue: 1250.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000166",
-    title: "AI Ethics and Governance",
-    netPayable: 7900.0,
-    fas: "Income T1",
-    paid: 3000.0,
-    dueDate: "05/03/2026",
-    amountDue: 1150.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000167",
-    title: "Computer Vision",
-    netPayable: 11800.0,
-    fas: "Income T1",
-    paid: 5500.0,
-    dueDate: "11/03/2026",
-    amountDue: 1500.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000168",
-    title: "Generative AI Applications",
-    netPayable: 13650.0,
-    fas: "Income T1",
-    paid: 8000.0,
-    dueDate: "18/03/2026",
-    amountDue: 950.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000169",
-    title: "Big Data Engineering",
-    netPayable: 9500.0,
-    fas: "Income T1",
-    paid: 2500.0,
-    dueDate: "25/03/2026",
-    amountDue: 1800.0,
-    status: "Overdue"
-  }
-];
-
 const CourseEntry = ({ invoice }) => {
     const [view, setView] = useState('0px');
     return (
@@ -131,11 +28,11 @@ const CourseEntry = ({ invoice }) => {
                             lineHeight: 1.2,
                         }}
                         >
-                        {invoice.title}
+                        {invoice.courseName}
                         </Typography.Title>
 
                         <Typography.Text type="secondary">
-                        {invoice.id}
+                        {invoice.courseCode}
                         </Typography.Text>
                     </div>
                     </Flex>
@@ -157,14 +54,14 @@ const CourseEntry = ({ invoice }) => {
 
                     <InfoBlock
                         label="Paid"
-                        value={`$${invoice.paid.toLocaleString()}`}
+                        value={`$${invoice.paidAmount.toLocaleString()}`}
                     />
 
                     <Divider />
 
                     <InfoBlock
                         label="Due Date"
-                        value={invoice.dueDate}
+                        value={invoice.paymentDueDate}
                     />
                     </Flex>
                 </Flex>
@@ -173,10 +70,10 @@ const CourseEntry = ({ invoice }) => {
                     level={3}
                     style={{ margin: 0 }}
                     >
-                    ${invoice.amountDue.toLocaleString()}
+                    ${invoice.remainingAmount.toLocaleString()}
                     </Typography.Title>
 
-                    <Tag color="error">{invoice.status}</Tag>
+                    <Tag color="error">{invoice.paymentStatus}</Tag>
 
                     <button onClick={() => {setView(view === '0px' ? 'auto' : '0px')}} style={{border:'none',outline:'none',background:'none'}}>
                         {view !== '0px' ? <DownOutlined /> : <LeftOutlined />}
@@ -196,7 +93,7 @@ const CourseEntry = ({ invoice }) => {
                         level={5}
                         style={{ margin: 0}}
                         >
-                        $1000000
+                        ${invoice.courseFee}
                     </Typography.Title>
                 </Flex>
                 <Flex justify="space-between">
@@ -210,7 +107,7 @@ const CourseEntry = ({ invoice }) => {
                         level={5}
                         style={{ margin: 0}}
                         >
-                        $1000000
+                        ${invoice.miscFee}
                     </Typography.Title>
                 </Flex>
                 <Flex justify="space-between">
@@ -224,7 +121,9 @@ const CourseEntry = ({ invoice }) => {
                         level={5}
                         style={{ margin: 0, color:'green'}}
                         >
-                        -$1000000
+                            {invoice.fasSubsidyAmount > 0
+                            ? `-$${invoice.fasSubsidyAmount}`
+                            : `$${invoice.fasSubsidyAmount}`}
                     </Typography.Title>
                 </Flex>
                 <Flex justify="space-between">
@@ -238,7 +137,7 @@ const CourseEntry = ({ invoice }) => {
                         level={5}
                         style={{ margin: 0}}
                         >
-                        $1000000
+                        ${invoice.gstAmount}
                     </Typography.Title>
                 </Flex>
                 <div style={{borderTop:'1px solid lightgray'}}></div>
@@ -253,7 +152,7 @@ const CourseEntry = ({ invoice }) => {
                         level={5}
                         style={{ margin: 0}}
                         >
-                        $1000000
+                        ${invoice.netPayable}
                     </Typography.Title>
                 </Flex>
             </div>
@@ -283,11 +182,12 @@ const Divider = () => (
   />
 );
 
-const CourseListSection = () => {
+const CourseListSection = ( {collection} ) => {
     return (
+
         <div style={{height:'500px', overflowY:'scroll'}}>
             <Flex vertical gap={5} style={{ flex: 1 }}>
-                {invoices.map((entry) => (
+                {collection.map((entry) => (
                 <CourseEntry invoice={entry}/>
                 ))}
             </Flex>

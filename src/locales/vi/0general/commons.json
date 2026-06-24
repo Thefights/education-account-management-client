@@ -19,7 +19,8 @@
     "select_all": "Chọn tất cả",
     "submit": "Gửi",
     "update": "Cập nhật",
-    "view": "Xem"
+    "view": "Xem",
+    "sort": "Sắp Xếp"
   },
   "error": {
     "duplicate_values_not_allowed": "Không được phép có giá trị trùng lặp",
@@ -70,6 +71,9 @@
   },
   "text": {
     "all": "Tất cả",
+    "overdue": "Quá hạn",
+    "due": "Đến hạn",
+    "paid": "Đã thanh toán",
     "available": "Có sẵn",
     "items": "mục",
     "loading": "Đang tải...",
