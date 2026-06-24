@@ -1,9 +1,9 @@
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useTranslation from '@/shared/hooks/useTranslation'
 import {
-  isSingaporeDateTimeBefore,
-  singaporeWallTimeToIso,
-  toSingaporeDateTimeInput,
+  isDateTimeBefore,
+  localDateTimeToIso,
+  toLocalDateTimeInput,
 } from '@/shared/utils/dateTimeUtil'
 import { maxLen, numberHigherThanOrEqual } from '@/shared/utils/validateUtil'
 import { useMemo } from 'react'
@@ -13,7 +13,6 @@ const initialValues = {
   description: '',
   courseFeeAmount: '0',
   miscFeeAmount: '0',
-  enrollmentDueDate: '',
   fasApplicationDueDate: '',
   startDate: '',
   endDate: '',
@@ -24,10 +23,9 @@ const normalizeInitialValues = (course = {}) => ({
   description: course.description ?? '',
   courseFeeAmount: String(course.courseFeeAmount ?? 0),
   miscFeeAmount: String(course.miscFeeAmount ?? 0),
-  enrollmentDueDate: toSingaporeDateTimeInput(course.enrollmentDueDate),
-  fasApplicationDueDate: toSingaporeDateTimeInput(course.fasApplicationDueDate),
-  startDate: toSingaporeDateTimeInput(course.startDate),
-  endDate: toSingaporeDateTimeInput(course.endDate),
+  fasApplicationDueDate: toLocalDateTimeInput(course.fasApplicationDueDate),
+  startDate: toLocalDateTimeInput(course.startDate),
+  endDate: toLocalDateTimeInput(course.endDate),
   gstAmount: String(course.gstAmount ?? ''),
   totalFeeAmount: String(course.totalFeeAmount ?? ''),
   rowVersion: course.rowVersion ?? '',
@@ -38,10 +36,9 @@ const toPayload = (values, includeRowVersion = false) => ({
   description: values.description || null,
   courseFeeAmount: Number(values.courseFeeAmount),
   miscFeeAmount: Number(values.miscFeeAmount),
-  enrollmentDueDate: singaporeWallTimeToIso(values.enrollmentDueDate),
-  fasApplicationDueDate: singaporeWallTimeToIso(values.fasApplicationDueDate),
-  startDate: singaporeWallTimeToIso(values.startDate),
-  endDate: singaporeWallTimeToIso(values.endDate),
+  fasApplicationDueDate: localDateTimeToIso(values.fasApplicationDueDate),
+  startDate: localDateTimeToIso(values.startDate),
+  endDate: localDateTimeToIso(values.endDate),
   ...(includeRowVersion ? { rowVersion: values.rowVersion } : {}),
 })
 
@@ -103,40 +100,29 @@ const CourseManagementFormSection = ({
         ]
       : []),
     {
-      key: 'enrollmentDueDate',
-      title: `${t('course_management.field.enrollment_due_date')} (${t('text.singapore_time')})`,
-      type: 'datetime-local',
-      props: { disabled: basicInfoOnly },
-    },
-    {
       key: 'fasApplicationDueDate',
-      title: `${t('course_management.field.fas_application_due_date')} (${t('text.singapore_time')})`,
+      title: t('course_management.field.fas_application_due_date'),
       type: 'datetime-local',
-      validate: [
-        (value, values) =>
-          !isSingaporeDateTimeBefore(value, values.enrollmentDueDate) ||
-          t('course_management.validation.date_order'),
-      ],
       props: { disabled: basicInfoOnly },
     },
     {
       key: 'startDate',
-      title: `${t('course_management.field.start_date')} (${t('text.singapore_time')})`,
+      title: t('course_management.field.start_date'),
       type: 'datetime-local',
       validate: [
         (value, values) =>
-          !isSingaporeDateTimeBefore(value, values.fasApplicationDueDate) ||
+          !isDateTimeBefore(value, values.fasApplicationDueDate) ||
           t('course_management.validation.date_order'),
       ],
       props: { disabled: basicInfoOnly },
     },
     {
       key: 'endDate',
-      title: `${t('course_management.field.end_date')} (${t('text.singapore_time')})`,
+      title: t('course_management.field.end_date'),
       type: 'datetime-local',
       validate: [
         (value, values) =>
-          !isSingaporeDateTimeBefore(value, values.startDate) ||
+          !isDateTimeBefore(value, values.startDate) ||
           t('course_management.validation.date_order'),
       ],
       props: { disabled: basicInfoOnly },

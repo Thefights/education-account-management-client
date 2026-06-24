@@ -27,6 +27,10 @@
       "in_progress": "Đang diễn ra",
       "closed": "Đã kết thúc"
     },
+    "enrollment_status": {
+      "active": "Đang theo học",
+      "withdrawn": "Đã rút khỏi khóa học"
+    },
     "charge_status": {
       "unpaid": "Chưa thanh toán",
       "partially_paid": "Thanh toán một phần",

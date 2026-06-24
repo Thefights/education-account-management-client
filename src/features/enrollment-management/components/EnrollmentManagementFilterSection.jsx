@@ -11,10 +11,16 @@ import { useMemo } from 'react'
 
 const emptyFilters = { search: '', courseId: '', chargeStatuses: [] }
 
-const EnrollmentManagementFilterSection = ({ filters, onFilter, onReset, loading }) => {
+const EnrollmentManagementFilterSection = ({
+  filters,
+  onFilter,
+  onReset,
+  loading,
+  showCourse = true,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-  const courses = useFetch(ApiUrls.COURSE_MANAGEMENT.GET_ALL)
+  const courses = useFetch(showCourse ? ApiUrls.COURSE_MANAGEMENT.GET_ALL : '')
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
 
@@ -33,8 +39,8 @@ const EnrollmentManagementFilterSection = ({ filters, onFilter, onReset, loading
     () => [
       {
         key: 'search',
-        title: t('text.search_label'),
-        label: t('text.search_label'),
+        title: t('enrollment_management.label.search'),
+        label: t('enrollment_management.label.search'),
         placeholder: t('enrollment_management.placeholder.search'),
         type: 'search',
         required: false,
@@ -74,15 +80,19 @@ const EnrollmentManagementFilterSection = ({ filters, onFilter, onReset, loading
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} md={8}>
+        <Col xs={24} md={showCourse ? 8 : 12}>
           {renderField(fields[0])}
         </Col>
-        <Col xs={24} md={8}>
-          {renderField(fields[1])}
+        {showCourse && (
+          <Col xs={24} md={8}>
+            {renderField(fields[1])}
+          </Col>
+        )}
+        <Col xs={24} sm={12} md={showCourse ? 4 : 6}>
+          {renderField(fields[2])}
         </Col>
-        <Col xs={24} md={8}>
-          <Flex justify="space-between" align="end" style={{ height: '100%' }}>
-            <div style={{ flex: 1, marginRight: 16 }}>{renderField(fields[2])}</div>
+        <Col xs={24} sm={12} md={showCourse ? 4 : 6}>
+          <Flex justify="end" align="end" style={{ height: '100%' }}>
             <Space>
               <ResetFilterButton
                 loading={loading}

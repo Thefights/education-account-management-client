@@ -1,7 +1,7 @@
 {
   "course_management": {
     "menu_label": "课程管理",
-    "title": { "management": "课程管理", "create": "创建课程", "update": "更新课程" },
+    "title": { "management": "课程管理", "create": "创建课程", "update": "更新课程", "important_dates": "重要日期" },
     "field": {
       "id": "ID",
       "school": "学校",
@@ -13,14 +13,14 @@
       "misc_fee_amount": "杂费",
       "gst_amount": "GST 金额 (9%)",
       "total_fee_amount": "总费用",
-      "enrollment_due_date": "报名截止时间",
       "fas_application_due_date": "FAS 申请截止时间",
       "start_date": "开始时间",
       "end_date": "结束日期",
       "enrollment_count": "报名人数"
     },
     "action": { "publish": "发布", "delete_selected": "删除所选" },
-    "placeholder": { "search": "按课程或学校名称搜索" },
+    "label": { "search": "按课程名称、课程代码或学校名称搜索" },
+    "placeholder": { "search": "搜索..." },
     "confirm": {
       "delete_title": "删除课程？",
       "delete_description": "确定要删除 {name} 吗？",
@@ -30,11 +30,11 @@
       "publish_description": "确定要发布所选的 {count} 门课程吗？"
     },
     "validation": {
-      "date_order": "日期顺序必须为：报名截止、FAS 截止、开始日期、结束日期。"
+      "date_order": "日期顺序必须为：FAS 截止、开始日期、结束日期。"
     },
     "message": {
       "update_conflict": "该课程已被其他人修改。最新数据已重新加载，请重新编辑。",
-      "publish_deadline_expired": "所有所选课程的报名截止时间必须在未来。"
+      "publish_deadline_expired": "所有所选课程的 FAS 申请截止时间必须在未来。"
     }
   }
 }

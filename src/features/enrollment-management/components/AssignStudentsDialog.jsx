@@ -28,7 +28,7 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
   const courseOptions = useMemo(
     () =>
       (courses.data || [])
-        .filter((course) => course.status === 'Enrolling')
+        .filter((course) => course.status === 'Draft')
         .map((course) => ({ value: course.id, label: getCourseLabel(course) })),
     [courses.data]
   )

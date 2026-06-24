@@ -15,12 +15,6 @@ const SchoolAdminLayout = () => {
           url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.INDEX),
         },
         {
-          key: 'enrollment-management',
-          label: t('enrollment_management.menu_label'),
-          icon: TeamOutlined,
-          url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.ENROLLMENT_MANAGEMENT.INDEX),
-        },
-        {
           key: 'school-student-management',
           label: t('school_student.title.management'),
           icon: TeamOutlined,
