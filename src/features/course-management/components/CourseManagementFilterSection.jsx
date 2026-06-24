@@ -16,8 +16,9 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   const fields = [
     {
       key: 'search',
-      title: t('course_management.placeholder.search'),
-      label: t('course_management.placeholder.search'),
+      title: t('course_management.label.search'),
+      label: t('course_management.label.search'),
+      placeholder: t('course_management.placeholder.search'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,
@@ -40,13 +41,13 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} md={12}>
+        <Col xs={24} sm={24} md={12}>
           {renderField(fields[0])}
         </Col>
-        <Col xs={24} md={6}>
+        <Col xs={24} sm={12} md={6}>
           {renderField(fields[1])}
         </Col>
-        <Col xs={24} md={6}>
+        <Col xs={24} sm={12} md={6}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton

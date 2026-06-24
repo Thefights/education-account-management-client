@@ -27,15 +27,16 @@
       "account_number": "Account Number",
       "nric": "NRIC",
       "full_name": "Full Name",
+      "courses": "Courses",
       "email": "Email",
       "phone_number": "Phone Number",
       "status": "Status"
     },
     "label": {
-      "search": "Search"
+      "search": "Search by full name, NRIC, email, or phone number"
     },
     "placeholder": {
-      "search": "Search by Name, NRIC, Email..."
+      "search": "Search..."
     },
     "confirm": {
       "delete_title": "Delete Student",

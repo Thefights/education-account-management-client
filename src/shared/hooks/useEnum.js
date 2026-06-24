@@ -205,6 +205,14 @@ export default function useEnum() {
       { value: EnumConfig.SystemTopupStatusId.Inactive, label: t('topup_form.inactive') },
     ],
 
+    enrollmentStatusOptions: [
+      { value: EnumConfig.EnrollmentStatus.Active, label: t('enum.enrollment_status.active') },
+      {
+        value: EnumConfig.EnrollmentStatus.Withdrawn,
+        label: t('enum.enrollment_status.withdrawn'),
+      },
+    ],
+
     systemTopupStatusOptions: [
       { value: 'Active', label: t('topup_form.active') },
       { value: 'Inactive', label: t('topup_form.inactive') },

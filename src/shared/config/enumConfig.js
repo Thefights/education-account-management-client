@@ -42,6 +42,11 @@ export const EnumConfig = {
     Closed: 'Closed',
   },
 
+  EnrollmentStatus: {
+    Active: 'Active',
+    Withdrawn: 'Withdrawn',
+  },
+
   ChargeStatusId: {
     Unpaid: 1,
     PartiallyPaid: 2,

@@ -8,6 +8,7 @@
     "create": "Create",
     "delete": "Delete",
     "deselect_all": "Deselect All",
+    "detail": "Detail",
     "edit": "Edit",
     "filter": "Filter",
     "reset_filter": "Reset Filter",

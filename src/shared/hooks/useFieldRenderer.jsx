@@ -375,12 +375,17 @@ export default function useFieldRenderer(
     const title = field.label || field.title
     if (title && !field.hideLabel) {
       return (
-        <div key={field.key} style={{ width: '100%' }}>
-          <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
-            {title}
-          </Typography.Text>
+        <Form.Item
+          key={field.key}
+          label={title}
+          labelCol={{ span: 24 }}
+          wrapperCol={{ span: 24 }}
+          labelAlign="left"
+          colon={false}
+          style={{ marginBottom: 0 }}
+        >
           {dropdown}
-        </div>
+        </Form.Item>
       )
     }
 

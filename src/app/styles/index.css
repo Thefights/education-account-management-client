@@ -61,6 +61,24 @@ a {
   padding: 13px 14px !important;
 }
 
+.clickable-table-row {
+  cursor: pointer;
+}
+
+.clickable-table-row:hover > .ant-table-cell {
+  background: var(--app-sider-hover-bg) !important;
+}
+
+.withdrawn-enrollment-row > .ant-table-cell {
+  background: rgba(148, 163, 184, 0.12) !important;
+  color: #94a3b8 !important;
+}
+
+.withdrawn-enrollment-row a,
+.withdrawn-enrollment-row .ant-tag {
+  opacity: 0.65;
+}
+
 .ant-card {
   box-shadow: var(--app-card-shadow);
 }

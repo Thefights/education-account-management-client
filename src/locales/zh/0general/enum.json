@@ -27,6 +27,10 @@
       "in_progress": "进行中",
       "closed": "已结束"
     },
+    "enrollment_status": {
+      "active": "在读",
+      "withdrawn": "已退课"
+    },
     "charge_status": {
       "unpaid": "未付款",
       "partially_paid": "部分付款",

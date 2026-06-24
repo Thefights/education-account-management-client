@@ -28,7 +28,7 @@ const SchoolStudentFormSection = ({ openCreate, setOpenCreate, onCreateSubmit, r
         open={openCreate}
         onClose={() => setOpenCreate(false)}
         title={t('school_student.title.create')}
-        submitLabel={t('button.add')}
+        submitLabel={t('button.create')}
         initialValues={{ nric: '' }}
         fields={createFields}
         destroyOnHidden
