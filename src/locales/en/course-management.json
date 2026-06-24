@@ -28,7 +28,10 @@
       "publish": "Publish",
       "delete_selected": "Delete selected"
     },
-    "placeholder": { "search": "Search by course or school name" },
+    "placeholder": { 
+      "search": "Search by course or school name",
+      "searchbyID": "Search by course name or ID" 
+    },
     "confirm": {
       "delete_title": "Delete course?",
       "delete_description": "Are you sure you want to delete {name}?",

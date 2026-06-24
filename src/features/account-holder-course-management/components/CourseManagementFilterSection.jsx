@@ -16,8 +16,8 @@ const CourseManagementFilterSection = ({ tab, setTab, counts, filters, onFilter,
   const fields = [
     {
       key: 'search',
-      title: t('course_management.placeholder.search'),
-      label: t('course_management.placeholder.search'),
+      title: t('course_management.placeholder.searchbyID'),
+      label: t('course_management.placeholder.searchbyID'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,

@@ -73,7 +73,7 @@ const TuitionCourseFilterSection = ({
 
   return (
     <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
+      {/* <Row gutter={[16, 16]} align="bottom">
         {fields.map((field) => (
           <Col key={field.key} xs={24} md={6}>
             {renderField(field)}
@@ -88,7 +88,43 @@ const TuitionCourseFilterSection = ({
             </Space>
           </Flex>
         </Col>
+      </Row> */}
+
+
+      <Row gutter={[16, 16]} align="bottom">
+        {fields.map((field, index) => (
+          <Col
+            key={field.key}
+            flex={index === 0 ? '2' : '1'}
+          >
+            {renderField(field)}
+          </Col>
+        ))}
+
+        <Col flex="none">
+          <Flex justify="end">
+            <Space>
+              <ResetFilterButton
+                loading={loading}
+                onResetFilterClick={handleReset}
+              />
+
+              <FilterButton
+                loading={loading}
+                onFilterClick={() => onFilter?.(values)}
+              />
+
+              <SortButton
+                loading={loading}
+                ascend={sortStatus !== 'desc'}
+                onSortClick={onSort}
+              />
+            </Space>
+          </Flex>
+        </Col>
       </Row>
+
+
     </Card>
   )
 }

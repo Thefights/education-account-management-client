@@ -19,7 +19,7 @@ const CourseManagementTableSection = ({
   const _enum = useEnum()
   const fields = [
     {
-      key: 'id',
+      key: 'courseCode',
       title: t('course_management.field.id'),
       width: 80,
       fixedColumn: true,
@@ -50,7 +50,6 @@ const CourseManagementTableSection = ({
     {
       key: 'endDate',
       title: t('course_management.field.end_date'),
-      sortable: true,
     },
     {
       key: 'id',

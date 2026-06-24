@@ -10,35 +10,41 @@ const CourseEntry = ({ invoice }) => {
     const [view, setView] = useState('0px');
     return (
         <Card
-        style={{
-            padding: "8px 12px",
-        }}
-        bodyStyle={{ padding: 0 }}
+            style={{
+                padding: "8px 12px",
+            }}
+            bodyStyle={{ padding: 0 }}
         >
-            <Flex justify="space-between">
-                <Flex vertical align="flex-start" justify="space-between">
-                    <Flex align="center" gap={12}>
-                    <CheckSquareOutlined style={{ fontSize: 20 }} />
+            <Flex justify="space-between" align="flex-start" gap={24}>
+                <Flex vertical gap={12} align="flex-start" justify="space-between">
+                    <Flex gap={12} align="center" gap={12}>
+                    
+                        <CheckSquareOutlined style={{ fontSize: 20 }} />
 
-                    <div>
-                        <Typography.Title
-                        level={4}
-                        style={{
-                            margin: 0,
-                            lineHeight: 1.2,
-                        }}
-                        >
-                        {invoice.courseName}
-                        </Typography.Title>
+                        <div>
+                            <Typography.Title
+                                level={4}
+                                style={{
+                                    margin: 0,
+                                    lineHeight: 1.2,
+                                }}
+                            >
+                            {invoice.courseName}
+                            </Typography.Title>
 
-                        <Typography.Text type="secondary">
-                        {invoice.courseCode}
-                        </Typography.Text>
-                    </div>
+                            <Typography.Text type="secondary">
+                                {invoice.courseCode}
+                            </Typography.Text>
+                        </div>
                     </Flex>
 
-                    <Flex align="center">
+                    <Flex wrap="wrap"
+                        gap={24}
+                        style={{
+                            marginTop: 12,
+                        }}>
                     <InfoBlock
+                        
                         label="Net payable"
                         value={`$${invoice.netPayable.toLocaleString()}`}
                     />
@@ -61,36 +67,59 @@ const CourseEntry = ({ invoice }) => {
 
                     <InfoBlock
                         label="Due Date"
-                        value={invoice.paymentDueDate}
+                        value={invoice.paymentDueDate?.split('T')[0]}
                     />
                     </Flex>
                 </Flex>
                 <Flex vertical align="flex-end" gap={4}>
                     <Typography.Title
-                    level={3}
-                    style={{ margin: 0 }}
+                        level={3}
+                        style={{
+                            margin: 0,
+                            color:
+                                invoice.remainingAmount > 0
+                                    ? '#cf1322'
+                                    : '#52c41a',
+                        }}
                     >
                     ${invoice.remainingAmount.toLocaleString()}
                     </Typography.Title>
 
-                    <Tag color="error">{invoice.paymentStatus}</Tag>
+                    <Tag color="error"
+                        style={{
+                            borderRadius: 20,
+                            padding: '2px 10px',
+                        }}
+                    >{invoice.paymentStatus}</Tag>
 
                     <button onClick={() => {setView(view === '0px' ? 'auto' : '0px')}} style={{border:'none',outline:'none',background:'none'}}>
                         {view !== '0px' ? <DownOutlined /> : <LeftOutlined />}
                     </button>
                 </Flex>
             </Flex>
-            <div style={{ marginTop:'5px',height:view,overflow:'hidden'}}>
-                <div style={{borderTop:'1px solid lightgray'}}></div>
+            
+            <Flex vertical
+                gap={14}
+                style={{
+                    marginTop: 16,
+                    paddingTop: 16,
+                    borderTop: '1px solid #f0f0f0',
+                    height: view,
+                    overflow: 'hidden',
+                }}
+            >
                 <Flex justify="space-between">
                     <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
+                        level={4}
+                        style={{ margin: 0, color:'gray' }}s
                         >
+                            
                         Course Fee
                     </Typography.Title>
+
+
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0}}
                         >
                         ${invoice.courseFee}
@@ -98,13 +127,13 @@ const CourseEntry = ({ invoice }) => {
                 </Flex>
                 <Flex justify="space-between">
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0, color:'gray' }}
                         >
                         MISC Fee
                     </Typography.Title>
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0}}
                         >
                         ${invoice.miscFee}
@@ -112,13 +141,13 @@ const CourseEntry = ({ invoice }) => {
                 </Flex>
                 <Flex justify="space-between">
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0, color:'gray' }}
                         >
                         FAS Income T1
                     </Typography.Title>
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0, color:'green'}}
                         >
                             {invoice.fasSubsidyAmount > 0
@@ -128,40 +157,45 @@ const CourseEntry = ({ invoice }) => {
                 </Flex>
                 <Flex justify="space-between">
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0, color:'gray' }}
                         >
                         GST 9%
                     </Typography.Title>
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0}}
                         >
                         ${invoice.gstAmount}
                     </Typography.Title>
                 </Flex>
+
                 <div style={{borderTop:'1px solid lightgray'}}></div>
+
+
                 <Flex justify="space-between">
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0, color:'green' }}
                         >
                         Net Payable
                     </Typography.Title>
                     <Typography.Title
-                        level={5}
+                        level={4}
                         style={{ margin: 0}}
                         >
                         ${invoice.netPayable}
                     </Typography.Title>
                 </Flex>
-            </div>
+
+
+            </Flex>
         </Card>
     );
 };
 
 const InfoBlock = ({ label, value }) => (
-  <Flex vertical style={{ padding: "0 32px" }}>
+  <Flex vertical align="center" style={{ padding: "0 32px" }}>
     <Typography.Text type="secondary">
       {label}
     </Typography.Text>

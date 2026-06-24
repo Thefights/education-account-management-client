@@ -152,7 +152,7 @@ const CourseEntry = ({ invoice }) => {
                     <Tag color="error">{invoice.status}</Tag>
                 </Flex>
             </Flex>
-            <div style={{ marginTop:'5px',height:view,overflow:'hidden'}}>
+            <Flex vertical gap={12} style={{ marginTop:'5px',height:view,overflow:'hidden'}}>
                 <div style={{borderTop:'1px solid lightgray'}}></div>
                 <Flex justify="space-between">
                     <Typography.Title
@@ -229,7 +229,7 @@ const CourseEntry = ({ invoice }) => {
                             </Typography.Title>
                         </Flex>
                     </div>
-            </div>
+            </Flex>
         </Card>
     );
 };
@@ -259,7 +259,7 @@ const Divider = () => (
 const CourseListSection = () => {
     return (
         <>
-            <div style={{height:'500px', overflowY:'scroll'}}>
+            <div style={{height:'650px', overflowY:'scroll'}}>
                 <Flex vertical gap={5} style={{ flex: 1 }}>
                     {invoices.map((entry) => (
                     <CourseEntry invoice={entry}/>
