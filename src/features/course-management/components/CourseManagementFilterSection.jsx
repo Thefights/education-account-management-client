@@ -41,13 +41,13 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   return (
     <Card size="small">
       <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} sm={24} md={12}>
+        <Col xs={24} md={14} lg={16}>
           {renderField(fields[0])}
         </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={24} md={10} lg={8}>
           {renderField(fields[1])}
         </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={24}>
           <Flex justify="end">
             <Space>
               <ResetFilterButton
