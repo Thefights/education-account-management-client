@@ -3,7 +3,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { HistoryOutlined } from '@ant-design/icons'
 import { Button, Card, Flex, Tabs, Typography } from 'antd'
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import ManualTopupPage from './ManualTopupPage'
 import TopupRulesPage from './TopupRulesPage'
 import TopupSchedulesPage from './TopupSchedulesPage'
@@ -11,6 +11,10 @@ import TopupSchedulesPage from './TopupSchedulesPage'
 const TopupManagementPage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = ['system', 'schedules', 'manual'].includes(searchParams.get('tab'))
+    ? searchParams.get('tab')
+    : 'system'
   const tabItems = useMemo(
     () => [
       { key: 'system', label: t('topup.system_topups_title'), children: <TopupRulesPage /> },
@@ -36,7 +40,11 @@ const TopupManagementPage = () => {
             {t('topup.history')}
           </Button>
         </Flex>
-        <Tabs items={tabItems} />
+        <Tabs
+          activeKey={activeTab}
+          onChange={(tab) => setSearchParams(tab === 'system' ? {} : { tab })}
+          items={tabItems}
+        />
       </Flex>
     </Card>
   )

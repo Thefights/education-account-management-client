@@ -3,11 +3,12 @@ import axiosConfig from '@/shared/api/axiosClient'
 import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
-import { routeUrls } from '@/shared/config/routeUrls'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import {
   DollarOutlined,
   DownloadOutlined,
@@ -66,7 +67,8 @@ const ManualTopupPage = ({ embedded = false }) => {
                 {account.accountNumber} - {account.name}
               </Typography.Text>
               <Typography.Text type="secondary">
-                <MaskedNric value={account.nric} /> | {t('topup.balance')}: {account.balance}
+                <MaskedNric value={account.nric} /> | {t('topup.balance')}:{' '}
+                {formatCurrencyBasedOnCurrentLanguage(account.balance)}
               </Typography.Text>
             </Flex>
           ),
@@ -253,7 +255,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                         {result.totalFailed}
                       </Descriptions.Item>
                       <Descriptions.Item label={t('topup.amount_credited')}>
-                        {result.totalAmountCredited}
+                        {formatCurrencyBasedOnCurrentLanguage(result.totalAmountCredited)}
                       </Descriptions.Item>
                     </Descriptions>
                     <Space>
@@ -276,7 +278,12 @@ const ManualTopupPage = ({ embedded = false }) => {
                         fields={[
                           { key: 'accountNumber', title: t('topup.account_number') },
                           { key: 'accountName', title: t('topup.account_name') },
-                          { key: 'topUpAmount', title: t('topup.amount') },
+                          {
+                            key: 'topUpAmount',
+                            title: t('topup.amount'),
+                            isNumeric: true,
+                            render: formatCurrencyBasedOnCurrentLanguage,
+                          },
                         ]}
                       />
                     )}

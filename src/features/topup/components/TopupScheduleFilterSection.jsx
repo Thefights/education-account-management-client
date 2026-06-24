@@ -4,7 +4,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
+import { localDateTimeToIso, toLocalPickerValue } from '@/shared/utils/dateTimeUtil'
 import { Card, Col, DatePicker, Flex, Row, Space, Typography } from 'antd'
 
 const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
@@ -52,7 +52,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
   ]
   const dateRangeValue =
     values.createdFrom || values.createdTo
-      ? [toSingaporePickerValue(values.createdFrom), toSingaporePickerValue(values.createdTo)]
+      ? [toLocalPickerValue(values.createdFrom), toLocalPickerValue(values.createdTo)]
       : null
 
   return (
@@ -71,8 +71,8 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
             value={dateRangeValue}
             style={{ width: '100%' }}
             onChange={(range) => {
-              setField('createdFrom', singaporeWallTimeToIso(range?.[0]))
-              setField('createdTo', singaporeWallTimeToIso(range?.[1]?.endOf('day')))
+              setField('createdFrom', localDateTimeToIso(range?.[0]))
+              setField('createdTo', localDateTimeToIso(range?.[1]?.endOf('day')))
             }}
           />
         </Col>

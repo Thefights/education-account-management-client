@@ -5,11 +5,11 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import {
-  singaporeWallTimeToIso,
-  toSingaporePickerValue,
-  toSingaporeTimePickerValue,
+  localDateTimeToIso,
+  toLocalPickerValue,
+  toLocalTimePickerValue,
 } from '@/shared/utils/dateTimeUtil'
-import { DatePicker, InputNumber, Skeleton, TimePicker } from 'antd'
+import { DatePicker, Form, InputNumber, Skeleton, TimePicker } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import {
   createEmptyTopupConditionGroup,
@@ -48,7 +48,7 @@ const TopupScheduleFormSection = ({
         oneTimeExecutionAt: null,
         executeAtDay: null,
         executeAtMonth: null,
-        executionTime: toSingaporeTimePickerValue(),
+        executionTime: toLocalTimePickerValue(),
         rootConditionGroup: createEmptyTopupConditionGroup(),
       }
     }
@@ -58,10 +58,10 @@ const TopupScheduleFormSection = ({
       frequency: frequencyValues[detail.data?.frequency] ?? detail.data?.frequency ?? 1,
       status: statusValues[detail.data?.status] ?? detail.data?.status ?? 1,
       executionTime: detail.data?.executionTime
-        ? toSingaporeTimePickerValue(detail.data.executionTime)
-        : toSingaporeTimePickerValue(),
+        ? toLocalTimePickerValue(detail.data.executionTime)
+        : toLocalTimePickerValue(),
       oneTimeExecutionAt: detail.data?.oneTimeExecutionAt
-        ? toSingaporePickerValue(detail.data.oneTimeExecutionAt)
+        ? toLocalPickerValue(detail.data.oneTimeExecutionAt)
         : null,
       rootConditionGroup: normalizeTopupConditionGroup(detail.data?.rootConditionGroup),
     }
@@ -73,7 +73,7 @@ const TopupScheduleFormSection = ({
     if (displayedFrequency === EnumConfig.ScheduleTopupFrequencyId.OneTime) {
       frequencyFields.push({
         key: 'oneTimeExecutionAt',
-        title: `${t('topup_form.execution_date')} (${t('text.singapore_time')})`,
+        title: t('topup_form.execution_date'),
         type: 'custom',
         render: ({ value, onChange }) => (
           <DatePicker showTime value={value} onChange={onChange} style={{ width: '100%' }} />
@@ -91,7 +91,13 @@ const TopupScheduleFormSection = ({
         title: t('topup_form.day_of_month'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber min={1} max={31} value={value} onChange={onChange} style={{ width: '100%' }} />
+          <InputNumber
+            min={1}
+            max={31}
+            value={value}
+            onChange={onChange}
+            style={{ width: '100%' }}
+          />
         ),
       })
     }
@@ -101,7 +107,13 @@ const TopupScheduleFormSection = ({
         title: t('topup_form.month'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber min={1} max={12} value={value} onChange={onChange} style={{ width: '100%' }} />
+          <InputNumber
+            min={1}
+            max={12}
+            value={value}
+            onChange={onChange}
+            style={{ width: '100%' }}
+          />
         ),
       })
     }
@@ -110,16 +122,26 @@ const TopupScheduleFormSection = ({
       { key: 'name', title: t('topup_form.topup_name') },
       {
         key: 'topupAmount',
-        title: t('topup_form.topup_amount'),
+        title: '',
         type: 'custom',
         render: ({ value, onChange }) => (
-          <InputNumber
-            min={0.01}
-            precision={2}
-            value={value}
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
+          <Form.Item
+            label={t('topup_form.topup_amount')}
+            labelCol={{ span: 24 }}
+            wrapperCol={{ span: 24 }}
+            labelAlign="left"
+            colon={false}
+            style={{ marginBottom: 0 }}
+          >
+            <InputNumber
+              min={0.01}
+              precision={2}
+              value={value}
+              onChange={onChange}
+              prefix="$"
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
         ),
       },
       {
@@ -131,7 +153,7 @@ const TopupScheduleFormSection = ({
       ...frequencyFields,
       {
         key: 'executionTime',
-        title: `${t('topup_form.execution_time')} (${t('text.singapore_time')})`,
+        title: t('topup_form.execution_time'),
         type: 'custom',
         render: ({ value, onChange }) => (
           <TimePicker
@@ -182,7 +204,7 @@ const TopupScheduleFormSection = ({
       frequency: values.frequency,
       oneTimeExecutionAt:
         values.frequency === EnumConfig.ScheduleTopupFrequencyId.OneTime
-          ? singaporeWallTimeToIso(values.oneTimeExecutionAt)
+          ? localDateTimeToIso(values.oneTimeExecutionAt)
           : null,
       executeAtDay: [
         EnumConfig.ScheduleTopupFrequencyId.Monthly,

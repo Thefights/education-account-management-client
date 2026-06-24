@@ -17,6 +17,8 @@ import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
+import TopupConfigurationDetailPage from '@/features/topup/pages/TopupConfigurationDetailPage'
+import TopupConfigurationFormPage from '@/features/topup/pages/TopupConfigurationFormPage'
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
@@ -66,6 +68,30 @@ const roleRouteGroups = [
     Layout: FinanceAdminLayout,
     routes: [
       { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_CREATE,
+        element: <TopupConfigurationFormPage type="system" mode="create" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_EDIT(),
+        element: <TopupConfigurationFormPage type="system" mode="edit" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_DETAIL(),
+        element: <TopupConfigurationDetailPage type="system" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_CREATE,
+        element: <TopupConfigurationFormPage type="schedule" mode="create" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_EDIT(),
+        element: <TopupConfigurationFormPage type="schedule" mode="edit" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_DETAIL(),
+        element: <TopupConfigurationDetailPage type="schedule" />,
+      },
       { path: routeUrls.TOPUP_MANAGEMENT.HISTORY, element: <TopupHistoryPage /> },
       { path: routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(), element: <TopupHistoryDetailPage /> },
       {
