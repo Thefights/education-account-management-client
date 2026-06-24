@@ -42,8 +42,10 @@ export const routeUrls = {
   },
   SWEEP_REPORTS: { INDEX: '/sweep-reports' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
-  COURSE_MANAGEMENT: { INDEX: '/course-management' },
-  ENROLLMENT_MANAGEMENT: { INDEX: '/enrollment-management' },
+  COURSE_MANAGEMENT: {
+    INDEX: '/course-management',
+    DETAIL: (id = ':id') => `/course-management/${id}`,
+  },
   SCHOOL_STUDENT_MANAGEMENT: { INDEX: '/school-student' },
   TOPUP_MANAGEMENT: {
     INDEX: '/topup-management',

@@ -6,6 +6,7 @@
       "create": "Create Course",
       "update": "Update Course",
       "list_of_course": "List of Course"
+      "important_dates": "Important Dates"
     },
     "field": {
       "id": "ID",
@@ -18,7 +19,6 @@
       "misc_fee_amount": "Miscellaneous fee",
       "gst_amount": "GST amount (9%)",
       "total_fee_amount": "Total fee",
-      "enrollment_due_date": "Enrollment due date",
       "fas_application_due_date": "FAS application due date",
       "start_date": "Start date",
       "end_date": "End date",
@@ -29,9 +29,10 @@
       "delete_selected": "Delete selected"
     },
     "placeholder": { 
-      "search": "Search by course or school name",
       "searchbyID": "Search by course name or ID" 
     },
+    "label": { "search": "Search by course name, course code, or school name" },
+    "placeholder": { "search": "Search..." },
     "confirm": {
       "delete_title": "Delete course?",
       "delete_description": "Are you sure you want to delete {name}?",
@@ -41,7 +42,7 @@
       "publish_description": "Are you sure you want to publish {count} selected courses?"
     },
     "validation": {
-      "date_order": "Dates must follow: enrollment due date, FAS due date, start date, then end date."
+      "date_order": "Dates must follow: FAS due date, start date, then end date."
     },
     "message": {
       "update_conflict": "This course was changed by someone else. The latest data has been reloaded; please edit it again.",

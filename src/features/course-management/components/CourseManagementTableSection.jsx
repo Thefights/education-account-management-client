@@ -3,9 +3,7 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatSingaporeDateTime } from '@/shared/utils/dateTimeUtil'
 
-const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
 const isDraft = (course) => course.status === 'Draft'
 
 const CourseManagementTableSection = ({
@@ -17,18 +15,11 @@ const CourseManagementTableSection = ({
   setSelectedIds,
   onEdit,
   onDelete,
-  onManageStudents,
+  onDetail,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = [
-    {
-      key: 'id',
-      title: t('course_management.field.id'),
-      width: 80,
-      sortable: true,
-      fixedColumn: true,
-    },
     {
       key: 'courseCode',
       title: t('course_management.field.course_code'),
@@ -51,71 +42,23 @@ const CourseManagementTableSection = ({
       color: defaultManagementStatusStyle,
     },
     {
-      key: 'courseFeeAmount',
-      title: t('course_management.field.course_fee_amount'),
-      width: 160,
+      key: 'description',
+      title: t('course_management.field.description'),
+      width: 300,
       sortable: true,
-      isNumeric: true,
-      render: formatAmount,
-    },
-    {
-      key: 'miscFeeAmount',
-      title: t('course_management.field.misc_fee_amount'),
-      width: 150,
-      sortable: true,
-      isNumeric: true,
-      render: formatAmount,
-    },
-    {
-      key: 'gstAmount',
-      title: t('course_management.field.gst_amount'),
-      width: 130,
-      sortable: true,
-      isNumeric: true,
-      render: formatAmount,
-    },
-    {
-      key: 'totalFeeAmount',
-      title: t('course_management.field.total_fee_amount'),
-      width: 150,
-      isNumeric: true,
-      render: formatAmount,
-    },
-    {
-      key: 'enrollmentDueDate',
-      title: t('course_management.field.enrollment_due_date'),
-      width: 180,
-      sortable: true,
-      render: formatSingaporeDateTime,
-    },
-    {
-      key: 'fasApplicationDueDate',
-      title: t('course_management.field.fas_application_due_date'),
-      width: 190,
-      sortable: true,
-      render: formatSingaporeDateTime,
-    },
-    {
-      key: 'startDate',
-      title: t('course_management.field.start_date'),
-      width: 170,
-      sortable: true,
-      render: formatSingaporeDateTime,
-    },
-    {
-      key: 'endDate',
-      title: t('course_management.field.end_date'),
-      width: 170,
-      sortable: true,
-      render: formatSingaporeDateTime,
-    },
-    {
-      key: 'enrollmentCount',
-      title: t('course_management.field.enrollment_count'),
-      width: 150,
-      sortable: true,
-      isNumeric: true,
-      render: formatAmount,
+      render: (desc) => (
+        <div
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+          title={desc}
+        >
+          {desc || '-'}
+        </div>
+      ),
     },
     {
       key: 'actions',
@@ -128,18 +71,6 @@ const CourseManagementTableSection = ({
         }
         if (row.status === 'Draft') {
           actions.push({ title: t('button.delete'), onClick: () => onDelete(row) })
-        }
-        if (row.status === 'Enrolling') {
-          actions.push({
-            title: t('enrollment_management.action.manage_students'),
-            onClick: () => onManageStudents(row),
-          })
-        }
-        if (row.status === 'Upcoming' || row.status === 'InProgress' || row.status === 'Closed') {
-          actions.push({
-            title: t('enrollment_management.action.view_students'),
-            onClick: () => onManageStudents(row),
-          })
         }
         return <ActionMenu actions={actions} />
       },
@@ -158,6 +89,7 @@ const CourseManagementTableSection = ({
       selectedRows={selectedIds}
       setSelectedRows={setSelectedIds}
       isRowSelectable={isDraft}
+      onRowClick={onDetail}
     />
   )
 }
