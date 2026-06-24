@@ -33,6 +33,13 @@ export const routeUrls = {
     INDEX: '/education-accounts',
     DETAIL: (id = ':id') => `/education-accounts/${id}`,
   },
+  TUITION_PAYMENT: {
+    INDEX: '/tuition-payment',
+  },
+
+  PAY: {
+    INDEX: '/pay',
+  },
   SWEEP_REPORTS: { INDEX: '/sweep-reports' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
   COURSE_MANAGEMENT: { INDEX: '/course-management' },

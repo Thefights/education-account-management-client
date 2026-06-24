@@ -4,7 +4,8 @@
     "title": {
       "management": "Course Management",
       "create": "Create Course",
-      "update": "Update Course"
+      "update": "Update Course",
+      "list_of_course": "List of Course"
     },
     "field": {
       "id": "ID",
@@ -42,6 +43,11 @@
     "message": {
       "update_conflict": "This course was changed by someone else. The latest data has been reloaded; please edit it again.",
       "publish_deadline_expired": "All selected courses must have a future enrollment due date."
+    },
+    "tab": {
+      "upcoming": "Upcoming",
+      "in_progress": "In Progress",
+      "closed": "Closed"
     }
   }
 }

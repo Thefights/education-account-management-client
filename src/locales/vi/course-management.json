@@ -4,7 +4,8 @@
     "title": {
       "management": "Quản lý khóa học",
       "create": "Tạo khóa học",
-      "update": "Cập nhật khóa học"
+      "update": "Cập nhật khóa học",
+      "list_of_course": "Danh sách khóa học"
     },
     "field": {
       "id": "ID",
@@ -42,6 +43,11 @@
     "message": {
       "update_conflict": "Khóa học đã được người khác thay đổi. Dữ liệu mới nhất đã được tải lại; vui lòng sửa lại.",
       "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn đăng ký trong tương lai."
+    },
+    "tab": {
+      "upcoming": "Sắp diễn ra",
+      "in_progress": "Đang diễn ra",
+      "closed": "Đã kết thúc"
     }
   }
 }

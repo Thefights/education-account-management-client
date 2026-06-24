@@ -94,5 +94,6 @@ export const ApiUrls = {
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',
+    COURSES: '/account-holder/courses'
   },
 }
