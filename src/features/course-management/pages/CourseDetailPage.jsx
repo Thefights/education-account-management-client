@@ -4,6 +4,7 @@ import EnrollmentManagementTableSection from '@/features/enrollment-management/c
 import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useEnum from '@/shared/hooks/useEnum'
@@ -15,6 +16,7 @@ import {
   ArrowLeftOutlined,
   CalendarOutlined,
   DollarOutlined,
+  EditOutlined,
   GiftOutlined,
   ReadOutlined,
 } from '@ant-design/icons'
@@ -195,6 +197,18 @@ const CourseDetailPage = () => {
                   </Typography.Text>
                 </Space>
               </Space>
+              {canManageEnrollments && (
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={() =>
+                    navigate(
+                      routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(id))
+                    )
+                  }
+                >
+                  {t('button.edit')}
+                </Button>
+              )}
             </Flex>
 
             <Row gutter={[24, 24]}>

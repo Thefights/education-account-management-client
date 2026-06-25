@@ -3,6 +3,7 @@ import axiosConfig from '@/shared/api/axiosClient'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -22,7 +23,7 @@ import {
 } from '@ant-design/icons'
 import { Button, Card, Col, Flex, Row, Space, Typography, theme } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const getStudentLabel = (student) => (
   <div
@@ -84,16 +85,19 @@ const SectionLayout = ({ titleKey, icon, isLast, children, token, t }) => (
 )
 
 const CourseManagementFormPage = () => {
+  const { id } = useParams()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { token } = theme.useToken()
+  const isEdit = Boolean(id)
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const { values, handleChange, setField, reset, registerRef, validateAll, resetValidation } =
     useForm()
   const [submitted, setSubmitted] = useState(false)
+  const course = useFetch(isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : '', {}, [id], isEdit)
   const save = useAxiosSubmit({
-    url: ApiUrls.COURSE_MANAGEMENT.INDEX,
-    method: 'POST',
+    url: isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : ApiUrls.COURSE_MANAGEMENT.INDEX,
+    method: isEdit ? 'PUT' : 'POST',
   })
   const { renderField, hasRequiredMissing } = useFieldRenderer(
     values,
@@ -104,10 +108,12 @@ const CourseManagementFormPage = () => {
   )
 
   useEffect(() => {
-    reset(normalizeInitialValues())
+    if (isEdit && !course.data) return
+
+    reset(normalizeInitialValues(isEdit ? course.data : undefined))
     resetValidation()
     queueMicrotask(() => setSubmitted(false))
-  }, [reset, resetValidation])
+  }, [course.data, isEdit, reset, resetValidation])
 
   const loadStudentOptions = async ({ search, page, pageSize }) => {
     const response = await axiosConfig.get(ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX, {
@@ -127,6 +133,7 @@ const CourseManagementFormPage = () => {
 
   const fields = useMemo(() => {
     const amountProps = { min: 0, precision: 2, prefix: currencySymbol }
+    const basicInfoOnly = isEdit && course.data?.status === 'Enrolling'
     return [
       {
         key: 'courseName',
@@ -146,7 +153,7 @@ const CourseManagementFormPage = () => {
         type: 'input-number',
         minValue: 0,
         validate: [numberHigherThanOrEqual(0)],
-        props: { ...amountProps },
+        props: { ...amountProps, disabled: basicInfoOnly },
       },
       {
         key: 'miscFeeAmount',
@@ -154,12 +161,13 @@ const CourseManagementFormPage = () => {
         type: 'input-number',
         minValue: 0,
         validate: [numberHigherThanOrEqual(0)],
-        props: { ...amountProps },
+        props: { ...amountProps, disabled: basicInfoOnly },
       },
       {
         key: 'enrollmentDeadline',
         title: t('course_management.field.enrollment_deadline'),
         type: 'datetime-local',
+        props: { disabled: basicInfoOnly },
       },
       {
         key: 'startDate',
@@ -170,6 +178,7 @@ const CourseManagementFormPage = () => {
             !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
             t('course_management.validation.date_order'),
         ],
+        props: { disabled: basicInfoOnly },
       },
       {
         key: 'endDate',
@@ -180,18 +189,23 @@ const CourseManagementFormPage = () => {
             !isDateTimeBefore(value, currentValues.startDate) ||
             t('course_management.validation.date_order'),
         ],
+        props: { disabled: basicInfoOnly },
       },
-      {
-        key: 'schoolStudentIds',
-        title: t('course_management.field.initial_students'),
-        type: 'select',
-        multiple: true,
-        required: false,
-        options: [],
-        loadOptions: loadStudentOptions,
-      },
+      ...(isEdit
+        ? []
+        : [
+            {
+              key: 'schoolStudentIds',
+              title: t('course_management.field.initial_students'),
+              type: 'select',
+              multiple: true,
+              required: false,
+              options: [],
+              loadOptions: loadStudentOptions,
+            },
+          ]),
     ]
-  }, [currencySymbol, t])
+  }, [course.data?.status, currencySymbol, isEdit, t])
 
   const handleSubmit = async () => {
     setSubmitted(true)
@@ -207,12 +221,14 @@ const CourseManagementFormPage = () => {
       enrollmentDeadline: localDateTimeToIso(values.enrollmentDeadline),
       startDate: localDateTimeToIso(values.startDate),
       endDate: localDateTimeToIso(values.endDate),
-      schoolStudentIds: values.schoolStudentIds || [],
+      ...(isEdit
+        ? { rowVersion: values.rowVersion }
+        : { schoolStudentIds: values.schoolStudentIds || [] }),
     }
 
     const response = await save.submit({ overrideData: payload })
     if (!response) return
-    const courseId = response.data?.id
+    const courseId = response.data?.id || id
     navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(courseId)))
   }
 
@@ -233,12 +249,16 @@ const CourseManagementFormPage = () => {
 
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-      <Card bordered={false} styles={{ body: { padding: '32px 48px' } }}>
+      <Card
+        bordered={false}
+        loading={isEdit && course.loading && !course.data}
+        styles={{ body: { padding: '32px 48px' } }}
+      >
         <Flex vertical>
           <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
             <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
             <Typography.Title level={3} style={{ margin: 0 }}>
-              {t('course_management.title.create')}
+              {t(isEdit ? 'course_management.title.update' : 'course_management.title.create')}
             </Typography.Title>
           </Flex>
 
@@ -320,7 +340,7 @@ const CourseManagementFormPage = () => {
                 onClick={handleSubmit}
                 style={{ padding: '0 40px' }}
               >
-                {t('button.create')}
+                {t(isEdit ? 'button.update' : 'button.create')}
               </Button>
             </Flex>
           </Flex>
