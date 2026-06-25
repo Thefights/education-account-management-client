@@ -1,5 +1,4 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -40,7 +39,6 @@ const getStudentLabel = (student) => (
 
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
-  description: course.description ?? '',
   courseFeeAmount: course.courseFeeAmount ?? 0,
   miscFeeAmount: course.miscFeeAmount ?? 0,
   enrollmentDeadline: toLocalDateTimeInput(course.enrollmentDeadline),
@@ -99,6 +97,10 @@ const CourseManagementFormPage = () => {
     url: isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : ApiUrls.COURSE_MANAGEMENT.INDEX,
     method: isEdit ? 'PUT' : 'POST',
   })
+  const fetchStudentOptions = useAxiosSubmit({
+    url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
+    method: 'GET',
+  })
   const { renderField, hasRequiredMissing } = useFieldRenderer(
     values,
     setField,
@@ -116,8 +118,8 @@ const CourseManagementFormPage = () => {
   }, [course.data, isEdit, reset, resetValidation])
 
   const loadStudentOptions = async ({ search, page, pageSize }) => {
-    const response = await axiosConfig.get(ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX, {
-      params: { search, page, pageSize },
+    const response = await fetchStudentOptions.submit({
+      overrideParam: { search, page, pageSize },
     })
     const result = response?.data
     return {
@@ -139,13 +141,6 @@ const CourseManagementFormPage = () => {
         key: 'courseName',
         title: t('course_management.field.course_name'),
         validate: [maxLen(150)],
-      },
-      {
-        key: 'description',
-        title: t('course_management.field.description'),
-        multiple: 3,
-        required: false,
-        validate: [maxLen(1000)],
       },
       {
         key: 'courseFeeAmount',
@@ -215,7 +210,6 @@ const CourseManagementFormPage = () => {
 
     const payload = {
       courseName: values.courseName,
-      description: values.description || null,
       courseFeeAmount: Number(values.courseFeeAmount),
       miscFeeAmount: Number(values.miscFeeAmount),
       enrollmentDeadline: localDateTimeToIso(values.enrollmentDeadline),
@@ -232,7 +226,7 @@ const CourseManagementFormPage = () => {
     navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(courseId)))
   }
 
-  const basicFields = fields.filter((f) => ['courseName', 'description'].includes(f.key))
+  const basicFields = fields.filter((f) => ['courseName'].includes(f.key))
   const feeFields = fields.filter((f) => ['courseFeeAmount', 'miscFeeAmount'].includes(f.key))
   const scheduleFields = fields.filter((f) =>
     ['enrollmentDeadline', 'startDate', 'endDate'].includes(f.key)

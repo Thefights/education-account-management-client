@@ -97,7 +97,7 @@ const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
         justifyItems: 'center',
         gap: isDownSm ? 8 : 12,
         lineHeight: 'normal',
-        minHeight: screens.sm ? 68 : 58,
+        minHeight: screens.sm ? 87 : 58,
         boxShadow: 'var(--app-shell-shadow)',
       }}
     >

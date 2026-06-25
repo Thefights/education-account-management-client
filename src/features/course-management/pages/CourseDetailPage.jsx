@@ -2,10 +2,9 @@ import AssignStudentsDialog from '@/features/enrollment-management/components/As
 import EnrollmentManagementFilterSection from '@/features/enrollment-management/components/EnrollmentManagementFilterSection'
 import EnrollmentManagementTableSection from '@/features/enrollment-management/components/EnrollmentManagementTableSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
-import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
@@ -16,7 +15,6 @@ import {
   ArrowLeftOutlined,
   CalendarOutlined,
   DollarOutlined,
-  EditOutlined,
   GiftOutlined,
   ReadOutlined,
 } from '@ant-design/icons'
@@ -41,14 +39,21 @@ const CourseDetailPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [selectedIds, setSelectedIds] = useState([])
   const [openAssign, setOpenAssign] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const courseData = useFetch(ApiUrls.COURSE_MANAGEMENT.DETAIL(id))
   const course = courseData.data
+  const removeEnrollment = useAxiosSubmit({ method: 'DELETE' })
+  const removeSelectedEnrollments = useAxiosSubmit({
+    url: ApiUrls.ENROLLMENT_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
+  })
+  const withdrawEnrollment = useAxiosSubmit({ method: 'PUT' })
 
   const canManageEnrollments = course?.status === 'Draft' || course?.status === 'Enrolling'
   const allowWithdraw = course?.status === 'Upcoming' || course?.status === 'InProgress'
   const readOnly = !canManageEnrollments
+  const mutationLoading =
+    removeEnrollment.loading || removeSelectedEnrollments.loading || withdrawEnrollment.loading
 
   const queryParams = useMemo(
     () => ({ courseId: id, sort: `${sort.key} ${sort.direction}`, page, pageSize, ...filters }),
@@ -89,17 +94,14 @@ const CourseDetailPage = () => {
     })
     if (!accepted) return
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id))
-      clearSelection()
-      await enrollments.fetch()
-      await courseData.fetch()
-    } catch {
-      // API error shown by interceptor
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await removeEnrollment.submit({
+      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id),
+    })
+    if (!response) return
+
+    clearSelection()
+    await enrollments.fetch()
+    await courseData.fetch()
   }
 
   const handleDeleteSelected = async () => {
@@ -114,19 +116,14 @@ const CourseDetailPage = () => {
     })
     if (!accepted) return
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.ENROLLMENT_MANAGEMENT.DELETE_SELECTED, {
-        data: { ids: selectedIds },
-      })
-      clearSelection()
-      await enrollments.fetch()
-      await courseData.fetch()
-    } catch {
-      // API error shown by interceptor
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await removeSelectedEnrollments.submit({
+      overrideData: { ids: selectedIds },
+    })
+    if (!response) return
+
+    clearSelection()
+    await enrollments.fetch()
+    await courseData.fetch()
   }
 
   const handleAssigned = async () => {
@@ -144,15 +141,12 @@ const CourseDetailPage = () => {
     })
     if (!accepted) return
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.put(ApiUrls.ENROLLMENT_MANAGEMENT.WITHDRAW(enrollment.id))
-      await enrollments.fetch()
-    } catch {
-      // API error shown by interceptor
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await withdrawEnrollment.submit({
+      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.WITHDRAW(enrollment.id),
+    })
+    if (!response) return
+
+    await enrollments.fetch()
   }
 
   const renderStatus = (status) => {
@@ -197,18 +191,6 @@ const CourseDetailPage = () => {
                   </Typography.Text>
                 </Space>
               </Space>
-              {canManageEnrollments && (
-                <Button
-                  icon={<EditOutlined />}
-                  onClick={() =>
-                    navigate(
-                      routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(id))
-                    )
-                  }
-                >
-                  {t('button.edit')}
-                </Button>
-              )}
             </Flex>
 
             <Row gutter={[24, 24]}>
@@ -316,7 +298,7 @@ const CourseDetailPage = () => {
                 <Button
                   danger
                   disabled={!selectedIds.length}
-                  loading={deleteLoading}
+                  loading={mutationLoading}
                   onClick={handleDeleteSelected}
                 >
                   {t('enrollment_management.action.delete_selected')}
@@ -338,7 +320,7 @@ const CourseDetailPage = () => {
 
           <EnrollmentManagementTableSection
             enrollments={enrollments.data?.collection}
-            loading={enrollments.loading || deleteLoading}
+            loading={enrollments.loading || mutationLoading}
             sort={sort}
             setSort={handleSort}
             selectedIds={selectedIds}

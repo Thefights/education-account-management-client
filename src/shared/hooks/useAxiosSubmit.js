@@ -19,68 +19,68 @@ const defaultErrorHandler = async (error) => Promise.resolve(error)
  * @returns {{loading: boolean, error: Error|null, response: any|null, submit: function({ overrideData, overrideUrl, overrideParam }): Promise<any>}}
  */
 export default function useAxiosSubmit({
-	url = '',
-	method = 'POST',
-	data = emptyObject,
-	params = emptyObject,
-	onSuccess = defaultSuccessHandler,
-	onError = defaultErrorHandler,
+  url = '',
+  method = 'POST',
+  data = emptyObject,
+  params = emptyObject,
+  onSuccess = defaultSuccessHandler,
+  onError = defaultErrorHandler,
 }) {
-	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState(null)
-	const [response, setResponse] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [response, setResponse] = useState(null)
 
-	const submit = useCallback(
-		async ({ overrideData, overrideUrl, overrideParam } = {}) => {
-			if (loading) return undefined
+  const submit = useCallback(
+    async ({ overrideData, overrideUrl, overrideParam } = {}) => {
+      if (loading) return undefined
 
-			setLoading(true)
-			setError(null)
-			setResponse(null)
+      setLoading(true)
+      setError(null)
+      setResponse(null)
 
-			const upper = String(method).toUpperCase()
-			const queryOnly = upper === 'GET' || upper === 'DELETE'
-			const bodySource = overrideData !== undefined ? overrideData : data
+      const upper = String(method).toUpperCase()
+      const queryOnly = upper === 'GET'
+      const bodySource = overrideData !== undefined ? overrideData : data
 
-			const finalParams = overrideParam !== undefined ? overrideParam : params
-			const finalUrl = overrideUrl || url
+      const finalParams = overrideParam !== undefined ? overrideParam : params
+      const finalUrl = overrideUrl || url
 
-			const isObjParams = isPlainObject(finalParams)
-			const axiosUrl = isObjParams ? finalUrl : appendPath(finalUrl, finalParams)
-			const axiosParams = isObjParams ? finalParams : undefined
+      const isObjParams = isPlainObject(finalParams)
+      const axiosUrl = isObjParams ? finalUrl : appendPath(finalUrl, finalParams)
+      const axiosParams = isObjParams ? finalParams : undefined
 
-			try {
-				let payload = undefined
-				if (!queryOnly) {
-					if (bodySource instanceof FormData) {
-						payload = bodySource
-					} else {
-						const trimmed = getTrimString(bodySource)
-						payload = getObjectConvertingToFormData(trimmed)
-					}
-				}
-				const response = await axiosConfig.request({
-					url: axiosUrl,
-					method: upper,
-					params: axiosParams,
-					data: payload,
-				})
+      try {
+        let payload = undefined
+        if (!queryOnly) {
+          if (bodySource instanceof FormData) {
+            payload = bodySource
+          } else {
+            const trimmed = getTrimString(bodySource)
+            payload = getObjectConvertingToFormData(trimmed)
+          }
+        }
+        const response = await axiosConfig.request({
+          url: axiosUrl,
+          method: upper,
+          params: axiosParams,
+          data: payload,
+        })
 
-				setResponse(response)
-				await onSuccess?.(response)
-				return response
-			} catch (err) {
-				setError(err)
-				await onError?.(err)
-				return undefined
-			} finally {
-				setLoading(false)
-			}
-		},
-		[loading, method, data, url, params, onSuccess, onError]
-	)
+        setResponse(response)
+        await onSuccess?.(response)
+        return response
+      } catch (err) {
+        setError(err)
+        await onError?.(err)
+        return undefined
+      } finally {
+        setLoading(false)
+      }
+    },
+    [loading, method, data, url, params, onSuccess, onError]
+  )
 
-	return { loading, error, response, submit }
+  return { loading, error, response, submit }
 }
 
 // Example usage:

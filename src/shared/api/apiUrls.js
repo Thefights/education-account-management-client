@@ -40,6 +40,7 @@ export const ApiUrls = {
     INDEX: '/course-management',
     GET_ALL: '/course-management/all',
     DETAIL: (id) => `/course-management/${id}`,
+    DUPLICATE: (id) => `/course-management/${id}/duplicate`,
     PUBLISH: '/course-management/publish',
     DELETE_SELECTED: '/course-management/selected',
     IMPORT: '/course-management/import',

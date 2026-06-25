@@ -1,5 +1,4 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
@@ -29,7 +28,6 @@ const CourseManagementPage = () => {
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
   const [selectedIds, setSelectedIds] = useState([])
-  const [deleteLoading, setDeleteLoading] = useState(false)
   const navigate = useNavigate()
 
   const queryParams = useMemo(
@@ -48,6 +46,13 @@ const CourseManagementPage = () => {
   })
   const submitImport = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.IMPORT,
+    method: 'POST',
+  })
+  const deleteSelectedCourses = useAxiosSubmit({
+    url: ApiUrls.COURSE_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
+  })
+  const duplicateCourse = useAxiosSubmit({
     method: 'POST',
   })
 
@@ -88,16 +93,10 @@ const CourseManagementPage = () => {
       formData.append(`items[${index}].rowVersion`, course.rowVersion)
     })
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.COURSE_MANAGEMENT.DELETE_SELECTED, { data: formData })
-      clearSelection()
-      await courses.fetch()
-    } catch {
-      // The shared Axios interceptor displays the API error.
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await deleteSelectedCourses.submit({ overrideData: formData })
+    if (!response) return
+    clearSelection()
+    await courses.fetch()
   }
 
   const handlePublish = async () => {
@@ -140,7 +139,22 @@ const CourseManagementPage = () => {
     }
   }
 
-  const mutationLoading = deleteLoading || publishCourses.loading
+  const handleDuplicate = async (course) => {
+    const response = await duplicateCourse.submit({
+      overrideUrl: ApiUrls.COURSE_MANAGEMENT.DUPLICATE(course.id),
+    })
+    if (!response) return
+
+    clearSelection()
+    await courses.fetch()
+    const duplicateId = response?.data?.id
+    if (duplicateId) {
+      navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(duplicateId)))
+    }
+  }
+
+  const mutationLoading =
+    deleteSelectedCourses.loading || duplicateCourse.loading || publishCourses.loading
 
   return (
     <Card>
@@ -171,6 +185,10 @@ const CourseManagementPage = () => {
           setSort={handleSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
+          onEdit={(row) =>
+            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(row.id)))
+          }
+          onDuplicate={handleDuplicate}
           onDetail={(row) =>
             navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(row.id)))
           }
