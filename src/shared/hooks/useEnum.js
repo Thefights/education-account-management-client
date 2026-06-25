@@ -50,27 +50,19 @@ export default function useEnum() {
 
     chargeStatusIdOptions: [
       { value: EnumConfig.ChargeStatusId.Unpaid, label: t('enum.charge_status.unpaid') },
-      {
-        value: EnumConfig.ChargeStatusId.PartiallyPaid,
-        label: t('enum.charge_status.partially_paid'),
-      },
       { value: EnumConfig.ChargeStatusId.Paid, label: t('enum.charge_status.paid') },
       {
-        value: EnumConfig.ChargeStatusId.Outstanding,
-        label: t('enum.charge_status.outstanding'),
+        value: EnumConfig.ChargeStatusId.Overdue,
+        label: t('enum.charge_status.overdue'),
       },
     ],
 
     chargeStatusOptions: [
       { value: EnumConfig.ChargeStatus.Unpaid, label: t('enum.charge_status.unpaid') },
-      {
-        value: EnumConfig.ChargeStatus.PartiallyPaid,
-        label: t('enum.charge_status.partially_paid'),
-      },
       { value: EnumConfig.ChargeStatus.Paid, label: t('enum.charge_status.paid') },
       {
-        value: EnumConfig.ChargeStatus.Outstanding,
-        label: t('enum.charge_status.outstanding'),
+        value: EnumConfig.ChargeStatus.Overdue,
+        label: t('enum.charge_status.overdue'),
       },
     ],
 
@@ -205,6 +197,14 @@ export default function useEnum() {
       { value: EnumConfig.SystemTopupStatusId.Inactive, label: t('topup_form.inactive') },
     ],
 
+    enrollmentStatusOptions: [
+      { value: EnumConfig.EnrollmentStatus.Active, label: t('enum.enrollment_status.active') },
+      {
+        value: EnumConfig.EnrollmentStatus.Withdrawn,
+        label: t('enum.enrollment_status.withdrawn'),
+      },
+    ],
+
     systemTopupStatusOptions: [
       { value: 'Active', label: t('topup_form.active') },
       { value: 'Inactive', label: t('topup_form.inactive') },
@@ -270,6 +270,12 @@ export default function useEnum() {
       { value: 'Active', label: t('topup_form.active') },
       { value: 'Inactive', label: t('topup_form.inactive') },
       { value: 'Completed', label: t('topup_form.completed') },
+    ],
+
+    tuitionstatus: [
+      { value: 1, label: t('text.overdue') },
+      { value: 2, label: t('text.due') },
+      { value: 3, label: t('text.paid') },
     ],
   }
 }

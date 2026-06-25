@@ -33,7 +33,7 @@ const SearchBar = ({
           }
         }}
         style={width}
-        size="small"
+        size="large"
         placeholder={placeholder || t('text.search')}
         allowClear
       />
@@ -53,7 +53,7 @@ const SearchBar = ({
         }
       }}
       style={width}
-      size="medium"
+      size="large"
       placeholder={placeholder || t('text.search')}
       allowClear
     />

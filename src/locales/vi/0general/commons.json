@@ -11,6 +11,7 @@
     "deactivate": "Vô hiệu hóa",
     "delete": "Xóa",
     "deselect_all": "Bỏ chọn tất cả",
+    "detail": "Chi tiết",
     "edit": "Chỉnh sửa",
     "filter": "Lọc",
     "import": "Nhập",
@@ -19,7 +20,8 @@
     "select_all": "Chọn tất cả",
     "submit": "Gửi",
     "update": "Cập nhật",
-    "view": "Xem"
+    "view": "Xem",
+    "sort": "Sắp Xếp"
   },
   "error": {
     "duplicate_values_not_allowed": "Không được phép có giá trị trùng lặp",
@@ -70,6 +72,9 @@
   },
   "text": {
     "all": "Tất cả",
+    "overdue": "Quá hạn",
+    "due": "Đến hạn",
+    "paid": "Đã thanh toán",
     "available": "Có sẵn",
     "items": "mục",
     "loading": "Đang tải...",

@@ -147,3 +147,13 @@ export const defaultAuditLogActionStyle = (action) => {
 
   return map[action] || 'default'
 }
+
+export const defaultChargeStatusStyle = (status) => {
+  const map = {
+    [EnumConfig.ChargeStatus.Unpaid]: 'error',
+    [EnumConfig.ChargeStatus.Paid]: 'success',
+    [EnumConfig.ChargeStatus.Overdue]: 'volcano',
+  }
+
+  return map[status] || 'default'
+}

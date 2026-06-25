@@ -1,8 +1,10 @@
 import AddTileRenderField from '@/shared/components/fieldRenderers/AddTileRenderField'
+import DateTimeRenderField from '@/shared/components/fieldRenderers/DateTimeRenderField'
 import DrawingRenderField from '@/shared/components/fieldRenderers/DrawingRenderField'
 import FileRenderField from '@/shared/components/fieldRenderers/FileRenderField'
 import ImageRenderField from '@/shared/components/fieldRenderers/ImageRenderField'
 import ImageTileRenderField from '@/shared/components/fieldRenderers/ImageTileRenderField'
+import InputNumberRenderField from '@/shared/components/fieldRenderers/InputNumberRenderField'
 import MultipleCheckDropdownField from '@/shared/components/fieldRenderers/MultipleCheckDropdownField'
 import PhoneRenderField from '@/shared/components/fieldRenderers/PhoneRenderField'
 import SearchBar from '@/shared/components/generals/SearchBar'
@@ -23,7 +25,7 @@ import useTranslation from './useTranslation'
  * @typedef {Object} FieldDefinition
  * @property {string} key
  * @property {string} title
- * @property {"text" | "search" | "date" | "number" | "email" | "tel" | "password" | "select" | "select-dialog" | "multi-check-dropdown" | "radio" | "checkbox" | "checkbox-group" | "image" | "file" | "object" | "array" | "draw" | "custom" | "daterange" | "timerange"} [type='text']
+ * @property {"text" | "search" | "date" | "datetime" | "number" | "input-number" | "email" | "tel" | "password" | "select" | "select-dialog" | "multi-check-dropdown" | "radio" | "checkbox" | "checkbox-group" | "image" | "file" | "object" | "array" | "draw" | "custom" | "daterange" | "timerange"} [type='text']
  * @property {boolean} [required=true]
  * @property {number} [multiple=undefined]
  * @property {Array<string|Object>} [options]
@@ -375,12 +377,17 @@ export default function useFieldRenderer(
     const title = field.label || field.title
     if (title && !field.hideLabel) {
       return (
-        <div key={field.key} style={{ width: '100%' }}>
-          <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
-            {title}
-          </Typography.Text>
+        <Form.Item
+          key={field.key}
+          label={title}
+          labelCol={{ span: 24 }}
+          wrapperCol={{ span: 24 }}
+          labelAlign="left"
+          colon={false}
+          style={{ marginBottom: 0 }}
+        >
           {dropdown}
-        </div>
+        </Form.Item>
       )
     }
 
@@ -503,6 +510,48 @@ export default function useFieldRenderer(
       onChange={(nextValue) => context.setField(field.key, nextValue)}
     />
   )
+
+  const renderInputNumber = (field, context = baseRenderContext) => {
+    const currentValues = context.values
+
+    return (
+      <InputNumberRenderField
+        key={field.key}
+        ref={context.registerRef(field.key)}
+        name={field.key}
+        label={field.title}
+        required={field.required ?? true}
+        value={getObjectValueFromStringPath(currentValues, field.key)}
+        onChange={context.handleChange}
+        validate={field.validate}
+        validationContext={currentValues}
+        min={field.minValue}
+        max={field.maxValue}
+        size={textFieldSize}
+        {...(field.props || {})}
+      />
+    )
+  }
+
+  const renderDateTime = (field, context = baseRenderContext) => {
+    const currentValues = context.values
+
+    return (
+      <DateTimeRenderField
+        key={field.key}
+        ref={context.registerRef(field.key)}
+        name={field.key}
+        label={field.title}
+        required={field.required ?? true}
+        value={getObjectValueFromStringPath(currentValues, field.key)}
+        onChange={context.handleChange}
+        validate={field.validate}
+        validationContext={currentValues}
+        size={textFieldSize}
+        {...(field.props || {})}
+      />
+    )
+  }
 
   const renderDrawing = (field, context = baseRenderContext) => {
     const required = field.required ?? true
@@ -954,7 +1003,9 @@ export default function useFieldRenderer(
     password: renderPassword,
     search: renderSearch,
     phone: renderPhone,
+    datetime: renderDateTime,
     number: renderStandard,
+    'input-number': renderInputNumber,
     email: renderStandard,
     tel: renderStandard,
     select: renderStandard,

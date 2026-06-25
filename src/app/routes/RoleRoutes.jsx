@@ -8,6 +8,8 @@ import AccountTransactionHistoryPage from '@/features/account-holder/pages/Accou
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
 import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
+import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
+import CourseManagementFormPage from '@/features/course-management/pages/CourseManagementFormPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
@@ -21,12 +23,17 @@ import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
+import TopupConfigurationDetailPage from '@/features/topup/pages/TopupConfigurationDetailPage'
+import TopupConfigurationFormPage from '@/features/topup/pages/TopupConfigurationFormPage'
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
+import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
+import PayPage from '@/features/pay/pages/PayPage'
 
 const roleRouteGroups = [
   {
@@ -70,6 +77,30 @@ const roleRouteGroups = [
     Layout: FinanceAdminLayout,
     routes: [
       { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_CREATE,
+        element: <TopupConfigurationFormPage type="system" mode="create" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_EDIT(),
+        element: <TopupConfigurationFormPage type="system" mode="edit" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_DETAIL(),
+        element: <TopupConfigurationDetailPage type="system" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_CREATE,
+        element: <TopupConfigurationFormPage type="schedule" mode="create" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_EDIT(),
+        element: <TopupConfigurationFormPage type="schedule" mode="edit" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_DETAIL(),
+        element: <TopupConfigurationDetailPage type="schedule" />,
+      },
       { path: routeUrls.TOPUP_MANAGEMENT.HISTORY, element: <TopupHistoryPage /> },
       { path: routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(), element: <TopupHistoryDetailPage /> },
       {
@@ -113,8 +144,16 @@ const roleRouteGroups = [
         element: <CourseManagementPage />,
       },
       {
-        path: routeUrls.ENROLLMENT_MANAGEMENT.INDEX,
-        element: <EnrollmentManagementPage />,
+        path: routeUrls.COURSE_MANAGEMENT.CREATE,
+        element: <CourseManagementFormPage />,
+      },
+      {
+        path: routeUrls.COURSE_MANAGEMENT.EDIT(),
+        element: <CourseManagementFormPage />,
+      },
+      {
+        path: routeUrls.COURSE_MANAGEMENT.DETAIL(),
+        element: <CourseDetailPage />,
       },
       {
         path: routeUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
@@ -133,6 +172,18 @@ const roleRouteGroups = [
       {
         path: routeUrls.TRANSACTIONS.INDEX,
         element: <AccountTransactionHistoryPage />,
+      },
+      {
+        path: routeUrls.COURSE_MANAGEMENT.INDEX,
+        element: <AccountHolderCourseManagementPage />,
+      },
+      {
+        path: routeUrls.TUITION_PAYMENT.INDEX,
+        element: <TuitionPaymentlPage />,
+      },
+      {
+        path: routeUrls.PAY.INDEX,
+        element: <PayPage />,
       },
     ],
   },

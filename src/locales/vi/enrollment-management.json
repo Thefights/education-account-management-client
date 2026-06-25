@@ -7,7 +7,10 @@
       "add_students_to_course": "Thêm học sinh vào {{course}}"
     },
     "placeholder": {
-      "search": "Tìm kiếm theo tên học sinh, email, NRIC hoặc số tài khoản"
+      "search": "Tìm kiếm..."
+    },
+    "label": {
+      "search": "Tìm theo tên học sinh, NRIC, email, số điện thoại hoặc số tài khoản"
     },
     "field": {
       "id": "Mã Ghi danh",
@@ -19,6 +22,7 @@
       "email": "Email",
       "phone": "Số điện thoại",
       "account_number": "Số Tài khoản",
+      "status": "Trạng thái ghi danh",
       "enrolled_at": "Thời gian Ghi danh",
       "charge_status": "Trạng thái Thu phí",
       "gross_amount": "Tổng số tiền",
@@ -31,20 +35,22 @@
       "assign": "Gán",
       "delete_selected": "Xóa mục đã chọn",
       "manage_students": "Quản lý Học sinh",
-      "view_students": "Xem Học sinh"
+      "view_students": "Xem Học sinh",
+      "withdraw": "Rút khỏi khóa học"
     },
     "confirm": {
       "delete_title": "Xóa Ghi danh",
       "delete_description": "Bạn có chắc chắn muốn xóa ghi danh của {{name}} không?",
       "delete_selected_title": "Xóa Ghi danh đã chọn",
-      "delete_selected_description": "Bạn có chắc chắn muốn xóa {{count}} ghi danh đã chọn không?"
+      "delete_selected_description": "Bạn có chắc chắn muốn xóa {{count}} ghi danh đã chọn không?",
+      "withdraw_title": "Rút học sinh khỏi khóa học?",
+      "withdraw_description": "Đánh dấu {name} đã rút khỏi khóa học này?"
     },
     "status": {
       "charge": {
         "unpaid": "Chưa thanh toán",
-        "partially_paid": "Thanh toán một phần",
         "paid": "Đã thanh toán",
-        "outstanding": "Quá hạn"
+        "overdue": "Quá hạn"
       }
     }
   }

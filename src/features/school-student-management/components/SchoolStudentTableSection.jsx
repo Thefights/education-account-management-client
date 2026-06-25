@@ -1,8 +1,12 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
+import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { Popover, Space, Tag } from 'antd'
+import { Link } from 'react-router-dom'
 
 const SchoolStudentTableSection = ({
   students,
@@ -15,6 +19,16 @@ const SchoolStudentTableSection = ({
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
+  const renderCourseTag = (course) => (
+    <Link
+      key={course.id}
+      to={routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(course.id))}
+    >
+      <Tag color={defaultManagementStatusStyle(course.status)}>
+        {course.courseCode} · {course.courseName}
+      </Tag>
+    </Link>
+  )
 
   const fields = [
     {
@@ -28,12 +42,37 @@ const SchoolStudentTableSection = ({
       title: t('school_student.field.nric'),
       width: 150,
       sortable: true,
+      render: (value) => <MaskedNric value={value} />,
     },
     {
       key: 'fullName',
       title: t('school_student.field.full_name'),
       width: 220,
       sortable: true,
+    },
+    {
+      key: 'courses',
+      title: t('school_student.field.courses'),
+      width: 320,
+      sortable: true,
+      render: (courses = []) => {
+        if (!courses.length) return null
+        const visibleCourses = courses.slice(0, 2)
+        const hiddenCourses = courses.slice(2)
+        return (
+          <Space size={[4, 4]} wrap>
+            {visibleCourses.map(renderCourseTag)}
+            {!!hiddenCourses.length && (
+              <Popover
+                placement="bottom"
+                content={<Space direction="vertical">{hiddenCourses.map(renderCourseTag)}</Space>}
+              >
+                <Tag>+{hiddenCourses.length}</Tag>
+              </Popover>
+            )}
+          </Space>
+        )
+      },
     },
     {
       key: 'email',

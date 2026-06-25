@@ -4,7 +4,15 @@
     "title": {
       "management": "Quản lý khóa học",
       "create": "Tạo khóa học",
-      "update": "Cập nhật khóa học"
+      "update": "Cập nhật khóa học",
+      "important_dates": "Các ngày quan trọng",
+      "applicable_fas": "FAS áp dụng"
+    },
+    "section": {
+      "basic_info": "Thông tin cơ bản",
+      "fees": "Học phí & Thanh toán",
+      "schedule": "Lịch trình & Thời hạn",
+      "initial_students": "Học viên ban đầu"
     },
     "field": {
       "id": "ID",
@@ -15,19 +23,21 @@
       "description": "Mô tả",
       "course_fee_amount": "Học phí",
       "misc_fee_amount": "Phí khác",
-      "gst_amount": "Thuế GST (9%)",
+      "gst_amount": "Tiền thuế",
       "total_fee_amount": "Tổng phí",
-      "enrollment_due_date": "Hạn đăng ký",
-      "fas_application_due_date": "Hạn đăng ký FAS",
+      "fas_application_due_date": "Hạn chốt enrollment",
+      "enrollment_deadline": "Hạn chốt enrollment",
       "start_date": "Ngày bắt đầu",
       "end_date": "Ngày kết thúc",
-      "enrollment_count": "Số lượng ghi danh"
+      "enrollment_count": "Số lượng ghi danh",
+      "initial_students": "Học sinh ban đầu"
     },
     "action": {
       "publish": "Phát hành",
       "delete_selected": "Xóa đã chọn"
     },
-    "placeholder": { "search": "Tìm theo tên khóa học hoặc trường" },
+    "label": { "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường" },
+    "placeholder": { "search": "Tìm kiếm..." },
     "confirm": {
       "delete_title": "Xóa khóa học?",
       "delete_description": "Bạn có chắc muốn xóa {name}?",
@@ -37,11 +47,12 @@
       "publish_description": "Bạn có chắc muốn phát hành {count} khóa học đã chọn?"
     },
     "validation": {
-      "date_order": "Thứ tự ngày phải là: hạn đăng ký, hạn FAS, ngày bắt đầu, ngày kết thúc."
+      "date_order": "Thứ tự ngày phải là: hạn chốt enrollment, ngày bắt đầu, ngày kết thúc."
     },
     "message": {
       "update_conflict": "Khóa học đã được người khác thay đổi. Dữ liệu mới nhất đã được tải lại; vui lòng sửa lại.",
-      "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn đăng ký trong tương lai."
+      "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn chốt enrollment trong tương lai.",
+      "no_applicable_fas": "Chưa có chương trình FAS nào được liên kết với khóa học này."
     }
   }
 }

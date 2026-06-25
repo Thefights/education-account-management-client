@@ -1,9 +1,9 @@
 {
   "topup": {
-    "manual_title": "Manual Top-up",
+    "manual_title": "One-time Top-up",
     "rules_title": "Top-up Rules",
-    "system_topups_title": "System Top-ups",
-    "schedules_title": "Top-up Schedules",
+    "system_topups_title": "Top-up Rules",
+    "schedules_title": "Scheduled Top-ups",
     "account_ids_placeholder": "Account IDs separated by commas",
     "amount": "Amount",
     "reason": "Disbursement reason",

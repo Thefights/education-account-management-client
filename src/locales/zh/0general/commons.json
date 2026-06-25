@@ -8,13 +8,15 @@
     "create": "创造",
     "delete": "删除",
     "deselect_all": "取消全选",
+    "detail": "详情",
     "edit": "编辑",
     "filter": "筛选",
     "reset_filter": "重置过滤器",
     "save": "节省",
     "select_all": "选择全部",
     "submit": "提交",
-    "update": "更新"
+    "update": "更新",
+    "sort": "排序"
   },
   "error": {
     "duplicate_values_not_allowed": "不允许重复值",
@@ -65,6 +67,9 @@
   },
   "text": {
     "all": "全部",
+    "overdue": "已逾期",
+    "due": "待支付",
+    "paid": "已支付",
     "available": "可用的",
     "items": "项目",
     "loading": "加载中...",

@@ -33,13 +33,30 @@ export const routeUrls = {
     INDEX: '/education-accounts',
     DETAIL: (id = ':id') => `/education-accounts/${id}`,
   },
+  TUITION_PAYMENT: {
+    INDEX: '/tuition-payment',
+  },
+
+  PAY: {
+    INDEX: '/pay',
+  },
   SWEEP_REPORTS: { INDEX: '/sweep-reports' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
-  COURSE_MANAGEMENT: { INDEX: '/course-management' },
-  ENROLLMENT_MANAGEMENT: { INDEX: '/enrollment-management' },
+  COURSE_MANAGEMENT: {
+    INDEX: '/course-management',
+    CREATE: '/course-management/create',
+    DETAIL: (id = ':id') => `/course-management/${id}`,
+    EDIT: (id = ':id') => `/course-management/${id}/edit`,
+  },
   SCHOOL_STUDENT_MANAGEMENT: { INDEX: '/school-student' },
   TOPUP_MANAGEMENT: {
     INDEX: '/topup-management',
+    SYSTEM_CREATE: '/topup-management/system/create',
+    SYSTEM_DETAIL: (id = ':id') => `/topup-management/system/${id}`,
+    SYSTEM_EDIT: (id = ':id') => `/topup-management/system/${id}/edit`,
+    SCHEDULE_CREATE: '/topup-management/schedules/create',
+    SCHEDULE_DETAIL: (id = ':id') => `/topup-management/schedules/${id}`,
+    SCHEDULE_EDIT: (id = ':id') => `/topup-management/schedules/${id}/edit`,
     HISTORY: '/topup-management/history',
     HISTORY_DETAIL: (id = ':id') => `/topup-management/history/${id}`,
   },

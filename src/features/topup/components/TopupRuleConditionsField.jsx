@@ -1,163 +1,480 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Card, Col, InputNumber, Row, Select, Space, Typography } from 'antd'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import {
+  ApartmentOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons'
+import {
+  Button,
+  Col,
+  Flex,
+  InputNumber,
+  Row,
+  Select,
+  Space,
+  Tag,
+  Tooltip,
+  Tree,
+  Typography,
+  theme,
+} from 'antd'
+import { useState } from 'react'
 import {
   createEmptyTopupCondition,
   createEmptyTopupConditionGroup,
+  isTopupConditionGroupValid,
 } from '../utils/topupRuleFormUtil'
 
-const GroupEditor = ({ group, onChange, onDelete, depth, t }) => {
-  const fieldOptions = [
-    { value: 1, label: t('topup_form.age') },
-    { value: 2, label: t('topup_form.balance') },
-    { value: 3, label: t('topup_form.schooling_status') },
-  ]
-  const operatorOptions = [
-    { value: 1, label: t('topup_form.equals') },
-    { value: 2, label: t('topup_form.not_equals') },
+const getFieldOptions = (t) => [
+  { value: 1, label: t('topup_form.age') },
+  { value: 2, label: t('topup_form.balance') },
+  { value: 3, label: t('topup_form.schooling_status') },
+]
+
+const getOperatorOptions = (t, isText = false) => {
+  const options = [
+    { value: 1, label: t('topup_form.is') },
+    { value: 2, label: t('topup_form.is_not') },
     { value: 3, label: t('topup_form.greater_than') },
-    { value: 4, label: t('topup_form.greater_than_or_equal') },
+    { value: 4, label: t('topup_form.at_least') },
     { value: 5, label: t('topup_form.less_than') },
-    { value: 6, label: t('topup_form.less_than_or_equal') },
+    { value: 6, label: t('topup_form.at_most') },
     { value: 7, label: t('topup_form.between') },
   ]
-  const updateCondition = (index, changes) => {
-    onChange({
-      ...group,
-      conditions: group.conditions.map((condition, itemIndex) =>
-        itemIndex === index ? { ...condition, ...changes } : condition
-      ),
-    })
+  return isText ? options.slice(0, 2) : options
+}
+
+const getOptionLabel = (options, value) =>
+  options.find((option) => option.value === value)?.label || value || '—'
+
+const getConditionValueText = (condition, t) => {
+  if (condition.field === 3) {
+    return condition.valueText === 'Enrolled'
+      ? t('topup_form.enrolled')
+      : condition.valueText === 'Not Enrolled'
+        ? t('topup_form.not_enrolled')
+        : t('topup_form.value_missing')
+  }
+  if (condition.valueNumber == null) return t('topup_form.value_missing')
+  const suffix = condition.field === 1 ? ` ${t('topup_form.years')}` : ''
+  const formatValue = (value) =>
+    condition.field === 2
+      ? formatCurrencyBasedOnCurrentLanguage(value)
+      : `${Number(value).toLocaleString()}${suffix}`
+  const first = formatValue(condition.valueNumber)
+  if (condition.operator !== 7) return first
+  const upperValue =
+    condition.valueNumberTo == null
+      ? t('topup_form.value_missing')
+      : formatValue(condition.valueNumberTo)
+  return `${first} ${t('topup_form.and')} ${upperValue}`
+}
+
+const getConditionText = (condition, t) => {
+  const field = getOptionLabel(getFieldOptions(t), condition.field)
+  const operator = getOptionLabel(getOperatorOptions(t, condition.field === 3), condition.operator)
+  return `${field} ${operator} ${getConditionValueText(condition, t)}`
+}
+
+const combineCaseParts = (leftCases, rightCases) => {
+  if (!leftCases.length) return rightCases
+  if (!rightCases.length) return leftCases
+  return leftCases.flatMap((left) => rightCases.map((right) => [...left, ...right]))
+}
+
+const buildEligibilityCases = (group, t) => {
+  const conditionCases = (group.conditions || []).map((condition) => [
+    [getConditionText(condition, t)],
+  ])
+  const childCases = (group.groups || []).map((child) => buildEligibilityCases(child, t))
+  const items = [...conditionCases, ...childCases].filter((item) => item.length)
+
+  if (!items.length) return []
+
+  if (group.logicalOperator === 2) {
+    return items.flat()
   }
 
+  return items.reduce((cases, item) => combineCaseParts(cases, item), [[]])
+}
+
+const getEligibilityCaseText = (caseParts, t) => {
+  if (!caseParts.length) return '—'
+  return caseParts.join(` ${t('topup_form.and')} `)
+}
+
+export const TopupConditionSentence = ({ condition }) => {
+  const { t } = useTranslation()
   return (
-    <Card
-      size="small"
-      title={
-        <Space>
-          <Typography.Text>{t('topup_form.condition_group')}</Typography.Text>
+    <Typography.Text>
+      <Typography.Text strong>
+        {getOptionLabel(getFieldOptions(t), condition.field)}
+      </Typography.Text>{' '}
+      {getOptionLabel(getOperatorOptions(t, condition.field === 3), condition.operator)}{' '}
+      <Typography.Text strong>{getConditionValueText(condition, t)}</Typography.Text>
+    </Typography.Text>
+  )
+}
+
+const buildTreeNode = (group, t, key = 'root', isRoot = true) => ({
+  key,
+  icon: <ApartmentOutlined />,
+  title: (
+    <Space size={8} wrap>
+      <Typography.Text strong>
+        {t(
+          isRoot
+            ? group.logicalOperator === 2
+              ? 'topup_form.preview_any_requirement'
+              : 'topup_form.preview_all_requirement'
+            : group.logicalOperator === 2
+              ? 'topup_form.preview_any_scenario'
+              : 'topup_form.preview_all_scenario'
+        )}
+      </Typography.Text>
+      <Tag color={group.logicalOperator === 2 ? 'purple' : 'blue'}>
+        {group.logicalOperator === 2 ? 'ANY' : 'ALL'}
+      </Tag>
+    </Space>
+  ),
+  children: [
+    ...(group.conditions || []).map((condition, index) => ({
+      key: `${key}-condition-${condition.id ?? index}`,
+      title: <TopupConditionSentence condition={condition} />,
+    })),
+    ...(group.groups || []).map((child, index) =>
+      buildTreeNode(child, t, `${key}-group-${child.id ?? index}`, false)
+    ),
+  ],
+})
+
+export const TopupConditionTree = ({ value }) => {
+  const { t } = useTranslation()
+  const { token } = theme.useToken()
+  if (!value) return null
+  const eligibilityCases = buildEligibilityCases(value, t)
+
+  return (
+    <Flex vertical gap={12}>
+      <div
+        style={{
+          padding: 14,
+          borderRadius: token.borderRadiusLG,
+          background: token.colorInfoBg,
+          border: `1px solid ${token.colorInfoBorder}`,
+        }}
+      >
+        <Typography.Text type="secondary">{t('topup_form.summary_label')}</Typography.Text>
+        <Typography.Paragraph strong style={{ margin: '4px 0 0' }}>
+          {t('topup_form.eligible_if')}
+        </Typography.Paragraph>
+        <Flex vertical gap={4}>
+          {eligibilityCases.length ? (
+            eligibilityCases.map((caseParts, index) => (
+              <Typography.Text key={`eligibility-case-${index}`}>
+                {eligibilityCases.length > 1
+                  ? `${index + 1}. ${getEligibilityCaseText(caseParts, t)}`
+                  : getEligibilityCaseText(caseParts, t)}
+              </Typography.Text>
+            ))
+          ) : (
+            <Typography.Text>—</Typography.Text>
+          )}
+        </Flex>
+      </div>
+      <Tree
+        showIcon
+        showLine
+        selectable={false}
+        defaultExpandAll
+        treeData={[buildTreeNode(value, t)]}
+        style={{
+          padding: 12,
+          borderRadius: token.borderRadiusLG,
+          background: token.colorFillAlter,
+        }}
+      />
+    </Flex>
+  )
+}
+
+const SectionShell = ({ title, subtitle, accentColor, onDelete, children, t, token }) => (
+  <div
+    style={{
+      border: `1px solid ${token.colorBorder}`,
+      borderLeft: `4px solid ${accentColor}`,
+      borderRadius: token.borderRadiusLG,
+      background: token.colorBgContainer,
+      overflow: 'hidden',
+    }}
+  >
+    <Flex
+      align="center"
+      justify="space-between"
+      gap={12}
+      style={{
+        padding: '12px 16px',
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        background: token.colorFillQuaternary,
+      }}
+    >
+      <Flex vertical gap={2}>
+        <Typography.Text strong>{title}</Typography.Text>
+        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          {subtitle}
+        </Typography.Text>
+      </Flex>
+      {onDelete ? (
+        <Tooltip title={t('topup_form.delete_group')}>
+          <Button danger type="text" icon={<DeleteOutlined />} onClick={onDelete} />
+        </Tooltip>
+      ) : null}
+    </Flex>
+    <div style={{ padding: 16 }}>{children}</div>
+  </div>
+)
+
+const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showValidationErrors }) => {
+  const [touched, setTouched] = useState({ value: false, valueTo: false })
+  const isText = condition.field === 3
+  const isBetween = !isText && condition.operator === 7
+  const missingValue = isText ? !condition.valueText : condition.valueNumber == null
+  const missingUpperValue = isBetween && condition.valueNumberTo == null
+  const invalidRange =
+    isBetween &&
+    condition.valueNumberTo != null &&
+    Number(condition.valueNumberTo) < Number(condition.valueNumber)
+  const showMissingValue = (showValidationErrors || touched.value) && missingValue
+  const showUpperValueError = (showValidationErrors || touched.valueTo) && missingUpperValue
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        padding: 12,
+        paddingRight: 48,
+        border: `1px solid ${token.colorBorder}`,
+        borderRadius: token.borderRadiusLG,
+        background: token.colorBgContainer,
+      }}
+    >
+      <Flex align="center" gap={8} style={{ marginBottom: 8 }}>
+        <Tag>{index + 1}</Tag>
+        <Typography.Text type="secondary">{t('topup_form.rule')}</Typography.Text>
+      </Flex>
+      <Tooltip title={t('topup_form.delete_condition')}>
+        <Button
+          danger
+          type="text"
+          icon={<DeleteOutlined />}
+          onClick={onDelete}
+          style={{ position: 'absolute', top: 10, right: 8 }}
+        />
+      </Tooltip>
+      <Row gutter={[8, 8]} align="top">
+        <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
-            size="small"
+            aria-label={t('topup_form.field')}
+            value={condition.field}
+            options={getFieldOptions(t)}
+            style={{ width: '100%', height: 32 }}
+            onChange={(field) =>
+              onChange({
+                ...condition,
+                field,
+                operator: 1,
+                valueText: null,
+                valueNumber: null,
+                valueNumberTo: null,
+              })
+            }
+          />
+        </Col>
+        <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
+          <Select
+            aria-label={t('topup_form.operator')}
+            value={condition.operator}
+            options={getOperatorOptions(t, isText)}
+            style={{ width: '100%', height: 32 }}
+            onChange={(operator) =>
+              onChange({
+                ...condition,
+                operator,
+                valueNumberTo: operator === 7 ? condition.valueNumberTo : null,
+              })
+            }
+          />
+        </Col>
+        <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
+          <Flex vertical gap={4}>
+            {isText ? (
+              <Select
+                aria-label={t('topup_form.value')}
+                status={showMissingValue ? 'error' : undefined}
+                value={condition.valueText}
+                placeholder={t('topup_form.select_value')}
+                options={[
+                  { value: 'Enrolled', label: t('topup_form.enrolled') },
+                  { value: 'Not Enrolled', label: t('topup_form.not_enrolled') },
+                ]}
+                style={{ width: '100%', height: 32 }}
+                onChange={(valueText) => onChange({ ...condition, valueText })}
+                onBlur={() => setTouched((current) => ({ ...current, value: true }))}
+              />
+            ) : (
+              <InputNumber
+                aria-label={t('topup_form.value')}
+                status={showMissingValue ? 'error' : undefined}
+                value={condition.valueNumber}
+                placeholder={isBetween ? t('topup_form.from_value') : t('topup_form.value')}
+                min={0}
+                precision={condition.field === 1 ? 0 : 2}
+                prefix={condition.field === 2 ? '$' : undefined}
+                suffix={condition.field === 1 ? t('topup_form.years') : undefined}
+                style={{ width: '100%', height: 32 }}
+                onChange={(valueNumber) => onChange({ ...condition, valueNumber })}
+                onBlur={() => setTouched((current) => ({ ...current, value: true }))}
+              />
+            )}
+            {showMissingValue && (
+              <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                {t('topup_form.enter_value')}
+              </Typography.Text>
+            )}
+          </Flex>
+        </Col>
+        {isBetween && (
+          <Col xs={24} md={12} xl={6}>
+            <Flex vertical gap={4}>
+              <InputNumber
+                aria-label={t('topup_form.to_value')}
+                status={showUpperValueError || invalidRange ? 'error' : undefined}
+                value={condition.valueNumberTo}
+                placeholder={t('topup_form.to_value')}
+                min={0}
+                precision={condition.field === 1 ? 0 : 2}
+                prefix={condition.field === 2 ? '$' : undefined}
+                suffix={condition.field === 1 ? t('topup_form.years') : undefined}
+                style={{ width: '100%', height: 32 }}
+                onChange={(valueNumberTo) => onChange({ ...condition, valueNumberTo })}
+                onBlur={() => setTouched((current) => ({ ...current, valueTo: true }))}
+              />
+              {(showUpperValueError || invalidRange) && (
+                <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                  {invalidRange ? t('topup_form.invalid_range') : t('topup_form.enter_value')}
+                </Typography.Text>
+              )}
+            </Flex>
+          </Col>
+        )}
+      </Row>
+    </div>
+  )
+}
+
+const GroupEditor = ({
+  group,
+  onChange,
+  onDelete,
+  depth,
+  groupNumber,
+  t,
+  token,
+  showValidationErrors = false,
+}) => {
+  const mode = group.logicalOperator === 2 ? 'ANY' : 'ALL'
+  const isRoot = depth === 1
+  const conditions = group.conditions || []
+  const groups = group.groups || []
+  const updateCondition = (index, nextCondition) =>
+    onChange({
+      ...group,
+      conditions: conditions.map((condition, itemIndex) =>
+        itemIndex === index ? nextCondition : condition
+      ),
+    })
+
+  return (
+    <SectionShell
+      title={
+        isRoot
+          ? t('topup_form.required_conditions')
+          : t('topup_form.scenario_number', { number: groupNumber })
+      }
+      subtitle={isRoot ? t('topup_form.required_conditions_hint') : t('topup_form.scenario_hint')}
+      accentColor={isRoot ? token.colorPrimary : token.colorInfo}
+      onDelete={onDelete}
+      t={t}
+      token={token}
+    >
+      <Flex vertical gap={12}>
+        <Flex align="center" gap={8} wrap="wrap">
+          <Typography.Text>{t('topup_form.matching_mode')}</Typography.Text>
+          <Select
             value={group.logicalOperator}
+            style={{ minWidth: 260, height: 32 }}
             options={[
-              { value: 1, label: 'AND' },
-              { value: 2, label: 'OR' },
+              {
+                value: 1,
+                label: isRoot
+                  ? t('topup_form.must_match_all_requirements')
+                  : t('topup_form.must_match_all_in_scenario'),
+              },
+              {
+                value: 2,
+                label: isRoot
+                  ? t('topup_form.can_match_any_requirement')
+                  : t('topup_form.can_match_any_in_scenario'),
+              },
             ]}
             onChange={(logicalOperator) => onChange({ ...group, logicalOperator })}
           />
-        </Space>
-      }
-      extra={
-        onDelete ? (
-          <Button danger type="text" icon={<DeleteOutlined />} onClick={onDelete} />
-        ) : null
-      }
-    >
-      <Space orientation="vertical" size={8} style={{ width: '100%' }}>
-        {group.conditions.map((condition, index) => {
-          const isText = condition.field === 3
-          const isBetween = !isText && condition.operator === 7
-          return (
-            <Row key={condition.id ?? index} gutter={[8, 8]} align="middle">
-              <Col xs={24} md={5}>
-                <Select
-                  value={condition.field}
-                  options={fieldOptions}
-                  style={{ width: '100%' }}
-                  onChange={(field) =>
-                    updateCondition(index, {
-                      field,
-                      operator: 1,
-                      valueText: null,
-                      valueNumber: null,
-                      valueNumberTo: null,
-                    })
-                  }
-                />
-              </Col>
-              <Col xs={24} md={5}>
-                <Select
-                  value={condition.operator}
-                  options={isText ? operatorOptions.slice(0, 2) : operatorOptions}
-                  style={{ width: '100%' }}
-                  onChange={(operator) =>
-                    updateCondition(index, {
-                      operator,
-                      valueNumberTo: operator === 7 ? condition.valueNumberTo : null,
-                    })
-                  }
-                />
-              </Col>
-              <Col xs={20} md={isBetween ? 5 : 12}>
-                {isText ? (
-                  <Select
-                    value={condition.valueText}
-                    placeholder={t('topup_form.value')}
-                    options={[
-                      { value: 'Enrolled', label: t('topup_form.enrolled') },
-                      { value: 'Not Enrolled', label: t('topup_form.not_enrolled') },
-                    ]}
-                    style={{ width: '100%' }}
-                    onChange={(valueText) => updateCondition(index, { valueText })}
-                  />
-                ) : (
-                  <InputNumber
-                    value={condition.valueNumber}
-                    placeholder={isBetween ? t('topup_form.from_value') : t('topup_form.value')}
-                    min={0}
-                    precision={condition.field === 1 ? 0 : 2}
-                    style={{ width: '100%' }}
-                    onChange={(valueNumber) => updateCondition(index, { valueNumber })}
-                  />
-                )}
-              </Col>
-              {isBetween && (
-                <Col xs={20} md={7}>
-                  <InputNumber
-                    value={condition.valueNumberTo}
-                    placeholder={t('topup_form.to_value')}
-                    min={0}
-                    precision={condition.field === 1 ? 0 : 2}
-                    style={{ width: '100%' }}
-                    onChange={(valueNumberTo) => updateCondition(index, { valueNumberTo })}
-                  />
-                </Col>
-              )}
-              <Col xs={4} md={2}>
-                <Button
-                  danger
-                  type="text"
-                  icon={<DeleteOutlined />}
-                  onClick={() =>
-                    onChange({
-                      ...group,
-                      conditions: group.conditions.filter((_, itemIndex) => itemIndex !== index),
-                    })
-                  }
-                />
-              </Col>
-            </Row>
-          )
-        })}
+          <Tooltip
+            title={t(mode === 'ALL' ? 'topup_form.match_all_help' : 'topup_form.match_any_help')}
+          >
+            <QuestionCircleOutlined style={{ color: token.colorTextSecondary }} />
+          </Tooltip>
+        </Flex>
 
-        {(group.groups || []).map((child, index) => (
+        {conditions.map((condition, index) => (
+          <ConditionRow
+            key={condition.id ?? `condition-${index}`}
+            condition={condition}
+            index={index}
+            t={t}
+            token={token}
+            showValidationErrors={showValidationErrors}
+            onChange={(nextCondition) => updateCondition(index, nextCondition)}
+            onDelete={() =>
+              onChange({
+                ...group,
+                conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
+              })
+            }
+          />
+        ))}
+
+        {groups.map((child, index) => (
           <GroupEditor
-            key={child.id ?? index}
+            key={child.id ?? `group-${index}`}
             group={child}
             depth={depth + 1}
+            groupNumber={index + 1}
             t={t}
+            token={token}
+            showValidationErrors={showValidationErrors}
             onChange={(nextChild) =>
               onChange({
                 ...group,
-                groups: group.groups.map((item, itemIndex) =>
-                  itemIndex === index ? nextChild : item
-                ),
+                groups: groups.map((item, itemIndex) => (itemIndex === index ? nextChild : item)),
               })
             }
             onDelete={() =>
               onChange({
                 ...group,
-                groups: group.groups.filter((_, itemIndex) => itemIndex !== index),
+                groups: groups.filter((_, itemIndex) => itemIndex !== index),
               })
             }
           />
@@ -170,41 +487,66 @@ const GroupEditor = ({ group, onChange, onDelete, depth, t }) => {
             onClick={() =>
               onChange({
                 ...group,
-                conditions: [...group.conditions, createEmptyTopupCondition()],
+                conditions: [...conditions, createEmptyTopupCondition()],
               })
             }
           >
-            {t('topup_form.add_condition')}
+            {isRoot
+              ? t('topup_form.add_required_condition')
+              : t('topup_form.add_scenario_condition')}
           </Button>
-          {depth < 5 && (
+          {depth === 1 && (
             <Button
               type="dashed"
               icon={<PlusOutlined />}
               onClick={() =>
-                onChange({ ...group, groups: [...group.groups, createEmptyTopupConditionGroup()] })
+                onChange({ ...group, groups: [...groups, createEmptyTopupConditionGroup()] })
               }
             >
-              {t('topup_form.add_condition_group')}
+              {t('topup_form.add_scenario')}
             </Button>
           )}
         </Space>
-        {!group.conditions.length && !group.groups.length && (
+        {!conditions.length && !groups.length && (
           <Typography.Text type="danger">{t('topup_form.condition_required')}</Typography.Text>
         )}
-      </Space>
-    </Card>
+      </Flex>
+    </SectionShell>
   )
 }
 
-const TopupRuleConditionsField = ({ value, onChange }) => {
+const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = false }) => {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
+  const group = value || createEmptyTopupConditionGroup()
+
   return (
-    <GroupEditor
-      group={value || createEmptyTopupConditionGroup()}
-      onChange={onChange}
-      depth={1}
-      t={t}
-    />
+    <Flex vertical gap={12}>
+      <GroupEditor
+        group={group}
+        onChange={onChange}
+        depth={1}
+        groupNumber={1}
+        t={t}
+        token={token}
+        showValidationErrors={showValidationErrors}
+      />
+      {isTopupConditionGroupValid(group) && (
+        <div
+          style={{
+            padding: 16,
+            border: `1px solid ${token.colorBorder}`,
+            borderRadius: token.borderRadiusLG,
+            background: token.colorBgContainer,
+          }}
+        >
+          <Typography.Text strong>{t('topup_form.readable_preview')}</Typography.Text>
+          <div style={{ marginTop: 12 }}>
+            <TopupConditionTree value={group} />
+          </div>
+        </div>
+      )}
+    </Flex>
   )
 }
 

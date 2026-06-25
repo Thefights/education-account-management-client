@@ -7,18 +7,22 @@
       "add_students_to_course": "Add Students to {{course}}"
     },
     "placeholder": {
-      "search": "Search by student name, email, NRIC or account number"
+      "search": "Search..."
+    },
+    "label": {
+      "search": "Search by student name, NRIC, email, phone number, or account number"
     },
     "field": {
       "id": "Enrollment ID",
       "course_code": "Course Code",
       "course_name": "Course Name",
       "course_status": "Course Status",
-      "nric": "NRIC/FIN",
-      "full_name": "Student Name",
+      "nric": "NRIC",
+      "full_name": "Full Name",
       "email": "Email",
       "phone": "Phone Number",
       "account_number": "Account Number",
+      "status": "Enrollment Status",
       "enrolled_at": "Enrolled At",
       "charge_status": "Charge Status",
       "gross_amount": "Gross Amount",
@@ -31,20 +35,22 @@
       "assign": "Assign",
       "delete_selected": "Delete Selected",
       "manage_students": "Manage Students",
-      "view_students": "View Students"
+      "view_students": "View Students",
+      "withdraw": "Withdraw"
     },
     "confirm": {
       "delete_title": "Delete Enrollment",
       "delete_description": "Are you sure you want to delete the enrollment for {{name}}?",
       "delete_selected_title": "Delete Selected Enrollments",
-      "delete_selected_description": "Are you sure you want to delete {{count}} selected enrollments?"
+      "delete_selected_description": "Are you sure you want to delete {{count}} selected enrollments?",
+      "withdraw_title": "Withdraw student?",
+      "withdraw_description": "Mark {name} as withdrawn from this course?"
     },
     "status": {
       "charge": {
         "unpaid": "Unpaid",
-        "partially_paid": "Partially Paid",
         "paid": "Paid",
-        "outstanding": "Outstanding"
+        "overdue": "Overdue"
       }
     }
   }

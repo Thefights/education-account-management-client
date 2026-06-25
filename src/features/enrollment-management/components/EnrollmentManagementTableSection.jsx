@@ -1,22 +1,22 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
-import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
+import {
+  defaultChargeStatusStyle,
+  defaultManagementStatusStyle,
+} from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatSingaporeDateTime } from '@/shared/utils/dateTimeUtil'
-
-const chargeStatusColors = {
-  Unpaid: 'error',
-  PartiallyPaid: 'warning',
-  Paid: 'success',
-  Outstanding: 'volcano',
-}
-
-const formatAmount = (value) =>
-  value == null ? null : Number(value).toLocaleString(undefined, { minimumFractionDigits: 2 })
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 
 const isEnrollmentRemovable = (enrollment) =>
-  enrollment.courseStatus === 'Enrolling' && enrollment.chargeStatus == null
+  (enrollment.courseStatus === 'Draft' || enrollment.courseStatus === 'Enrolling') &&
+  enrollment.chargeStatus == null
+
+const isEnrollmentWithdrawable = (enrollment) =>
+  enrollment.status === 'Active' &&
+  (enrollment.courseStatus === 'Upcoming' || enrollment.courseStatus === 'InProgress')
 
 const EnrollmentManagementTableSection = ({
   enrollments,
@@ -26,13 +26,21 @@ const EnrollmentManagementTableSection = ({
   selectedIds,
   setSelectedIds,
   onDelete,
+  onWithdraw,
   showCourse = true,
   readOnly = false,
+  allowWithdraw = false,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = [
-    { key: 'id', title: t('enrollment_management.field.id'), width: 80, sortable: true },
+    {
+      key: 'accountNumber',
+      title: t('enrollment_management.field.account_number'),
+      width: 170,
+      sortable: true,
+    },
+
     ...(showCourse
       ? [
           {
@@ -62,6 +70,7 @@ const EnrollmentManagementTableSection = ({
       title: t('enrollment_management.field.nric'),
       width: 140,
       sortable: true,
+      render: (value) => <MaskedNric value={value} />,
     },
     {
       key: 'citizenFullName',
@@ -72,17 +81,20 @@ const EnrollmentManagementTableSection = ({
     { key: 'citizenEmail', title: t('enrollment_management.field.email'), width: 220 },
     { key: 'citizenPhoneNumber', title: t('enrollment_management.field.phone'), width: 150 },
     {
-      key: 'accountNumber',
-      title: t('enrollment_management.field.account_number'),
-      width: 170,
-      sortable: true,
-    },
-    {
       key: 'enrolledAt',
       title: t('enrollment_management.field.enrolled_at'),
       width: 180,
       sortable: true,
-      render: formatSingaporeDateTime,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'status',
+      title: t('enrollment_management.field.status'),
+      width: 130,
+      sortable: true,
+      type: 'tag',
+      options: _enum.enrollmentStatusOptions,
+      color: (status) => (status === 'Withdrawn' ? 'default' : 'success'),
     },
     {
       key: 'chargeStatus',
@@ -91,30 +103,30 @@ const EnrollmentManagementTableSection = ({
       sortable: true,
       type: 'tag',
       options: _enum.chargeStatusOptions,
-      color: (status) => chargeStatusColors[status] || 'default',
+      color: defaultChargeStatusStyle,
     },
     {
       key: 'grossAmount',
       title: t('enrollment_management.field.gross_amount'),
       width: 140,
       isNumeric: true,
-      render: formatAmount,
+      render: formatCurrencyBasedOnCurrentLanguage,
     },
     {
       key: 'paidAmount',
       title: t('enrollment_management.field.paid_amount'),
       width: 140,
       isNumeric: true,
-      render: formatAmount,
+      render: formatCurrencyBasedOnCurrentLanguage,
     },
     {
       key: 'remainingAmount',
       title: t('enrollment_management.field.remaining_amount'),
       width: 160,
       isNumeric: true,
-      render: formatAmount,
+      render: formatCurrencyBasedOnCurrentLanguage,
     },
-    ...(!readOnly
+    ...(!readOnly || allowWithdraw
       ? [
           {
             key: 'actions',
@@ -122,11 +134,19 @@ const EnrollmentManagementTableSection = ({
             width: 70,
             render: (_, row) => (
               <ActionMenu
-                actions={
-                  isEnrollmentRemovable(row)
+                actions={[
+                  ...(isEnrollmentRemovable(row)
                     ? [{ title: t('button.delete'), onClick: () => onDelete?.(row) }]
-                    : []
-                }
+                    : []),
+                  ...(isEnrollmentWithdrawable(row)
+                    ? [
+                        {
+                          title: t('enrollment_management.action.withdraw'),
+                          onClick: () => onWithdraw?.(row),
+                        },
+                      ]
+                    : []),
+                ]}
               />
             ),
           },
@@ -146,6 +166,7 @@ const EnrollmentManagementTableSection = ({
       selectedRows={selectedIds}
       setSelectedRows={setSelectedIds}
       isRowSelectable={isEnrollmentRemovable}
+      getRowClassName={(row) => (row.status === 'Withdrawn' ? 'withdrawn-enrollment-row' : '')}
     />
   )
 }
