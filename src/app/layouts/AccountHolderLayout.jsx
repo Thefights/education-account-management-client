@@ -1,7 +1,7 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { HistoryOutlined, UserOutlined, BookOutlined, CreditCardOutlined } from '@ant-design/icons'
+import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
 
 const AccountHolderLayout = () => {
   const { t } = useTranslation()
@@ -34,6 +34,23 @@ const AccountHolderLayout = () => {
               label: t('tuition-payment.title'),
               icon: CreditCardOutlined,
               url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX),
+            },
+            {
+              key: 'my-fas',
+              label: 'My FAS',
+              icon: FileProtectOutlined,
+              of: [
+                {
+                  key: 'my-fas-apply',
+                  label: 'Apply',
+                  url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
+                },
+                {
+                  key: 'my-fas-management',
+                  label: 'Management',
+                  url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT),
+                },
+              ],
             },
           ],
         },

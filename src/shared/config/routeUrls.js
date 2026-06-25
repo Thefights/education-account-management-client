@@ -60,6 +60,10 @@ export const routeUrls = {
     HISTORY: '/topup-management/history',
     HISTORY_DETAIL: (id = ':id') => `/topup-management/history/${id}`,
   },
+  FAS_ADMIN: {
+    SCHEMES: '/fas/schemes',
+    APPLICATIONS: '/fas/applications',
+  },
   LEGACY_TOPUP: {
     MANUAL: '/manual-topup',
     RULES: '/topup-rules',
@@ -67,6 +71,10 @@ export const routeUrls = {
   },
   PROFILE: { INDEX: '/profile' },
   TRANSACTIONS: { INDEX: '/transactions' },
+  MY_FAS: {
+    APPLY: '/fas/apply',
+    MANAGEMENT: '/fas/management',
+  },
 }
 
 export const publicRouteUrls = [
