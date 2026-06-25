@@ -1,7 +1,13 @@
 {
   "course_management": {
     "menu_label": "课程管理",
-    "title": { "management": "课程管理", "create": "创建课程", "update": "更新课程", "important_dates": "重要日期" },
+    "title": { 
+        "management": "课程管理", 
+        "create": "创建课程", 
+        "update": "更新课程",
+        "list_of_course": "课程列表",
+        "important_dates": "重要日期" 
+    },
     "field": {
       "id": "ID",
       "school": "学校",
@@ -34,7 +40,12 @@
     },
     "message": {
       "update_conflict": "该课程已被其他人修改。最新数据已重新加载，请重新编辑。",
-      "publish_deadline_expired": "所有所选课程的 FAS 申请截止时间必须在未来。"
+      "publish_deadline_expired": "所有所选课程的报名截止时间必须在未来。"
+    },
+    "tab": {
+      "upcoming": "即将开始",
+      "in_progress": "进行中",
+      "closed": "已结束"
     }
   }
 }
