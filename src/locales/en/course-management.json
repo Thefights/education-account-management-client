@@ -36,6 +36,9 @@
       "publish": "Publish",
       "delete_selected": "Delete selected"
     },
+    "placeholder": { 
+      "searchbyID": "Search by course name or ID" 
+    },
     "label": { "search": "Search by course name, course code, or school name" },
     "placeholder": { "search": "Search..." },
     "confirm": {

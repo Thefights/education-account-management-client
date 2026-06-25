@@ -8,6 +8,7 @@ import { Space, Table, Tag } from 'antd'
 import { useMemo } from 'react'
 import EmptyRow from '../placeholders/EmptyRow'
 import SkeletonTableRow from '../skeletons/SkeletonTableRow'
+import React from 'react'
 
 const getDataIndex = (key) => {
   if (!key) return undefined
@@ -75,6 +76,8 @@ const GenericTable = ({
   isRowSelectable = defaultRowSelectable,
   loading = false,
   stickyHeader = false,
+  expandedRowKeys,
+  expandelement,
   onRowClick,
   getRowClassName = defaultRowClassName,
 }) => {
@@ -174,6 +177,15 @@ const GenericTable = ({
         border: '1px solid var(--app-border-color)',
         borderRadius: '12px',
         overflow: 'hidden',
+      }}
+      expandable={{
+        expandedRowRender: (record) => {
+          return React.cloneElement(expandelement, {
+            prop: record,
+          });
+        },
+        expandedRowKeys,
+        showExpandColumn: false,
       }}
     />
   )
