@@ -7,7 +7,7 @@
     },
     "login": "Login",
     "home": {
-      "title": "Education Account Management",
+      "title": "Singapore Financial System",
       "subtitle": "Convenient & Secure",
       "description": "A smart campus payment platform helping parents and students easily manage expenses, top-ups, and subsidies.",
       "login_now": "Login Now",
@@ -69,7 +69,7 @@
       "emergency_desc": "Need to lock your account urgently or report an unusual transaction? Our rapid response team is always on standby."
     },
     "footer": {
-      "copyright": "© 2026 Education Account Management System.",
+      "copyright": "© 2026 Singapore Financial System.",
       "privacy": "Privacy Policy",
       "terms": "Terms of Service"
     }

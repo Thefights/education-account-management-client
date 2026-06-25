@@ -43,13 +43,7 @@ const LandingLayout = () => {
           zIndex: 50,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <Link
-            to={routeUrls.LANDING.HOME}
-            style={{ fontSize: '24px', fontWeight: 'bold', color: token.colorPrimary }}
-          >
-            EduManage
-          </Link>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <Menu
             mode="horizontal"
             selectedKeys={[location.pathname]}
@@ -96,10 +90,7 @@ const LandingLayout = () => {
           }}
         >
           <div>
-            <span style={{ color: 'var(--app-sider-text)', fontSize: '20px', fontWeight: 'bold' }}>
-              EduManage
-            </span>
-            <p style={{ marginTop: '8px', fontSize: '14px' }}>{t('landing.footer.copyright')}</p>
+            <p style={{ margin: 0, fontSize: '14px' }}>{t('landing.footer.copyright')}</p>
           </div>
           <div style={{ display: 'flex', gap: '24px', fontSize: '14px' }}>
             <Link
