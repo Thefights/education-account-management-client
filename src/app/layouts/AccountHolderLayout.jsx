@@ -1,7 +1,7 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { HistoryOutlined, UserOutlined } from '@ant-design/icons'
+import { FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
 
 const AccountHolderLayout = () => {
   const { t } = useTranslation()
@@ -22,6 +22,23 @@ const AccountHolderLayout = () => {
               label: t('transaction.title'),
               icon: HistoryOutlined,
               url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TRANSACTIONS.INDEX),
+            },
+            {
+              key: 'my-fas',
+              label: 'My FAS',
+              icon: FileProtectOutlined,
+              of: [
+                {
+                  key: 'my-fas-apply',
+                  label: 'Apply',
+                  url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
+                },
+                {
+                  key: 'my-fas-management',
+                  label: 'Management',
+                  url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT),
+                },
+              ],
             },
           ],
         },

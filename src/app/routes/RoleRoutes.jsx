@@ -12,6 +12,10 @@ import CourseManagementPage from '@/features/course-management/pages/CourseManag
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import EnrollmentManagementPage from '@/features/enrollment-management/pages/EnrollmentManagementPage'
+import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
+import FasSchemeManagementPage from '@/features/financial-assistance/pages/FasSchemeManagementPage'
+import MyFasApplyPage from '@/features/financial-assistance/pages/MyFasApplyPage'
+import MyFasManagementPage from '@/features/financial-assistance/pages/MyFasManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
@@ -102,6 +106,8 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.SchoolAdmin,
     Layout: SchoolAdminLayout,
     routes: [
+      { path: routeUrls.FAS_ADMIN.SCHEMES, element: <FasSchemeManagementPage /> },
+      { path: routeUrls.FAS_ADMIN.APPLICATIONS, element: <FasApplicationQueuePage /> },
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <CourseManagementPage />,
@@ -121,6 +127,8 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.AccountHolder,
     Layout: AccountHolderLayout,
     routes: [
+      { path: routeUrls.MY_FAS.APPLY, element: <MyFasApplyPage /> },
+      { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
       {
         path: routeUrls.TRANSACTIONS.INDEX,

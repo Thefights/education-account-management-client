@@ -7,6 +7,10 @@ import SwitchLanguageButton from '../buttons/SwitchLanguageButton'
 import SwitchThemeButton from '../buttons/SwitchThemeButton'
 import UserAvatarMenu from '../menus/UserAvatarMenu'
 
+const acronymLabels = {
+  fas: 'FAS',
+}
+
 const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
   const screens = Grid.useBreakpoint()
   const isDownMd = !screens.md
@@ -22,9 +26,15 @@ const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
 
     const items = segments.map((seg, idx) => {
       const cumulative = '/' + segments.slice(0, idx + 1).join('/')
-      const labelMaker = (seg) => seg.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+      const labelMaker = (seg) => {
+        const decoded = decodeURIComponent(seg)
+        const normalized = decoded.toLowerCase()
+        if (acronymLabels[normalized]) return acronymLabels[normalized]
+
+        return decoded.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+      }
       return {
-        label: labelMaker(decodeURIComponent(seg), cumulative),
+        label: labelMaker(seg, cumulative),
         path: cumulative,
         isLast: idx === segments.length - 1,
       }
