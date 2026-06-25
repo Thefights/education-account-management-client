@@ -9,6 +9,7 @@ import AdminManagementPage from '@/features/admin-management/pages/AdminManageme
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
 import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
 import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
+import CourseManagementFormPage from '@/features/course-management/pages/CourseManagementFormPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
@@ -131,6 +132,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <CourseManagementPage />,
+      },
+      {
+        path: routeUrls.COURSE_MANAGEMENT.CREATE,
+        element: <CourseManagementFormPage />,
       },
       {
         path: routeUrls.COURSE_MANAGEMENT.DETAIL(),

@@ -49,9 +49,8 @@
     "status": {
       "charge": {
         "unpaid": "未付款",
-        "partially_paid": "部分付款",
         "paid": "已付款",
-        "outstanding": "逾期"
+        "overdue": "逾期"
       }
     }
   }

@@ -78,16 +78,31 @@ const getConditionText = (condition, t) => {
   return `${field} ${operator} ${getConditionValueText(condition, t)}`
 }
 
-const getGroupSummary = (group, t, nested = false) => {
-  const parts = [
-    ...(group.conditions || []).map((condition) => getConditionText(condition, t)),
-    ...(group.groups || []).map((child) => getGroupSummary(child, t, true)),
-  ]
-  const separator = ` ${t(
-    group.logicalOperator === 2 ? 'topup_form.logical_or' : 'topup_form.logical_and'
-  )} `
-  const summary = parts.join(separator)
-  return nested && summary ? `(${summary})` : summary
+const combineCaseParts = (leftCases, rightCases) => {
+  if (!leftCases.length) return rightCases
+  if (!rightCases.length) return leftCases
+  return leftCases.flatMap((left) => rightCases.map((right) => [...left, ...right]))
+}
+
+const buildEligibilityCases = (group, t) => {
+  const conditionCases = (group.conditions || []).map((condition) => [
+    [getConditionText(condition, t)],
+  ])
+  const childCases = (group.groups || []).map((child) => buildEligibilityCases(child, t))
+  const items = [...conditionCases, ...childCases].filter((item) => item.length)
+
+  if (!items.length) return []
+
+  if (group.logicalOperator === 2) {
+    return items.flat()
+  }
+
+  return items.reduce((cases, item) => combineCaseParts(cases, item), [[]])
+}
+
+const getEligibilityCaseText = (caseParts, t) => {
+  if (!caseParts.length) return '—'
+  return caseParts.join(` ${t('topup_form.and')} `)
 }
 
 export const TopupConditionSentence = ({ condition }) => {
@@ -139,6 +154,7 @@ export const TopupConditionTree = ({ value }) => {
   const { t } = useTranslation()
   const { token } = theme.useToken()
   if (!value) return null
+  const eligibilityCases = buildEligibilityCases(value, t)
 
   return (
     <Flex vertical gap={12}>
@@ -152,8 +168,21 @@ export const TopupConditionTree = ({ value }) => {
       >
         <Typography.Text type="secondary">{t('topup_form.summary_label')}</Typography.Text>
         <Typography.Paragraph strong style={{ margin: '4px 0 0' }}>
-          {getGroupSummary(value, t) || '—'}
+          {t('topup_form.eligible_if')}
         </Typography.Paragraph>
+        <Flex vertical gap={4}>
+          {eligibilityCases.length ? (
+            eligibilityCases.map((caseParts, index) => (
+              <Typography.Text key={`eligibility-case-${index}`}>
+                {eligibilityCases.length > 1
+                  ? `${index + 1}. ${getEligibilityCaseText(caseParts, t)}`
+                  : getEligibilityCaseText(caseParts, t)}
+              </Typography.Text>
+            ))
+          ) : (
+            <Typography.Text>—</Typography.Text>
+          )}
+        </Flex>
       </div>
       <Tree
         showIcon
@@ -439,9 +468,7 @@ const GroupEditor = ({
             onChange={(nextChild) =>
               onChange({
                 ...group,
-                groups: groups.map((item, itemIndex) =>
-                  itemIndex === index ? nextChild : item
-                ),
+                groups: groups.map((item, itemIndex) => (itemIndex === index ? nextChild : item)),
               })
             }
             onDelete={() =>

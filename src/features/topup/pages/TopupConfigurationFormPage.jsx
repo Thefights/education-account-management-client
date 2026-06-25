@@ -3,27 +3,18 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
-import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useFetch from '@/shared/hooks/useFetch'
+import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { localDateTimeToIso, toLocalPickerValue } from '@/shared/utils/dateTimeUtil'
+import { getCurrencySymbolBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { maxLen, numberHigherThan } from '@/shared/utils/validateUtil'
 import { ArrowLeftOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import {
-  Button,
-  Card,
-  Col,
-  Flex,
-  Row,
-  Skeleton,
-  Tooltip,
-  Typography,
-  theme,
-} from 'antd'
+import { Button, Card, Col, Flex, Row, Skeleton, Tooltip, Typography, theme } from 'antd'
+import dayjs from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import dayjs from 'dayjs'
 import TopupRuleConditionsField from '../components/TopupRuleConditionsField'
 import {
   createEmptyTopupConditionGroup,
@@ -88,6 +79,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const navigate = useNavigate()
+  const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const { values, handleChange, setField, reset, registerRef, validateAll, resetValidation } =
     useForm()
   const [submitted, setSubmitted] = useState(false)
@@ -132,7 +124,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         type: 'input-number',
         minValue: 0.01,
         validate: [numberHigherThan(0)],
-        props: { precision: 2, prefix: '$' },
+        props: { precision: 2, prefix: currencySymbol },
       },
     ]
 
@@ -149,6 +141,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
   }, [
     _enum.scheduleTopupStatusIdOptions,
     _enum.systemTopupStatusIdOptions,
+    currencySymbol,
     isEdit,
     isSchedule,
     t,
@@ -257,87 +250,87 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
   return (
     <div style={{ padding: '20px 28px 28px' }}>
       <Flex vertical gap={4}>
-          <Flex align="center" gap={12} wrap="wrap">
-            <Button
-              aria-label={t('button.back')}
-              icon={<ArrowLeftOutlined />}
-              onClick={() => navigate(listUrl)}
-            />
-            <Typography.Title level={4} style={{ margin: 0 }}>
-              <Flex align="center" gap={8}>
-                <span>{pageTitle}</span>
-                <Tooltip title={t('topup_form.form_subtitle')}>
-                  <QuestionCircleOutlined style={{ fontSize: 16 }} />
-                </Tooltip>
-              </Flex>
-            </Typography.Title>
-          </Flex>
+        <Flex align="center" gap={12} wrap="wrap">
+          <Button
+            aria-label={t('button.back')}
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(listUrl)}
+          />
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            <Flex align="center" gap={8}>
+              <span>{pageTitle}</span>
+              <Tooltip title={t('topup_form.form_subtitle')}>
+                <QuestionCircleOutlined style={{ fontSize: 16 }} />
+              </Tooltip>
+            </Flex>
+          </Typography.Title>
+        </Flex>
 
-          <FormSection title={t('topup_form.basic_information')}>
+        <FormSection title={t('topup_form.basic_information')}>
+          <Row gutter={16}>
+            {basicFields.map((field) => (
+              <Col key={field.key} xs={24} md={isEdit ? 8 : 12}>
+                {renderField(field)}
+              </Col>
+            ))}
+          </Row>
+        </FormSection>
+
+        {isSchedule && (
+          <FormSection
+            title={
+              <TitleWithHelp
+                title={t('topup.schedule_configuration')}
+                help={t('topup_form.schedule_time_help')}
+              />
+            }
+          >
             <Row gutter={16}>
-              {basicFields.map((field) => (
-                <Col key={field.key} xs={24} md={isEdit ? 8 : 12}>
+              {scheduleFields.map((field) => (
+                <Col key={field.key} xs={24} md={12}>
                   {renderField(field)}
                 </Col>
               ))}
             </Row>
           </FormSection>
+        )}
 
-          {isSchedule && (
-            <FormSection
-              title={
-                <TitleWithHelp
-                  title={t('topup.schedule_configuration')}
-                  help={t('topup_form.schedule_time_help')}
-                />
-              }
-            >
-              <Row gutter={16}>
-                {scheduleFields.map((field) => (
-                  <Col key={field.key} xs={24} md={12}>
-                    {renderField(field)}
-                  </Col>
-                ))}
-              </Row>
-            </FormSection>
-          )}
-
-          <FormSection
-            title={
-              <TitleWithHelp
-                title={t('topup_form.eligibility_conditions')}
-                help={t('topup_form.eligibility_subtitle')}
-              />
-            }
-          >
-            <Flex vertical gap={8}>
-              <TopupRuleConditionsField
-                value={conditionGroup}
-                showValidationErrors={showConditionErrors}
-                onChange={(nextConditionGroup) => {
-                  setShowConditionErrors(false)
-                  setConditionGroup(nextConditionGroup)
-                }}
-              />
-              {showConditionErrors && (
-                <Typography.Text type="danger">{t('topup_form.fix_conditions')}</Typography.Text>
-              )}
-            </Flex>
-          </FormSection>
-
-          <Flex
-            justify="flex-end"
-            gap={8}
-            style={{
-              paddingTop: 20,
-              borderTop: '1px solid var(--app-border-color)',
-            }}
-          >
-            <Button type="primary" onClick={handleSubmit} loading={save.loading}>
-              {t(isEdit ? 'button.update' : 'button.create')}
-            </Button>
+        <FormSection
+          title={
+            <TitleWithHelp
+              title={t('topup_form.eligibility_conditions')}
+              help={t('topup_form.eligibility_subtitle')}
+            />
+          }
+        >
+          <Flex vertical gap={8}>
+            <TopupRuleConditionsField
+              value={conditionGroup}
+              showValidationErrors={showConditionErrors}
+              onChange={(nextConditionGroup) => {
+                setShowConditionErrors(false)
+                setConditionGroup(nextConditionGroup)
+              }}
+            />
+            {showConditionErrors && (
+              <Typography.Text type="danger">{t('topup_form.fix_conditions')}</Typography.Text>
+            )}
           </Flex>
+        </FormSection>
+
+        <Flex
+          justify="flex-end"
+          gap={8}
+          style={{
+            paddingTop: 20,
+            borderTop: '1px solid var(--app-border-color)',
+          }}
+        >
+          <Button type="primary" onClick={handleSubmit} loading={save.loading}>
+            {t(isEdit ? 'button.update' : 'button.create')}
+          </Button>
         </Flex>
+      </Flex>
     </div>
   )
 }

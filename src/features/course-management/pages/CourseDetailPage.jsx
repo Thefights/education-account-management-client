@@ -13,9 +13,9 @@ import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurre
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import {
   ArrowLeftOutlined,
-  BankOutlined,
   CalendarOutlined,
   DollarOutlined,
+  GiftOutlined,
   ReadOutlined,
 } from '@ant-design/icons'
 import { Button, Card, Col, Descriptions, Divider, Flex, Row, Space, Tag, Typography } from 'antd'
@@ -44,9 +44,9 @@ const CourseDetailPage = () => {
   const courseData = useFetch(ApiUrls.COURSE_MANAGEMENT.DETAIL(id))
   const course = courseData.data
 
-  const isDraft = course?.status === 'Draft'
+  const canManageEnrollments = course?.status === 'Draft' || course?.status === 'Enrolling'
   const allowWithdraw = course?.status === 'Upcoming' || course?.status === 'InProgress'
-  const readOnly = !isDraft
+  const readOnly = !canManageEnrollments
 
   const queryParams = useMemo(
     () => ({ courseId: id, sort: `${sort.key} ${sort.direction}`, page, pageSize, ...filters }),
@@ -178,21 +178,17 @@ const CourseDetailPage = () => {
         {course && (
           <Flex vertical gap={24}>
             <Flex justify="space-between" align="flex-start" wrap="wrap" gap={16}>
-              <Space direction="vertical" size={8}>
+              <Space orientation="vertical" size={8}>
                 <Space align="center" size={16}>
                   <Typography.Title level={4} style={{ margin: 0, color: '#1677ff' }}>
                     {course.courseName}
                   </Typography.Title>
                   {renderStatus(course.status)}
                 </Space>
-                <Space split={<Divider type="vertical" />} style={{ color: '#595959' }}>
+                <Space separator={<Divider orientation="vertical" />} style={{ color: '#595959' }}>
                   <Space>
                     <ReadOutlined />
                     <Typography.Text keyboard>{course.courseCode}</Typography.Text>
-                  </Space>
-                  <Space>
-                    <BankOutlined />
-                    <Typography.Text>{course.schoolName}</Typography.Text>
                   </Space>
                   <Typography.Text type="secondary">
                     {t('course_management.field.id')}: #{course.id}
@@ -243,10 +239,8 @@ const CourseDetailPage = () => {
                   variant="outlined"
                 >
                   <Descriptions column={2} layout="vertical">
-                    <Descriptions.Item
-                      label={t('course_management.field.fas_application_due_date')}
-                    >
-                      {formatDatetimeStringBasedOnCurrentLanguage(course.fasApplicationDueDate) || '-'}
+                    <Descriptions.Item label={t('course_management.field.enrollment_deadline')}>
+                      {formatDatetimeStringBasedOnCurrentLanguage(course.enrollmentDeadline) || '-'}
                     </Descriptions.Item>
                     <Descriptions.Item label={t('course_management.field.start_date')}>
                       {formatDatetimeStringBasedOnCurrentLanguage(course.startDate) || '-'}
@@ -258,6 +252,30 @@ const CourseDetailPage = () => {
                 </Card>
               </Col>
             </Row>
+            <Card
+              title={
+                <Space>
+                  <GiftOutlined style={{ color: '#722ed1' }} />
+                  <span>{t('course_management.title.applicable_fas')}</span>
+                </Space>
+              }
+              size="small"
+              variant="outlined"
+            >
+              {course.applicableFasSchemes?.length ? (
+                <Space wrap>
+                  {course.applicableFasSchemes.map((scheme) => (
+                    <Tag key={scheme.id} color="purple" style={{ padding: '4px 10px' }}>
+                      {scheme.schemeCode} · {scheme.schemeName}
+                    </Tag>
+                  ))}
+                </Space>
+              ) : (
+                <Typography.Text type="secondary">
+                  {t('course_management.message.no_applicable_fas')}
+                </Typography.Text>
+              )}
+            </Card>
           </Flex>
         )}
       </Card>
@@ -268,7 +286,7 @@ const CourseDetailPage = () => {
             <Space align="baseline">
               <Typography.Title level={4} style={{ margin: 0 }}>
                 {t(
-                  isDraft
+                  canManageEnrollments
                     ? 'enrollment_management.action.manage_students'
                     : 'enrollment_management.action.view_students'
                 )}

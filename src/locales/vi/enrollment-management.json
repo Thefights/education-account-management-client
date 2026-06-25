@@ -49,9 +49,8 @@
     "status": {
       "charge": {
         "unpaid": "Chưa thanh toán",
-        "partially_paid": "Thanh toán một phần",
         "paid": "Đã thanh toán",
-        "outstanding": "Quá hạn"
+        "overdue": "Quá hạn"
       }
     }
   }

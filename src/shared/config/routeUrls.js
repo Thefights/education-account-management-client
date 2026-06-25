@@ -37,6 +37,7 @@ export const routeUrls = {
   AUDIT_LOGS: { INDEX: '/audit-logs' },
   COURSE_MANAGEMENT: {
     INDEX: '/course-management',
+    CREATE: '/course-management/create',
     DETAIL: (id = ':id') => `/course-management/${id}`,
   },
   SCHOOL_STUDENT_MANAGEMENT: { INDEX: '/school-student' },

@@ -1,4 +1,5 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultChargeStatusStyle,
@@ -10,7 +11,8 @@ import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurre
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 
 const isEnrollmentRemovable = (enrollment) =>
-  enrollment.courseStatus === 'Draft' && enrollment.chargeStatus == null
+  (enrollment.courseStatus === 'Draft' || enrollment.courseStatus === 'Enrolling') &&
+  enrollment.chargeStatus == null
 
 const isEnrollmentWithdrawable = (enrollment) =>
   enrollment.status === 'Active' &&
@@ -68,6 +70,7 @@ const EnrollmentManagementTableSection = ({
       title: t('enrollment_management.field.nric'),
       width: 140,
       sortable: true,
+      render: (value) => <MaskedNric value={value} />,
     },
     {
       key: 'citizenFullName',
