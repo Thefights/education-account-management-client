@@ -3,7 +3,7 @@ import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BankOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme } from 'antd'
+import { Button, Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme, Space } from 'antd'
 import TuitionCourseFilterSection from '../components/TuitionCourseFilterSection'
 import { useState, useMemo } from 'react'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -187,6 +187,34 @@ const TuitionPaymentlPage = () => {
                 </Card>
 
               </Flex>
+
+              
+              <Space style={{ marginBottom: 16 }}>
+
+                <Button
+                  type={3 === 3 ? 'primary' : 'default'}
+                  onClick={() => setTab(3)}
+                >
+                  {t('course_management.tab.upcoming')} 
+                </Button>
+
+                <Button
+                  type={4 === 4 ? 'primary' : 'default'}
+                  onClick={() => setTab(4)}
+                >
+                  {t('course_management.tab.in_progress')}
+                </Button>
+
+                <Button
+                  type={5 === 5 ? 'primary' : 'default'}
+                  onClick={() => setTab(5)}
+                >
+                  {t('course_management.tab.closed')}
+                </Button>
+
+              </Space>
+
+
 
 
 

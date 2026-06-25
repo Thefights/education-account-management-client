@@ -62,38 +62,43 @@ const AccountHolderCourseManagementPage = () => {
   
 
   return (
-    <Card>
-      <Flex vertical gap={16}>
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          {t('course_management.title.management')}
-        </Typography.Title>
-      
-        <CourseManagementFilterSection
-          tab={tab}
-          setTab={setTab}
-          counts={counts}
-          filters={filters}
-          loading={courses.loading}
-          onFilter={handleFilter}
-          onReset={() => handleFilter(defaultFilters)}
-        />
-        <CourseManagementTableSection
-          courses={courses.data?.collection ?? []}
-          loading={courses.loading}
-          sort={sort}
-          setSort={setSort}
-        />
-        <GenericTablePagination
-          totalCount={courses.data?.totalCount}
-          totalPage={courses.data?.totalPage}
-          page={page}
-          setPage={setPage}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          loading={courses.loading}
-        />
-      </Flex>
-    </Card>
+    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1400, margin: '0 auto' }}>
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            {t('course_management.title.management')}
+          </Typography.Title>
+      <Card>
+        <Flex vertical gap={16}>
+        
+          <CourseManagementFilterSection
+            tab={tab}
+            setTab={setTab}
+            counts={counts}
+            filters={filters}
+            loading={courses.loading}
+            onFilter={handleFilter}
+            onReset={() => handleFilter(defaultFilters)}
+          />
+          <CourseManagementTableSection
+            courses={courses.data?.collection ?? []}
+            loading={courses.loading}
+            sort={sort}
+            setSort={setSort}
+          />
+          <GenericTablePagination
+            totalCount={courses.data?.totalCount}
+            totalPage={courses.data?.totalPage}
+            page={page}
+            setPage={setPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            loading={courses.loading}
+          />
+        </Flex>
+      </Card>
+    
+    </Flex>
+
+
   )
 }
 

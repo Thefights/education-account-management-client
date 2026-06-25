@@ -3,7 +3,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useState } from 'react'
-import { Button, Flex, Typography } from 'antd'
+import { Button, Flex, Typography, Modal, Tag, Card, Collapse, Divider} from 'antd'
 import { data } from 'react-router'
 
 const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
@@ -17,6 +17,64 @@ const CourseManagementTableSection = ({
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const { t } = useTranslation()
   const _enum = useEnum()
+
+  const [open, setOpen] = useState(false);
+
+  const [fas, setFas] = useState(null);
+
+  const mockData = [
+    {
+      id: 1,
+      courseCode: 'CS101',
+      courseName: 'Computer Science',
+      schoolName: 'NUS',
+      status: 'Active',
+      startDate: '2026-01-15',
+      endDate: '2029-12-15',
+      fas: 'MOE Tuition Grant',
+    },
+    {
+      id: 2,
+      courseCode: 'IT202',
+      courseName: 'Information Technology',
+      schoolName: 'NTU',
+      status: 'Active',
+      startDate: '2025-08-01',
+      endDate: '2028-05-30',
+      fas: 'Study Loan',
+    },
+    {
+      id: 3,
+      courseCode: 'BUS303',
+      courseName: 'Business Administration',
+      schoolName: 'SMU',
+      status: 'Pending',
+      startDate: '2026-07-01',
+      endDate: '2030-06-30',
+      fas: 'CPF Education Loan',
+    },
+    {
+      id: 4,
+      courseCode: 'ENG404',
+      courseName: 'Engineering',
+      schoolName: 'SIT',
+      status: 'Completed',
+      startDate: '2022-01-10',
+      endDate: '2025-12-10',
+      fas: 'Scholarship',
+    },
+    {
+      id: 5,
+      courseCode: 'DS505',
+      courseName: 'Data Science',
+      schoolName: 'SUSS',
+      status: 'Active',
+      startDate: '2026-03-01',
+      endDate: '2029-02-28',
+      fas: 'Bursary',
+    },
+  ]
+
   const fields = [
     {
       key: 'courseCode',
@@ -27,12 +85,12 @@ const CourseManagementTableSection = ({
     {
       key: 'courseName',
       title: t('course_management.field.course_name'),
-      width: 220
+      width: 220,
     },
-    { 
-      key: 'schoolName', 
-      title: t('course_management.field.school'), 
-      width: 200
+    {
+      key: 'schoolName',
+      title: t('course_management.field.school'),
+      width: 200,
     },
     {
       key: 'status',
@@ -52,52 +110,269 @@ const CourseManagementTableSection = ({
       title: t('course_management.field.end_date'),
     },
     {
+      key: 'fas',
+      title: 'FAS',
+      type: 'tag',
+      color: 'green',
+      width: 180,
+    },
+    {
       key: 'id',
-      title: t('FAS'),
+      title: ' ',
+      width: 120,
       render: (_, record) => (
-      <>
-        <Button
-          onClick={() => handleExpand(record.key)}
-          style={{ width:'100px' }}
-        >
-          Select FAS
-        </Button>
-        {record.name}
-      </>
-    ),
-    }
+        <>
+          <Button
+            onClick={() => handleExpand(record.key)}
+            style={{ width: '180' }}
+            >
+              ...
+          </Button>
+        </>
+      )
+    },
   ]
-
+;
   const handleExpand = key => {
-    setExpandedRowKeys(keys =>
-      keys.includes(key)
-        ? keys.filter(k => k !== key)
-        : [...keys, key]
-    );
+    console.log(key)
+    setFas(mockData.find(e => e.id === key));
+    setOpen(true);
   };
 
+
   const FAS = ({ prop }) => {
+    const mockData = {
+      tier: 'Tier 2',
+      subsidy: '30% of course fee',
+      courseFee: '$1,500.00',
+      miscFee: '$100.00',
+      tax: '$144.00',
+      grossAmount: '$1,744.00',
+      fasDeduction: '-$350.00',
+      netPayable: '$1,394.00',
+    }
+
     return (
       <div>
-        <Typography.Title level={4} style={{ margin: 0, lineHeight: 1.2, color:'#2962cc' }}>
-          Select FAS for {courses.find(a => a.id === prop.key).courseName}
+        <Typography.Title
+          level={2}
+          style={{
+            marginBottom: 24,
+          }}
+        >
+          {prop.courseName}
         </Typography.Title>
-        <p>{prop.key}</p>
+
+        <Typography.Text
+          strong
+          style={{
+            color: '#8A94A6',
+            letterSpacing: 1,
+          }}
+        >
+          COURSE INFORMATION
+        </Typography.Text>
+
+        <div style={{ marginTop: 16 }}>
+          <InfoRow
+            label="Course ID"
+            value={prop.courseCode}
+          />
+
+          <InfoRow
+            label="Course name"
+            value={prop.courseName}
+          />
+
+          <InfoRow
+            label="School"
+            value={prop.schoolName}
+          />
+
+          <InfoRow
+            label="Start date"
+            value={prop.startDate}
+          />
+
+          <InfoRow
+            label="End date"
+            value={prop.endDate}
+          />
+        </div>
+
+        <div style={{ marginTop: 32 }}>
+          <Typography.Text
+            strong
+            style={{
+              color: '#8A94A6',
+              letterSpacing: 1,
+            }}
+          >
+            FAS APPLIED BY SYSTEM
+          </Typography.Text>
+
+          <Card
+            style={{
+              marginTop: 16,
+              borderRadius: 20,
+            }}
+          >
+            <Flex justify="space-between" align="center">
+              <Typography.Title
+                level={4}
+                style={{ margin: 0 }}
+              >
+                {prop.fas}
+              </Typography.Title>
+
+              <Tag
+                color="success"
+                style={{
+                  borderRadius: 999,
+                  padding: '4px 12px',
+                }}
+              >
+                {prop.status}
+              </Tag>
+            </Flex>
+
+            <div style={{ marginTop: 20 }}>
+              <InfoRow
+                label="Tier"
+                value={mockData.tier}
+              />
+
+              <InfoRow
+                label="Subsidy"
+                value={mockData.subsidy}
+              />
+            </div>
+
+            <Divider />
+
+            <Typography.Text
+              strong
+              style={{
+                color: '#8A94A6',
+                letterSpacing: 1,
+              }}
+            >
+              FEE BREAKDOWN
+            </Typography.Text>
+
+            <Card
+              size="small"
+              style={{
+                marginTop: 16,
+                borderRadius: 16,
+              }}
+            >
+              <FeeRow
+                label="Course fee"
+                value={mockData.courseFee}
+              />
+
+              <FeeRow
+                label="Misc fee"
+                value={mockData.miscFee}
+              />
+
+              <FeeRow
+                label="Tax (×1.09)"
+                value={mockData.tax}
+              />
+
+              <Divider style={{ margin: '12px 0' }} />
+
+              <FeeRow
+                label="Gross"
+                value={mockData.grossAmount}
+              />
+
+              <FeeRow
+                label="FAS deduct"
+                value={mockData.fasDeduction}
+                valueStyle={{ color: '#3B6D11' }}
+              />
+
+              <Divider style={{ margin: '12px 0' }} />
+
+              <FeeRow
+                label="Net payable"
+                value={mockData.netPayable}
+                valueStyle={{
+                  fontWeight: 700,
+                  color: '#534AB7',
+                }}
+              />
+            </Card>
+          </Card>
+        </div>
       </div>
     )
   }
 
+  const InfoRow = ({ label, value }) => (
+    <Flex
+      justify="space-between"
+      style={{
+        padding: '14px 0',
+        borderBottom: '1px solid #f0f0f0',
+      }}
+    >
+      <Typography.Text type="secondary">
+        {label}
+      </Typography.Text>
+
+      <Typography.Text strong>
+        {value}
+      </Typography.Text>
+    </Flex>
+  )
+
+  const FeeRow = ({
+    label,
+    value,
+    valueStyle,
+  }) => (
+    <Flex
+      justify="space-between"
+      style={{
+        padding: '6px 0',
+      }}
+    >
+      <Typography.Text>
+        {label}
+      </Typography.Text>
+
+      <Typography.Text style={valueStyle}>
+        {value}
+      </Typography.Text>
+    </Flex>
+  )
+
   return (
-    <GenericTable
-      data={courses}
-      fields={fields}
-      rowKey="id"
-      loading={loading}
-      sort={sort}
-      setSort={setSort}
-      expandedRowKeys={expandedRowKeys}
-      expandelement={<FAS />}
-    />
+    <>
+      <Modal
+        open={open}
+        footer={null}
+        width={750}
+        onCancel={() => setOpen(false)}
+      >
+        <FAS prop = {fas}/>
+      </Modal>
+
+      <GenericTable
+        // data={courses}
+        data={mockData}
+        fields={fields}
+        rowKey="id"
+        loading={loading}
+        sort={sort}
+        setSort={setSort}
+      />
+    
+    </>
   )
 }
 

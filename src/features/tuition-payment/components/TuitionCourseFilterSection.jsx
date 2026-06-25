@@ -6,7 +6,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Card, Col, Flex, Row, Space } from 'antd'
+import { Button, Card, Col, Flex, Row, Space } from 'antd'
 import { useMemo } from 'react'
 
 const TuitionCourseFilterSection = ({
@@ -73,24 +73,6 @@ const TuitionCourseFilterSection = ({
 
   return (
     <Card size="small">
-      {/* <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field) => (
-          <Col key={field.key} xs={24} md={6}>
-            {renderField(field)}
-          </Col>
-        ))}
-        <Col xs={24} md={{ span: 20, offset: 4 }}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-              <SortButton loading={loading} ascend={sortStatus === 'desc' ? false : true} onSortClick={() => onSort()}/>
-            </Space>
-          </Flex>
-        </Col>
-      </Row> */}
-
-
       <Row gutter={[16, 16]} align="bottom">
         {fields.map((field, index) => (
           <Col
