@@ -2,7 +2,7 @@ import axiosConfig from '@/shared/api/axiosClient'
 import { isPlainObject } from '@/shared/utils/handleBooleanUtil'
 import { getObjectConvertingToFormData } from '@/shared/utils/handleObjectUtil'
 import { appendPath, getTrimString } from '@/shared/utils/handleStringUtil'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const emptyObject = {}
 const defaultSuccessHandler = async (response) => Promise.resolve(response)
@@ -29,11 +29,17 @@ export default function useAxiosSubmit({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [response, setResponse] = useState(null)
+  const loadingRef = useRef(false)
+
+  useEffect(() => {
+    loadingRef.current = loading
+  }, [loading])
 
   const submit = useCallback(
     async ({ overrideData, overrideUrl, overrideParam } = {}) => {
-      if (loading) return undefined
+      if (loadingRef.current) return undefined
 
+      loadingRef.current = true
       setLoading(true)
       setError(null)
       setResponse(null)
@@ -74,10 +80,11 @@ export default function useAxiosSubmit({
         await onError?.(err)
         return undefined
       } finally {
+        loadingRef.current = false
         setLoading(false)
       }
     },
-    [loading, method, data, url, params, onSuccess, onError]
+    [method, data, url, params, onSuccess, onError]
   )
 
   return { loading, error, response, submit }

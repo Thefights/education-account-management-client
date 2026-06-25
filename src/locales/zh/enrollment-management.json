@@ -3,7 +3,7 @@
     "menu_label": "报名管理",
     "title": {
       "management": "报名管理",
-      "assign_students": "分配学生",
+      "assign_students": "添加学生",
       "add_students_to_course": "将学生添加到 {{course}}"
     },
     "placeholder": {
@@ -32,7 +32,7 @@
       "students": "学生"
     },
     "action": {
-      "assign": "分配",
+      "assign": "添加",
       "delete_selected": "删除所选",
       "manage_students": "管理学生",
       "view_students": "查看学生",

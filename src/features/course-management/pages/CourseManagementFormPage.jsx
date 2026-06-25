@@ -17,11 +17,12 @@ import {
   ArrowLeftOutlined,
   CalendarOutlined,
   DollarOutlined,
+  GiftOutlined,
   InfoCircleOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
-import { Button, Card, Col, Flex, Row, Space, Typography, theme } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { Button, Card, Col, Flex, Row, Space, Tag, Typography, theme } from 'antd'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 const getStudentLabel = (student) => (
@@ -37,6 +38,27 @@ const getStudentLabel = (student) => (
   </div>
 )
 
+const getFasSchemeLabel = (scheme) => (
+  <Space
+    direction="vertical"
+    size={2}
+    style={{ width: '100%' }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <Space size={6} wrap>
+      <Typography.Text strong>{scheme.schemeName}</Typography.Text>
+      {scheme.schemeCode && <Typography.Text code>{scheme.schemeCode}</Typography.Text>}
+      {scheme.status && (
+        <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>{scheme.status}</Tag>
+      )}
+    </Space>
+    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+      {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
+      {scheme.durationInMonths || 0} months
+    </Typography.Text>
+  </Space>
+)
+
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
   courseFeeAmount: course.courseFeeAmount ?? 0,
@@ -45,6 +67,7 @@ const normalizeInitialValues = (course = {}) => ({
   startDate: toLocalDateTimeInput(course.startDate),
   endDate: toLocalDateTimeInput(course.endDate),
   schoolStudentIds: [],
+  fasSchemeIds: (course.applicableFasSchemes || []).map((scheme) => scheme.id),
   rowVersion: course.rowVersion ?? '',
 })
 
@@ -101,6 +124,14 @@ const CourseManagementFormPage = () => {
     url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
     method: 'GET',
   })
+  const fetchFasOptions = useAxiosSubmit({
+    url: ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX,
+    method: 'GET',
+  })
+  const publishCourse = useAxiosSubmit({
+    url: ApiUrls.COURSE_MANAGEMENT.PUBLISH,
+    method: 'POST',
+  })
   const { renderField, hasRequiredMissing } = useFieldRenderer(
     values,
     setField,
@@ -117,21 +148,42 @@ const CourseManagementFormPage = () => {
     queueMicrotask(() => setSubmitted(false))
   }, [course.data, isEdit, reset, resetValidation])
 
-  const loadStudentOptions = async ({ search, page, pageSize }) => {
-    const response = await fetchStudentOptions.submit({
-      overrideParam: { search, page, pageSize },
-    })
-    const result = response?.data
-    return {
-      options: (result?.collection || [])
-        .filter((student) => student.status === 'Active')
-        .map((student) => ({
-          value: student.id,
-          label: getStudentLabel(student),
+  const loadStudentOptions = useCallback(
+    async ({ search, page, pageSize }) => {
+      const response = await fetchStudentOptions.submit({
+        overrideParam: { search, page, pageSize },
+      })
+      const result = response?.data
+      return {
+        options: (result?.collection || [])
+          .filter((student) => student.status === 'Active')
+          .map((student) => ({
+            value: student.id,
+            label: getStudentLabel(student),
+          })),
+        totalCount: result?.totalCount || 0,
+      }
+    },
+    [fetchStudentOptions.submit]
+  )
+
+  const loadFasOptions = useCallback(
+    async ({ search, page, pageSize }) => {
+      const response = await fetchFasOptions.submit({
+        overrideParam: { search, page, pageSize },
+      })
+      const result = response?.data
+      return {
+        options: (result?.collection || []).map((scheme) => ({
+          value: scheme.id,
+          label: getFasSchemeLabel(scheme),
+          searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
         })),
-      totalCount: result?.totalCount || 0,
-    }
-  }
+        totalCount: result?.totalCount || 0,
+      }
+    },
+    [fetchFasOptions.submit]
+  )
 
   const fields = useMemo(() => {
     const amountProps = { min: 0, precision: 2, prefix: currencySymbol }
@@ -199,10 +251,31 @@ const CourseManagementFormPage = () => {
               loadOptions: loadStudentOptions,
             },
           ]),
+      {
+        key: 'fasSchemeIds',
+        title: t('course_management.field.applicable_fas'),
+        type: 'select',
+        multiple: true,
+        required: false,
+        options: (course.data?.applicableFasSchemes || []).map((scheme) => ({
+          value: scheme.id,
+          label: getFasSchemeLabel(scheme),
+          searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+        })),
+        loadOptions: loadFasOptions,
+      },
     ]
-  }, [course.data?.status, currencySymbol, isEdit, t])
+  }, [
+    course.data?.applicableFasSchemes,
+    course.data?.status,
+    currencySymbol,
+    isEdit,
+    loadFasOptions,
+    loadStudentOptions,
+    t,
+  ])
 
-  const handleSubmit = async () => {
+  const handleSubmit = async ({ publish = false } = {}) => {
     setSubmitted(true)
     const ok = validateAll()
     const missing = hasRequiredMissing(fields)
@@ -215,6 +288,7 @@ const CourseManagementFormPage = () => {
       enrollmentDeadline: localDateTimeToIso(values.enrollmentDeadline),
       startDate: localDateTimeToIso(values.startDate),
       endDate: localDateTimeToIso(values.endDate),
+      fasSchemeIds: values.fasSchemeIds || [],
       ...(isEdit
         ? { rowVersion: values.rowVersion }
         : { schoolStudentIds: values.schoolStudentIds || [] }),
@@ -223,6 +297,10 @@ const CourseManagementFormPage = () => {
     const response = await save.submit({ overrideData: payload })
     if (!response) return
     const courseId = response.data?.id || id
+    if (publish) {
+      const publishResponse = await publishCourse.submit({ overrideData: { ids: [courseId] } })
+      if (!publishResponse) return
+    }
     navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(courseId)))
   }
 
@@ -232,6 +310,9 @@ const CourseManagementFormPage = () => {
     ['enrollmentDeadline', 'startDate', 'endDate'].includes(f.key)
   )
   const studentFields = fields.filter((f) => ['schoolStudentIds'].includes(f.key))
+  const fasFields = fields.filter((f) => ['fasSchemeIds'].includes(f.key))
+  const showPublishButton = !isEdit || course.data?.status === 'Draft'
+  const submitLoading = save.loading || publishCourse.loading
 
   const renderSectionField = (field, index) => {
     return renderField(
@@ -305,11 +386,25 @@ const CourseManagementFormPage = () => {
               <SectionLayout
                 titleKey="initial_students"
                 icon={<TeamOutlined style={{ color: '#722ed1' }} />}
-                isLast={true}
+                isLast={fasFields.length === 0}
                 token={token}
                 t={t}
               >
                 {studentFields.map((field) => (
+                  <div key={field.key}>{renderSectionField(field, -1)}</div>
+                ))}
+              </SectionLayout>
+            )}
+
+            {fasFields.length > 0 && (
+              <SectionLayout
+                titleKey="applicable_fas"
+                icon={<GiftOutlined style={{ color: '#722ed1' }} />}
+                isLast={true}
+                token={token}
+                t={t}
+              >
+                {fasFields.map((field) => (
                   <div key={field.key}>{renderSectionField(field, -1)}</div>
                 ))}
               </SectionLayout>
@@ -330,12 +425,23 @@ const CourseManagementFormPage = () => {
               <Button
                 type="primary"
                 size="large"
-                loading={save.loading}
-                onClick={handleSubmit}
+                loading={submitLoading}
+                onClick={() => handleSubmit({ publish: false })}
                 style={{ padding: '0 40px' }}
               >
-                {t(isEdit ? 'button.update' : 'button.create')}
+                {t(isEdit ? 'button.update' : 'course_management.action.save_as_draft')}
               </Button>
+              {showPublishButton && (
+                <Button
+                  type="primary"
+                  size="large"
+                  loading={submitLoading}
+                  onClick={() => handleSubmit({ publish: true })}
+                  style={{ padding: '0 40px' }}
+                >
+                  {t('course_management.action.publish')}
+                </Button>
+              )}
             </Flex>
           </Flex>
         </Flex>

@@ -3,7 +3,7 @@
     "menu_label": "Enrollment Management",
     "title": {
       "management": "Enrollment Management",
-      "assign_students": "Assign Students",
+      "assign_students": "Add Students",
       "add_students_to_course": "Add Students to {{course}}"
     },
     "placeholder": {
@@ -32,7 +32,7 @@
       "students": "Students"
     },
     "action": {
-      "assign": "Assign",
+      "assign": "Add",
       "delete_selected": "Delete Selected",
       "manage_students": "Manage Students",
       "view_students": "View Students",

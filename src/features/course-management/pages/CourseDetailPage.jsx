@@ -2,6 +2,7 @@ import AssignStudentsDialog from '@/features/enrollment-management/components/As
 import EnrollmentManagementFilterSection from '@/features/enrollment-management/components/EnrollmentManagementFilterSection'
 import EnrollmentManagementTableSection from '@/features/enrollment-management/components/EnrollmentManagementTableSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -16,15 +17,44 @@ import {
   CalendarOutlined,
   DollarOutlined,
   GiftOutlined,
+  PlusOutlined,
   ReadOutlined,
 } from '@ant-design/icons'
 import { Button, Card, Col, Descriptions, Divider, Flex, Row, Space, Tag, Typography } from 'antd'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 const formatCount = (value) => (value == null ? 0 : Number(value).toLocaleString())
 
 const defaultFilters = { search: '', chargeStatuses: [] }
+
+const getFasSchemeOptionLabel = (scheme) => (
+  <Space
+    direction="vertical"
+    size={2}
+    style={{ width: '100%' }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <Space size={6} wrap>
+      <Typography.Text strong>{scheme.schemeName}</Typography.Text>
+      {scheme.schemeCode && <Typography.Text code>{scheme.schemeCode}</Typography.Text>}
+      {scheme.status && (
+        <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>{scheme.status}</Tag>
+      )}
+    </Space>
+    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+      {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
+      {scheme.durationInMonths || 0} months
+    </Typography.Text>
+  </Space>
+)
+
+const formatSubsidyValue = (scheme, value) => {
+  if (value == null) return '-'
+  return scheme.subsidyType === 'Percent'
+    ? `${Number(value).toLocaleString()}%`
+    : formatCurrencyBasedOnCurrentLanguage(value)
+}
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -39,6 +69,7 @@ const CourseDetailPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [selectedIds, setSelectedIds] = useState([])
   const [openAssign, setOpenAssign] = useState(false)
+  const [openFasAssign, setOpenFasAssign] = useState(false)
 
   const courseData = useFetch(ApiUrls.COURSE_MANAGEMENT.DETAIL(id))
   const course = courseData.data
@@ -48,12 +79,23 @@ const CourseDetailPage = () => {
     method: 'DELETE',
   })
   const withdrawEnrollment = useAxiosSubmit({ method: 'PUT' })
+  const fetchFasOptions = useAxiosSubmit({
+    url: ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX,
+    method: 'GET',
+  })
+  const assignFasSchemes = useAxiosSubmit({
+    url: ApiUrls.COURSE_MANAGEMENT.FAS_SCHEMES(id),
+    method: 'PUT',
+  })
 
   const canManageEnrollments = course?.status === 'Draft' || course?.status === 'Enrolling'
   const allowWithdraw = course?.status === 'Upcoming' || course?.status === 'InProgress'
   const readOnly = !canManageEnrollments
   const mutationLoading =
-    removeEnrollment.loading || removeSelectedEnrollments.loading || withdrawEnrollment.loading
+    removeEnrollment.loading ||
+    removeSelectedEnrollments.loading ||
+    withdrawEnrollment.loading ||
+    assignFasSchemes.loading
 
   const queryParams = useMemo(
     () => ({ courseId: id, sort: `${sort.key} ${sort.direction}`, page, pageSize, ...filters }),
@@ -61,6 +103,19 @@ const CourseDetailPage = () => {
   )
 
   const enrollments = useFetch(ApiUrls.ENROLLMENT_MANAGEMENT.INDEX, queryParams, [queryParams])
+  const selectedFasIds = useMemo(
+    () => (course?.applicableFasSchemes || []).map((scheme) => scheme.id),
+    [course?.applicableFasSchemes]
+  )
+  const selectedFasOptions = useMemo(
+    () =>
+      (course?.applicableFasSchemes || []).map((scheme) => ({
+        value: scheme.id,
+        label: getFasSchemeOptionLabel(scheme),
+        searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+      })),
+    [course?.applicableFasSchemes]
+  )
 
   const clearSelection = () => setSelectedIds([])
 
@@ -128,6 +183,30 @@ const CourseDetailPage = () => {
 
   const handleAssigned = async () => {
     await enrollments.fetch()
+    await courseData.fetch()
+  }
+
+  const loadFasOptions = useCallback(
+    async ({ search, page, pageSize }) => {
+      const response = await fetchFasOptions.submit({
+        overrideParam: { search, page, pageSize },
+      })
+      const result = response?.data
+      return {
+        options: (result?.collection || []).map((scheme) => ({
+          value: scheme.id,
+          label: getFasSchemeOptionLabel(scheme),
+          searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+        })),
+        totalCount: result?.totalCount || 0,
+      }
+    },
+    [fetchFasOptions.submit]
+  )
+
+  const handleFasAssigned = async (fasSchemeIds) => {
+    const response = await assignFasSchemes.submit({ overrideData: { fasSchemeIds } })
+    if (!response) return
     await courseData.fetch()
   }
 
@@ -250,20 +329,69 @@ const CourseDetailPage = () => {
             </Row>
             <Card
               title={
-                <Space>
-                  <GiftOutlined style={{ color: '#722ed1' }} />
-                  <span>{t('course_management.title.applicable_fas')}</span>
-                </Space>
+                <Flex justify="space-between" align="center" gap={12}>
+                  <Space>
+                    <GiftOutlined style={{ color: '#722ed1' }} />
+                    <span>{t('course_management.title.fas_deduction')}</span>
+                  </Space>
+                  {!readOnly && (
+                    <Button
+                      size="small"
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      loading={assignFasSchemes.loading}
+                      onClick={() => setOpenFasAssign(true)}
+                    >
+                      {t('course_management.action.manage_fas')}
+                    </Button>
+                  )}
+                </Flex>
               }
               size="small"
               variant="outlined"
             >
               {course.applicableFasSchemes?.length ? (
-                <Space wrap>
+                <Space direction="vertical" style={{ width: '100%' }} size={12}>
                   {course.applicableFasSchemes.map((scheme) => (
-                    <Tag key={scheme.id} color="purple" style={{ padding: '4px 10px' }}>
-                      {scheme.schemeCode} · {scheme.schemeName}
-                    </Tag>
+                    <Card key={scheme.id} size="small" variant="outlined">
+                      <Flex vertical gap={10}>
+                        <Space size={8} wrap>
+                          <Tag color="purple" style={{ padding: '4px 10px' }}>
+                            {scheme.schemeCode}
+                          </Tag>
+                          <Typography.Text strong>{scheme.schemeName}</Typography.Text>
+                          <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>
+                            {scheme.status}
+                          </Tag>
+                          <Tag>{scheme.subsidyType}</Tag>
+                          <Tag>
+                            {scheme.isPerComponent
+                              ? t('course_management.fas.per_component')
+                              : t('course_management.fas.standard')}
+                          </Tag>
+                        </Space>
+                        <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small">
+                          <Descriptions.Item
+                            label={t('course_management.field.duration_in_months')}
+                          >
+                            {scheme.durationInMonths}
+                          </Descriptions.Item>
+                          {(scheme.tiers || []).map((tier) => (
+                            <Descriptions.Item key={tier.id} label={tier.tierName}>
+                              {scheme.isPerComponent
+                                ? `${t('course_management.field.course_fee_amount')}: ${formatSubsidyValue(
+                                    scheme,
+                                    tier.courseFeeSubsidyValue
+                                  )}, ${t('course_management.field.misc_fee_amount')}: ${formatSubsidyValue(
+                                    scheme,
+                                    tier.miscFeeSubsidyValue
+                                  )}`
+                                : formatSubsidyValue(scheme, tier.subsidyValue)}
+                            </Descriptions.Item>
+                          ))}
+                        </Descriptions>
+                      </Flex>
+                    </Card>
                   ))}
                 </Space>
               ) : (
@@ -349,6 +477,15 @@ const CourseDetailPage = () => {
         onClose={() => setOpenAssign(false)}
         fixedCourse={course}
         onAssigned={handleAssigned}
+      />
+      <MultipleSelectDialog
+        open={openFasAssign}
+        onClose={() => setOpenFasAssign(false)}
+        options={selectedFasOptions}
+        value={selectedFasIds}
+        loadOptions={loadFasOptions}
+        title={t('course_management.title.applicable_fas')}
+        onChange={handleFasAssigned}
       />
     </Flex>
   )

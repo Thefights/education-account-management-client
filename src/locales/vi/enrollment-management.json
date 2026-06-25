@@ -3,7 +3,7 @@
     "menu_label": "Quản lý Ghi danh",
     "title": {
       "management": "Quản lý ghi danh",
-      "assign_students": "Phân công học sinh",
+      "assign_students": "Thêm học sinh",
       "add_students_to_course": "Thêm học sinh vào {{course}}"
     },
     "placeholder": {
@@ -32,7 +32,7 @@
       "students": "Học sinh"
     },
     "action": {
-      "assign": "Gán",
+      "assign": "Thêm",
       "delete_selected": "Xóa mục đã chọn",
       "manage_students": "Quản lý Học sinh",
       "view_students": "Xem Học sinh",
