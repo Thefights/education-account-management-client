@@ -50,27 +50,19 @@ export default function useEnum() {
 
     chargeStatusIdOptions: [
       { value: EnumConfig.ChargeStatusId.Unpaid, label: t('enum.charge_status.unpaid') },
-      {
-        value: EnumConfig.ChargeStatusId.PartiallyPaid,
-        label: t('enum.charge_status.partially_paid'),
-      },
       { value: EnumConfig.ChargeStatusId.Paid, label: t('enum.charge_status.paid') },
       {
-        value: EnumConfig.ChargeStatusId.Outstanding,
-        label: t('enum.charge_status.outstanding'),
+        value: EnumConfig.ChargeStatusId.Overdue,
+        label: t('enum.charge_status.overdue'),
       },
     ],
 
     chargeStatusOptions: [
       { value: EnumConfig.ChargeStatus.Unpaid, label: t('enum.charge_status.unpaid') },
-      {
-        value: EnumConfig.ChargeStatus.PartiallyPaid,
-        label: t('enum.charge_status.partially_paid'),
-      },
       { value: EnumConfig.ChargeStatus.Paid, label: t('enum.charge_status.paid') },
       {
-        value: EnumConfig.ChargeStatus.Outstanding,
-        label: t('enum.charge_status.outstanding'),
+        value: EnumConfig.ChargeStatus.Overdue,
+        label: t('enum.charge_status.overdue'),
       },
     ],
 

@@ -153,7 +153,7 @@ export const defaultChargeStatusStyle = (status) => {
     [EnumConfig.ChargeStatus.Unpaid]: 'error',
     [EnumConfig.ChargeStatus.PartiallyPaid]: 'warning',
     [EnumConfig.ChargeStatus.Paid]: 'success',
-    [EnumConfig.ChargeStatus.Outstanding]: 'volcano',
+    [EnumConfig.ChargeStatus.Overdue]: 'volcano',
   }
 
   return map[status] || 'default'

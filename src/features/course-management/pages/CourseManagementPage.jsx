@@ -14,7 +14,6 @@ import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CourseManagementFilterSection from '../components/CourseManagementFilterSection'
-import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
 import CourseManagementToolbarSection from '../components/CourseManagementToolbarSection'
 
@@ -27,11 +26,8 @@ const CourseManagementPage = () => {
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [openCreate, setOpenCreate] = useState(false)
-  const [openUpdate, setOpenUpdate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
-  const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const [deleteLoading, setDeleteLoading] = useState(false)
   const navigate = useNavigate()
@@ -46,21 +42,6 @@ const CourseManagementPage = () => {
     return (courses.data?.collection || []).filter((course) => selected.has(course.id))
   }, [courses.data?.collection, selectedIds])
 
-  const createCourse = useAxiosSubmit({
-    url: ApiUrls.COURSE_MANAGEMENT.INDEX,
-    method: 'POST',
-  })
-  const updateCourse = useAxiosSubmit({
-    url: ApiUrls.COURSE_MANAGEMENT.DETAIL(selectedRow.id),
-    method: 'PUT',
-    onError: async (error) => {
-      if (error?.response?.status !== 409) return
-      setOpenUpdate(false)
-      setSelectedRow({})
-      await courses.fetch()
-      showWarningToast(t('course_management.message.update_conflict'))
-    },
-  })
   const publishCourses = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.PUBLISH,
     method: 'POST',
@@ -87,29 +68,6 @@ const CourseManagementPage = () => {
   const handlePageSize = (value) => {
     setPageSize(value)
     clearSelection()
-  }
-
-  const handleDelete = async (course) => {
-    const accepted = await confirm({
-      title: t('course_management.confirm.delete_title'),
-      description: t('course_management.confirm.delete_description', { name: course.courseName }),
-      confirmColor: 'error',
-      confirmText: t('button.delete'),
-    })
-    if (!accepted) return
-
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.COURSE_MANAGEMENT.DETAIL(course.id), {
-        headers: { 'If-Match': `"${course.rowVersion}"` },
-      })
-      clearSelection()
-      await courses.fetch()
-    } catch {
-      // The shared Axios interceptor displays the API error.
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleDeleteSelected = async () => {
@@ -145,7 +103,7 @@ const CourseManagementPage = () => {
   const handlePublish = async () => {
     if (!selectedCourses.length) return
     const hasExpiredFasDeadline = selectedCourses.some((course) => {
-      const deadline = getLocalDateFromServerDateTime(course.fasApplicationDueDate)
+      const deadline = getLocalDateFromServerDateTime(course.enrollmentDeadline)
       return !deadline || deadline.getTime() <= Date.now()
     })
     if (hasExpiredFasDeadline) {
@@ -191,7 +149,9 @@ const CourseManagementPage = () => {
           {t('course_management.title.management')}
         </Typography.Title>
         <CourseManagementToolbarSection
-          onCreate={() => setOpenCreate(true)}
+          onCreate={() =>
+            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.CREATE))
+          }
           onImport={() => setOpenImport(true)}
           onPublish={handlePublish}
           onDeleteSelected={handleDeleteSelected}
@@ -211,11 +171,6 @@ const CourseManagementPage = () => {
           setSort={handleSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onEdit={(row) => {
-            setSelectedRow(row)
-            setOpenUpdate(true)
-          }}
-          onDelete={handleDelete}
           onDetail={(row) =>
             navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(row.id)))
           }
@@ -230,16 +185,6 @@ const CourseManagementPage = () => {
           loading={courses.loading}
         />
       </Flex>
-      <CourseManagementFormSection
-        openCreate={openCreate}
-        setOpenCreate={setOpenCreate}
-        openUpdate={openUpdate}
-        setOpenUpdate={setOpenUpdate}
-        selectedRow={selectedRow}
-        onCreateSubmit={createCourse.submit}
-        onUpdateSubmit={updateCourse.submit}
-        refetch={courses.fetch}
-      />
       <GenericImportSection
         open={openImport}
         onClose={() => {

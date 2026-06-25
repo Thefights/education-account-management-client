@@ -33,7 +33,7 @@ export const csvImportTemplates = {
       'Description',
       'CourseFeeAmount',
       'MiscFeeAmount',
-      'FasApplicationDueDate',
+      'EnrollmentDeadline',
       'StartDate',
       'EndDate',
     ],

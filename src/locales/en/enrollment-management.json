@@ -49,9 +49,8 @@
     "status": {
       "charge": {
         "unpaid": "Unpaid",
-        "partially_paid": "Partially Paid",
         "paid": "Paid",
-        "outstanding": "Outstanding"
+        "overdue": "Overdue"
       }
     }
   }

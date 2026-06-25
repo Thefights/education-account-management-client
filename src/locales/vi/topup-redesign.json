@@ -67,6 +67,7 @@
     "child_all_rule": "Mọi quy tắc trong nhánh này đều phải đúng",
     "child_any_rule": "Chỉ cần một quy tắc trong nhánh này đúng",
     "summary_label": "Hiểu đơn giản",
+    "eligible_if": "Đủ điều kiện nếu:",
     "rule": "Quy tắc",
     "main_rule": "Quy tắc chính",
     "condition_builder_description_one_level": "Dùng ALL khi mọi quy tắc đều bắt buộc và ANY khi chỉ cần một quy tắc đúng. Bạn có thể thêm một tầng nhóm để mô tả các trường hợp thay thế.",

@@ -67,6 +67,7 @@
     "child_all_rule": "此分支中的所有规则都必须满足",
     "child_any_rule": "此分支中任一规则满足即可",
     "summary_label": "简单来说",
+    "eligible_if": "符合条件：",
     "rule": "规则",
     "main_rule": "主规则",
     "condition_builder_description_one_level": "所有规则都必需时使用 ALL，只需一个规则时使用 ANY。您可以添加一层规则组来描述替代场景。",

@@ -1,4 +1,3 @@
-import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
@@ -13,8 +12,6 @@ const CourseManagementTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onEdit,
-  onDelete,
   onDetail,
 }) => {
   const { t } = useTranslation()
@@ -59,21 +56,6 @@ const CourseManagementTableSection = ({
           {desc || '-'}
         </div>
       ),
-    },
-    {
-      key: 'actions',
-      title: '',
-      width: 70,
-      render: (_, row) => {
-        const actions = []
-        if (row.status === 'Draft' || row.status === 'Enrolling') {
-          actions.push({ title: t('button.edit'), onClick: () => onEdit(row) })
-        }
-        if (row.status === 'Draft') {
-          actions.push({ title: t('button.delete'), onClick: () => onDelete(row) })
-        }
-        return <ActionMenu actions={actions} />
-      },
     },
   ]
 

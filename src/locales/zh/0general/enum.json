@@ -33,9 +33,8 @@
     },
     "charge_status": {
       "unpaid": "未付款",
-      "partially_paid": "部分付款",
       "paid": "已付款",
-      "outstanding": "逾期"
+      "overdue": "逾期"
     },
     "role": {
       "account_holder": "账户持有人",

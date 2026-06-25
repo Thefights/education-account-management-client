@@ -67,6 +67,7 @@
     "child_all_rule": "Every rule in this branch must match",
     "child_any_rule": "Any rule in this branch can match",
     "summary_label": "In simple terms",
+    "eligible_if": "Eligible if:",
     "rule": "Rule",
     "main_rule": "Main rule",
     "condition_builder_description_one_level": "Use ALL when every rule is required and ANY when one rule is enough. You can add one level of rule groups for alternative scenarios.",
