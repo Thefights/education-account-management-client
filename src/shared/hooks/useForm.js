@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from 'react'
 
-export default function useForm(initialValues = {}) {
+const defaultInitialValues = {}
+
+export default function useForm(initialValues = defaultInitialValues) {
 	const [values, setValues] = useState(initialValues)
 
 	const fieldsRef = useRef(new Map())

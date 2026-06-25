@@ -8,7 +8,6 @@ import {
 } from '@ant-design/icons'
 import {
   Button,
-  Card,
   Col,
   Flex,
   InputNumber,
@@ -21,6 +20,7 @@ import {
   Typography,
   theme,
 } from 'antd'
+import { useState } from 'react'
 import {
   createEmptyTopupCondition,
   createEmptyTopupConditionGroup,
@@ -171,7 +171,44 @@ export const TopupConditionTree = ({ value }) => {
   )
 }
 
-const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
+const SectionShell = ({ title, subtitle, accentColor, onDelete, children, t, token }) => (
+  <div
+    style={{
+      border: `1px solid ${token.colorBorder}`,
+      borderLeft: `4px solid ${accentColor}`,
+      borderRadius: token.borderRadiusLG,
+      background: token.colorBgContainer,
+      overflow: 'hidden',
+    }}
+  >
+    <Flex
+      align="center"
+      justify="space-between"
+      gap={12}
+      style={{
+        padding: '12px 16px',
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        background: token.colorFillQuaternary,
+      }}
+    >
+      <Flex vertical gap={2}>
+        <Typography.Text strong>{title}</Typography.Text>
+        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          {subtitle}
+        </Typography.Text>
+      </Flex>
+      {onDelete ? (
+        <Tooltip title={t('topup_form.delete_group')}>
+          <Button danger type="text" icon={<DeleteOutlined />} onClick={onDelete} />
+        </Tooltip>
+      ) : null}
+    </Flex>
+    <div style={{ padding: 16 }}>{children}</div>
+  </div>
+)
+
+const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showValidationErrors }) => {
+  const [touched, setTouched] = useState({ value: false, valueTo: false })
   const isText = condition.field === 3
   const isBetween = !isText && condition.operator === 7
   const missingValue = isText ? !condition.valueText : condition.valueNumber == null
@@ -180,6 +217,8 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
     isBetween &&
     condition.valueNumberTo != null &&
     Number(condition.valueNumberTo) < Number(condition.valueNumber)
+  const showMissingValue = (showValidationErrors || touched.value) && missingValue
+  const showUpperValueError = (showValidationErrors || touched.valueTo) && missingUpperValue
 
   return (
     <div
@@ -244,7 +283,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
             {isText ? (
               <Select
                 aria-label={t('topup_form.value')}
-                status={missingValue ? 'error' : undefined}
+                status={showMissingValue ? 'error' : undefined}
                 value={condition.valueText}
                 placeholder={t('topup_form.select_value')}
                 options={[
@@ -253,11 +292,12 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
                 ]}
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueText) => onChange({ ...condition, valueText })}
+                onBlur={() => setTouched((current) => ({ ...current, value: true }))}
               />
             ) : (
               <InputNumber
                 aria-label={t('topup_form.value')}
-                status={missingValue ? 'error' : undefined}
+                status={showMissingValue ? 'error' : undefined}
                 value={condition.valueNumber}
                 placeholder={isBetween ? t('topup_form.from_value') : t('topup_form.value')}
                 min={0}
@@ -266,9 +306,10 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
                 suffix={condition.field === 1 ? t('topup_form.years') : undefined}
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumber) => onChange({ ...condition, valueNumber })}
+                onBlur={() => setTouched((current) => ({ ...current, value: true }))}
               />
             )}
-            {missingValue && (
+            {showMissingValue && (
               <Typography.Text type="danger" style={{ fontSize: 12 }}>
                 {t('topup_form.enter_value')}
               </Typography.Text>
@@ -280,7 +321,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
             <Flex vertical gap={4}>
               <InputNumber
                 aria-label={t('topup_form.to_value')}
-                status={missingUpperValue || invalidRange ? 'error' : undefined}
+                status={showUpperValueError || invalidRange ? 'error' : undefined}
                 value={condition.valueNumberTo}
                 placeholder={t('topup_form.to_value')}
                 min={0}
@@ -289,8 +330,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
                 suffix={condition.field === 1 ? t('topup_form.years') : undefined}
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumberTo) => onChange({ ...condition, valueNumberTo })}
+                onBlur={() => setTouched((current) => ({ ...current, valueTo: true }))}
               />
-              {(missingUpperValue || invalidRange) && (
+              {(showUpperValueError || invalidRange) && (
                 <Typography.Text type="danger" style={{ fontSize: 12 }}>
                   {invalidRange ? t('topup_form.invalid_range') : t('topup_form.enter_value')}
                 </Typography.Text>
@@ -303,45 +345,40 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token }) => {
   )
 }
 
-const GroupEditor = ({ group, onChange, onDelete, depth, groupNumber, t, token }) => {
+const GroupEditor = ({
+  group,
+  onChange,
+  onDelete,
+  depth,
+  groupNumber,
+  t,
+  token,
+  showValidationErrors = false,
+}) => {
   const mode = group.logicalOperator === 2 ? 'ANY' : 'ALL'
   const isRoot = depth === 1
+  const conditions = group.conditions || []
+  const groups = group.groups || []
   const updateCondition = (index, nextCondition) =>
     onChange({
       ...group,
-      conditions: group.conditions.map((condition, itemIndex) =>
+      conditions: conditions.map((condition, itemIndex) =>
         itemIndex === index ? nextCondition : condition
       ),
     })
 
   return (
-    <Card
-      size="small"
-      styles={{ body: { padding: 16 } }}
-      style={{
-        borderLeft: `5px solid ${depth === 1 ? token.colorPrimary : token.colorInfo}`,
-        background: depth === 1 ? token.colorFillAlter : token.colorBgContainer,
-        boxShadow: depth === 1 ? undefined : 'none',
-      }}
+    <SectionShell
       title={
-        <Flex vertical gap={2}>
-          <Typography.Text strong>
-            {isRoot
-              ? t('topup_form.required_conditions')
-              : t('topup_form.scenario_number', { number: groupNumber })}
-          </Typography.Text>
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            {isRoot ? t('topup_form.required_conditions_hint') : t('topup_form.scenario_hint')}
-          </Typography.Text>
-        </Flex>
+        isRoot
+          ? t('topup_form.required_conditions')
+          : t('topup_form.scenario_number', { number: groupNumber })
       }
-      extra={
-        onDelete ? (
-          <Tooltip title={t('topup_form.delete_group')}>
-            <Button danger type="text" icon={<DeleteOutlined />} onClick={onDelete} />
-          </Tooltip>
-        ) : null
-      }
+      subtitle={isRoot ? t('topup_form.required_conditions_hint') : t('topup_form.scenario_hint')}
+      accentColor={isRoot ? token.colorPrimary : token.colorInfo}
+      onDelete={onDelete}
+      t={t}
+      token={token}
     >
       <Flex vertical gap={12}>
         <Flex align="center" gap={8} wrap="wrap">
@@ -372,24 +409,25 @@ const GroupEditor = ({ group, onChange, onDelete, depth, groupNumber, t, token }
           </Tooltip>
         </Flex>
 
-        {(group.conditions || []).map((condition, index) => (
+        {conditions.map((condition, index) => (
           <ConditionRow
             key={condition.id ?? `condition-${index}`}
             condition={condition}
             index={index}
             t={t}
             token={token}
+            showValidationErrors={showValidationErrors}
             onChange={(nextCondition) => updateCondition(index, nextCondition)}
             onDelete={() =>
               onChange({
                 ...group,
-                conditions: group.conditions.filter((_, itemIndex) => itemIndex !== index),
+                conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
               })
             }
           />
         ))}
 
-        {(group.groups || []).map((child, index) => (
+        {groups.map((child, index) => (
           <GroupEditor
             key={child.id ?? `group-${index}`}
             group={child}
@@ -397,10 +435,11 @@ const GroupEditor = ({ group, onChange, onDelete, depth, groupNumber, t, token }
             groupNumber={index + 1}
             t={t}
             token={token}
+            showValidationErrors={showValidationErrors}
             onChange={(nextChild) =>
               onChange({
                 ...group,
-                groups: group.groups.map((item, itemIndex) =>
+                groups: groups.map((item, itemIndex) =>
                   itemIndex === index ? nextChild : item
                 ),
               })
@@ -408,7 +447,7 @@ const GroupEditor = ({ group, onChange, onDelete, depth, groupNumber, t, token }
             onDelete={() =>
               onChange({
                 ...group,
-                groups: group.groups.filter((_, itemIndex) => itemIndex !== index),
+                groups: groups.filter((_, itemIndex) => itemIndex !== index),
               })
             }
           />
@@ -421,7 +460,7 @@ const GroupEditor = ({ group, onChange, onDelete, depth, groupNumber, t, token }
             onClick={() =>
               onChange({
                 ...group,
-                conditions: [...group.conditions, createEmptyTopupCondition()],
+                conditions: [...conditions, createEmptyTopupCondition()],
               })
             }
           >
@@ -434,22 +473,22 @@ const GroupEditor = ({ group, onChange, onDelete, depth, groupNumber, t, token }
               type="dashed"
               icon={<PlusOutlined />}
               onClick={() =>
-                onChange({ ...group, groups: [...group.groups, createEmptyTopupConditionGroup()] })
+                onChange({ ...group, groups: [...groups, createEmptyTopupConditionGroup()] })
               }
             >
               {t('topup_form.add_scenario')}
             </Button>
           )}
         </Space>
-        {!group.conditions.length && !group.groups.length && (
+        {!conditions.length && !groups.length && (
           <Typography.Text type="danger">{t('topup_form.condition_required')}</Typography.Text>
         )}
       </Flex>
-    </Card>
+    </SectionShell>
   )
 }
 
-const TopupRuleConditionsField = ({ value, onChange }) => {
+const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = false }) => {
   const { t } = useTranslation()
   const { token } = theme.useToken()
   const group = value || createEmptyTopupConditionGroup()
@@ -463,11 +502,22 @@ const TopupRuleConditionsField = ({ value, onChange }) => {
         groupNumber={1}
         t={t}
         token={token}
+        showValidationErrors={showValidationErrors}
       />
       {isTopupConditionGroupValid(group) && (
-        <Card size="small" title={t('topup_form.readable_preview')} style={{ boxShadow: 'none' }}>
-          <TopupConditionTree value={group} />
-        </Card>
+        <div
+          style={{
+            padding: 16,
+            border: `1px solid ${token.colorBorder}`,
+            borderRadius: token.borderRadiusLG,
+            background: token.colorBgContainer,
+          }}
+        >
+          <Typography.Text strong>{t('topup_form.readable_preview')}</Typography.Text>
+          <div style={{ marginTop: 12 }}>
+            <TopupConditionTree value={group} />
+          </div>
+        </div>
       )}
     </Flex>
   )
