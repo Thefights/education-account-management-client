@@ -10,7 +10,6 @@ import { useMemo } from 'react'
 
 const initialValues = {
   courseName: '',
-  description: '',
   courseFeeAmount: '0',
   miscFeeAmount: '0',
   enrollmentDeadline: '',
@@ -20,7 +19,6 @@ const initialValues = {
 
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
-  description: course.description ?? '',
   courseFeeAmount: String(course.courseFeeAmount ?? 0),
   miscFeeAmount: String(course.miscFeeAmount ?? 0),
   enrollmentDeadline: toLocalDateTimeInput(course.enrollmentDeadline),
@@ -33,7 +31,6 @@ const normalizeInitialValues = (course = {}) => ({
 
 const toPayload = (values, includeRowVersion = false) => ({
   courseName: values.courseName,
-  description: values.description || null,
   courseFeeAmount: Number(values.courseFeeAmount),
   miscFeeAmount: Number(values.miscFeeAmount),
   enrollmentDeadline: localDateTimeToIso(values.enrollmentDeadline),
@@ -57,14 +54,6 @@ const CourseManagementFormSection = ({
 
   const getFields = (basicInfoOnly = false, showServerFees = false) => [
     { key: 'courseName', title: t('course_management.field.course_name'), validate: [maxLen(150)] },
-    {
-      key: 'description',
-      title: t('course_management.field.description'),
-      multiline: true,
-      minRows: 3,
-      required: false,
-      validate: [maxLen(1000)],
-    },
     {
       key: 'courseFeeAmount',
       title: t('course_management.field.course_fee_amount'),

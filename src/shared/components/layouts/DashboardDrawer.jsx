@@ -55,7 +55,7 @@ const DashboardDrawer = ({
             flexShrink: 0,
             color: 'var(--app-sider-text)',
             borderBottom: '1px solid var(--app-sider-border)',
-            padding: actualCollapsed ? '14px 8px' : '16px 20px',
+            padding: actualCollapsed ? '12px 8px' : '8px 14px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

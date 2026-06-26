@@ -1,12 +1,12 @@
 {
   "course_management": {
     "menu_label": "课程管理",
-    "title": { "management": "课程管理", "create": "创建课程", "update": "更新课程", "important_dates": "重要日期", "applicable_fas": "适用FAS" },
+    "title": { "management": "课程管理", "create": "创建课程", "update": "更新课程", "important_dates": "重要日期", "applicable_fas": "适用FAS", "fas_deduction": "适用FAS" },
     "section": {
       "basic_info": "基本信息",
       "fees": "费用与付款",
       "schedule": "日程与截止日期",
-      "initial_students": "初始学生"
+      "initial_students": "学生"
     },
     "field": {
       "id": "ID",
@@ -23,10 +23,13 @@
       "enrollment_deadline": "报名确认截止时间",
       "start_date": "开始时间",
       "end_date": "结束日期",
-      "enrollment_count": "报名人数",
-      "initial_students": "初始学生"
+      "enrollment_count": "学生人数",
+      "initial_students": "学生",
+      "applicable_fas": "适用FAS",
+      "duration_in_months": "期限"
     },
-    "action": { "publish": "发布", "delete_selected": "删除所选" },
+    "action": { "publish": "发布", "delete_selected": "删除所选", "save_as_draft": "保存为草稿", "manage_fas": "添加FAS" },
+    "fas": { "per_component": "按费用项", "standard": "标准" },
     "label": { "search": "按课程名称、课程代码或学校名称搜索" },
     "placeholder": { "search": "搜索..." },
     "confirm": {

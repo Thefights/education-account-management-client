@@ -32,7 +32,7 @@
       "withdrawn": "Withdrawn"
     },
     "charge_status": {
-      "unpaid": "Unpaid",
+      "pending_payment": "Pending Payment",
       "paid": "Paid",
       "overdue": "Overdue"
     },

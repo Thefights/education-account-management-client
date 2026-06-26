@@ -129,8 +129,8 @@ const TuitionPaymentlPage = () => {
                         type="secondary"
                         style={{ fontSize: '12px' }}
                         >
-                          {data?.unpaidInvoicesCount + ' '} 
-                          {data?.unpaidInvoicesCount > 1 ? t('tuition-payment.unpaid_invoices') : t('tuition-payment.unpaid_invoice')}
+                          {data?.pendingPaymentInvoicesCount + ' '} 
+                          {data?.pendingPaymentInvoicesCount > 1 ? t('tuition-payment.pending_payment_invoices') : t('tuition-payment.pending_payment_invoice')}
                         </Typography.Text>
                     </Flex>
                     

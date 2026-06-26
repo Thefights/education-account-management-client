@@ -6,13 +6,14 @@
       "create": "Tạo khóa học",
       "update": "Cập nhật khóa học",
       "important_dates": "Các ngày quan trọng",
-      "applicable_fas": "FAS áp dụng"
+      "applicable_fas": "FAS áp dụng",
+      "fas_deduction": "FAS áp dụng"
     },
     "section": {
       "basic_info": "Thông tin cơ bản",
       "fees": "Học phí & Thanh toán",
       "schedule": "Lịch trình & Thời hạn",
-      "initial_students": "Học viên ban đầu"
+      "initial_students": "Học sinh"
     },
     "field": {
       "id": "ID",
@@ -29,12 +30,20 @@
       "enrollment_deadline": "Hạn chốt enrollment",
       "start_date": "Ngày bắt đầu",
       "end_date": "Ngày kết thúc",
-      "enrollment_count": "Số lượng ghi danh",
-      "initial_students": "Học sinh ban đầu"
+      "enrollment_count": "Số lượng học sinh",
+      "initial_students": "Học sinh",
+      "applicable_fas": "FAS áp dụng",
+      "duration_in_months": "Thời hạn"
     },
     "action": {
       "publish": "Phát hành",
-      "delete_selected": "Xóa đã chọn"
+      "delete_selected": "Xóa đã chọn",
+      "save_as_draft": "Lưu nháp",
+      "manage_fas": "Thêm FAS"
+    },
+    "fas": {
+      "per_component": "Theo từng khoản phí",
+      "standard": "Tiêu chuẩn"
     },
     "label": { "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường" },
     "placeholder": { "search": "Tìm kiếm..." },

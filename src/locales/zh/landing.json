@@ -7,7 +7,7 @@
     },
     "login": "登录",
     "home": {
-      "title": "教育账户管理",
+      "title": "Singapore Financial System",
       "subtitle": "便捷与安全",
       "description": "智能的校园支付平台，帮助家长和学生轻松管理支出、充值和津贴。",
       "login_now": "立即登录",
@@ -69,7 +69,7 @@
       "emergency_desc": "需要紧急锁定您的账户或报告异常交易？我们的快速响应团队随时待命。"
     },
     "footer": {
-      "copyright": "© 2026 Education Account Management System.",
+      "copyright": "© 2026 Singapore Financial System.",
       "privacy": "隐私政策",
       "terms": "服务条款"
     }

@@ -41,6 +41,8 @@ export const ApiUrls = {
     INDEX: '/course-management',
     GET_ALL: '/course-management/all',
     DETAIL: (id) => `/course-management/${id}`,
+    DUPLICATE: (id) => `/course-management/${id}/duplicate`,
+    FAS_SCHEMES: (id) => `/course-management/${id}/fas-schemes`,
     PUBLISH: '/course-management/publish',
     DELETE_SELECTED: '/course-management/selected',
     IMPORT: '/course-management/import',
@@ -59,6 +61,12 @@ export const ApiUrls = {
     INDEX: '/school-student-management',
     DETAIL: (id) => `/school-student-management/${id}`,
     IMPORT: '/school-student-management/import',
+  },
+
+  FAS_SCHEME_MANAGEMENT: {
+    INDEX: '/fas-scheme-management',
+    GET_ALL: '/fas-scheme-management/all',
+    DETAIL: (id) => `/fas-scheme-management/${id}`,
   },
 
   EDUCATION_ACCOUNT: {

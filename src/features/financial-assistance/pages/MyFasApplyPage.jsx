@@ -75,6 +75,8 @@ const getAgeFromDateOfBirth = (dateOfBirth) => {
 }
 
 const profileToFasProfile = (accountHolder) => ({
+  name: accountHolder.name,
+  accountNumber: accountHolder.accountNumber,
   age: getAgeFromDateOfBirth(accountHolder.dateOfBirth) || accountHolder.age,
   nationality:
     typeof accountHolder.isSingaporeCitizen === 'boolean'
@@ -594,7 +596,7 @@ const ApplyForm = ({
                   <span className="fas-block-number">1</span>
                   <div>
                     <h3>Review household details</h3>
-                    <p>These values are pre-filled from your profile. Update them before submitting.</p>
+                    <p>Profile details are locked. Update only the household values for this application.</p>
                   </div>
                 </div>
 
@@ -711,58 +713,43 @@ const ApplyForm = ({
 const SchemeApplicationFields = ({ fieldSet, profile, pci, onProfileChange }) => {
   const requiresIncome = schemeRequiresIncome(fieldSet)
   const requiresMembers = schemeRequiresMembers(fieldSet)
-  const hasVisibleFields =
-    fieldSet.has('studentAge') ||
-    fieldSet.has('nationality') ||
-    fieldSet.has('parentNationality') ||
-    requiresIncome ||
-    requiresMembers
-
-  if (!hasVisibleFields) {
-    return (
-      <div className="fas-note" style={{ marginTop: 0 }}>
-        This scheme does not require additional household fields.
-      </div>
-    )
-  }
 
   return (
     <>
       <div className="fas-form-grid">
-        {fieldSet.has('studentAge') && (
-          <div>
-            <label className="fas-field-label">Student age</label>
-            <InputNumber disabled min={0} value={profile.age} style={{ width: '100%' }} />
-            <div className="fas-field-help">Auto-filled from profile date of birth.</div>
-          </div>
-        )}
+        <div>
+          <label className="fas-field-label">Account holder name</label>
+          <Input disabled value={profile.name || '-'} />
+          <div className="fas-field-help">Auto-filled from profile.</div>
+        </div>
 
-        {fieldSet.has('nationality') && (
-          <div>
-            <label className="fas-field-label">Student nationality</label>
-            <Select
-              disabled
-              value={profile.nationality}
-              options={nationalityOptions}
-              style={{ width: '100%' }}
-            />
-            <div className="fas-field-help">Auto-filled from profile citizenship.</div>
-          </div>
-        )}
+        <div>
+          <label className="fas-field-label">Student age</label>
+          <InputNumber disabled min={0} value={profile.age} style={{ width: '100%' }} />
+          <div className="fas-field-help">Auto-filled from profile date of birth.</div>
+        </div>
 
-        {fieldSet.has('parentNationality') && (
-          <div>
-            <label className="fas-field-label">Parent&apos;s nationality</label>
-            <Select
-              value={profile.parentNationality}
-              options={parentNationalityOptions}
-              style={{ width: '100%' }}
-              onChange={(value) =>
-                onProfileChange((current) => ({ ...current, parentNationality: value }))
-              }
-            />
-          </div>
-        )}
+        <div>
+          <label className="fas-field-label">Student nationality</label>
+          <Select
+            disabled
+            value={profile.nationality}
+            options={nationalityOptions}
+            style={{ width: '100%' }}
+          />
+          <div className="fas-field-help">Auto-filled from profile citizenship.</div>
+        </div>
+
+        <div>
+          <label className="fas-field-label">Parent&apos;s nationality</label>
+          <Select
+            disabled
+            value={profile.parentNationality}
+            options={parentNationalityOptions}
+            style={{ width: '100%' }}
+          />
+          <div className="fas-field-help">Auto-filled from linked guardian profile.</div>
+        </div>
 
         {requiresIncome && (
           <div>
@@ -811,24 +798,22 @@ const ApplicationSummaryRows = ({ fieldSet, profile, pci }) => {
 
   return (
     <>
-      {fieldSet.has('studentAge') && (
-        <div className="fas-summary-row">
-          <span>Student age</span>
-          <strong>{profile.age || '-'}</strong>
-        </div>
-      )}
-      {fieldSet.has('nationality') && (
-        <div className="fas-summary-row">
-          <span>Student nationality</span>
-          <strong>{profile.nationality}</strong>
-        </div>
-      )}
-      {fieldSet.has('parentNationality') && (
-        <div className="fas-summary-row">
-          <span>Parent nationality</span>
-          <strong>{profile.parentNationality}</strong>
-        </div>
-      )}
+      <div className="fas-summary-row">
+        <span>Account holder</span>
+        <strong>{profile.name || '-'}</strong>
+      </div>
+      <div className="fas-summary-row">
+        <span>Student age</span>
+        <strong>{profile.age || '-'}</strong>
+      </div>
+      <div className="fas-summary-row">
+        <span>Student nationality</span>
+        <strong>{profile.nationality || '-'}</strong>
+      </div>
+      <div className="fas-summary-row">
+        <span>Parent nationality</span>
+        <strong>{profile.parentNationality || '-'}</strong>
+      </div>
       {requiresIncome && (
         <div className="fas-summary-row">
           <span>Monthly income</span>

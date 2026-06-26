@@ -48,13 +48,13 @@ export const EnumConfig = {
   },
 
   ChargeStatusId: {
-    Unpaid: 1,
+    PendingPayment: 1,
     Paid: 2,
     Overdue: 3,
   },
 
   ChargeStatus: {
-    Unpaid: 'Unpaid',
+    PendingPayment: 'PendingPayment',
     Paid: 'Paid',
     Overdue: 'Overdue',
   },

@@ -2,7 +2,7 @@ import axiosConfig from '@/shared/api/axiosClient'
 import { isPlainObject } from '@/shared/utils/handleBooleanUtil'
 import { getObjectConvertingToFormData } from '@/shared/utils/handleObjectUtil'
 import { appendPath, getTrimString } from '@/shared/utils/handleStringUtil'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const emptyObject = {}
 const defaultSuccessHandler = async (response) => Promise.resolve(response)
@@ -19,68 +19,75 @@ const defaultErrorHandler = async (error) => Promise.resolve(error)
  * @returns {{loading: boolean, error: Error|null, response: any|null, submit: function({ overrideData, overrideUrl, overrideParam }): Promise<any>}}
  */
 export default function useAxiosSubmit({
-	url = '',
-	method = 'POST',
-	data = emptyObject,
-	params = emptyObject,
-	onSuccess = defaultSuccessHandler,
-	onError = defaultErrorHandler,
+  url = '',
+  method = 'POST',
+  data = emptyObject,
+  params = emptyObject,
+  onSuccess = defaultSuccessHandler,
+  onError = defaultErrorHandler,
 }) {
-	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState(null)
-	const [response, setResponse] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [response, setResponse] = useState(null)
+  const loadingRef = useRef(false)
 
-	const submit = useCallback(
-		async ({ overrideData, overrideUrl, overrideParam } = {}) => {
-			if (loading) return undefined
+  useEffect(() => {
+    loadingRef.current = loading
+  }, [loading])
 
-			setLoading(true)
-			setError(null)
-			setResponse(null)
+  const submit = useCallback(
+    async ({ overrideData, overrideUrl, overrideParam } = {}) => {
+      if (loadingRef.current) return undefined
 
-			const upper = String(method).toUpperCase()
-			const queryOnly = upper === 'GET' || upper === 'DELETE'
-			const bodySource = overrideData !== undefined ? overrideData : data
+      loadingRef.current = true
+      setLoading(true)
+      setError(null)
+      setResponse(null)
 
-			const finalParams = overrideParam !== undefined ? overrideParam : params
-			const finalUrl = overrideUrl || url
+      const upper = String(method).toUpperCase()
+      const queryOnly = upper === 'GET'
+      const bodySource = overrideData !== undefined ? overrideData : data
 
-			const isObjParams = isPlainObject(finalParams)
-			const axiosUrl = isObjParams ? finalUrl : appendPath(finalUrl, finalParams)
-			const axiosParams = isObjParams ? finalParams : undefined
+      const finalParams = overrideParam !== undefined ? overrideParam : params
+      const finalUrl = overrideUrl || url
 
-			try {
-				let payload = undefined
-				if (!queryOnly) {
-					if (bodySource instanceof FormData) {
-						payload = bodySource
-					} else {
-						const trimmed = getTrimString(bodySource)
-						payload = getObjectConvertingToFormData(trimmed)
-					}
-				}
-				const response = await axiosConfig.request({
-					url: axiosUrl,
-					method: upper,
-					params: axiosParams,
-					data: payload,
-				})
+      const isObjParams = isPlainObject(finalParams)
+      const axiosUrl = isObjParams ? finalUrl : appendPath(finalUrl, finalParams)
+      const axiosParams = isObjParams ? finalParams : undefined
 
-				setResponse(response)
-				await onSuccess?.(response)
-				return response
-			} catch (err) {
-				setError(err)
-				await onError?.(err)
-				return undefined
-			} finally {
-				setLoading(false)
-			}
-		},
-		[loading, method, data, url, params, onSuccess, onError]
-	)
+      try {
+        let payload = undefined
+        if (!queryOnly) {
+          if (bodySource instanceof FormData) {
+            payload = bodySource
+          } else {
+            const trimmed = getTrimString(bodySource)
+            payload = getObjectConvertingToFormData(trimmed)
+          }
+        }
+        const response = await axiosConfig.request({
+          url: axiosUrl,
+          method: upper,
+          params: axiosParams,
+          data: payload,
+        })
 
-	return { loading, error, response, submit }
+        setResponse(response)
+        await onSuccess?.(response)
+        return response
+      } catch (err) {
+        setError(err)
+        await onError?.(err)
+        return undefined
+      } finally {
+        loadingRef.current = false
+        setLoading(false)
+      }
+    },
+    [method, data, url, params, onSuccess, onError]
+  )
+
+  return { loading, error, response, submit }
 }
 
 // Example usage:

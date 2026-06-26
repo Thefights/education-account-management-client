@@ -3,7 +3,7 @@
     "menu_label": "报名管理",
     "title": {
       "management": "报名管理",
-      "assign_students": "分配学生",
+      "assign_students": "添加学生",
       "add_students_to_course": "将学生添加到 {{course}}"
     },
     "placeholder": {
@@ -26,13 +26,14 @@
       "enrolled_at": "报名时间",
       "charge_status": "收费状态",
       "gross_amount": "总金额",
+      "fas_deduction": "FAS扣减",
       "paid_amount": "已付金额",
       "remaining_amount": "剩余金额",
       "course": "课程",
       "students": "学生"
     },
     "action": {
-      "assign": "分配",
+      "assign": "添加",
       "delete_selected": "删除所选",
       "manage_students": "管理学生",
       "view_students": "查看学生",
@@ -48,7 +49,7 @@
     },
     "status": {
       "charge": {
-        "unpaid": "未付款",
+        "pending_payment": "待付款",
         "paid": "已付款",
         "overdue": "逾期"
       }

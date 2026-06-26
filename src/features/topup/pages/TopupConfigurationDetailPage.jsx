@@ -170,9 +170,6 @@ const TopupConfigurationDetailPage = ({ type }) => {
                 {data.executeAtMonth}
               </Descriptions.Item>
             )}
-            <Descriptions.Item label={t('topup_form.execution_time')}>
-              {data.executionTime || '—'}
-            </Descriptions.Item>
             <Descriptions.Item label={t('topup.next_execution')}>
               {formatDatetimeStringBasedOnCurrentLanguage(data.nextExecutionAt) || '—'}
             </Descriptions.Item>

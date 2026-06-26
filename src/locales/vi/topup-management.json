@@ -24,7 +24,12 @@
     "processing": "Đang xử lý",
     "completed": "Hoàn tất",
     "execution_targets": "Đối tượng thực thi",
-    "system_topups_title": "Quy tắc nạp tiền",
+    "system_topups_title": "System Topup",
+    "schedules_title": "Schedule Topup",
+    "manual_title": "Manual Topup",
+    "system_tab": "System Topup",
+    "schedule_tab": "Schedule Topup",
+    "manual_tab": "Manual Topup",
     "topup_name": "Tên cấu hình nạp tiền",
     "search_topup": "Tìm theo tên cấu hình nạp tiền",
     "search_execution": "Tìm theo mã thực thi hoặc tên cấu hình nạp tiền"
