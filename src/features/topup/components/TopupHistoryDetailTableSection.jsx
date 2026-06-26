@@ -15,9 +15,11 @@ const TopupHistoryDetailTableSection = ({ targets, loading, sort, setSort }) => 
   const _enum = useEnum()
 
   const fields = useMemo(
-    () => [
+      () => [
       { key: 'accountNumber', title: t('topup.account_number'), sortable: true },
       { key: 'accountName', title: t('topup.account_name'), sortable: true },
+      { key: 'transactionCode', title: t('topup.transaction_code'), sortable: true },
+      { key: 'failureReason', title: t('topup.failure_reason'), sortable: true },
       {
         key: 'status',
         title: t('topup.status'),
@@ -33,8 +35,6 @@ const TopupHistoryDetailTableSection = ({ targets, loading, sort, setSort }) => 
         isNumeric: true,
         render: formatAmount,
       },
-      { key: 'transactionCode', title: t('topup.transaction_code'), sortable: true },
-      { key: 'failureReason', title: t('topup.failure_reason'), sortable: true },
       {
         key: 'createdAt',
         title: t('topup.created_at'),

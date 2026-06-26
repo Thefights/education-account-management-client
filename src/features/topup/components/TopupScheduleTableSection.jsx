@@ -29,14 +29,6 @@ const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail
       ),
     },
     {
-      key: 'topupAmount',
-      title: t('topup.amount'),
-      width: 130,
-      isNumeric: true,
-      sortable: true,
-      render: formatAmount,
-    },
-    {
       key: 'frequency',
       title: t('topup.schedule_type'),
       width: 140,
@@ -51,6 +43,14 @@ const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail
       type: 'tag',
       options: _enum.scheduleTopupStatusOptions,
       color: defaultTopupStatusStyle,
+    },
+    {
+      key: 'topupAmount',
+      title: t('topup.amount'),
+      width: 130,
+      isNumeric: true,
+      sortable: true,
+      render: formatAmount,
     },
     {
       key: 'nextExecutionAt',

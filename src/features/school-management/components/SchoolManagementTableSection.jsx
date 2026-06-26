@@ -31,6 +31,14 @@ const SchoolManagementTableSection = ({
       width: 220,
       sortable: true,
     },
+    { key: 'address', title: t('school_management.field.address'), width: 300, sortable: true },
+    {
+      key: 'phoneNumber',
+      title: t('school_management.field.phone_number'),
+      width: 160,
+      sortable: true,
+    },
+    { key: 'email', title: t('school_management.field.email'), width: 240, sortable: true },
     {
       key: 'status',
       title: t('school_management.field.status'),
@@ -40,14 +48,6 @@ const SchoolManagementTableSection = ({
       options: _enum.schoolStatusOptions,
       color: defaultManagementStatusStyle,
     },
-    { key: 'address', title: t('school_management.field.address'), width: 300, sortable: true },
-    {
-      key: 'phoneNumber',
-      title: t('school_management.field.phone_number'),
-      width: 160,
-      sortable: true,
-    },
-    { key: 'email', title: t('school_management.field.email'), width: 240, sortable: true },
     {
       key: 'createdAt',
       title: t('audit_log.field.created_at'),

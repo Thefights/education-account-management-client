@@ -96,6 +96,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   const fields = useMemo(
     () => [
       { key: 'transactionCode', title: t('transaction.code'), width: 250 },
+      { key: 'description', title: t('transaction.description'), width: 240 },
       {
         key: 'type',
         title: t('transaction.type'),
@@ -103,7 +104,16 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         sortable: true,
         render: (value) => <Tag>{typeLabels[value] || value}</Tag>,
       },
-      { key: 'description', title: t('transaction.description'), width: 240 },
+      {
+        key: 'direction',
+        title: t('transaction.direction'),
+        width: 110,
+        render: (value) => (
+          <Tag color={value === 'Credit' ? 'success' : 'error'}>
+            {directionLabels[value] || value}
+          </Tag>
+        ),
+      },
       {
         key: 'amount',
         title: t('transaction.amount'),
@@ -121,16 +131,6 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       },
       { key: 'balanceBefore', title: t('transaction.balance_before'), width: 140 },
       { key: 'balanceAfter', title: t('transaction.balance_after'), width: 140 },
-      {
-        key: 'direction',
-        title: t('transaction.direction'),
-        width: 110,
-        render: (value) => (
-          <Tag color={value === 'Credit' ? 'success' : 'error'}>
-            {directionLabels[value] || value}
-          </Tag>
-        ),
-      },
       {
         key: 'createdAt',
         title: t('transaction.created_at'),

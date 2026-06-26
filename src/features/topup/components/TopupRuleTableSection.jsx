@@ -26,14 +26,6 @@ const TopupRuleTableSection = ({ rules, loading, sort, setSort, onDetail }) => {
       ),
     },
     {
-      key: 'topupAmount',
-      title: t('topup.amount'),
-      width: 140,
-      isNumeric: true,
-      sortable: true,
-      render: formatAmount,
-    },
-    {
       key: 'status',
       title: t('topup.status'),
       width: 120,
@@ -41,6 +33,14 @@ const TopupRuleTableSection = ({ rules, loading, sort, setSort, onDetail }) => {
       type: 'tag',
       options: _enum.systemTopupStatusOptions,
       color: defaultTopupStatusStyle,
+    },
+    {
+      key: 'topupAmount',
+      title: t('topup.amount'),
+      width: 140,
+      isNumeric: true,
+      sortable: true,
+      render: formatAmount,
     },
     {
       key: 'createdAt',

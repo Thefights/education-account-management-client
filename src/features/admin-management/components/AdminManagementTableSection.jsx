@@ -55,6 +55,21 @@ const AdminManagementTableSection = ({
         sortable: true,
       },
       {
+        key: 'schoolName',
+        title: t('admin_management.field.school'),
+        width: 190,
+        sortable: true,
+      },
+      {
+        key: 'azureObjectId',
+        title: t('admin_management.field.azure_object_id'),
+        width: 280,
+        sortable: true,
+        render: (value) => (
+          <MaskedNric value={value} label={t('admin_management.field.azure_object_id')} />
+        ),
+      },
+      {
         key: 'role',
         title: t('admin_management.field.role'),
         width: 150,
@@ -71,18 +86,6 @@ const AdminManagementTableSection = ({
         type: 'tag',
         options: _enum.authAccountStatusOptions,
         color: defaultAuthAccountStatusStyle,
-      },
-      {
-        key: 'schoolName',
-        title: t('admin_management.field.school'),
-        width: 190,
-        sortable: true,
-      },
-      {
-        key: 'azureObjectId',
-        title: t('admin_management.field.azure_object_id'),
-        width: 280,
-        sortable: true,
       },
       {
         key: 'createdAt',

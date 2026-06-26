@@ -52,6 +52,27 @@ const SchoolStudentTableSection = ({
       sortable: true,
     },
     {
+      key: 'email',
+      title: t('school_student.field.email'),
+      width: 240,
+      sortable: true,
+    },
+    {
+      key: 'phoneNumber',
+      title: t('school_student.field.phone_number'),
+      width: 160,
+      sortable: true,
+    },
+    {
+      key: 'status',
+      title: t('school_student.field.status'),
+      width: 120,
+      sortable: true,
+      type: 'tag',
+      options: _enum.schoolStudentStatusOptions,
+      color: defaultManagementStatusStyle,
+    },
+    {
       key: 'courses',
       title: t('school_student.field.courses'),
       width: 320,
@@ -74,27 +95,6 @@ const SchoolStudentTableSection = ({
           </Space>
         )
       },
-    },
-    {
-      key: 'email',
-      title: t('school_student.field.email'),
-      width: 240,
-      sortable: true,
-    },
-    {
-      key: 'phoneNumber',
-      title: t('school_student.field.phone_number'),
-      width: 160,
-      sortable: true,
-    },
-    {
-      key: 'status',
-      title: t('school_student.field.status'),
-      width: 120,
-      sortable: true,
-      type: 'tag',
-      options: _enum.schoolStudentStatusOptions,
-      color: defaultManagementStatusStyle,
     },
     {
       key: 'createdAt',

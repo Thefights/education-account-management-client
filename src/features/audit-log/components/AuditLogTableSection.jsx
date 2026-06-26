@@ -35,15 +35,6 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
         sortable: true,
       },
       {
-        key: 'category',
-        title: t('audit_log.field.category'),
-        width: 170,
-        sortable: true,
-        type: 'tag',
-        options: _enum.auditLogCategoryOptions,
-        color: defaultAuditLogCategoryStyle,
-      },
-      {
         key: 'action',
         title: t('audit_log.field.action'),
         width: 220,
@@ -61,6 +52,15 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
         title: t('audit_log.field.ip_address'),
         width: 150,
         sortable: true,
+      },
+      {
+        key: 'category',
+        title: t('audit_log.field.category'),
+        width: 170,
+        sortable: true,
+        type: 'tag',
+        options: _enum.auditLogCategoryOptions,
+        color: defaultAuditLogCategoryStyle,
       },
       {
         key: 'occurredAt',

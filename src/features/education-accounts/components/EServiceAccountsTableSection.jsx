@@ -41,7 +41,6 @@ const EServiceAccountsTableSection = ({
         render: (value) => <MaskedNric value={value} />,
       },
       { key: 'name', title: t('education_account.name'), width: 180, sortable: true },
-      { key: 'dateOfBirth', title: t('education_account.dob'), width: 130, sortable: true },
       {
         key: 'status',
         title: t('education_account.status'),
@@ -50,6 +49,7 @@ const EServiceAccountsTableSection = ({
         render: (value) => <Tag color={statusColors[value]}>{value}</Tag>,
       },
       { key: 'balance', title: t('education_account.balance'), width: 130, sortable: true },
+      { key: 'dateOfBirth', title: t('education_account.dob'), width: 130, sortable: true },
       {
         key: 'createdAt',
         title: t('education_account.created_at'),

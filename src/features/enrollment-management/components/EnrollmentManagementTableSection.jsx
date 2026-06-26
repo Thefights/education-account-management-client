@@ -93,20 +93,6 @@ const EnrollmentManagementTableSection = ({
       sortable: true,
     },
     {
-      key: 'enrolledAt',
-      title: t('enrollment_management.field.enrolled_at'),
-      width: 180,
-      sortable: true,
-      render: formatDatetimeStringBasedOnCurrentLanguage,
-    },
-    {
-      key: 'createdAt',
-      title: t('audit_log.field.created_at'),
-      width: 180,
-      sortable: true,
-      render: formatDatetimeStringBasedOnCurrentLanguage,
-    },
-    {
       key: 'status',
       title: t('enrollment_management.field.status'),
       width: 130,
@@ -143,6 +129,20 @@ const EnrollmentManagementTableSection = ({
       sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
+    },
+    {
+      key: 'enrolledAt',
+      title: t('enrollment_management.field.enrolled_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'paidAmount',
