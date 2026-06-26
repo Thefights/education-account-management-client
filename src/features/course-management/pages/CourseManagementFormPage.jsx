@@ -18,7 +18,6 @@ import {
   CalendarOutlined,
   DollarOutlined,
   GiftOutlined,
-  InfoCircleOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
 import { Button, Card, Col, Flex, Row, Space, Tag, Typography, theme } from 'antd'
@@ -71,38 +70,19 @@ const normalizeInitialValues = (course = {}) => ({
   rowVersion: course.rowVersion ?? '',
 })
 
-const SectionLayout = ({ titleKey, icon, isLast, children, token, t }) => (
-  <Row
-    gutter={[32, 24]}
-    style={{
-      padding: '32px 0',
-      borderBottom: isLast ? 'none' : `1px solid ${token.colorBorderSecondary}`,
-    }}
-  >
-    <Col xs={24} md={8}>
-      <Space align="start" size="middle">
-        <div
-          style={{
-            fontSize: 20,
-            padding: 10,
-            borderRadius: 8,
-            backgroundColor: token.colorFillAlter,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {icon}
-        </div>
-        <Typography.Title level={5} style={{ margin: 0, marginTop: 8 }}>
-          {t(`course_management.section.${titleKey}`)}
-        </Typography.Title>
+const FormSectionCard = ({ titleKey, title, icon, children, t }) => (
+  <Card
+    title={
+      <Space>
+        {icon}
+        <span>{title || t(`course_management.section.${titleKey}`)}</span>
       </Space>
-    </Col>
-    <Col xs={24} md={16}>
-      {children}
-    </Col>
-  </Row>
+    }
+    size="small"
+    variant="outlined"
+  >
+    {children}
+  </Card>
 )
 
 const CourseManagementFormPage = () => {
@@ -323,130 +303,129 @@ const CourseManagementFormPage = () => {
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+    <Flex vertical gap={24} style={{ width: '100%' }}>
+      <Flex align="center" gap={16}>
+        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {t(isEdit ? 'course_management.title.update' : 'course_management.title.create')}
+        </Typography.Title>
+      </Flex>
+
       <Card
-        bordered={false}
+        variant="borderless"
         loading={isEdit && course.loading && !course.data}
-        styles={{ body: { padding: '32px 48px' } }}
+        styles={{ body: { padding: '24px 32px' } }}
       >
-        <Flex vertical>
-          <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
-            <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              {t(isEdit ? 'course_management.title.update' : 'course_management.title.create')}
-            </Typography.Title>
+        <Flex vertical gap={24}>
+          <Flex justify="space-between" align="flex-start" wrap="wrap" gap={16}>
+            <Flex vertical gap={8} style={{ width: 'min(100%, 640px)' }}>
+              {basicFields.map((field, index) => (
+                <div key={field.key}>{renderSectionField(field, index)}</div>
+              ))}
+              {isEdit && course.data?.courseCode && (
+                <Space>
+                  <Typography.Text keyboard>{course.data.courseCode}</Typography.Text>
+                  <Typography.Text type="secondary">
+                    {t('course_management.field.id')}: #{course.data.id}
+                  </Typography.Text>
+                </Space>
+              )}
+            </Flex>
           </Flex>
 
-          <Flex vertical>
-            <SectionLayout
-              titleKey="basic_info"
-              icon={<InfoCircleOutlined style={{ color: '#1890ff' }} />}
-              token={token}
-              t={t}
-            >
-              <Flex vertical gap={16}>
-                {basicFields.map((field, index) => (
-                  <div key={field.key}>{renderSectionField(field, index)}</div>
-                ))}
-              </Flex>
-            </SectionLayout>
-
-            <SectionLayout
-              titleKey="fees"
-              icon={<DollarOutlined style={{ color: '#52c41a' }} />}
-              token={token}
-              t={t}
-            >
-              <Row gutter={16}>
-                {feeFields.map((field) => (
-                  <Col xs={24} sm={12} key={field.key}>
-                    {renderSectionField(field, -1)}
-                  </Col>
-                ))}
-              </Row>
-            </SectionLayout>
-
-            <SectionLayout
-              titleKey="schedule"
-              icon={<CalendarOutlined style={{ color: '#faad14' }} />}
-              isLast={studentFields.length === 0}
-              token={token}
-              t={t}
-            >
-              <Row gutter={16}>
-                {scheduleFields.map((field) => (
-                  <Col xs={24} md={12} key={field.key}>
-                    {renderSectionField(field, -1)}
-                  </Col>
-                ))}
-              </Row>
-            </SectionLayout>
-
-            {studentFields.length > 0 && (
-              <SectionLayout
-                titleKey="initial_students"
-                icon={<TeamOutlined style={{ color: '#722ed1' }} />}
-                isLast={fasFields.length === 0}
-                token={token}
+          <Row gutter={[24, 24]}>
+            <Col xs={24} lg={12}>
+              <FormSectionCard
+                title={t('course_management.field.total_fee_amount')}
+                icon={<DollarOutlined style={{ color: '#52c41a' }} />}
                 t={t}
               >
-                {studentFields.map((field) => (
-                  <div key={field.key}>{renderSectionField(field, -1)}</div>
-                ))}
-              </SectionLayout>
-            )}
-
-            {fasFields.length > 0 && (
-              <SectionLayout
-                titleKey="applicable_fas"
-                icon={<GiftOutlined style={{ color: '#722ed1' }} />}
-                isLast={true}
-                token={token}
+                <Row gutter={16}>
+                  {feeFields.map((field) => (
+                    <Col xs={24} sm={12} key={field.key}>
+                      {renderSectionField(field, -1)}
+                    </Col>
+                  ))}
+                </Row>
+              </FormSectionCard>
+            </Col>
+            <Col xs={24} lg={12}>
+              <FormSectionCard
+                title={t('course_management.title.important_dates')}
+                icon={<CalendarOutlined style={{ color: '#1677ff' }} />}
                 t={t}
               >
-                {fasFields.map((field) => (
-                  <div key={field.key}>{renderSectionField(field, -1)}</div>
-                ))}
-              </SectionLayout>
-            )}
+                <Row gutter={16}>
+                  {scheduleFields.map((field) => (
+                    <Col xs={24} md={12} key={field.key}>
+                      {renderSectionField(field, -1)}
+                    </Col>
+                  ))}
+                </Row>
+              </FormSectionCard>
+            </Col>
+          </Row>
 
-            <Flex
-              justify="flex-end"
-              gap={16}
-              style={{
-                marginTop: 40,
-                paddingTop: 24,
-                borderTop: `1px solid ${token.colorBorderSecondary}`,
-              }}
+          {studentFields.length > 0 && (
+            <FormSectionCard
+              titleKey="initial_students"
+              icon={<TeamOutlined style={{ color: '#722ed1' }} />}
+              t={t}
             >
-              <Button size="large" onClick={() => navigate(-1)}>
-                {t('button.cancel', 'Cancel')}
-              </Button>
+              {studentFields.map((field) => (
+                <div key={field.key}>{renderSectionField(field, -1)}</div>
+              ))}
+            </FormSectionCard>
+          )}
+
+          {fasFields.length > 0 && (
+            <FormSectionCard
+              title={t('course_management.title.fas_deduction')}
+              icon={<GiftOutlined style={{ color: '#722ed1' }} />}
+              t={t}
+            >
+              {fasFields.map((field) => (
+                <div key={field.key}>{renderSectionField(field, -1)}</div>
+              ))}
+            </FormSectionCard>
+          )}
+
+          <Flex
+            justify="flex-end"
+            gap={16}
+            style={{
+              marginTop: 40,
+              paddingTop: 24,
+              borderTop: `1px solid ${token.colorBorderSecondary}`,
+            }}
+          >
+            <Button size="large" onClick={() => navigate(-1)}>
+              {t('button.cancel', 'Cancel')}
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              loading={submitLoading}
+              onClick={() => handleSubmit({ publish: false })}
+              style={{ padding: '0 40px' }}
+            >
+              {t(isEdit ? 'button.update' : 'course_management.action.save_as_draft')}
+            </Button>
+            {showPublishButton && (
               <Button
                 type="primary"
                 size="large"
                 loading={submitLoading}
-                onClick={() => handleSubmit({ publish: false })}
+                onClick={() => handleSubmit({ publish: true })}
                 style={{ padding: '0 40px' }}
               >
-                {t(isEdit ? 'button.update' : 'course_management.action.save_as_draft')}
+                {t('course_management.action.publish')}
               </Button>
-              {showPublishButton && (
-                <Button
-                  type="primary"
-                  size="large"
-                  loading={submitLoading}
-                  onClick={() => handleSubmit({ publish: true })}
-                  style={{ padding: '0 40px' }}
-                >
-                  {t('course_management.action.publish')}
-                </Button>
-              )}
-            </Flex>
+            )}
           </Flex>
         </Flex>
       </Card>
-    </div>
+    </Flex>
   )
 }
 

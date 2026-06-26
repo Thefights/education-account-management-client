@@ -26,6 +26,7 @@
       "enrolled_at": "Thời gian Ghi danh",
       "charge_status": "Trạng thái Thu phí",
       "gross_amount": "Tổng số tiền",
+      "fas_deduction": "FAS được trừ",
       "paid_amount": "Số tiền đã trả",
       "remaining_amount": "Số tiền còn lại",
       "course": "Khóa học",

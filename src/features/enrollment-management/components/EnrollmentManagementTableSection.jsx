@@ -113,6 +113,13 @@ const EnrollmentManagementTableSection = ({
       render: formatCurrencyBasedOnCurrentLanguage,
     },
     {
+      key: 'subsidyAmount',
+      title: t('enrollment_management.field.fas_deduction'),
+      width: 150,
+      isNumeric: true,
+      render: (value) => formatCurrencyBasedOnCurrentLanguage(value || 0),
+    },
+    {
       key: 'paidAmount',
       title: t('enrollment_management.field.paid_amount'),
       width: 140,

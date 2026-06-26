@@ -26,6 +26,7 @@
       "enrolled_at": "Enrolled At",
       "charge_status": "Charge Status",
       "gross_amount": "Gross Amount",
+      "fas_deduction": "FAS Deduction",
       "paid_amount": "Paid Amount",
       "remaining_amount": "Remaining Amount",
       "course": "Course",

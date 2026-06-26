@@ -26,6 +26,7 @@
       "enrolled_at": "报名时间",
       "charge_status": "收费状态",
       "gross_amount": "总金额",
+      "fas_deduction": "FAS扣减",
       "paid_amount": "已付金额",
       "remaining_amount": "剩余金额",
       "course": "课程",
