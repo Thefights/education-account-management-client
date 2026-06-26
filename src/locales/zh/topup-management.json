@@ -16,6 +16,10 @@
     "to_value": "到"
   },
   "topup": {
+    "details": "详情",
+    "reason": "原因",
+    "reason_placeholder": "输入原因",
+    "target_selection": "选择充值对象",
     "pending": "待处理",
     "executing": "执行中",
     "processing": "处理中",

@@ -27,11 +27,127 @@ import {
   InputNumber,
   Space,
   Tabs,
+  Tag,
   Typography,
   Upload,
+  theme,
 } from 'antd'
 import { useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+const ManualTopupResult = ({ result, submittedTopup, onViewExecution, t }) => {
+  const { token } = theme.useToken()
+  const hasFailures = Boolean(result.totalFailed)
+
+  return (
+    <div
+      style={{
+        border: `1px solid ${hasFailures ? token.colorWarningBorder : token.colorSuccessBorder}`,
+        borderRadius: token.borderRadiusLG,
+        background: hasFailures ? token.colorWarningBg : token.colorSuccessBg,
+        padding: 16,
+      }}
+    >
+      <Flex vertical gap={16}>
+        <Alert
+          type={hasFailures ? 'warning' : 'success'}
+          showIcon
+          message={t('topup.execution_completed')}
+          style={{ background: 'transparent', border: 0, padding: 0 }}
+        />
+
+        <Flex gap={24} wrap>
+          <Typography.Text>
+            <Typography.Text type="secondary">{t('topup.processed')}: </Typography.Text>
+            <Typography.Text strong>{result.totalProcessed}</Typography.Text>
+          </Typography.Text>
+          <Typography.Text>
+            <Typography.Text type="secondary">{t('topup.succeeded')}: </Typography.Text>
+            <Typography.Text type="success" strong>
+              {result.totalSuccess}
+            </Typography.Text>
+          </Typography.Text>
+          <Typography.Text>
+            <Typography.Text type="secondary">{t('topup.failed')}: </Typography.Text>
+            <Typography.Text type={hasFailures ? 'danger' : undefined} strong>
+              {result.totalFailed}
+            </Typography.Text>
+          </Typography.Text>
+          <Typography.Text>
+            <Typography.Text type="secondary">{t('topup.amount_credited')}: </Typography.Text>
+            <Typography.Text strong>
+              {formatCurrencyBasedOnCurrentLanguage(result.totalAmountCredited)}
+            </Typography.Text>
+          </Typography.Text>
+        </Flex>
+
+        {submittedTopup && (
+          <Descriptions
+            size="small"
+            column={{ xs: 1, sm: 2, md: 3 }}
+            bordered
+            style={{ background: token.colorBgContainer }}
+          >
+            <Descriptions.Item label={t('topup.amount')}>
+              {formatCurrencyBasedOnCurrentLanguage(submittedTopup.topUpAmount)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('topup.reason')}>
+              {submittedTopup.disbursementReason}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('topup.target_selection')}>
+              {submittedTopup.mode === 'selection' ? (
+                <Tag color="blue">
+                  {t('topup.selected_count', { count: submittedTopup.accountCount })}
+                </Tag>
+              ) : (
+                submittedTopup.fileName
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+
+        <Space>
+          <Button onClick={onViewExecution}>{t('topup.view_execution')}</Button>
+        </Space>
+
+        {!!result.successList?.length && (
+          <Flex vertical gap={8}>
+            <Typography.Text strong>{t('topup.succeeded')}</Typography.Text>
+            <GenericTable
+              data={result.successList}
+              rowKey="topUpTransactionId"
+              fields={[
+                { key: 'accountNumber', title: t('topup.account_number') },
+                { key: 'accountName', title: t('topup.account_name') },
+                {
+                  key: 'topUpAmount',
+                  title: t('topup.amount'),
+                  isNumeric: true,
+                  render: formatCurrencyBasedOnCurrentLanguage,
+                },
+              ]}
+            />
+          </Flex>
+        )}
+
+        {!!result.failList?.length && (
+          <Flex vertical gap={8}>
+            <Typography.Text strong>{t('topup.failed')}</Typography.Text>
+            <GenericTable
+              data={result.failList}
+              rowKey="accountId"
+              fields={[
+                { key: 'accountNumber', title: t('topup.account_number') },
+                { key: 'accountName', title: t('topup.account_name') },
+                { key: 'reason', title: t('topup.failure_reason') },
+              ]}
+            />
+          </Flex>
+        )}
+      </Flex>
+    </div>
+  )
+}
 
 const ManualTopupPage = ({ embedded = false }) => {
   const { t } = useTranslation()
@@ -43,12 +159,14 @@ const ManualTopupPage = ({ embedded = false }) => {
   const [topUpAmount, setTopUpAmount] = useState(null)
   const [disbursementReason, setDisbursementReason] = useState('')
   const [result, setResult] = useState(null)
+  const [submittedTopup, setSubmittedTopup] = useState(null)
   const idempotencyKeyRef = useRef(null)
   const executeTopup = useAxiosSubmit({ url: ApiUrls.TOPUP.EXECUTE_MANUAL, method: 'POST' })
 
   const invalidateSubmission = () => {
     idempotencyKeyRef.current = null
     setResult(null)
+    setSubmittedTopup(null)
   }
 
   const loadAccounts = useCallback(
@@ -81,6 +199,13 @@ const ManualTopupPage = ({ embedded = false }) => {
 
   const submit = async () => {
     idempotencyKeyRef.current ??= crypto.randomUUID()
+    const submittedSnapshot = {
+      mode,
+      accountCount: accountIds.length,
+      fileName: file?.name,
+      topUpAmount,
+      disbursementReason: disbursementReason.trim(),
+    }
     const response = await executeTopup.submit({
       overrideData: {
         ...(mode === 'selection' ? { accountIds } : { file }),
@@ -91,6 +216,7 @@ const ManualTopupPage = ({ embedded = false }) => {
     })
     if (response?.data) {
       setResult(response.data)
+      setSubmittedTopup(submittedSnapshot)
       idempotencyKeyRef.current = null
       setTopUpAmount(null)
       setDisbursementReason('')
@@ -235,70 +361,16 @@ const ManualTopupPage = ({ embedded = false }) => {
 
             {/* Result Section */}
             {result && (
-              <Alert
-                type={result.totalFailed ? 'warning' : 'success'}
-                showIcon
-                message={t('topup.execution_completed')}
-                description={
-                  <Flex vertical gap={16} style={{ marginTop: 8 }}>
-                    <Descriptions size="small" column={{ xs: 1, sm: 2, md: 4 }} bordered>
-                      <Descriptions.Item label={t('topup.processed')}>
-                        {result.totalProcessed}
-                      </Descriptions.Item>
-                      <Descriptions.Item
-                        label={t('topup.succeeded')}
-                        labelStyle={{ color: 'green' }}
-                      >
-                        {result.totalSuccess}
-                      </Descriptions.Item>
-                      <Descriptions.Item label={t('topup.failed')} labelStyle={{ color: 'red' }}>
-                        {result.totalFailed}
-                      </Descriptions.Item>
-                      <Descriptions.Item label={t('topup.amount_credited')}>
-                        {formatCurrencyBasedOnCurrentLanguage(result.totalAmountCredited)}
-                      </Descriptions.Item>
-                    </Descriptions>
-                    <Space>
-                      <Button
-                        onClick={() =>
-                          navigate(
-                            routeUrls.BASE_ROUTE.FINANCE_ADMIN(
-                              routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(result.batchId)
-                            )
-                          )
-                        }
-                      >
-                        {t('topup.view_execution')}
-                      </Button>
-                    </Space>
-                    {!!result.successList?.length && (
-                      <GenericTable
-                        data={result.successList}
-                        rowKey="topUpTransactionId"
-                        fields={[
-                          { key: 'accountNumber', title: t('topup.account_number') },
-                          { key: 'accountName', title: t('topup.account_name') },
-                          {
-                            key: 'topUpAmount',
-                            title: t('topup.amount'),
-                            isNumeric: true,
-                            render: formatCurrencyBasedOnCurrentLanguage,
-                          },
-                        ]}
-                      />
-                    )}
-                    {!!result.failList?.length && (
-                      <GenericTable
-                        data={result.failList}
-                        rowKey="accountId"
-                        fields={[
-                          { key: 'accountNumber', title: t('topup.account_number') },
-                          { key: 'accountName', title: t('topup.account_name') },
-                          { key: 'reason', title: t('topup.failure_reason') },
-                        ]}
-                      />
-                    )}
-                  </Flex>
+              <ManualTopupResult
+                result={result}
+                submittedTopup={submittedTopup}
+                t={t}
+                onViewExecution={() =>
+                  navigate(
+                    routeUrls.BASE_ROUTE.FINANCE_ADMIN(
+                      routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(result.batchId)
+                    )
+                  )
                 }
               />
             )}

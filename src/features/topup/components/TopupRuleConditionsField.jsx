@@ -33,15 +33,15 @@ const getFieldOptions = (t) => [
   { value: 3, label: t('topup_form.schooling_status') },
 ]
 
-const getOperatorOptions = (t, isText = false) => {
+const getOperatorOptions = (isText = false) => {
   const options = [
-    { value: 1, label: t('topup_form.is') },
-    { value: 2, label: t('topup_form.is_not') },
-    { value: 3, label: t('topup_form.greater_than') },
-    { value: 4, label: t('topup_form.at_least') },
-    { value: 5, label: t('topup_form.less_than') },
-    { value: 6, label: t('topup_form.at_most') },
-    { value: 7, label: t('topup_form.between') },
+    { value: 1, label: '=' },
+    { value: 2, label: '!=' },
+    { value: 3, label: '>' },
+    { value: 4, label: '>=' },
+    { value: 5, label: '<' },
+    { value: 6, label: '<=' },
+    { value: 7, label: '...' },
   ]
   return isText ? options.slice(0, 2) : options
 }
@@ -74,7 +74,7 @@ const getConditionValueText = (condition, t) => {
 
 const getConditionText = (condition, t) => {
   const field = getOptionLabel(getFieldOptions(t), condition.field)
-  const operator = getOptionLabel(getOperatorOptions(t, condition.field === 3), condition.operator)
+  const operator = getOptionLabel(getOperatorOptions(condition.field === 3), condition.operator)
   return `${field} ${operator} ${getConditionValueText(condition, t)}`
 }
 
@@ -100,9 +100,9 @@ const buildEligibilityCases = (group, t) => {
   return items.reduce((cases, item) => combineCaseParts(cases, item), [[]])
 }
 
-const getEligibilityCaseText = (caseParts, t) => {
+const getEligibilityCaseText = (caseParts) => {
   if (!caseParts.length) return '—'
-  return caseParts.join(` ${t('topup_form.and')} `)
+  return caseParts.join(' && ')
 }
 
 export const TopupConditionSentence = ({ condition }) => {
@@ -112,7 +112,7 @@ export const TopupConditionSentence = ({ condition }) => {
       <Typography.Text strong>
         {getOptionLabel(getFieldOptions(t), condition.field)}
       </Typography.Text>{' '}
-      {getOptionLabel(getOperatorOptions(t, condition.field === 3), condition.operator)}{' '}
+      {getOptionLabel(getOperatorOptions(condition.field === 3), condition.operator)}{' '}
       <Typography.Text strong>{getConditionValueText(condition, t)}</Typography.Text>
     </Typography.Text>
   )
@@ -135,7 +135,7 @@ const buildTreeNode = (group, t, key = 'root', isRoot = true) => ({
         )}
       </Typography.Text>
       <Tag color={group.logicalOperator === 2 ? 'purple' : 'blue'}>
-        {group.logicalOperator === 2 ? 'ANY' : 'ALL'}
+        {group.logicalOperator === 2 ? '||' : '&&'}
       </Tag>
     </Space>
   ),
@@ -175,8 +175,8 @@ export const TopupConditionTree = ({ value }) => {
             eligibilityCases.map((caseParts, index) => (
               <Typography.Text key={`eligibility-case-${index}`}>
                 {eligibilityCases.length > 1
-                  ? `${index + 1}. ${getEligibilityCaseText(caseParts, t)}`
-                  : getEligibilityCaseText(caseParts, t)}
+                  ? `${index + 1}. ${getEligibilityCaseText(caseParts)}`
+                  : getEligibilityCaseText(caseParts)}
               </Typography.Text>
             ))
           ) : (
@@ -296,7 +296,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
           <Select
             aria-label={t('topup_form.operator')}
             value={condition.operator}
-            options={getOperatorOptions(t, isText)}
+            options={getOperatorOptions(isText)}
             style={{ width: '100%', height: 32 }}
             onChange={(operator) =>
               onChange({
@@ -418,15 +418,11 @@ const GroupEditor = ({
             options={[
               {
                 value: 1,
-                label: isRoot
-                  ? t('topup_form.must_match_all_requirements')
-                  : t('topup_form.must_match_all_in_scenario'),
+                label: '&&',
               },
               {
                 value: 2,
-                label: isRoot
-                  ? t('topup_form.can_match_any_requirement')
-                  : t('topup_form.can_match_any_in_scenario'),
+                label: '||',
               },
             ]}
             onChange={(logicalOperator) => onChange({ ...group, logicalOperator })}

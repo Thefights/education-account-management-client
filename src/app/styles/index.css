@@ -49,6 +49,8 @@ html {
 
 body {
   background: var(--app-bg);
+  background-image: var(--app-bg-accent);
+  background-attachment: fixed;
   min-width: 0;
   overflow-x: hidden;
 }
@@ -80,7 +82,46 @@ a {
 }
 
 .ant-card {
+  border-color: rgba(221, 231, 245, 0.92);
   box-shadow: var(--app-card-shadow);
+}
+
+.ant-layout-header {
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(221, 231, 245, 0.72);
+}
+
+.ant-layout-sider {
+  border-right: 1px solid var(--app-sider-border);
+  box-shadow: 10px 0 30px rgba(35, 66, 120, 0.05);
+}
+
+.ant-menu-light {
+  background: transparent;
+}
+
+.ant-menu-light .ant-menu-item-selected {
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--app-primary);
+}
+
+.ant-table-wrapper .ant-table {
+  background: var(--app-table-bg);
+}
+
+.ant-table-wrapper .ant-table-tbody > tr > td {
+  background: var(--app-table-row-bg);
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 700 !important;
+}
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-picker {
+  background-color: var(--app-control-bg) !important;
 }
 
 .ant-btn,
@@ -100,12 +141,22 @@ a {
   transform: translateY(-1px);
 }
 
+.ant-btn-primary {
+  background: linear-gradient(135deg, var(--app-primary), var(--app-secondary));
+  border-color: transparent;
+}
+
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+  background: linear-gradient(135deg, var(--app-primary-dark), var(--app-secondary));
+  border-color: transparent;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c8d8e8;
+  background: #b8c9e8;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {
