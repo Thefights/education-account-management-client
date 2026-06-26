@@ -1,15 +1,288 @@
+export const FAS_CONDITION_FIELD = {
+  StudentAge: 1,
+  Nationality: 2,
+  ParentNationality: 3,
+  GrossHouseholdIncome: 5,
+  PerCapitaIncome: 6,
+}
+
+export const FAS_CONDITION_OPERATOR = {
+  Equals: 1,
+  NotEquals: 2,
+  LessThan: 3,
+  LessThanOrEqual: 4,
+  GreaterThan: 5,
+  GreaterThanOrEqual: 6,
+  Between: 7,
+}
+
+export const FAS_LOGICAL_OPERATOR = {
+  All: 1,
+  Any: 2,
+}
+
 export const FAS_FIELD_OPTIONS = [
-  { value: 'studentAge', label: 'Student age' },
-  { value: 'nationality', label: 'Nationality' },
-  { value: 'parentNationality', label: "Parent's Nationality" },
-  { value: 'pci', label: 'Per-Capita Income' },
-  { value: 'income', label: 'Gross Household Income' },
+  { value: FAS_CONDITION_FIELD.StudentAge, legacyValue: 'studentAge', label: 'Student age' },
+  { value: FAS_CONDITION_FIELD.Nationality, legacyValue: 'nationality', label: 'Nationality' },
+  {
+    value: FAS_CONDITION_FIELD.ParentNationality,
+    legacyValue: 'parentNationality',
+    label: "Parent's Nationality",
+  },
+  { value: FAS_CONDITION_FIELD.PerCapitaIncome, legacyValue: 'pci', label: 'Per-Capita Income' },
+  {
+    value: FAS_CONDITION_FIELD.GrossHouseholdIncome,
+    legacyValue: 'income',
+    label: 'Gross Household Income',
+  },
 ]
 
 export const FAS_FIELD_LABELS = FAS_FIELD_OPTIONS.reduce(
-  (acc, item) => ({ ...acc, [item.value]: item.label }),
+  (acc, item) => ({
+    ...acc,
+    [item.value]: item.label,
+    [item.legacyValue]: item.label,
+  }),
   {}
 )
+
+export const FAS_FIELD_KEY_BY_VALUE = FAS_FIELD_OPTIONS.reduce(
+  (acc, item) => ({ ...acc, [item.value]: item.legacyValue }),
+  {}
+)
+
+export const FAS_FIELD_VALUE_BY_KEY = FAS_FIELD_OPTIONS.reduce(
+  (acc, item) => ({ ...acc, [item.legacyValue]: item.value }),
+  {}
+)
+
+export const FAS_TEXT_FIELD_VALUES = new Set([
+  FAS_CONDITION_FIELD.Nationality,
+  FAS_CONDITION_FIELD.ParentNationality,
+])
+
+const localId = (prefix) =>
+  prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
+
+export const normalizeFasConditionField = (field) =>
+  typeof field === 'number'
+    ? field
+    : FAS_FIELD_VALUE_BY_KEY[field] || FAS_CONDITION_FIELD.PerCapitaIncome
+
+export const normalizeFasConditionOperator = (operator) => {
+  if (typeof operator === 'number') return operator
+
+  const operatorValues = {
+    Equals: FAS_CONDITION_OPERATOR.Equals,
+    NotEquals: FAS_CONDITION_OPERATOR.NotEquals,
+    GreaterThan: FAS_CONDITION_OPERATOR.GreaterThan,
+    GreaterThanOrEqual: FAS_CONDITION_OPERATOR.GreaterThanOrEqual,
+    LessThan: FAS_CONDITION_OPERATOR.LessThan,
+    LessThanOrEqual: FAS_CONDITION_OPERATOR.LessThanOrEqual,
+    Between: FAS_CONDITION_OPERATOR.Between,
+  }
+
+  return operatorValues[operator] || FAS_CONDITION_OPERATOR.Equals
+}
+
+export const isFasTextField = (field) => FAS_TEXT_FIELD_VALUES.has(normalizeFasConditionField(field))
+
+export const createEmptyFasCondition = () => ({
+  id: localId('fas-cond'),
+  field: FAS_CONDITION_FIELD.PerCapitaIncome,
+  operator: FAS_CONDITION_OPERATOR.LessThanOrEqual,
+  valueText: null,
+  valueNumber: null,
+  valueNumberTo: null,
+  displayOrder: 1,
+})
+
+export const createEmptyFasConditionGroup = () => ({
+  id: localId('fas-group'),
+  logicalOperator: FAS_LOGICAL_OPERATOR.All,
+  displayOrder: 1,
+  conditions: [createEmptyFasCondition()],
+  groups: [],
+})
+
+const numberOrNull = (value) => {
+  if (value === '' || value == null) return null
+  const numberValue = Number(value)
+  return Number.isFinite(numberValue) ? numberValue : null
+}
+
+export const normalizeFasCondition = (condition = {}, index = 0) => {
+  const field = normalizeFasConditionField(condition.field)
+  const textField = isFasTextField(field)
+  const operator = normalizeFasConditionOperator(
+    condition.operator ||
+      (textField ? FAS_CONDITION_OPERATOR.Equals : FAS_CONDITION_OPERATOR.LessThanOrEqual)
+  )
+
+  return {
+    ...condition,
+    id: condition.id || localId('fas-cond'),
+    field,
+    operator,
+    valueText: textField ? condition.valueText ?? condition.value ?? 'Singapore Citizen' : null,
+    valueNumber: textField ? null : numberOrNull(condition.valueNumber ?? condition.value),
+    valueNumberTo:
+      !textField && operator === FAS_CONDITION_OPERATOR.Between
+        ? numberOrNull(condition.valueNumberTo)
+        : null,
+    displayOrder: condition.displayOrder ?? index + 1,
+  }
+}
+
+export const normalizeFasConditionGroup = (group) => {
+  if (!group) return createEmptyFasConditionGroup()
+
+  const logicalOperator =
+    typeof group.logicalOperator === 'number'
+      ? group.logicalOperator
+      : String(group.logicalOperator || '').toUpperCase() === 'OR' ||
+          String(group.logicalOperator || '').toUpperCase() === 'ANY'
+        ? FAS_LOGICAL_OPERATOR.Any
+        : FAS_LOGICAL_OPERATOR.All
+
+  return {
+    ...group,
+    id: group.id || localId('fas-group'),
+    logicalOperator,
+    displayOrder: group.displayOrder ?? 1,
+    conditions: (group.conditions || []).map(normalizeFasCondition),
+    groups: (group.groups || []).map(normalizeFasConditionGroup),
+  }
+}
+
+export const createFasConditionGroupFromFlat = (conditions = [], connectors = []) => {
+  const normalizedConditions = conditions.map(normalizeFasCondition)
+  if (!normalizedConditions.length) return createEmptyFasConditionGroup()
+
+  if (!connectors.some((connector) => connector === 'OR')) {
+    return normalizeFasConditionGroup({
+      logicalOperator: FAS_LOGICAL_OPERATOR.All,
+      displayOrder: 1,
+      conditions: normalizedConditions,
+      groups: [],
+    })
+  }
+
+  const groups = []
+  let currentConditions = []
+
+  normalizedConditions.forEach((condition, index) => {
+    currentConditions.push(condition)
+    const connectorAfter = connectors[index]
+    if (connectorAfter === 'OR' || index === normalizedConditions.length - 1) {
+      groups.push({
+        logicalOperator: FAS_LOGICAL_OPERATOR.All,
+        displayOrder: groups.length + 1,
+        conditions: currentConditions,
+        groups: [],
+      })
+      currentConditions = []
+    }
+  })
+
+  return normalizeFasConditionGroup({
+    logicalOperator: FAS_LOGICAL_OPERATOR.Any,
+    displayOrder: 1,
+    conditions: [],
+    groups,
+  })
+}
+
+export const serializeFasConditionGroup = (group, displayOrder = 1) => {
+  const normalizedGroup = normalizeFasConditionGroup(group)
+  const conditions = normalizedGroup.conditions || []
+
+  return {
+    logicalOperator: normalizedGroup.logicalOperator,
+    displayOrder,
+    conditions: conditions.map((condition, index) => ({
+      field: condition.field,
+      operator: condition.operator,
+      valueText: isFasTextField(condition.field) ? condition.valueText : null,
+      valueNumber: isFasTextField(condition.field) ? null : condition.valueNumber,
+      valueNumberTo:
+        !isFasTextField(condition.field) &&
+        condition.operator === FAS_CONDITION_OPERATOR.Between
+          ? condition.valueNumberTo
+          : null,
+      displayOrder: index + 1,
+    })),
+    groups: (normalizedGroup.groups || []).map((child, index) =>
+      serializeFasConditionGroup(child, conditions.length + index + 1)
+    ),
+  }
+}
+
+export const isFasConditionGroupValid = (group, depth = 1) => {
+  if (depth > 2 || !group || !(group.conditions?.length || group.groups?.length)) return false
+
+  const conditionsValid = (group.conditions || []).every((condition) => {
+    const normalized = normalizeFasCondition(condition)
+    if (isFasTextField(normalized.field)) {
+      return [FAS_CONDITION_OPERATOR.Equals, FAS_CONDITION_OPERATOR.NotEquals].includes(
+        normalized.operator
+      ) && Boolean(normalized.valueText)
+    }
+
+    if (normalized.valueNumber == null || Number(normalized.valueNumber) < 0) return false
+    if (
+      normalized.field === FAS_CONDITION_FIELD.StudentAge &&
+      !Number.isInteger(Number(normalized.valueNumber))
+    ) {
+      return false
+    }
+    if (normalized.operator !== FAS_CONDITION_OPERATOR.Between) return true
+    if (normalized.valueNumberTo == null || normalized.valueNumberTo < normalized.valueNumber) {
+      return false
+    }
+
+    return (
+      normalized.field !== FAS_CONDITION_FIELD.StudentAge ||
+      Number.isInteger(Number(normalized.valueNumberTo))
+    )
+  })
+
+  return (
+    conditionsValid &&
+    (group.groups || []).every((child) => isFasConditionGroupValid(child, depth + 1))
+  )
+}
+
+export const countFasConditionGroupItems = (group) => {
+  const normalizedGroup = normalizeFasConditionGroup(group)
+  return (
+    (normalizedGroup.conditions || []).length +
+    (normalizedGroup.groups || []).reduce(
+      (total, child) => total + countFasConditionGroupItems(child),
+      0
+    )
+  )
+}
+
+export const rekeyFasConditionGroup = (group, prefix = 'FAS') => {
+  const walk = (currentGroup, pathKey = '1') => {
+    const normalizedGroup = normalizeFasConditionGroup(currentGroup)
+    return {
+      ...normalizedGroup,
+      id: prefix + '-group-' + pathKey,
+      conditions: (normalizedGroup.conditions || []).map((condition, index) => ({
+        ...condition,
+        id: prefix + '-cond-' + pathKey + '-' + (index + 1),
+        displayOrder: index + 1,
+      })),
+      groups: (normalizedGroup.groups || []).map((child, index) =>
+        walk(child, pathKey + '-' + (index + 1))
+      ),
+    }
+  }
+
+  return walk(group)
+}
 
 export const FAS_STATUS = {
   Active: 'active',
@@ -21,6 +294,7 @@ export const FAS_APPLICATION_STATUS = {
   Pending: 'pending',
   Approved: 'approved',
   Rejected: 'rejected',
+  Withdrawn: 'withdrawn',
 }
 
 export const MOCK_ACCOUNT_HOLDER = {
@@ -159,43 +433,46 @@ const buildConditions = (name, index) => {
   const citizenOnly = /citizenship|special needs|disability|orphan|refugee/.test(low)
 
   if (/single-parent|large family|health|wellness/.test(low)) {
-    return {
-      conditions: [
-        { id: `cond-${index}-parent-nationality`, field: 'parentNationality', value: 'Singapore Citizen' },
-        { id: `cond-${index}-pci`, field: 'pci', value: 1000 },
+    return createFasConditionGroupFromFlat(
+      [
+        {
+          id: 'cond-' + index + '-parent-nationality',
+          field: 'parentNationality',
+          value: 'Singapore Citizen',
+        },
+        { id: 'cond-' + index + '-pci', field: 'pci', value: 1000 },
       ],
-      connectors: ['AND'],
-    }
+      ['AND']
+    )
   }
 
   if (/meal|uniform|textbook|transport/.test(low)) {
-    return {
-      conditions: [
-        { id: `cond-${index}-age`, field: 'studentAge', value: 12 },
-        { id: `cond-${index}-income`, field: 'income', value: 4000 },
+    return createFasConditionGroupFromFlat(
+      [
+        { id: 'cond-' + index + '-age', field: 'studentAge', value: 12 },
+        { id: 'cond-' + index + '-income', field: 'income', value: 4000 },
       ],
-      connectors: ['AND'],
-    }
+      ['AND']
+    )
   }
 
   if (citizenOnly) {
-    return {
-      conditions: [{ id: `cond-${index}-nationality`, field: 'nationality', value: 'Singapore Citizen' }],
-      connectors: [],
-    }
+    return createFasConditionGroupFromFlat([
+      { id: 'cond-' + index + '-nationality', field: 'nationality', value: 'Singapore Citizen' },
+    ])
   }
 
   const tier = index % 4
   const incomeMax = [2500, 3500, 4500, 6000][tier]
   const pciMax = [625, 875, 1125, 1500][tier]
 
-  return {
-    conditions: [
-      { id: `cond-${index}-income`, field: 'income', value: incomeMax },
-      { id: `cond-${index}-pci`, field: 'pci', value: pciMax },
+  return createFasConditionGroupFromFlat(
+    [
+      { id: 'cond-' + index + '-income', field: 'income', value: incomeMax },
+      { id: 'cond-' + index + '-pci', field: 'pci', value: pciMax },
     ],
-    connectors: ['OR'],
-  }
+    ['OR']
+  )
 }
 
 const buildTiers = (index) => {
@@ -283,11 +560,13 @@ export const createEmptyScheme = (id) => ({
   endDate: '',
   validityMonths: 12,
   linkedCourses: [],
-  conditions: [
-    { id: `${id}-cond-1`, field: 'nationality', value: 'Singapore Citizen' },
-    { id: `${id}-cond-2`, field: 'pci', value: '' },
-  ],
-  connectors: ['AND'],
+  rootConditionGroup: createFasConditionGroupFromFlat(
+    [
+      { id: id + '-cond-1', field: 'nationality', value: 'Singapore Citizen' },
+      { id: id + '-cond-2', field: 'pci', value: '' },
+    ],
+    ['AND']
+  ),
   tiers: [
     {
       id: `${id}-tier-1`,
@@ -333,8 +612,7 @@ export const initialSchemes = catalog.map((name, index) => {
       FAS_COURSE_OPTIONS[courseOffset],
       FAS_COURSE_OPTIONS[(courseOffset + 2) % FAS_COURSE_OPTIONS.length],
     ],
-    conditions: conditionSet.conditions,
-    connectors: conditionSet.connectors,
+    rootConditionGroup: conditionSet,
     tiers: buildTiers(index),
     documents: schemeDocs(name).map((doc, docIndex) => ({
       ...doc,
@@ -545,7 +823,7 @@ export const initialApplications = [
 ]
 
 export const createInitialFasState = () => ({
-  version: 6,
+  version: 8,
   schemes: initialSchemes,
   applications: initialApplications,
   auditLogs: [],

@@ -4,12 +4,20 @@ import {
   MOCK_ACCOUNT_HOLDER,
 } from '@/features/financial-assistance/data/fasSeedData'
 import {
+  buildAvailableSchemesParams,
+  buildSubmitFasApplicationFormData,
+  normalizeApiAvailableSchemesResponse,
+  normalizeFasProfileFromApi,
+  normalizeFasSnapshotProfile,
+} from '@/features/financial-assistance/api/accountHolderFasApi'
+import {
   fasMockStore,
   useFasMockStore,
 } from '@/features/financial-assistance/data/fasMockStore'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
   buildEligibilityPreview,
+  collectConditionFields,
   describeTierSubsidy,
   evaluateSchemeEligibility,
   formatTierConditionText,
@@ -17,7 +25,10 @@ import {
   getPci,
   isApprovedApplicationExpired,
 } from '@/features/financial-assistance/utils/fasRules'
+import { ApiUrls } from '@/shared/api/apiUrls'
+import axiosConfig from '@/shared/api/axiosClient'
 import { routeUrls } from '@/shared/config/routeUrls'
+import useFetch from '@/shared/hooks/useFetch'
 import {
   ArrowLeftOutlined,
   BankOutlined,
@@ -80,8 +91,7 @@ const profileToFasProfile = (accountHolder) => ({
 
 const initialProfile = profileToFasProfile(MOCK_ACCOUNT_HOLDER)
 
-const getSchemeFieldSet = (scheme) =>
-  new Set((scheme?.conditions || []).map((condition) => condition.field).filter(Boolean))
+const getSchemeFieldSet = (scheme) => collectConditionFields(scheme)
 
 const schemeRequiresIncome = (fieldSet) => fieldSet.has('income') || fieldSet.has('pci')
 
@@ -93,28 +103,68 @@ const getTemplateUrl = (document) => {
   return `/templates/fas/${document.templateName}`
 }
 
+const getApiErrorMessage = (error) => {
+  const payload = error?.response?.data
+  if (!payload) return 'Unable to submit the FAS application'
+  if (payload.message && payload.message !== 'Validation failed') return payload.message
+  if (typeof payload.error === 'string') return payload.error
+  if (payload.error && typeof payload.error === 'object') {
+    return Object.values(payload.error).filter(Boolean).join(', ')
+  }
+  return payload.message || 'Unable to submit the FAS application'
+}
+
 const MyFasApplyPage = () => {
-  const { schemes, applications } = useFasMockStore()
+  const { schemes: mockSchemes, applications } = useFasMockStore()
   const location = useLocation()
   const navigate = useNavigate()
-  const initialSchemeId = location.state?.schemeId || null
-  const [profile, setProfile] = useState(initialProfile)
-  const [shown, setShown] = useState(false)
+  const initialSchemeId = location.state?.schemeId != null ? String(location.state.schemeId) : null
+  const snapshotProfile = normalizeFasSnapshotProfile(location.state?.snapshot, initialProfile)
+  const startingProfile = snapshotProfile || initialProfile
+  const [profile, setProfile] = useState(startingProfile)
+  const [shown, setShown] = useState(Boolean(snapshotProfile))
   const [search, setSearch] = useState('')
   const [expandedSchemeId, setExpandedSchemeId] = useState(null)
   const [formSchemeId, setFormSchemeId] = useState(initialSchemeId)
-  const [formProfile, setFormProfile] = useState(initialProfile)
+  const [formProfile, setFormProfile] = useState(startingProfile)
   const [attachedDocs, setAttachedDocs] = useState({})
+  const profileQuery = useFetch(ApiUrls.ACCOUNT_HOLDER.PROFILE)
+
+  const pci = getPci(profile.income, profile.members)
+  const availableParams = useMemo(
+    () => buildAvailableSchemesParams({ shown, profile }),
+    [profile, shown]
+  )
+  const availableSchemesQuery = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_AVAILABLE_SCHEMES,
+    availableParams,
+    [availableParams]
+  )
+  const apiAvailableSchemes = useMemo(
+    () => normalizeApiAvailableSchemesResponse(availableSchemesQuery.data),
+    [availableSchemesQuery.data]
+  )
+  const usingApiSchemes = Array.isArray(apiAvailableSchemes.schemes) && !availableSchemesQuery.error
+  const schemes = usingApiSchemes ? apiAvailableSchemes.schemes : mockSchemes
 
   const schemeById = useMemo(
-    () => Object.fromEntries(schemes.map((scheme) => [scheme.id, scheme])),
+    () => Object.fromEntries(schemes.map((scheme) => [String(scheme.id), scheme])),
     [schemes]
   )
 
   useEffect(() => {
-    if (!initialSchemeId) return
+    if (!initialSchemeId && !snapshotProfile) return
     navigate(location.pathname, { replace: true })
-  }, [initialSchemeId, location.pathname, navigate])
+  }, [initialSchemeId, location.pathname, navigate, snapshotProfile])
+
+  useEffect(() => {
+    if (!profileQuery.data || snapshotProfile) return
+    const nextProfile = normalizeFasProfileFromApi(profileQuery.data, initialProfile)
+    queueMicrotask(() => {
+      setProfile(nextProfile)
+      setFormProfile(nextProfile)
+    })
+  }, [profileQuery.data, snapshotProfile])
 
   const accountApplications = useMemo(
     () =>
@@ -139,15 +189,12 @@ const MyFasApplyPage = () => {
     [accountApplications]
   )
 
-  const activeAvailableSchemes = useMemo(
-    () =>
-      schemes.filter(
-        (scheme) => scheme.status === FAS_STATUS.Active && !blockingSchemeIds.has(scheme.id)
-      ),
-    [blockingSchemeIds, schemes]
-  )
-
-  const pci = getPci(profile.income, profile.members)
+  const activeAvailableSchemes = useMemo(() => {
+    if (usingApiSchemes) return schemes
+    return schemes.filter(
+      (scheme) => scheme.status === FAS_STATUS.Active && !blockingSchemeIds.has(scheme.id)
+    )
+  }, [blockingSchemeIds, schemes, usingApiSchemes])
 
   const visibleSchemes = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -163,6 +210,9 @@ const MyFasApplyPage = () => {
       const matchesQuery = !query || scheme.name.toLowerCase().includes(query)
       if (!matchesQuery) return false
       if (!shown) return true
+      if (usingApiSchemes) {
+        return !!getSuggestedTier(scheme, { data: eligibleProfile })
+      }
       return (
         evaluateSchemeEligibility(scheme, eligibleProfile) &&
         !!getSuggestedTier(scheme, { data: eligibleProfile })
@@ -177,17 +227,33 @@ const MyFasApplyPage = () => {
     profile.parentNationality,
     search,
     shown,
+    usingApiSchemes,
   ])
 
   const openForm = (schemeId) => {
-    setFormSchemeId(schemeId)
+    setFormSchemeId(String(schemeId))
     setFormProfile(profile)
     setAttachedDocs({})
   }
 
   if (formSchemeId) {
     const scheme = schemeById[formSchemeId]
-    if (!scheme) return null
+    if (!scheme) {
+      return (
+        <div className="fas-page fas-page-account">
+          <div className="fas-frame">
+            <div className="fas-bar">Apply - browse & check the FAS you qualify for</div>
+            <div className="fas-body">
+              <div className="fas-empty">
+                {availableSchemesQuery.loading
+                  ? 'Loading FAS scheme details...'
+                  : 'This FAS scheme is not available for application right now.'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
 
     return (
       <ApplyForm
@@ -254,7 +320,7 @@ const MyFasApplyPage = () => {
               </ProfileQuestion>
 
               <div className="fas-pci-pill">
-                Per-capita income (PCI) = <strong>{pci ? `S$${pci.toLocaleString()}` : '-'}</strong>
+                Per-capita income (PCI) = <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
               </div>
 
               <Button
@@ -324,6 +390,7 @@ const MyFasApplyPage = () => {
                 <div className="fas-note">
                   Showing active schemes that do not already have an application. Enter details and
                   use the button to narrow the list.
+                  {!usingApiSchemes && availableSchemesQuery.error ? ' Real API is unavailable, so mock data is shown.' : ''}
                 </div>
               )}
             </div>
@@ -374,7 +441,7 @@ const SchemeInfo = ({ scheme }) => (
   <div className="fas-info-body">
     <div className="fas-info-row">
       <span className="fas-info-label">Eligibility</span>
-      <span>{buildEligibilityPreview(scheme.conditions, scheme.connectors)}</span>
+      <span>{buildEligibilityPreview(scheme)}</span>
     </div>
     <div className="fas-info-row">
       <span className="fas-info-label">Subsidy</span>
@@ -409,6 +476,7 @@ const ApplyForm = ({
   onAttachedDocsChange,
   onSubmitted,
 }) => {
+  const [submitting, setSubmitting] = useState(false)
   const pci = getPci(profile.income, profile.members)
   const schemeFieldSet = useMemo(() => getSchemeFieldSet(scheme), [scheme])
   const requiresIncome = schemeRequiresIncome(schemeFieldSet)
@@ -440,11 +508,12 @@ const ApplyForm = ({
         fileName: file.name,
         size: file.size,
         type: file.type,
+        fileKey: file.uid || file.name,
       },
     }))
   }
 
-  const submit = () => {
+  const submit = async () => {
     if (!hasProfileDetails) {
       message.error('Confirm the required application details')
       return
@@ -458,6 +527,26 @@ const ApplyForm = ({
     const missing = scheme.documents.filter((document) => !attachedDocs[document.id])
     if (missing.length) {
       message.error(`Attach all required documents (${missing.length} left)`)
+      return
+    }
+
+    if (scheme.apiId) {
+      setSubmitting(true)
+      try {
+        const formData = buildSubmitFasApplicationFormData({
+          scheme,
+          profile,
+          documents: scheme.documents,
+          attachedDocs,
+        })
+        await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, formData)
+        message.success(`Application submitted: ${scheme.name}`)
+        onSubmitted()
+      } catch (error) {
+        message.error(getApiErrorMessage(error))
+      } finally {
+        setSubmitting(false)
+      }
       return
     }
 
@@ -604,6 +693,7 @@ const ApplyForm = ({
                   block
                   size="large"
                   disabled={!isReadyToSubmit}
+                  loading={submitting}
                   onClick={submit}
                 >
                   Submit application
@@ -694,7 +784,7 @@ const SchemeApplicationFields = ({ fieldSet, profile, pci, onProfileChange }) =>
       {fieldSet.has('pci') && (
         <div className="fas-pci-box">
           <span>Per-capita income (PCI)</span>
-          <strong>{pci ? `S$${pci.toLocaleString()}` : '-'}</strong>
+          <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
           <small>Income ÷ household members</small>
         </div>
       )}
@@ -739,7 +829,7 @@ const ApplicationSummaryRows = ({ fieldSet, profile, pci }) => {
       {fieldSet.has('pci') && (
         <div className="fas-summary-highlight">
           <span>Calculated PCI</span>
-          <strong>{pci ? `S$${pci.toLocaleString()}` : '-'}</strong>
+          <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
         </div>
       )}
     </>

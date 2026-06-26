@@ -11,12 +11,21 @@ export const fasApplicationStatusOptions = [
   { value: FAS_APPLICATION_STATUS.Approved, label: 'Approved' },
   { value: 'expired', label: 'Expired' },
   { value: FAS_APPLICATION_STATUS.Rejected, label: 'Rejected' },
+  { value: FAS_APPLICATION_STATUS.Withdrawn, label: 'Withdrawn' },
+]
+
+export const myFasApplicationStatusOptions = [
+  { value: FAS_APPLICATION_STATUS.Pending, label: 'Pending' },
+  { value: FAS_APPLICATION_STATUS.Approved, label: 'Approved' },
+  { value: 'expired', label: 'Expired' },
+  { value: FAS_APPLICATION_STATUS.Rejected, label: 'Rejected' },
 ]
 
 export const getFasStatusColor = (status) => {
   if (status === FAS_STATUS.Active || status === FAS_APPLICATION_STATUS.Approved) return 'success'
   if (status === FAS_STATUS.Draft || status === FAS_APPLICATION_STATUS.Pending) return 'warning'
   if (status === FAS_APPLICATION_STATUS.Rejected || status === 'expired') return 'error'
+  if (status === FAS_APPLICATION_STATUS.Withdrawn) return 'default'
   return 'default'
 }
 
