@@ -6,7 +6,7 @@
       "basic_info": "基本信息",
       "fees": "费用与付款",
       "schedule": "日程与截止日期",
-      "initial_students": "初始学生"
+      "initial_students": "学生"
     },
     "field": {
       "id": "ID",
@@ -23,8 +23,8 @@
       "enrollment_deadline": "报名确认截止时间",
       "start_date": "开始时间",
       "end_date": "结束日期",
-      "enrollment_count": "NumberOfStudents",
-      "initial_students": "初始学生",
+      "enrollment_count": "学生人数",
+      "initial_students": "学生",
       "applicable_fas": "适用FAS",
       "duration_in_months": "期限"
     },

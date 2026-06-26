@@ -13,7 +13,7 @@
       "basic_info": "Thông tin cơ bản",
       "fees": "Học phí & Thanh toán",
       "schedule": "Lịch trình & Thời hạn",
-      "initial_students": "Học viên ban đầu"
+      "initial_students": "Học sinh"
     },
     "field": {
       "id": "ID",
@@ -30,8 +30,8 @@
       "enrollment_deadline": "Hạn chốt enrollment",
       "start_date": "Ngày bắt đầu",
       "end_date": "Ngày kết thúc",
-      "enrollment_count": "NumberOfStudents",
-      "initial_students": "Học sinh ban đầu",
+      "enrollment_count": "Số lượng học sinh",
+      "initial_students": "Học sinh",
       "applicable_fas": "FAS áp dụng",
       "duration_in_months": "Thời hạn"
     },

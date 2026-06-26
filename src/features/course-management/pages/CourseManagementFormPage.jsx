@@ -21,7 +21,7 @@ import {
   GiftOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
-import { Button, Card, Col, Flex, Form, InputNumber, Row, Space, Tag, Typography, theme } from 'antd'
+import { Button, Card, Col, Flex, Form, InputNumber, Row, Space, Tag, Typography, message, theme } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -124,6 +124,7 @@ const CourseManagementFormPage = () => {
     useForm()
   const [submitted, setSubmitted] = useState(false)
   const [studentOptionCache, setStudentOptionCache] = useState({})
+  const [fasOptionCache, setFasOptionCache] = useState({})
   const course = useFetch(isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : '', {}, [id], isEdit)
   const save = useAxiosSubmit({
     url: isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : ApiUrls.COURSE_MANAGEMENT.INDEX,
@@ -188,8 +189,15 @@ const CourseManagementFormPage = () => {
         overrideParam: { search, page, pageSize },
       })
       const result = response?.data
+      const schemes = result?.collection || []
+      setFasOptionCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...schemes.map((scheme) => [String(scheme.id), scheme]),
+        ])
+      )
       return {
-        options: (result?.collection || []).map((scheme) => ({
+        options: schemes.map((scheme) => ({
           value: scheme.id,
           label: getFasSchemeLabel(scheme),
           searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
@@ -203,6 +211,13 @@ const CourseManagementFormPage = () => {
   const fields = useMemo(() => {
     const amountProps = { min: 0, precision: 2, prefix: currencySymbol }
     const basicInfoOnly = isEdit && course.data?.status === 'Enrolling'
+    const fasSchemes = Object.values({
+      ...(course.data?.applicableFasSchemes || []).reduce(
+        (map, scheme) => ({ ...map, [String(scheme.id)]: scheme }),
+        {}
+      ),
+      ...fasOptionCache,
+    })
     return [
       {
         key: 'courseName',
@@ -276,18 +291,25 @@ const CourseManagementFormPage = () => {
         type: 'select',
         multiple: true,
         required: false,
-        options: (course.data?.applicableFasSchemes || []).map((scheme) => ({
+        options: fasSchemes.map((scheme) => ({
           value: scheme.id,
           label: getFasSchemeLabel(scheme),
           searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
         })),
         loadOptions: loadFasOptions,
+        renderOptionValue: (value) =>
+          fasOptionCache[String(value)]?.schemeName ||
+          (course.data?.applicableFasSchemes || []).find(
+            (scheme) => String(scheme.id) === String(value)
+          )?.schemeName ||
+          String(value),
       },
     ]
   }, [
     course.data?.applicableFasSchemes,
     course.data?.status,
     currencySymbol,
+    fasOptionCache,
     isEdit,
     loadFasOptions,
     loadStudentOptions,
@@ -300,6 +322,10 @@ const CourseManagementFormPage = () => {
     const ok = validateAll()
     const missing = hasRequiredMissing(fields)
     if (!ok || missing) return
+    if (publish && isDateTimeBefore(values.enrollmentDeadline, new Date())) {
+      message.error(t('course_management.message.publish_deadline_expired'))
+      return
+    }
 
     const payload = {
       courseName: values.courseName,
