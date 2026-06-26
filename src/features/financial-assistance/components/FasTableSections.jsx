@@ -3,6 +3,7 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { Button, Typography } from 'antd'
 import { FAS_APPLICATION_STATUS, FAS_STATUS } from '../data/fasSeedData'
 import { formatFasDate } from '../utils/fasRules'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import {
   fasApplicationStatusOptions,
   fasSchemeStatusOptions,
@@ -34,9 +35,17 @@ export const FasAdminSchemeTableSection = ({
       key: 'status',
       title: 'Status',
       width: 120,
+      sortable: true,
       type: 'tag',
       options: fasSchemeStatusOptions,
       color: getFasStatusColor,
+    },
+    {
+      key: 'createdAt',
+      title: 'Created at',
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'actions',

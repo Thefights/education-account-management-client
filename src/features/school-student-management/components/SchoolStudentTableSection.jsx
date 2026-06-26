@@ -5,6 +5,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { Popover, Space, Tag } from 'antd'
 import { Link } from 'react-router-dom'
 
@@ -94,6 +95,13 @@ const SchoolStudentTableSection = ({
       type: 'tag',
       options: _enum.schoolStudentStatusOptions,
       color: defaultManagementStatusStyle,
+    },
+    {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'actions',

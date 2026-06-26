@@ -7,9 +7,18 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { useMemo } from 'react'
 
-const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedIds, setSelectedIds, onEdit }) => {
+const AdminManagementTableSection = ({
+  admins,
+  loading,
+  sort,
+  setSort,
+  selectedIds,
+  setSelectedIds,
+  onEdit,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = useMemo(
@@ -43,6 +52,7 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedI
         key: 'phoneNumber',
         title: t('admin_management.field.phone_number'),
         width: 150,
+        sortable: true,
       },
       {
         key: 'role',
@@ -66,11 +76,20 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedI
         key: 'schoolName',
         title: t('admin_management.field.school'),
         width: 190,
+        sortable: true,
       },
       {
         key: 'azureObjectId',
         title: t('admin_management.field.azure_object_id'),
         width: 280,
+        sortable: true,
+      },
+      {
+        key: 'createdAt',
+        title: t('audit_log.field.created_at'),
+        width: 180,
+        sortable: true,
+        render: formatDatetimeStringBasedOnCurrentLanguage,
       },
       {
         key: 'actions',

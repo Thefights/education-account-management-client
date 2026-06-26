@@ -67,6 +67,13 @@ const CourseManagementTableSection = ({
       render: (value) => Number(value ?? 0).toLocaleString(),
     },
     {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
+    },
+    {
       key: 'actions',
       title: '',
       width: 70,

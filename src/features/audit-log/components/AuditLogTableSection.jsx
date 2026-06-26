@@ -32,6 +32,7 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
         key: 'actorUserRole',
         title: t('account.field.roles'),
         width: 180,
+        sortable: true,
       },
       {
         key: 'category',

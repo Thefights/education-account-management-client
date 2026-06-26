@@ -1,7 +1,10 @@
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import {
+  formatDateBasedOnCurrentLanguage,
+  formatDatetimeStringBasedOnCurrentLanguage,
+} from '@/shared/utils/formatDateUtil'
 import { Button, Tag } from 'antd'
 import { useMemo } from 'react'
 
@@ -47,6 +50,13 @@ const EServiceAccountsTableSection = ({
         render: (value) => <Tag color={statusColors[value]}>{value}</Tag>,
       },
       { key: 'balance', title: t('education_account.balance'), width: 130, sortable: true },
+      {
+        key: 'createdAt',
+        title: t('education_account.created_at'),
+        width: 170,
+        sortable: true,
+        render: formatDatetimeStringBasedOnCurrentLanguage,
+      },
       {
         key: 'createdDate',
         title: t('education_account.created'),

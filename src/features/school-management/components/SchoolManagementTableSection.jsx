@@ -3,6 +3,7 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 
 const SchoolManagementTableSection = ({
   schools,
@@ -39,7 +40,7 @@ const SchoolManagementTableSection = ({
       options: _enum.schoolStatusOptions,
       color: defaultManagementStatusStyle,
     },
-    { key: 'address', title: t('school_management.field.address'), width: 300 },
+    { key: 'address', title: t('school_management.field.address'), width: 300, sortable: true },
     {
       key: 'phoneNumber',
       title: t('school_management.field.phone_number'),
@@ -47,6 +48,13 @@ const SchoolManagementTableSection = ({
       sortable: true,
     },
     { key: 'email', title: t('school_management.field.email'), width: 240, sortable: true },
+    {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
     {
       key: 'actions',
       title: '',
