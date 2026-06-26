@@ -1,6 +1,12 @@
 import { FasApplicationFilterSection } from '@/features/financial-assistance/components/FasFilterSections'
 import { MyFasApplicationTableSection } from '@/features/financial-assistance/components/FasTableSections'
-import { MOCK_ACCOUNT_HOLDER } from '@/features/financial-assistance/data/fasSeedData'
+import { FAS_APPLICATION_STATUS, MOCK_ACCOUNT_HOLDER } from '@/features/financial-assistance/data/fasSeedData'
+import {
+  normalizeApiApplicationDetail,
+  normalizeApiApplicationPage,
+  normalizeFasSnapshotProfile,
+  toApiApplicationStatus,
+} from '@/features/financial-assistance/api/accountHolderFasApi'
 import {
   fasMockStore,
   useFasMockStore,
@@ -15,9 +21,12 @@ import {
 } from '@/features/financial-assistance/utils/fasRules'
 import {
   defaultFasApplicationFilters,
-  fasApplicationStatusOptions,
+  myFasApplicationStatusOptions,
 } from '@/features/financial-assistance/utils/fasTableConfig'
+import { ApiUrls } from '@/shared/api/apiUrls'
+import axiosConfig from '@/shared/api/axiosClient'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import useFetch from '@/shared/hooks/useFetch'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Button, Card, Flex, Modal, Select, Tabs, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
@@ -27,17 +36,50 @@ const MyFasManagementPage = () => {
   const { schemes, applications } = useFasMockStore()
   const navigate = useNavigate()
   const [filters, setFilters] = useState(defaultFasApplicationFilters)
-  const [activeStatus, setActiveStatus] = useState(fasApplicationStatusOptions[0].value)
+  const [activeStatus, setActiveStatus] = useState(myFasApplicationStatusOptions[0].value)
   const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
   const [sortChoice, setSortChoice] = useState('newest')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [viewId, setViewId] = useState(null)
+  const [apiViewApplication, setApiViewApplication] = useState(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   const schemeById = useMemo(
-    () => Object.fromEntries(schemes.map((scheme) => [scheme.id, scheme])),
+    () => Object.fromEntries(schemes.map((scheme) => [String(scheme.id), scheme])),
     [schemes]
   )
+  const apiStatus = activeStatus === 'expired' ? FAS_APPLICATION_STATUS.Approved : activeStatus
+  const apiQueryParams = useMemo(
+    () => ({
+      page,
+      pageSize,
+      sort: `${sort.key === 'submittedAt' ? 'createdAt' : sort.key} ${sort.direction}`,
+      status: toApiApplicationStatus(apiStatus),
+      search: filters.search || undefined,
+    }),
+    [apiStatus, filters.search, page, pageSize, sort.direction, sort.key]
+  )
+  const apiApplicationsQuery = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    apiQueryParams,
+    [apiQueryParams]
+  )
+  const apiAllApplicationsQuery = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    { page: 1, pageSize: 100, sort: 'createdAt desc' },
+    []
+  )
+  const apiApplicationPage = useMemo(
+    () => normalizeApiApplicationPage(apiApplicationsQuery.data),
+    [apiApplicationsQuery.data]
+  )
+  const apiAllApplicationPage = useMemo(
+    () => normalizeApiApplicationPage(apiAllApplicationsQuery.data),
+    [apiAllApplicationsQuery.data]
+  )
+  const usingApiApplications = Boolean(apiApplicationsQuery.data) && !apiApplicationsQuery.error
+  const usingApiAllApplications = Boolean(apiAllApplicationsQuery.data) && !apiAllApplicationsQuery.error
 
   const accountApplications = useMemo(
     () =>
@@ -66,14 +108,27 @@ const MyFasManagementPage = () => {
     [accountApplications, schemeById]
   )
 
+  const statusSourceRows = usingApiAllApplications ? apiAllApplicationPage.collection : applicationRows
   const statusCounts = useMemo(
     () =>
-      applicationRows.reduce((acc, application) => {
+      statusSourceRows.reduce((acc, application) => {
         acc[application.displayStatus] = (acc[application.displayStatus] || 0) + 1
         return acc
       }, {}),
-    [applicationRows]
+    [statusSourceRows]
   )
+
+  const apiVisibleRows = useMemo(() => {
+    const query = filters.search.trim().toLowerCase()
+    return apiApplicationPage.collection.filter((application) => {
+      const matchesQuery =
+        !query ||
+        application.id.toLowerCase().includes(query) ||
+        application.schemeName.toLowerCase().includes(query)
+      const matchesStatus = application.displayStatus === activeStatus
+      return matchesQuery && matchesStatus
+    })
+  }, [activeStatus, apiApplicationPage.collection, filters.search])
 
   const tableData = useFasMockTable({
     rows: applicationRows,
@@ -96,8 +151,21 @@ const MyFasManagementPage = () => {
     },
   })
 
-  const viewApplication = accountApplications.find((application) => application.id === viewId)
-  const viewScheme = schemeById[viewApplication?.schemeId]
+  const apiTableData = {
+    collection: apiVisibleRows,
+    totalCount:
+      filters.search || activeStatus === 'expired'
+        ? apiVisibleRows.length
+        : apiApplicationPage.totalCount,
+    totalPage:
+      filters.search || activeStatus === 'expired'
+        ? Math.max(1, Math.ceil(apiVisibleRows.length / pageSize))
+        : apiApplicationPage.totalPage,
+  }
+  const resolvedTableData = usingApiApplications ? apiTableData : tableData
+  const viewApplication =
+    apiViewApplication || accountApplications.find((application) => application.id === viewId)
+  const viewScheme = viewApplication?.scheme || schemeById[String(viewApplication?.schemeId)]
 
   const withdraw = (application) => {
     Modal.confirm({
@@ -105,9 +173,17 @@ const MyFasManagementPage = () => {
       content: 'The pending application will be removed and the scheme will reappear in Apply.',
       okText: 'Withdraw',
       okButtonProps: { danger: true },
-      onOk: () => {
+      onOk: async () => {
+        if (application.apiId) {
+          await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(application.apiId))
+          message.success('Application withdrawn')
+          navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY))
+          return
+        }
+
         fasMockStore.withdrawApplication(application.id)
         message.success('Application withdrawn')
+        navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY))
       },
     })
   }
@@ -117,11 +193,46 @@ const MyFasManagementPage = () => {
     setPage(1)
   }
 
-  const applyAgain = (application) => {
+  const loadApiApplicationDetail = async (application) => {
+    if (!application?.apiId) return null
+
+    setDetailLoading(true)
+    try {
+      const response = await axiosConfig.get(
+        ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DETAIL(application.apiId)
+      )
+      return normalizeApiApplicationDetail(response.data, application)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
+  const applyAgain = async (application) => {
+    if (application.apiId) {
+      const detail = await loadApiApplicationDetail(application)
+      navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
+        state: {
+          schemeId: detail?.schemeId,
+          snapshot: normalizeFasSnapshotProfile(detail?.profileSnapshot, undefined),
+        },
+      })
+      return
+    }
+
     const schemeId = application.schemeId
     navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
       state: { schemeId },
     })
+  }
+
+  const viewApplicationDetail = async (application) => {
+    if (application.apiId) {
+      const detail = await loadApiApplicationDetail(application)
+      if (detail) setApiViewApplication(detail)
+      return
+    }
+
+    setViewId(application.id)
   }
 
   const updateSortChoice = (value) => {
@@ -148,7 +259,7 @@ const MyFasManagementPage = () => {
               setActiveStatus(status)
               setPage(1)
             }}
-            items={fasApplicationStatusOptions.map((status) => ({
+            items={myFasApplicationStatusOptions.map((status) => ({
               key: status.value,
               label: `${status.label} (${statusCounts[status.value] || 0})`,
             }))}
@@ -176,18 +287,18 @@ const MyFasManagementPage = () => {
             />
           </Flex>
           <MyFasApplicationTableSection
-            applications={tableData.collection}
-            loading={false}
+            applications={resolvedTableData.collection}
+            loading={apiApplicationsQuery.loading}
             sort={sort}
             setSort={setSort}
             activeStatus={activeStatus}
             onWithdraw={withdraw}
-            onView={(application) => setViewId(application.id)}
+            onView={viewApplicationDetail}
             onApplyAgain={applyAgain}
           />
           <GenericTablePagination
-            totalCount={tableData.totalCount}
-            totalPage={tableData.totalPage}
+            totalCount={resolvedTableData.totalCount}
+            totalPage={resolvedTableData.totalPage}
             page={page}
             setPage={setPage}
             pageSize={pageSize}
@@ -201,9 +312,14 @@ const MyFasManagementPage = () => {
         application={viewApplication}
         scheme={viewScheme}
         open={!!viewApplication && !!viewScheme}
-        onClose={() => setViewId(null)}
+        loading={detailLoading}
+        onClose={() => {
+          setViewId(null)
+          setApiViewApplication(null)
+        }}
         onApplyAgain={(application) => {
           setViewId(null)
+          setApiViewApplication(null)
           applyAgain(application)
         }}
       />
@@ -211,7 +327,7 @@ const MyFasManagementPage = () => {
   )
 }
 
-const ApprovedFasModal = ({ application, scheme, open, onClose, onApplyAgain }) => {
+const ApprovedFasModal = ({ application, scheme, open, loading, onClose, onApplyAgain }) => {
   if (!application || !scheme) return null
 
   const tier = scheme.tiers.find((item) => item.id === application.tierId)
@@ -219,7 +335,7 @@ const ApprovedFasModal = ({ application, scheme, open, onClose, onApplyAgain }) 
   const validFrom = application.validFrom || application.submittedAt || application.approvedAt
 
   return (
-    <Modal title={scheme.name} open={open} footer={null} onCancel={onClose} width={560}>
+    <Modal title={scheme.name} open={open} footer={null} onCancel={onClose} width={560} confirmLoading={loading}>
       <div className="fas-kv">
         <div className="fas-kv-row">
           <span>Application No.</span>

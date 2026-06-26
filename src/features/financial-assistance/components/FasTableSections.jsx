@@ -170,7 +170,7 @@ export const MyFasApplicationTableSection = ({
         )
       }
 
-      if (row.displayStatus === FAS_APPLICATION_STATUS.Rejected) {
+      if (row.displayStatus === FAS_APPLICATION_STATUS.Rejected || row.displayStatus === 'expired') {
         return (
           <Button type="link" onClick={() => onApplyAgain?.(row)}>
             Apply again

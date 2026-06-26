@@ -4,13 +4,16 @@ import {
   MOCK_ACCOUNT_HOLDER,
   MOCK_SCHOOL_ADMIN,
   createEmptyScheme,
+  createFasConditionGroupFromFlat,
   createInitialFasState,
+  normalizeFasConditionGroup,
+  rekeyFasConditionGroup,
 } from '@/features/financial-assistance/data/fasSeedData'
 import { getPci } from '@/features/financial-assistance/utils/fasRules'
 import { useSyncExternalStore } from 'react'
 
-const mockStateVersion = 6
-const storageKey = 'education-account-management.fasMock.v6'
+const mockStateVersion = 8
+const storageKey = 'education-account-management.fasMock.v8'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 
@@ -125,13 +128,18 @@ export const fasMockStore = {
     const normalizedScheme = {
       ...scheme,
       status,
-      conditions: scheme.conditions || [],
-      connectors: (scheme.connectors || []).slice(0, Math.max((scheme.conditions || []).length - 1, 0)),
+      rootConditionGroup: normalizeFasConditionGroup(
+        scheme.rootConditionGroup ||
+          createFasConditionGroupFromFlat(scheme.conditions || [], scheme.connectors || [])
+      ),
       tiers: scheme.tiers || [],
       documents: scheme.documents || [],
       linkedCourses: scheme.linkedCourses || [],
       validityMonths: Number(scheme.validityMonths || 0),
     }
+
+    delete normalizedScheme.conditions
+    delete normalizedScheme.connectors
 
     updateState((draft) => {
       const existingIndex = draft.schemes.findIndex((item) => item.id === normalizedScheme.id)
@@ -160,10 +168,7 @@ export const fasMockStore = {
       status: FAS_STATUS.Draft,
     }
 
-    copy.conditions = copy.conditions.map((condition, index) => ({
-      ...condition,
-      id: `${copy.id}-cond-${index + 1}`,
-    }))
+    copy.rootConditionGroup = rekeyFasConditionGroup(copy.rootConditionGroup, copy.id)
     copy.tiers = copy.tiers.map((tier, index) => ({
       ...tier,
       id: `${copy.id}-tier-${index + 1}`,

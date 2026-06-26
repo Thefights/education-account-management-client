@@ -1,6 +1,15 @@
 import {
   FAS_APPLICATION_STATUS,
+  FAS_CONDITION_FIELD,
+  FAS_CONDITION_OPERATOR,
+  FAS_FIELD_KEY_BY_VALUE,
   FAS_FIELD_LABELS,
+  FAS_LOGICAL_OPERATOR,
+  createFasConditionGroupFromFlat,
+  isFasTextField,
+  normalizeFasCondition,
+  normalizeFasConditionField,
+  normalizeFasConditionGroup,
 } from '@/features/financial-assistance/data/fasSeedData'
 
 export const formatFasDate = (value) => {
@@ -10,7 +19,7 @@ export const formatFasDate = (value) => {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  }).format(new Date(`${value}T00:00:00`))
+  }).format(new Date(String(value) + 'T00:00:00'))
 }
 
 export const getPci = (income, members) => {
@@ -18,7 +27,7 @@ export const getPci = (income, members) => {
   const normalizedMembers = Number(members)
 
   if (!Number.isFinite(normalizedIncome) || !Number.isFinite(normalizedMembers)) return null
-  if (normalizedIncome <= 0 || normalizedMembers <= 0) return null
+  if (normalizedIncome < 0 || normalizedMembers <= 0) return null
 
   return Math.round(normalizedIncome / normalizedMembers)
 }
@@ -29,13 +38,9 @@ export const isApprovedApplicationExpired = (application) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const endDate = new Date(`${application.endDate}T00:00:00`)
+  const endDate = new Date(String(application.endDate) + 'T00:00:00')
   return endDate < today
 }
-
-const equalityFields = new Set(['nationality', 'parentNationality', 'studentAge'])
-
-const conditionOperatorText = (field) => (equalityFields.has(field) ? '=' : '≤')
 
 const formatConditionValue = (value) => {
   if (value === '' || value == null) return 'not set'
@@ -48,9 +53,156 @@ const formatConditionValue = (value) => {
   return value
 }
 
+const operatorText = (operator) => {
+  if (operator === FAS_CONDITION_OPERATOR.NotEquals) return '!='
+  if (operator === FAS_CONDITION_OPERATOR.GreaterThan) return '>'
+  if (operator === FAS_CONDITION_OPERATOR.GreaterThanOrEqual) return '≥'
+  if (operator === FAS_CONDITION_OPERATOR.LessThan) return '<'
+  if (operator === FAS_CONDITION_OPERATOR.LessThanOrEqual) return '≤'
+  if (operator === FAS_CONDITION_OPERATOR.Between) return 'between'
+  return '='
+}
+
+const resolveConditionGroup = (value, connectors = []) => {
+  if (!value) return null
+  if (value.rootConditionGroup) return normalizeFasConditionGroup(value.rootConditionGroup)
+  if (Array.isArray(value)) return createFasConditionGroupFromFlat(value, connectors)
+  if (value.conditions || value.groups) return normalizeFasConditionGroup(value)
+  return null
+}
+
 export const describeCondition = (condition) => {
-  const label = FAS_FIELD_LABELS[condition.field] || condition.field
-  return `${label} ${conditionOperatorText(condition.field)} ${formatConditionValue(condition.value)}`
+  const normalized = normalizeFasCondition(condition)
+  const label = FAS_FIELD_LABELS[normalized.field] || normalized.field
+
+  if (normalized.operator === FAS_CONDITION_OPERATOR.Between) {
+    return (
+      label +
+      ' ' +
+      formatConditionValue(normalized.valueNumber) +
+      '-' +
+      formatConditionValue(normalized.valueNumberTo)
+    )
+  }
+
+  const value = isFasTextField(normalized.field)
+    ? normalized.valueText
+    : normalized.valueNumber
+
+  return label + ' ' + operatorText(normalized.operator) + ' ' + formatConditionValue(value)
+}
+
+const describeGroup = (group) => {
+  const normalizedGroup = normalizeFasConditionGroup(group)
+  const joiner = normalizedGroup.logicalOperator === FAS_LOGICAL_OPERATOR.Any ? ' or ' : ' and '
+  const parts = [
+    ...(normalizedGroup.conditions || []).map(describeCondition),
+    ...(normalizedGroup.groups || []).map((child) => '( ' + describeGroup(child) + ' )'),
+  ].filter(Boolean)
+
+  return parts.join(joiner)
+}
+
+export const buildEligibilityPreviewParts = (value = [], connectors = []) => {
+  const group = resolveConditionGroup(value, connectors)
+  if (!group || !(group.conditions?.length || group.groups?.length)) return []
+
+  if (group.logicalOperator === FAS_LOGICAL_OPERATOR.Any && group.groups?.length && !group.conditions?.length) {
+    return group.groups.map(describeGroup)
+  }
+
+  return [describeGroup(group)]
+}
+
+export const buildEligibilityPreview = (value = [], connectors = []) => {
+  const parts = buildEligibilityPreviewParts(value, connectors)
+  if (!parts.length) return '-'
+  return parts.join(' or ')
+}
+
+const profileValueForField = (field, profile) => {
+  const normalizedField = normalizeFasConditionField(field)
+  if (normalizedField === FAS_CONDITION_FIELD.Nationality) return profile?.nationality
+  if (normalizedField === FAS_CONDITION_FIELD.ParentNationality) return profile?.parentNationality
+  if (normalizedField === FAS_CONDITION_FIELD.StudentAge) return profile?.age
+  if (normalizedField === FAS_CONDITION_FIELD.GrossHouseholdIncome) return profile?.income
+  if (normalizedField === FAS_CONDITION_FIELD.PerCapitaIncome) return profile?.pci
+  return undefined
+}
+
+const evaluateCondition = (condition, profile) => {
+  const normalized = normalizeFasCondition(condition)
+  const profileValue = profileValueForField(normalized.field, profile)
+
+  if (isFasTextField(normalized.field)) {
+    if (normalized.valueText === 'Any') return normalized.operator !== FAS_CONDITION_OPERATOR.NotEquals
+
+    const left = String(profileValue || '').toLowerCase()
+    const right = String(normalized.valueText || '').toLowerCase()
+
+    return normalized.operator === FAS_CONDITION_OPERATOR.NotEquals ? left !== right : left === right
+  }
+
+  const left = Number(profileValue)
+  const right = Number(normalized.valueNumber)
+  if (!Number.isFinite(left) || !Number.isFinite(right)) return false
+
+  if (normalized.operator === FAS_CONDITION_OPERATOR.NotEquals) return left !== right
+  if (normalized.operator === FAS_CONDITION_OPERATOR.GreaterThan) return left > right
+  if (normalized.operator === FAS_CONDITION_OPERATOR.GreaterThanOrEqual) return left >= right
+  if (normalized.operator === FAS_CONDITION_OPERATOR.LessThan) return left < right
+  if (normalized.operator === FAS_CONDITION_OPERATOR.LessThanOrEqual) return left <= right
+  if (normalized.operator === FAS_CONDITION_OPERATOR.Between) {
+    const upper = Number(normalized.valueNumberTo)
+    return Number.isFinite(upper) && left >= right && left <= upper
+  }
+
+  return left === right
+}
+
+const evaluateGroup = (group, profile) => {
+  const normalizedGroup = normalizeFasConditionGroup(group)
+  const results = [
+    ...(normalizedGroup.conditions || []).map((condition) => evaluateCondition(condition, profile)),
+    ...(normalizedGroup.groups || []).map((child) => evaluateGroup(child, profile)),
+  ]
+
+  if (!results.length) return false
+  return normalizedGroup.logicalOperator === FAS_LOGICAL_OPERATOR.Any
+    ? results.some(Boolean)
+    : results.every(Boolean)
+}
+
+export const evaluateSchemeEligibility = (scheme, profile) => {
+  const group = resolveConditionGroup(
+    scheme?.rootConditionGroup || scheme?.conditions,
+    scheme?.connectors || []
+  )
+  if (!group) return false
+  return evaluateGroup(group, profile)
+}
+
+export const collectConditionFields = (schemeOrGroup) => {
+  const group = resolveConditionGroup(schemeOrGroup?.rootConditionGroup ? schemeOrGroup : schemeOrGroup)
+  const fields = new Set()
+
+  const walk = (currentGroup) => {
+    if (!currentGroup) return
+    const normalizedGroup = normalizeFasConditionGroup(currentGroup)
+    ;(normalizedGroup.conditions || []).forEach((condition) => {
+      const fieldKey = FAS_FIELD_KEY_BY_VALUE[normalizeFasConditionField(condition.field)]
+      if (fieldKey) fields.add(fieldKey)
+    })
+    ;(normalizedGroup.groups || []).forEach(walk)
+  }
+
+  walk(group)
+  return fields
+}
+
+export const isCitizenOnlyScheme = (scheme) => {
+  const fields = collectConditionFields(scheme)
+  return fields.size > 0 && fields.size === 1 && fields.has('nationality')
 }
 
 export const formatTierConditionText = (tier) => {
@@ -64,100 +216,10 @@ export const formatTierConditionText = (tier) => {
   }
 
   if (tier.maxPci !== '' && tier.maxPci != null) {
-    return `PCI ≤ ${Number(tier.maxPci || 0).toLocaleString()}`
+    return 'PCI ≤ ' + Number(tier.maxPci || 0).toLocaleString()
   }
 
   return '-'
-}
-
-export const buildEligibilityPreviewParts = (conditions = [], connectors = []) => {
-  if (!conditions.length) return []
-
-  const groups = [[conditions[0]]]
-
-  conditions.slice(1).forEach((condition, index) => {
-    const connector = connectors[index] || 'AND'
-    if (connector === 'OR') {
-      groups.push([condition])
-      return
-    }
-
-    groups[groups.length - 1].push(condition)
-  })
-
-  return groups.map((group) => {
-    const text = group.map(describeCondition).join(' and ')
-    return group.length > 1 ? `( ${text} )` : text
-  })
-}
-
-export const buildEligibilityPreview = (conditions = [], connectors = []) => {
-  const parts = buildEligibilityPreviewParts(conditions, connectors)
-  if (!parts.length) return '-'
-  return parts.join(' or ')
-}
-
-const evaluateCondition = (condition, profile) => {
-  if (!condition?.field) return false
-
-  if (condition.field === 'nationality') {
-    if (condition.value === 'Any') return true
-    return String(profile?.nationality || '').toLowerCase() === String(condition.value || '').toLowerCase()
-  }
-
-  if (condition.field === 'parentNationality') {
-    if (condition.value === 'Any') return true
-    return (
-      String(profile?.parentNationality || '').toLowerCase() ===
-      String(condition.value || '').toLowerCase()
-    )
-  }
-
-  if (condition.field === 'studentAge') {
-    return Number(profile?.age) === Number(condition.value)
-  }
-
-  const limit = Number(condition.value)
-  if (!Number.isFinite(limit)) return false
-
-  if (condition.field === 'income') {
-    return Number(profile?.income) <= limit
-  }
-
-  if (condition.field === 'pci') {
-    return Number(profile?.pci) <= limit
-  }
-
-  return false
-}
-
-export const evaluateSchemeEligibility = (scheme, profile) => {
-  const conditions = scheme?.conditions || []
-  const connectors = scheme?.connectors || []
-  if (!conditions.length) return false
-
-  let currentGroupPass = evaluateCondition(conditions[0], profile)
-  let finalPass = false
-
-  conditions.slice(1).forEach((condition, index) => {
-    const connector = connectors[index] || 'AND'
-    const conditionPass = evaluateCondition(condition, profile)
-
-    if (connector === 'OR') {
-      finalPass = finalPass || currentGroupPass
-      currentGroupPass = conditionPass
-      return
-    }
-
-    currentGroupPass = currentGroupPass && conditionPass
-  })
-
-  return finalPass || currentGroupPass
-}
-
-export const isCitizenOnlyScheme = (scheme) => {
-  const conditions = scheme?.conditions || []
-  return conditions.length > 0 && conditions.every((condition) => condition.field === 'nationality')
 }
 
 export const getSuggestedTier = (scheme, application) => {
@@ -183,14 +245,14 @@ export const describeTierSubsidy = (scheme, tier) => {
   if (!scheme || !tier) return '-'
 
   if (tier.perComponent) {
-    return `Course ${Number(tier.courseValue || 0)}% | Misc ${Number(tier.miscValue || 0)}%`
+    return 'Course ' + Number(tier.courseValue || 0) + '% | Misc ' + Number(tier.miscValue || 0) + '%'
   }
 
   if (scheme.subsidyType === 'fixed') {
-    return `S$${Number(tier.value || 0).toLocaleString()} fixed`
+    return 'S$' + Number(tier.value || 0).toLocaleString() + ' fixed'
   }
 
-  return `${Number(tier.value || 0)}% of (Course + Misc)`
+  return Number(tier.value || 0) + '% of (Course + Misc)'
 }
 
 export const calculateSampleFunding = (scheme, tier) => {
