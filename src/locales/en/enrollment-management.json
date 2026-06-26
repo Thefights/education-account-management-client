@@ -49,7 +49,7 @@
     },
     "status": {
       "charge": {
-        "unpaid": "Unpaid",
+        "pending_payment": "Pending Payment",
         "paid": "Paid",
         "overdue": "Overdue"
       }

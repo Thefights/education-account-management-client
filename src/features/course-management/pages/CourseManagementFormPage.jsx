@@ -1,5 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
+import GenericTable from '@/shared/components/tables/GenericTable'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -20,7 +21,7 @@ import {
   GiftOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
-import { Button, Card, Col, Flex, Row, Space, Tag, Typography, theme } from 'antd'
+import { Button, Card, Col, Flex, Form, InputNumber, Row, Space, Tag, Typography, theme } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -85,6 +86,33 @@ const FormSectionCard = ({ titleKey, title, icon, children, t }) => (
   </Card>
 )
 
+const TAX_RATE = 0.09
+
+const getAmount = (value) => Number(value || 0)
+
+const computeGstAmount = (courseFeeAmount, miscFeeAmount) =>
+  Math.round((getAmount(courseFeeAmount) + getAmount(miscFeeAmount)) * TAX_RATE * 100) / 100
+
+const ReadOnlyAmountField = ({ label, value, prefix }) => (
+  <Form.Item
+    label={label}
+    labelCol={{ span: 24 }}
+    wrapperCol={{ span: 24 }}
+    labelAlign="left"
+    colon={false}
+    style={{ marginBottom: 0 }}
+  >
+    <InputNumber
+      value={value}
+      prefix={prefix}
+      precision={2}
+      readOnly
+      disabled
+      style={{ width: '100%' }}
+    />
+  </Form.Item>
+)
+
 const CourseManagementFormPage = () => {
   const { id } = useParams()
   const { t } = useTranslation()
@@ -95,6 +123,7 @@ const CourseManagementFormPage = () => {
   const { values, handleChange, setField, reset, registerRef, validateAll, resetValidation } =
     useForm()
   const [submitted, setSubmitted] = useState(false)
+  const [studentOptionCache, setStudentOptionCache] = useState({})
   const course = useFetch(isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : '', {}, [id], isEdit)
   const save = useAxiosSubmit({
     url: isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : ApiUrls.COURSE_MANAGEMENT.INDEX,
@@ -134,12 +163,18 @@ const CourseManagementFormPage = () => {
         overrideParam: { search, page, pageSize },
       })
       const result = response?.data
+      const students = (result?.collection || []).filter((student) => student.status === 'Active')
+      setStudentOptionCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...students.map((student) => [String(student.id), student]),
+        ])
+      )
       return {
-        options: (result?.collection || [])
-          .filter((student) => student.status === 'Active')
-          .map((student) => ({
+        options: students.map((student) => ({
             value: student.id,
             label: getStudentLabel(student),
+            searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
           })),
         totalCount: result?.totalCount || 0,
       }
@@ -227,7 +262,11 @@ const CourseManagementFormPage = () => {
               type: 'select',
               multiple: true,
               required: false,
-              options: [],
+              options: Object.values(studentOptionCache).map((student) => ({
+                value: student.id,
+                label: getStudentLabel(student),
+                searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
+              })),
               loadOptions: loadStudentOptions,
             },
           ]),
@@ -252,6 +291,7 @@ const CourseManagementFormPage = () => {
     isEdit,
     loadFasOptions,
     loadStudentOptions,
+    studentOptionCache,
     t,
   ])
 
@@ -291,6 +331,46 @@ const CourseManagementFormPage = () => {
   )
   const studentFields = fields.filter((f) => ['schoolStudentIds'].includes(f.key))
   const fasFields = fields.filter((f) => ['fasSchemeIds'].includes(f.key))
+  const gstAmount = computeGstAmount(values.courseFeeAmount, values.miscFeeAmount)
+  const totalFeeAmount = getAmount(values.courseFeeAmount) + getAmount(values.miscFeeAmount) + gstAmount
+  const selectedStudents = useMemo(
+    () =>
+      (values.schoolStudentIds || [])
+        .map((studentId) => studentOptionCache[String(studentId)])
+        .filter(Boolean),
+    [studentOptionCache, values.schoolStudentIds]
+  )
+  const selectedStudentFields = useMemo(
+    () => [
+      {
+        key: 'accountNumber',
+        title: t('enrollment_management.field.account_number'),
+        width: 170,
+      },
+      {
+        key: 'nric',
+        title: t('enrollment_management.field.nric'),
+        width: 140,
+        render: (value) => <MaskedNric value={value} />,
+      },
+      {
+        key: 'fullName',
+        title: t('enrollment_management.field.full_name'),
+        width: 200,
+      },
+      {
+        key: 'email',
+        title: t('enrollment_management.field.email'),
+        width: 220,
+      },
+      {
+        key: 'phoneNumber',
+        title: t('enrollment_management.field.phone'),
+        width: 150,
+      },
+    ],
+    [t]
+  )
   const showPublishButton = !isEdit || course.data?.status === 'Draft'
   const submitLoading = save.loading || publishCourse.loading
 
@@ -318,7 +398,7 @@ const CourseManagementFormPage = () => {
       >
         <Flex vertical gap={24}>
           <Flex justify="space-between" align="flex-start" wrap="wrap" gap={16}>
-            <Flex vertical gap={8} style={{ width: 'min(100%, 640px)' }}>
+            <Flex vertical gap={8} style={{ width: '100%' }}>
               {basicFields.map((field, index) => (
                 <div key={field.key}>{renderSectionField(field, index)}</div>
               ))}
@@ -346,6 +426,20 @@ const CourseManagementFormPage = () => {
                       {renderSectionField(field, -1)}
                     </Col>
                   ))}
+                  <Col xs={24} sm={12}>
+                    <ReadOnlyAmountField
+                      label={t('course_management.field.gst_amount')}
+                      value={gstAmount}
+                      prefix={currencySymbol}
+                    />
+                  </Col>
+                  <Col xs={24} sm={12}>
+                    <ReadOnlyAmountField
+                      label={t('course_management.field.total_fee_amount')}
+                      value={totalFeeAmount}
+                      prefix={currencySymbol}
+                    />
+                  </Col>
                 </Row>
               </FormSectionCard>
             </Col>
@@ -366,27 +460,35 @@ const CourseManagementFormPage = () => {
             </Col>
           </Row>
 
-          {studentFields.length > 0 && (
-            <FormSectionCard
-              titleKey="initial_students"
-              icon={<TeamOutlined style={{ color: '#722ed1' }} />}
-              t={t}
-            >
-              {studentFields.map((field) => (
-                <div key={field.key}>{renderSectionField(field, -1)}</div>
-              ))}
-            </FormSectionCard>
-          )}
-
           {fasFields.length > 0 && (
             <FormSectionCard
-              title={t('course_management.title.fas_deduction')}
+              title={t('course_management.title.applicable_fas')}
               icon={<GiftOutlined style={{ color: '#722ed1' }} />}
               t={t}
             >
               {fasFields.map((field) => (
                 <div key={field.key}>{renderSectionField(field, -1)}</div>
               ))}
+            </FormSectionCard>
+          )}
+
+          {studentFields.length > 0 && (
+            <FormSectionCard
+              titleKey="initial_students"
+              icon={<TeamOutlined style={{ color: '#722ed1' }} />}
+              t={t}
+            >
+              <Flex vertical gap={16}>
+                {studentFields.map((field) => (
+                  <div key={field.key}>{renderSectionField(field, -1)}</div>
+                ))}
+                <GenericTable
+                  data={selectedStudents}
+                  fields={selectedStudentFields}
+                  rowKey="id"
+                  loading={false}
+                />
+              </Flex>
             </FormSectionCard>
           )}
 

@@ -32,7 +32,7 @@
       "withdrawn": "Đã rút khỏi khóa học"
     },
     "charge_status": {
-      "unpaid": "Chưa thanh toán",
+      "pending_payment": "Chờ thanh toán",
       "paid": "Đã thanh toán",
       "overdue": "Quá hạn"
     },

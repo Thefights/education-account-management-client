@@ -7,7 +7,7 @@
       "update": "Update Course",
       "important_dates": "Important Dates",
       "applicable_fas": "Applicable FAS",
-      "fas_deduction": "Applicable FAS & Deduction"
+      "fas_deduction": "Applicable FAS"
     },
     "section": {
       "basic_info": "Basic Information",
@@ -30,7 +30,7 @@
       "enrollment_deadline": "Enrollment deadline",
       "start_date": "Start date",
       "end_date": "End date",
-      "enrollment_count": "Enrollments",
+      "enrollment_count": "NumberOfStudents",
       "initial_students": "Initial students",
       "applicable_fas": "Applicable FAS",
       "duration_in_months": "Duration"
@@ -39,7 +39,7 @@
       "publish": "Publish",
       "delete_selected": "Delete selected",
       "save_as_draft": "Save as Draft",
-      "manage_fas": "Manage FAS"
+      "manage_fas": "Add FAS"
     },
     "fas": {
       "per_component": "Per component",

@@ -62,6 +62,7 @@ const CourseManagementTableSection = ({
       key: 'enrollmentCount',
       title: t('course_management.field.enrollment_count'),
       width: 140,
+      sortable: true,
       isNumeric: true,
       render: (value) => Number(value ?? 0).toLocaleString(),
     },

@@ -1,8 +1,8 @@
 {
   "tuition-payment": {
     "title": "学费缴纳",
-    "unpaid_invoice": "未支付账单",
-    "unpaid_invoices": "未支付账单",
+    "pending_payment_invoice": "待付款账单",
+    "pending_payment_invoices": "待付款账单",
     "topup_from_moe": "教育部充值",
     "total_outstanding": "待支付总额"
   }

@@ -49,7 +49,7 @@
     },
     "status": {
       "charge": {
-        "unpaid": "Chưa thanh toán",
+        "pending_payment": "Chờ thanh toán",
         "paid": "Đã thanh toán",
         "overdue": "Quá hạn"
       }

@@ -49,7 +49,10 @@ export default function useEnum() {
     ],
 
     chargeStatusIdOptions: [
-      { value: EnumConfig.ChargeStatusId.Unpaid, label: t('enum.charge_status.unpaid') },
+      {
+        value: EnumConfig.ChargeStatusId.PendingPayment,
+        label: t('enum.charge_status.pending_payment'),
+      },
       { value: EnumConfig.ChargeStatusId.Paid, label: t('enum.charge_status.paid') },
       {
         value: EnumConfig.ChargeStatusId.Overdue,
@@ -58,7 +61,10 @@ export default function useEnum() {
     ],
 
     chargeStatusOptions: [
-      { value: EnumConfig.ChargeStatus.Unpaid, label: t('enum.charge_status.unpaid') },
+      {
+        value: EnumConfig.ChargeStatus.PendingPayment,
+        label: t('enum.charge_status.pending_payment'),
+      },
       { value: EnumConfig.ChargeStatus.Paid, label: t('enum.charge_status.paid') },
       {
         value: EnumConfig.ChargeStatus.Overdue,

@@ -17,7 +17,6 @@ import {
   CalendarOutlined,
   DollarOutlined,
   GiftOutlined,
-  PlusOutlined,
   ReadOutlined,
 } from '@ant-design/icons'
 import { Button, Card, Col, Descriptions, Divider, Flex, Row, Space, Tag, Typography } from 'antd'
@@ -48,13 +47,6 @@ const getFasSchemeOptionLabel = (scheme) => (
     </Typography.Text>
   </Space>
 )
-
-const formatSubsidyValue = (scheme, value) => {
-  if (value == null) return '-'
-  return scheme.subsidyType === 'Percent'
-    ? `${Number(value).toLocaleString()}%`
-    : formatCurrencyBasedOnCurrentLanguage(value)
-}
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -230,11 +222,13 @@ const CourseDetailPage = () => {
 
   const renderStatus = (status) => {
     if (!status) return null
-    const config = defaultManagementStatusStyle[status] || {}
     const option = _enum.courseStatusOptions.find((opt) => opt.value === status)
     const text = option ? option.label : status
     return (
-      <Tag color={config.color} style={{ margin: 0, padding: '4px 12px', fontSize: 14 }}>
+      <Tag
+        color={defaultManagementStatusStyle(status)}
+        style={{ margin: 0, padding: '4px 12px', fontSize: 14 }}
+      >
         {text}
       </Tag>
     )
@@ -332,13 +326,12 @@ const CourseDetailPage = () => {
                 <Flex justify="space-between" align="center" gap={12}>
                   <Space>
                     <GiftOutlined style={{ color: '#722ed1' }} />
-                    <span>{t('course_management.title.fas_deduction')}</span>
+                    <span>{t('course_management.title.applicable_fas')}</span>
                   </Space>
                   {!readOnly && (
                     <Button
                       size="small"
                       type="primary"
-                      icon={<PlusOutlined />}
                       loading={assignFasSchemes.loading}
                       onClick={() => setOpenFasAssign(true)}
                     >
@@ -351,47 +344,11 @@ const CourseDetailPage = () => {
               variant="outlined"
             >
               {course.applicableFasSchemes?.length ? (
-                <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                <Space wrap>
                   {course.applicableFasSchemes.map((scheme) => (
-                    <Card key={scheme.id} size="small" variant="outlined">
-                      <Flex vertical gap={10}>
-                        <Space size={8} wrap>
-                          <Tag color="purple" style={{ padding: '4px 10px' }}>
-                            {scheme.schemeCode}
-                          </Tag>
-                          <Typography.Text strong>{scheme.schemeName}</Typography.Text>
-                          <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>
-                            {scheme.status}
-                          </Tag>
-                          <Tag>{scheme.subsidyType}</Tag>
-                          <Tag>
-                            {scheme.isPerComponent
-                              ? t('course_management.fas.per_component')
-                              : t('course_management.fas.standard')}
-                          </Tag>
-                        </Space>
-                        <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small">
-                          <Descriptions.Item
-                            label={t('course_management.field.duration_in_months')}
-                          >
-                            {scheme.durationInMonths}
-                          </Descriptions.Item>
-                          {(scheme.tiers || []).map((tier) => (
-                            <Descriptions.Item key={tier.id} label={tier.tierName}>
-                              {scheme.isPerComponent
-                                ? `${t('course_management.field.course_fee_amount')}: ${formatSubsidyValue(
-                                    scheme,
-                                    tier.courseFeeSubsidyValue
-                                  )}, ${t('course_management.field.misc_fee_amount')}: ${formatSubsidyValue(
-                                    scheme,
-                                    tier.miscFeeSubsidyValue
-                                  )}`
-                                : formatSubsidyValue(scheme, tier.subsidyValue)}
-                            </Descriptions.Item>
-                          ))}
-                        </Descriptions>
-                      </Flex>
-                    </Card>
+                    <Tag key={scheme.id} color="purple" style={{ padding: '4px 10px' }}>
+                      {scheme.schemeCode} · {scheme.schemeName}
+                    </Tag>
                   ))}
                 </Space>
               ) : (
@@ -456,6 +413,7 @@ const CourseDetailPage = () => {
             onDelete={handleDelete}
             onWithdraw={handleWithdraw}
             showCourse={false}
+            showGrossAmount={false}
             readOnly={readOnly}
             allowWithdraw={allowWithdraw}
           />
