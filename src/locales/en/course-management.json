@@ -13,7 +13,7 @@
       "basic_info": "Basic Information",
       "fees": "Fees & Payments",
       "schedule": "Schedule & Deadlines",
-      "initial_students": "Initial Students"
+      "initial_students": "Students"
     },
     "field": {
       "id": "ID",
@@ -30,8 +30,8 @@
       "enrollment_deadline": "Enrollment deadline",
       "start_date": "Start date",
       "end_date": "End date",
-      "enrollment_count": "NumberOfStudents",
-      "initial_students": "Initial students",
+      "enrollment_count": "Number Of Students",
+      "initial_students": "Students",
       "applicable_fas": "Applicable FAS",
       "duration_in_months": "Duration"
     },

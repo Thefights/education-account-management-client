@@ -21,7 +21,12 @@
     "processing": "处理中",
     "completed": "已完成",
     "execution_targets": "执行目标",
-    "system_topups_title": "充值规则",
+    "system_topups_title": "System Topup",
+    "schedules_title": "Schedule Topup",
+    "manual_title": "Manual Topup",
+    "system_tab": "System Topup",
+    "schedule_tab": "Schedule Topup",
+    "manual_tab": "Manual Topup",
     "topup_name": "充值名称",
     "search_topup": "按充值名称搜索",
     "search_execution": "按执行代码或充值名称搜索"

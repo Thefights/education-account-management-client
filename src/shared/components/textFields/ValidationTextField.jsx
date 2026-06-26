@@ -173,7 +173,7 @@ const ValidationTextField = (
             disabled={isReadOnlyOrDisabled}
             options={selectOptions}
             mode={multipleSelect ? 'multiple' : undefined}
-            labelRender={renderOptionValue ? renderSelectedOptionValue : undefined}
+            labelRender={renderSelectedOptionValue}
             {...props}
           />
         </Form.Item>
