@@ -7,7 +7,7 @@
     },
     "login": "Đăng nhập",
     "home": {
-      "title": "Quản lý tài khoản giáo dục",
+      "title": "Singapore Financial System",
       "subtitle": "Tiện lợi & An toàn",
       "description": "Nền tảng thanh toán học đường thông minh giúp phụ huynh và học sinh dễ dàng quản lý chi tiêu, nạp tiền và theo dõi các khoản trợ cấp.",
       "login_now": "Đăng nhập ngay",
@@ -69,7 +69,7 @@
       "emergency_desc": "Bạn cần khóa tài khoản khẩn cấp hoặc báo cáo một giao dịch bất thường? Đội ngũ phản ứng nhanh của chúng tôi luôn túc trực."
     },
     "footer": {
-      "copyright": "© 2026 Education Account Management System.",
+      "copyright": "© 2026 Singapore Financial System.",
       "privacy": "Chính sách bảo mật",
       "terms": "Điều khoản dịch vụ"
     }

@@ -32,7 +32,7 @@
       "withdrawn": "已退课"
     },
     "charge_status": {
-      "unpaid": "未付款",
+      "pending_payment": "待付款",
       "paid": "已付款",
       "overdue": "逾期"
     },

@@ -28,6 +28,7 @@ const EnrollmentManagementTableSection = ({
   onDelete,
   onWithdraw,
   showCourse = true,
+  showGrossAmount = true,
   readOnly = false,
   allowWithdraw = false,
 }) => {
@@ -78,8 +79,18 @@ const EnrollmentManagementTableSection = ({
       width: 200,
       sortable: true,
     },
-    { key: 'citizenEmail', title: t('enrollment_management.field.email'), width: 220 },
-    { key: 'citizenPhoneNumber', title: t('enrollment_management.field.phone'), width: 150 },
+    {
+      key: 'citizenEmail',
+      title: t('enrollment_management.field.email'),
+      width: 220,
+      sortable: true,
+    },
+    {
+      key: 'citizenPhoneNumber',
+      title: t('enrollment_management.field.phone'),
+      width: 150,
+      sortable: true,
+    },
     {
       key: 'enrolledAt',
       title: t('enrollment_management.field.enrolled_at'),
@@ -105,10 +116,23 @@ const EnrollmentManagementTableSection = ({
       options: _enum.chargeStatusOptions,
       color: defaultChargeStatusStyle,
     },
+    ...(showGrossAmount
+      ? [
+          {
+            key: 'grossAmount',
+            title: t('enrollment_management.field.gross_amount'),
+            width: 140,
+            sortable: true,
+            isNumeric: true,
+            render: formatCurrencyBasedOnCurrentLanguage,
+          },
+        ]
+      : []),
     {
-      key: 'grossAmount',
-      title: t('enrollment_management.field.gross_amount'),
-      width: 140,
+      key: 'subsidyAmount',
+      title: t('enrollment_management.field.fas_deduction'),
+      width: 150,
+      sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
     },
@@ -116,6 +140,7 @@ const EnrollmentManagementTableSection = ({
       key: 'paidAmount',
       title: t('enrollment_management.field.paid_amount'),
       width: 140,
+      sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
     },
@@ -123,6 +148,7 @@ const EnrollmentManagementTableSection = ({
       key: 'remainingAmount',
       title: t('enrollment_management.field.remaining_amount'),
       width: 160,
+      sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
     },

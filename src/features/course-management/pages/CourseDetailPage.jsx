@@ -2,10 +2,10 @@ import AssignStudentsDialog from '@/features/enrollment-management/components/As
 import EnrollmentManagementFilterSection from '@/features/enrollment-management/components/EnrollmentManagementFilterSection'
 import EnrollmentManagementTableSection from '@/features/enrollment-management/components/EnrollmentManagementTableSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
+import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
-import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
@@ -16,17 +16,37 @@ import {
   ArrowLeftOutlined,
   CalendarOutlined,
   DollarOutlined,
-  EditOutlined,
   GiftOutlined,
   ReadOutlined,
 } from '@ant-design/icons'
 import { Button, Card, Col, Descriptions, Divider, Flex, Row, Space, Tag, Typography } from 'antd'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 const formatCount = (value) => (value == null ? 0 : Number(value).toLocaleString())
 
 const defaultFilters = { search: '', chargeStatuses: [] }
+
+const getFasSchemeOptionLabel = (scheme) => (
+  <Space
+    direction="vertical"
+    size={2}
+    style={{ width: '100%' }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <Space size={6} wrap>
+      <Typography.Text strong>{scheme.schemeName}</Typography.Text>
+      {scheme.schemeCode && <Typography.Text code>{scheme.schemeCode}</Typography.Text>}
+      {scheme.status && (
+        <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>{scheme.status}</Tag>
+      )}
+    </Space>
+    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+      {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
+      {scheme.durationInMonths || 0} months
+    </Typography.Text>
+  </Space>
+)
 
 const CourseDetailPage = () => {
   const { id } = useParams()
@@ -41,14 +61,33 @@ const CourseDetailPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [selectedIds, setSelectedIds] = useState([])
   const [openAssign, setOpenAssign] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [openFasAssign, setOpenFasAssign] = useState(false)
 
   const courseData = useFetch(ApiUrls.COURSE_MANAGEMENT.DETAIL(id))
   const course = courseData.data
+  const removeEnrollment = useAxiosSubmit({ method: 'DELETE' })
+  const removeSelectedEnrollments = useAxiosSubmit({
+    url: ApiUrls.ENROLLMENT_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
+  })
+  const withdrawEnrollment = useAxiosSubmit({ method: 'PUT' })
+  const fetchFasOptions = useAxiosSubmit({
+    url: ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX,
+    method: 'GET',
+  })
+  const assignFasSchemes = useAxiosSubmit({
+    url: ApiUrls.COURSE_MANAGEMENT.FAS_SCHEMES(id),
+    method: 'PUT',
+  })
 
   const canManageEnrollments = course?.status === 'Draft' || course?.status === 'Enrolling'
   const allowWithdraw = course?.status === 'Upcoming' || course?.status === 'InProgress'
   const readOnly = !canManageEnrollments
+  const mutationLoading =
+    removeEnrollment.loading ||
+    removeSelectedEnrollments.loading ||
+    withdrawEnrollment.loading ||
+    assignFasSchemes.loading
 
   const queryParams = useMemo(
     () => ({ courseId: id, sort: `${sort.key} ${sort.direction}`, page, pageSize, ...filters }),
@@ -56,6 +95,19 @@ const CourseDetailPage = () => {
   )
 
   const enrollments = useFetch(ApiUrls.ENROLLMENT_MANAGEMENT.INDEX, queryParams, [queryParams])
+  const selectedFasIds = useMemo(
+    () => (course?.applicableFasSchemes || []).map((scheme) => scheme.id),
+    [course?.applicableFasSchemes]
+  )
+  const selectedFasOptions = useMemo(
+    () =>
+      (course?.applicableFasSchemes || []).map((scheme) => ({
+        value: scheme.id,
+        label: getFasSchemeOptionLabel(scheme),
+        searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+      })),
+    [course?.applicableFasSchemes]
+  )
 
   const clearSelection = () => setSelectedIds([])
 
@@ -89,17 +141,14 @@ const CourseDetailPage = () => {
     })
     if (!accepted) return
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id))
-      clearSelection()
-      await enrollments.fetch()
-      await courseData.fetch()
-    } catch {
-      // API error shown by interceptor
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await removeEnrollment.submit({
+      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id),
+    })
+    if (!response) return
+
+    clearSelection()
+    await enrollments.fetch()
+    await courseData.fetch()
   }
 
   const handleDeleteSelected = async () => {
@@ -114,23 +163,42 @@ const CourseDetailPage = () => {
     })
     if (!accepted) return
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.ENROLLMENT_MANAGEMENT.DELETE_SELECTED, {
-        data: { ids: selectedIds },
-      })
-      clearSelection()
-      await enrollments.fetch()
-      await courseData.fetch()
-    } catch {
-      // API error shown by interceptor
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await removeSelectedEnrollments.submit({
+      overrideData: { ids: selectedIds },
+    })
+    if (!response) return
+
+    clearSelection()
+    await enrollments.fetch()
+    await courseData.fetch()
   }
 
   const handleAssigned = async () => {
     await enrollments.fetch()
+    await courseData.fetch()
+  }
+
+  const loadFasOptions = useCallback(
+    async ({ search, page, pageSize }) => {
+      const response = await fetchFasOptions.submit({
+        overrideParam: { search, page, pageSize },
+      })
+      const result = response?.data
+      return {
+        options: (result?.collection || []).map((scheme) => ({
+          value: scheme.id,
+          label: getFasSchemeOptionLabel(scheme),
+          searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+        })),
+        totalCount: result?.totalCount || 0,
+      }
+    },
+    [fetchFasOptions.submit]
+  )
+
+  const handleFasAssigned = async (fasSchemeIds) => {
+    const response = await assignFasSchemes.submit({ overrideData: { fasSchemeIds } })
+    if (!response) return
     await courseData.fetch()
   }
 
@@ -144,24 +212,23 @@ const CourseDetailPage = () => {
     })
     if (!accepted) return
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.put(ApiUrls.ENROLLMENT_MANAGEMENT.WITHDRAW(enrollment.id))
-      await enrollments.fetch()
-    } catch {
-      // API error shown by interceptor
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await withdrawEnrollment.submit({
+      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.WITHDRAW(enrollment.id),
+    })
+    if (!response) return
+
+    await enrollments.fetch()
   }
 
   const renderStatus = (status) => {
     if (!status) return null
-    const config = defaultManagementStatusStyle[status] || {}
     const option = _enum.courseStatusOptions.find((opt) => opt.value === status)
     const text = option ? option.label : status
     return (
-      <Tag color={config.color} style={{ margin: 0, padding: '4px 12px', fontSize: 14 }}>
+      <Tag
+        color={defaultManagementStatusStyle(status)}
+        style={{ margin: 0, padding: '4px 12px', fontSize: 14 }}
+      >
         {text}
       </Tag>
     )
@@ -197,18 +264,6 @@ const CourseDetailPage = () => {
                   </Typography.Text>
                 </Space>
               </Space>
-              {canManageEnrollments && (
-                <Button
-                  icon={<EditOutlined />}
-                  onClick={() =>
-                    navigate(
-                      routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(id))
-                    )
-                  }
-                >
-                  {t('button.edit')}
-                </Button>
-              )}
             </Flex>
 
             <Row gutter={[24, 24]}>
@@ -268,10 +323,22 @@ const CourseDetailPage = () => {
             </Row>
             <Card
               title={
-                <Space>
-                  <GiftOutlined style={{ color: '#722ed1' }} />
-                  <span>{t('course_management.title.applicable_fas')}</span>
-                </Space>
+                <Flex justify="space-between" align="center" gap={12}>
+                  <Space>
+                    <GiftOutlined style={{ color: '#722ed1' }} />
+                    <span>{t('course_management.title.applicable_fas')}</span>
+                  </Space>
+                  {!readOnly && (
+                    <Button
+                      size="small"
+                      type="primary"
+                      loading={assignFasSchemes.loading}
+                      onClick={() => setOpenFasAssign(true)}
+                    >
+                      {t('course_management.action.manage_fas')}
+                    </Button>
+                  )}
+                </Flex>
               }
               size="small"
               variant="outlined"
@@ -316,7 +383,7 @@ const CourseDetailPage = () => {
                 <Button
                   danger
                   disabled={!selectedIds.length}
-                  loading={deleteLoading}
+                  loading={mutationLoading}
                   onClick={handleDeleteSelected}
                 >
                   {t('enrollment_management.action.delete_selected')}
@@ -338,7 +405,7 @@ const CourseDetailPage = () => {
 
           <EnrollmentManagementTableSection
             enrollments={enrollments.data?.collection}
-            loading={enrollments.loading || deleteLoading}
+            loading={enrollments.loading || mutationLoading}
             sort={sort}
             setSort={handleSort}
             selectedIds={selectedIds}
@@ -346,6 +413,7 @@ const CourseDetailPage = () => {
             onDelete={handleDelete}
             onWithdraw={handleWithdraw}
             showCourse={false}
+            showGrossAmount={false}
             readOnly={readOnly}
             allowWithdraw={allowWithdraw}
           />
@@ -367,6 +435,15 @@ const CourseDetailPage = () => {
         onClose={() => setOpenAssign(false)}
         fixedCourse={course}
         onAssigned={handleAssigned}
+      />
+      <MultipleSelectDialog
+        open={openFasAssign}
+        onClose={() => setOpenFasAssign(false)}
+        options={selectedFasOptions}
+        value={selectedFasIds}
+        loadOptions={loadFasOptions}
+        title={t('course_management.title.applicable_fas')}
+        onChange={handleFasAssigned}
       />
     </Flex>
   )

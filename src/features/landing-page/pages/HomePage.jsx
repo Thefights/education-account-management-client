@@ -129,11 +129,6 @@ const HomePage = () => {
           50% { transform: translateY(-20px); }
           100% { transform: translateY(0px); }
         }
-        @keyframes gradientSweep {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
         .reveal-up {
           opacity: 0;
           transform: translateY(40px);
@@ -164,12 +159,7 @@ const HomePage = () => {
                 {t('landing.home.title')} <br />
                 <span
                   style={{
-                    background: `linear-gradient(270deg, ${token.colorPrimary}, #13c2c2, ${token.colorPrimary})`,
-                    backgroundSize: '200% auto',
-                    color: 'transparent',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                    animation: 'gradientSweep 4s ease infinite',
+                    color: token.colorPrimary,
                   }}
                 >
                   {t('landing.home.subtitle')}

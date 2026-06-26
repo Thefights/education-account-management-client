@@ -58,14 +58,19 @@ const MultipleSelectDialog = ({
   }, [selectedSet, visibleOptions])
 
   const selectedOptions = useMemo(() => {
+    const staticOptionMap = Object.fromEntries(
+      (options || []).map((option) => [String(option.value), option])
+    )
+
     return selectedValues
       .map(
         (selectedValue) =>
           (visibleOptions || []).find((opt) => String(opt.value) === String(selectedValue)) ||
+          staticOptionMap[String(selectedValue)] ||
           optionCache[String(selectedValue)]
       )
       .filter(Boolean)
-  }, [optionCache, selectedValues, visibleOptions])
+  }, [optionCache, options, selectedValues, visibleOptions])
 
   const filteredUnselectedOptions = useMemo(() => {
     if (loadOptions || !searchTerm.trim()) return unselectedOptions
@@ -158,7 +163,7 @@ const MultipleSelectDialog = ({
                     key={String(opt.value)}
                     role="listitem"
                     style={{ cursor: opt.disabled ? 'not-allowed' : 'pointer', padding: '8px 0' }}
-                    onClick={() => handleToggle(opt.value)}
+                    onClickCapture={() => handleToggle(opt.value)}
                   >
                     <Space>
                       <Checkbox checked={false} disabled={opt.disabled} />
@@ -197,7 +202,7 @@ const MultipleSelectDialog = ({
                   key={String(opt.value)}
                   role="listitem"
                   style={{ cursor: 'pointer', padding: '8px 0' }}
-                  onClick={() => handleToggle(opt.value)}
+                  onClickCapture={() => handleToggle(opt.value)}
                 >
                   <Space>
                     <Checkbox checked={true} />
