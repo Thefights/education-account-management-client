@@ -4,7 +4,6 @@ import { FAS_APPLICATION_STATUS } from '@/features/financial-assistance/data/fas
 import {
   normalizeApiApplicationDetail,
   normalizeApiApplicationPage,
-  normalizeFasSnapshotProfile,
   toApiApplicationStatus,
 } from '@/features/financial-assistance/api/accountHolderFasApi'
 import '@/features/financial-assistance/styles/financialAssistance.css'
@@ -21,46 +20,29 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import useFetch from '@/shared/hooks/useFetch'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Button, Card, Flex, Modal, Select, Tabs, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const isBlockingApplicationForReapply = (application, sourceApplicationId) => {
-  if (application?.displayStatus === FAS_APPLICATION_STATUS.Pending) {
-    return sourceApplicationId == null
-  }
-
-  return (
-    application?.displayStatus === FAS_APPLICATION_STATUS.Approved &&
-    !isApprovedApplicationExpired(application)
-  )
-}
-
-const getApiErrorMessage = (error) => {
+const getApiErrorMessage = (error, t) => {
   const payload = error?.response?.data
-  if (!payload) return 'Unable to withdraw this application.'
+  if (!payload) return t('financial_assistance.message.reapply_failed')
   if (payload.message && payload.message !== 'Validation failed') return payload.message
   if (typeof payload.error === 'string') return payload.error
   if (payload.error && typeof payload.error === 'object') {
     return Object.values(payload.error).filter(Boolean).join(', ')
   }
-  return payload.message || 'Unable to withdraw this application.'
+  return payload.message || t('financial_assistance.message.reapply_failed')
 }
 
-const findActiveApplicationForSchemeId = (applications, schemeId, sourceApplicationId) => {
-  if (schemeId == null) return null
-
-  return (applications || []).find(
-    (application) =>
-      String(application.schemeId) === String(schemeId) &&
-      String(application.apiId) !== String(sourceApplicationId) &&
-      isBlockingApplicationForReapply(application, sourceApplicationId)
-  ) || null
-}
+const getResponseData = (response) => response?.data?.data ?? response?.data
 
 const MyFasManagementPage = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [filters, setFilters] = useState(defaultFasApplicationFilters)
   const [activeStatus, setActiveStatus] = useState(myFasApplicationStatusOptions[0].value)
   const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
@@ -70,6 +52,12 @@ const MyFasManagementPage = () => {
   const [apiViewApplication, setApiViewApplication] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [withdrawnApplicationIds, setWithdrawnApplicationIds] = useState(() => new Set())
+  const reapplyDraftSubmit = useAxiosSubmit({
+    method: 'POST',
+    onError: async (error) => {
+      message.error(getApiErrorMessage(error, t))
+    },
+  })
 
   const apiStatus = activeStatus === 'expired' ? FAS_APPLICATION_STATUS.Approved : activeStatus
   const apiQueryParams = useMemo(
@@ -175,7 +163,7 @@ const MyFasManagementPage = () => {
           message.success('Application withdrawn')
           navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY))
         } catch (error) {
-          message.error(getApiErrorMessage(error))
+          message.error(getApiErrorMessage(error, t))
           throw error
         }
       },
@@ -202,27 +190,22 @@ const MyFasManagementPage = () => {
   }
 
   const applyAgain = async (application) => {
-    const detail = await loadApiApplicationDetail(application)
-    if (!detail) return
+    if (!application?.apiId) {
+      message.error(t('financial_assistance.message.application_id_missing'))
+      return
+    }
 
-    const blockingApplication = findActiveApplicationForSchemeId(
-      statusSourceRows,
-      detail.schemeId,
-      detail.apiId || application.apiId
-    )
-    if (blockingApplication) {
-      message.error('You already have a pending or approved application for this scheme.')
-      setActiveStatus(blockingApplication.displayStatus)
+    const response = await reapplyDraftSubmit.submit({
+      overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_REAPPLY_DRAFT(application.apiId),
+    })
+    const draftId = getResponseData(response)?.id
+    if (!draftId) {
+      message.error(t('financial_assistance.message.reapply_failed'))
       return
     }
 
     navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
-      state: {
-        schemeId: detail.schemeId,
-        sourceApplicationId: detail.apiId || application.apiId,
-        scheme: detail.scheme,
-        snapshot: normalizeFasSnapshotProfile(detail.profileSnapshot, undefined),
-      },
+      state: { draftApplicationId: draftId },
     })
   }
 
@@ -284,7 +267,7 @@ const MyFasManagementPage = () => {
           </Flex>
           <MyFasApplicationTableSection
             applications={resolvedTableData.collection}
-            loading={apiApplicationsQuery.loading || apiAllApplicationsQuery.loading}
+            loading={apiApplicationsQuery.loading || apiAllApplicationsQuery.loading || reapplyDraftSubmit.loading}
             sort={sort}
             setSort={setSort}
             activeStatus={activeStatus}

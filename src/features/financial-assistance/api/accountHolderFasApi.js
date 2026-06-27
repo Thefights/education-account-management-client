@@ -5,15 +5,19 @@ export const FAS_GUARDIAN_NATIONALITY = {
   Other: 2,
 }
 
+const FAS_DRAFT_STATUS = 'draft'
+
 const API_STATUS_TO_UI = {
   1: FAS_APPLICATION_STATUS.Pending,
   2: FAS_APPLICATION_STATUS.Approved,
   3: FAS_APPLICATION_STATUS.Rejected,
   4: FAS_APPLICATION_STATUS.Withdrawn,
+  5: FAS_DRAFT_STATUS,
   pending: FAS_APPLICATION_STATUS.Pending,
   approved: FAS_APPLICATION_STATUS.Approved,
   rejected: FAS_APPLICATION_STATUS.Rejected,
   withdrawn: FAS_APPLICATION_STATUS.Withdrawn,
+  draft: FAS_DRAFT_STATUS,
 }
 
 const UI_STATUS_TO_API = {
@@ -85,8 +89,23 @@ export const isApiApprovedExpired = (application) => {
 const normalizeSubsidyType = (value) =>
   String(value || '').toLowerCase().includes('fixed') ? 'fixed' : 'percent'
 
-const getDocumentId = (document, index) =>
-  document.requiredDocumentId ?? document.requiredDocumentIdSnapshot ?? document.id ?? index + 1
+const normalizeRequiredDocument = (document) => ({
+  id: String(document.id),
+  apiId: document.id,
+  name: document.documentName || 'Required document',
+  templateName: document.templateName || document.templateUrl || '',
+  templateUrl: document.templateUrl || '',
+})
+
+const normalizeApplicationDocument = (document) => ({
+  id: String(document.requiredDocumentId),
+  apiId: document.requiredDocumentId,
+  name: document.documentNameSnapshot || 'Required document',
+  templateName: document.templateName || '',
+  templateUrl: document.templateUrl || '',
+  fileName: document.fileName,
+  fileKey: document.fileKey,
+})
 
 export const normalizeApiScheme = (scheme) => {
   if (!scheme) return null
@@ -121,20 +140,7 @@ export const normalizeApiScheme = (scheme) => {
         displayOrder: tier.displayOrder ?? index + 1,
       }
     }),
-    documents: (scheme.requiredDocuments || scheme.documents || []).map((document, index) => {
-      const id = getDocumentId(document, index)
-      return {
-        id: String(id),
-        apiId: id,
-        name:
-          document.documentName ||
-          document.documentNameSnapshot ||
-          document.name ||
-          'Required document',
-        templateName: document.templateName || document.templateUrl || '',
-        templateUrl: document.templateUrl || '',
-      }
-    }),
+    documents: (scheme.requiredDocuments || []).map(normalizeRequiredDocument),
   }
 }
 
@@ -213,34 +219,20 @@ export const normalizeFasSnapshotProfile = (snapshot, fallback) => {
   }
 }
 
-export const buildSubmitFasApplicationFormData = ({
-  scheme,
-  profile,
-  documents,
-  attachedDocs,
-  sourceApplicationId,
-}) => {
-  const formData = new FormData()
-  formData.append('FasSchemeId', scheme.apiId ?? scheme.id)
-  formData.append('GuardianNationality', toGuardianNationalityApi(profile.parentNationality))
-  formData.append('GrossHouseholdIncome', Number(profile.income || 0))
-  formData.append('HouseholdMemberCount', Number(profile.members || 0))
-  if (sourceApplicationId != null) {
-    formData.append('ReapplySourceApplicationId', sourceApplicationId)
-  }
-
-  documents.forEach((document, index) => {
+export const buildSubmitFasApplicationPayload = ({ scheme, profile, documents, attachedDocs }) => ({
+  FasSchemeId: scheme.apiId,
+  GuardianNationality: toGuardianNationalityApi(profile.parentNationality),
+  GrossHouseholdIncome: Number(profile.income || 0),
+  HouseholdMemberCount: Number(profile.members || 0),
+  Documents: documents.map((document) => {
     const attachment = attachedDocs[document.id]
-    formData.append(`Documents[${index}].RequiredDocumentId`, document.apiId ?? document.id)
-    formData.append(`Documents[${index}].FileName`, attachment?.fileName || document.name)
-    formData.append(
-      `Documents[${index}].FileKey`,
-      attachment?.fileKey || attachment?.fileName || document.templateUrl || document.name
-    )
-  })
-
-  return formData
-}
+    return {
+      RequiredDocumentId: document.apiId,
+      FileName: attachment?.fileName || document.name,
+      FileKey: attachment?.fileKey || attachment?.fileName || document.templateUrl || document.name,
+    }
+  }),
+})
 
 const normalizePaginationCollection = (payload) => {
   const data = Array.isArray(payload)
@@ -360,17 +352,23 @@ export const normalizeApiApplicationDetail = (payload, summary = {}) => {
     application.displayStatus = 'expired'
   }
 
-  application.scheme = normalizeApiScheme({
-    ...(detail.scheme || {}),
-    id: detail.scheme?.id ?? schemeId,
-    schemeName: detail.scheme?.schemeName || summary.schemeName || '-',
+  application.scheme = {
+    id: schemeId,
+    apiId: detail.scheme?.id ?? Number(schemeId),
+    code: detail.scheme?.schemeCode,
+    name: detail.scheme?.schemeName || summary.schemeName || '-',
     description: detail.scheme?.description || '',
-    subsidyType: approvedTier?.subsidyValue != null ? 'FixedAmount' : 'Percent',
-    validityMonths: summary.scheme?.validityMonths,
-    tiers: approvedTier ? [approvedTier] : [],
-    documents: detail.documents || [],
+    status: 'active',
+    subsidyType: approvedTier?.subsidyValue != null ? 'fixed' : 'percent',
+    validityMonths: summary.scheme?.validityMonths || 12,
+    linkedCourses: [],
+    conditionsSummary: [],
     reapplyFallback: true,
-  })
+    tiers: approvedTier ? [approvedTier] : [],
+    documents: (detail.documents || [])
+      .filter((document) => document.requiredDocumentId != null)
+      .map(normalizeApplicationDocument),
+  }
 
   return application
 }

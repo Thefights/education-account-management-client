@@ -4,7 +4,8 @@ import {
 } from '@/features/financial-assistance/data/fasSeedData'
 import {
   buildAvailableSchemesParams,
-  buildSubmitFasApplicationFormData,
+  buildSubmitFasApplicationPayload,
+  normalizeApiApplicationDetail,
   normalizeApiApplicationPage,
   normalizeApiAvailableSchemesResponse,
   normalizeApiScheme,
@@ -22,9 +23,10 @@ import {
   isApprovedApplicationExpired,
 } from '@/features/financial-assistance/utils/fasRules'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useFetch from '@/shared/hooks/useFetch'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useTranslation from '@/shared/hooks/useTranslation'
 import {
   ArrowLeftOutlined,
   BankOutlined,
@@ -53,31 +55,24 @@ const parentNationalityOptions = ['Singapore Citizen', 'Other'].map((value) => (
 
 const noExpandedSchemeId = '__none__'
 const applicationListParams = { Page: 1, PageSize: 100, Sort: 'createdAt desc' }
-const isBlockingApplicationForReapply = (application, sourceApplicationId) => {
-  if (application?.displayStatus === FAS_APPLICATION_STATUS.Pending) {
-    return sourceApplicationId == null
-  }
-
-  return (
-    application?.displayStatus === FAS_APPLICATION_STATUS.Approved &&
-    !isApprovedApplicationExpired(application)
-  )
-}
+const isBlockingApplication = (application) =>
+  application?.displayStatus === FAS_APPLICATION_STATUS.Pending ||
+  (application?.displayStatus === FAS_APPLICATION_STATUS.Approved &&
+    !isApprovedApplicationExpired(application))
 
 const getSchemeLookupId = (scheme) => {
   const value = scheme?.apiId ?? scheme?.id ?? scheme?.schemeId
   return value == null ? '' : String(value)
 }
 
-const findActiveApplicationForScheme = (applications, scheme, sourceApplicationId) => {
+const findActiveApplicationForScheme = (applications, scheme) => {
   const schemeId = getSchemeLookupId(scheme)
   if (!schemeId) return null
 
   return (applications || []).find(
     (application) =>
       String(application.schemeId) === schemeId &&
-      (sourceApplicationId == null || String(application.apiId) !== String(sourceApplicationId)) &&
-      isBlockingApplicationForReapply(application, sourceApplicationId)
+      isBlockingApplication(application)
   ) || null
 }
 
@@ -127,26 +122,40 @@ const getTemplateUrl = (document) => {
   return `/templates/fas/${document.templateName}`
 }
 
-const getApiErrorMessage = (error) => {
+const getApiErrorMessage = (error, t) => {
   const payload = error?.response?.data
-  if (!payload) return 'Unable to submit the FAS application'
+  if (!payload) return t('financial_assistance.message.submit_failed')
   if (payload.message && payload.message !== 'Validation failed') return payload.message
   if (typeof payload.error === 'string') return payload.error
   if (payload.error && typeof payload.error === 'object') {
     return Object.values(payload.error).filter(Boolean).join(', ')
   }
-  return payload.message || 'Unable to submit the FAS application'
+  return payload.message || t('financial_assistance.message.submit_failed')
 }
+
+const buildAttachedDocsFromApplication = (application) =>
+  Object.fromEntries(
+    (application?.attachments || [])
+      .filter((document) => document.requiredDocumentId != null)
+      .map((document) => [
+        String(document.requiredDocumentId),
+        {
+          fileName: document.fileName,
+          fileKey: document.fileKey,
+        },
+      ])
+  )
 
 const MyFasApplyPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [initialSchemeId] = useState(() =>
     location.state?.schemeId != null ? String(location.state.schemeId) : null
   )
-  const [initialScheme] = useState(() => normalizeApiScheme(location.state?.scheme))
-  const [sourceApplicationId] = useState(() =>
-    location.state?.sourceApplicationId != null ? String(location.state.sourceApplicationId) : null
+  const [stateScheme] = useState(() => normalizeApiScheme(location.state?.scheme))
+  const [draftApplicationId] = useState(() =>
+    location.state?.draftApplicationId != null ? String(location.state.draftApplicationId) : null
   )
   const [snapshotProfile] = useState(() =>
     normalizeFasSnapshotProfile(location.state?.snapshot, initialProfile)
@@ -160,6 +169,17 @@ const MyFasApplyPage = () => {
   const [formProfile, setFormProfile] = useState(startingProfile)
   const [attachedDocs, setAttachedDocs] = useState({})
   const profileQuery = useFetch(ApiUrls.ACCOUNT_HOLDER.PROFILE)
+  const draftApplicationQuery = useFetch(
+    draftApplicationId ? ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DETAIL(draftApplicationId) : '',
+    {},
+    [draftApplicationId],
+    Boolean(draftApplicationId)
+  )
+  const draftApplication = useMemo(
+    () => normalizeApiApplicationDetail(draftApplicationQuery.data),
+    [draftApplicationQuery.data]
+  )
+  const initialScheme = draftApplication?.scheme || stateScheme
 
   const pci = getPci(profile.income, profile.members)
   const availableParams = useMemo(
@@ -201,18 +221,28 @@ const MyFasApplyPage = () => {
   )
 
   useEffect(() => {
-    if (!initialSchemeId && !snapshotProfile && !sourceApplicationId) return
+    if (!initialSchemeId && !snapshotProfile && !draftApplicationId) return
     navigate(location.pathname, { replace: true })
-  }, [initialSchemeId, location.pathname, navigate, snapshotProfile, sourceApplicationId])
+  }, [draftApplicationId, initialSchemeId, location.pathname, navigate, snapshotProfile])
 
   useEffect(() => {
-    if (!profileQuery.data || snapshotProfile) return
+    if (!profileQuery.data || snapshotProfile || draftApplication) return
     const nextProfile = normalizeFasProfileFromApi(profileQuery.data, initialProfile)
     queueMicrotask(() => {
       setProfile(nextProfile)
       setFormProfile(nextProfile)
     })
-  }, [profileQuery.data, snapshotProfile])
+  }, [draftApplication, profileQuery.data, snapshotProfile])
+
+  useEffect(() => {
+    if (!draftApplication) return
+    const nextProfile = normalizeFasSnapshotProfile(draftApplication.profileSnapshot, initialProfile)
+    setProfile(nextProfile)
+    setFormProfile(nextProfile)
+    setShown(true)
+    setFormSchemeId(draftApplication.schemeId)
+    setAttachedDocs(buildAttachedDocsFromApplication(draftApplication))
+  }, [draftApplication])
 
   const activeAvailableSchemes = schemes
 
@@ -229,7 +259,7 @@ const MyFasApplyPage = () => {
     return activeAvailableSchemes.filter((scheme) => {
       const matchesQuery = !query || scheme.name.toLowerCase().includes(query)
       if (!matchesQuery) return false
-      if (findActiveApplicationForScheme(activeApplications, scheme, sourceApplicationId)) return false
+      if (!draftApplicationId && findActiveApplicationForScheme(activeApplications, scheme)) return false
       if (!shown) return true
       if (scheme.reapplyFallback || !scheme.tiers?.length) return true
       return !!getSuggestedTier(scheme, { data: eligibleProfile })
@@ -245,7 +275,7 @@ const MyFasApplyPage = () => {
     shown,
     usingApiSchemes,
     activeApplications,
-    sourceApplicationId,
+    draftApplicationId,
   ])
 
   const openForm = (schemeId) => {
@@ -273,17 +303,15 @@ const MyFasApplyPage = () => {
       )
     }
 
-    const blockingApplication = findActiveApplicationForScheme(
-      activeApplications,
-      scheme,
-      sourceApplicationId
-    )
+    const blockingApplication = draftApplicationId
+      ? null
+      : findActiveApplicationForScheme(activeApplications, scheme)
 
     return (
       <ApplyForm
         scheme={scheme}
         profile={formProfile}
-        sourceApplicationId={sourceApplicationId}
+        draftApplicationId={draftApplicationId}
         blockingApplication={blockingApplication}
         attachedDocs={attachedDocs}
         onBack={() => setFormSchemeId(null)}
@@ -496,7 +524,7 @@ const SchemeInfo = ({ scheme }) => (
 const ApplyForm = ({
   scheme,
   profile,
-  sourceApplicationId,
+  draftApplicationId,
   blockingApplication,
   attachedDocs,
   onBack,
@@ -505,6 +533,13 @@ const ApplyForm = ({
   onSubmitted,
 }) => {
   const [submitting, setSubmitting] = useState(false)
+  const { t } = useTranslation()
+  const submitApplication = useAxiosSubmit({
+    method: 'POST',
+    onError: async (error) => {
+      message.error(getApiErrorMessage(error, t))
+    },
+  })
   const pci = getPci(profile.income, profile.members)
   const schemeFieldSet = useMemo(() => getSchemeFieldSet(scheme), [scheme])
   const requiresIncome = schemeRequiresIncome(schemeFieldSet)
@@ -548,40 +583,44 @@ const ApplyForm = ({
 
   const submit = async () => {
     if (blockingApplication) {
-      message.error('You already have a pending or approved application for this scheme.')
+      message.error(t('financial_assistance.message.duplicate_application'))
       return
     }
 
     if (!hasProfileDetails) {
-      message.error('Confirm the required application details')
+      message.error(t('financial_assistance.message.confirm_required_details'))
       return
     }
 
     if (needsTierMatch && !matchingTier) {
-      message.error('The entered details do not match any tier for this scheme')
+      message.error(t('financial_assistance.message.no_matching_tier'))
       return
     }
 
     const missing = scheme.documents.filter((document) => !attachedDocs[document.id])
     if (missing.length) {
-      message.error(`Attach all required documents (${missing.length} left)`)
+      message.error(t('financial_assistance.message.attach_required_documents', { count: missing.length }))
       return
     }
 
     setSubmitting(true)
     try {
-      const formData = buildSubmitFasApplicationFormData({
+      const payload = buildSubmitFasApplicationPayload({
         scheme,
         profile,
         documents: scheme.documents,
         attachedDocs,
-        sourceApplicationId,
       })
-      await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, formData)
-      message.success(`Application submitted: ${scheme.name}`)
+      const submitUrl = draftApplicationId
+        ? ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_PUBLISH_DRAFT(draftApplicationId)
+        : ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS
+      const response = await submitApplication.submit({
+        overrideUrl: submitUrl,
+        overrideData: payload,
+      })
+      if (!response) return
+      message.success(t('financial_assistance.message.application_submitted', { name: scheme.name }))
       onSubmitted()
-    } catch (error) {
-      message.error(getApiErrorMessage(error))
     } finally {
       setSubmitting(false)
     }
@@ -724,7 +763,7 @@ const ApplyForm = ({
                   block
                   size="large"
                   disabled={!isReadyToSubmit}
-                  loading={submitting}
+                  loading={submitting || submitApplication.loading}
                   onClick={submit}
                 >
                   Submit application
