@@ -1,10 +1,8 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Col, Flex, Row, Space } from 'antd'
 
 const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
 
@@ -57,27 +55,18 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
         borderBottom: '1px solid var(--app-border-color)',
       }}
     >
-      <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field) => (
-          <Col key={field.key} xs={24} md={6}>
-            {renderField(field)}
-          </Col>
-        ))}
-        <Col xs={24} md={6}>
-          <Flex justify="end" style={{ width: '100%' }}>
-            <Space>
-              <ResetFilterButton
-                loading={loading}
-                onResetFilterClick={() => {
-                  reset(defaultFilters)
-                  onReset?.()
-                }}
-              />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
+      <GenericFilterSection
+        fields={fields}
+        values={values}
+        renderField={renderField}
+        reset={reset}
+        resetValues={defaultFilters}
+        onReset={onReset}
+        onFilter={onFilter}
+        loading={loading}
+        cardProps={false}
+        getFieldColProps={() => ({ xs: 24, md: 8 })}
+      />
     </div>
   )
 }

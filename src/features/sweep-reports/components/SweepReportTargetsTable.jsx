@@ -1,6 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
@@ -13,7 +12,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Card, Col, Row, Space } from 'antd'
+import { Card } from 'antd'
 import { useMemo, useState } from 'react'
 
 const defaultFilters = { nric: '', statuses: [], actions: [] }
@@ -105,32 +104,28 @@ const SweepReportTargetsTable = ({ batchDate }) => {
   )
 
   const handleReset = () => {
-    reset(defaultFilters)
     setFilters(defaultFilters)
     setPage(1)
   }
 
   return (
     <Card size="small" title={t('batch_report.targets')}>
-      <Row gutter={[16, 16]} align="bottom" style={{ marginBottom: 16 }}>
-        {filterFields.map((field) => (
-          <Col xs={24} sm={12} lg={6} key={field.key}>
-            {renderField(field)}
-          </Col>
-        ))}
-        <Col xs={24} sm={12} lg={6} style={{ textAlign: 'right' }}>
-          <Space>
-            <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-            <FilterButton
-              loading={loading}
-              onFilterClick={() => {
-                setFilters(values)
-                setPage(1)
-              }}
-            />
-          </Space>
-        </Col>
-      </Row>
+      <GenericFilterSection
+        fields={filterFields}
+        values={values}
+        renderField={renderField}
+        reset={reset}
+        resetValues={defaultFilters}
+        onReset={handleReset}
+        onFilter={(currentValues) => {
+          setFilters(currentValues)
+          setPage(1)
+        }}
+        loading={loading}
+        cardProps={false}
+        rowProps={{ style: { marginBottom: 16 } }}
+        getFieldColProps={() => ({ xs: 24, sm: 12, lg: 6 })}
+      />
       <GenericTable
         data={data?.collection || []}
         fields={tableFields}

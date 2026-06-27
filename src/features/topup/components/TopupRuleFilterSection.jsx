@@ -1,10 +1,8 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Card, Col, Flex, Row, Space } from 'antd'
 
 const defaultFilters = { name: '', statuses: [] }
 
@@ -38,29 +36,17 @@ const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
   ]
 
   return (
-    <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field) => (
-          <Col key={field.key} xs={24} md={8}>
-            {renderField(field)}
-          </Col>
-        ))}
-        <Col xs={24} md={8}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton
-                loading={loading}
-                onResetFilterClick={() => {
-                  reset(defaultFilters)
-                  onReset?.()
-                }}
-              />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    <GenericFilterSection
+      fields={fields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      resetValues={defaultFilters}
+      onReset={onReset}
+      onFilter={onFilter}
+      loading={loading}
+      getFieldColProps={() => ({ xs: 24, md: 12 })}
+    />
   )
 }
 

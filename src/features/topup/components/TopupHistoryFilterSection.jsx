@@ -1,5 +1,6 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
@@ -10,7 +11,7 @@ import {
 } from '@/shared/utils/dateTimeUtil'
 import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
+import { Col, DatePicker, Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 
@@ -128,12 +129,18 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       : null
 
   return (
-    <Card
-      size="small"
-      style={{ boxShadow: 'none', background: 'var(--app-filter-bg)' }}
-      styles={{ body: { padding: 16 } }}
+    <FilterSectionLayout
+      cardProps={{
+        style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
+        styles: { body: { padding: 16 } },
+      }}
+      actions={
+        <>
+          <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
+          <FilterButton loading={loading} onFilterClick={handleFilter} />
+        </>
+      }
     >
-      <Row gutter={[16, 16]} align="bottom">
         {fields.map((field) => (
           <Col key={field.key} {...field.colProps}>
             {renderField(field)}
@@ -159,17 +166,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
             </Form.Item>
           </FieldBox>
         </Col>
-
-        <Col flex="auto">
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-              <FilterButton loading={loading} onFilterClick={handleFilter} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    </FilterSectionLayout>
   )
 }
 

@@ -1,5 +1,6 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useFetch from '@/shared/hooks/useFetch'
@@ -16,7 +17,7 @@ import {
   getDateHourFormatBasedOnCurrentLanguage,
 } from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Row, Space, Tag, Typography } from 'antd'
+import { Card, Col, DatePicker, Flex, Form, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 
 const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
@@ -178,54 +179,49 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}
     >
       <Flex vertical gap={16}>
-        <Card
-          size="small"
-          style={{ boxShadow: 'none', background: 'var(--app-filter-bg)' }}
-          styles={{ body: { padding: 16 } }}
+        <FilterSectionLayout
+          gutter={[12, 12]}
+          cardProps={{
+            style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
+            styles: { body: { padding: 16 } },
+          }}
+          actions={
+            <>
+              <ResetFilterButton loading={transactions.loading} onResetFilterClick={resetFilters} />
+              <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
+            </>
+          }
         >
-          <Row gutter={[12, 12]} align="bottom">
-            {filterFields.map((field) => (
-              <Col key={field.key} xs={24} md={6}>
-                {renderField(field)}
-              </Col>
-            ))}
-            <Col xs={24} md={6}>
-              <FieldBox title={t('transaction.created_at')}>
-                <Form.Item style={{ marginBottom: 0 }}>
-                  <DatePicker.RangePicker
-                    showTime={DATE_HOUR_SHOW_TIME}
-                    format={getDateHourFormatBasedOnCurrentLanguage()}
-                    value={
-                      values.createdFrom
-                        ? [
-                            toPickerValueBasedOnCurrentLanguage(values.createdFrom),
-                            toPickerValueBasedOnCurrentLanguage(values.createdTo),
-                          ]
-                        : null
-                    }
-                    onChange={(range) => {
-                      setField('createdFrom', wallTimeBasedOnCurrentLanguageToIso(range?.[0]))
-                      setField('createdTo', wallTimeBasedOnCurrentLanguageToIso(range?.[1]))
-                    }}
-                    suffixIcon={<CalendarOutlined />}
-                    style={{ width: '100%', height: 40 }}
-                  />
-                </Form.Item>
-              </FieldBox>
+          {filterFields.map((field) => (
+            <Col key={field.key} xs={24} md={6}>
+              {renderField(field)}
             </Col>
-            <Col xs={24}>
-              <Flex justify="end">
-                <Space>
-                  <ResetFilterButton
-                    loading={transactions.loading}
-                    onResetFilterClick={resetFilters}
-                  />
-                  <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
-                </Space>
-              </Flex>
-            </Col>
-          </Row>
-        </Card>
+          ))}
+          <Col xs={24} md={6}>
+            <FieldBox title={t('transaction.created_at')}>
+              <Form.Item style={{ marginBottom: 0 }}>
+                <DatePicker.RangePicker
+                  showTime={DATE_HOUR_SHOW_TIME}
+                  format={getDateHourFormatBasedOnCurrentLanguage()}
+                  value={
+                    values.createdFrom
+                      ? [
+                          toPickerValueBasedOnCurrentLanguage(values.createdFrom),
+                          toPickerValueBasedOnCurrentLanguage(values.createdTo),
+                        ]
+                      : null
+                  }
+                  onChange={(range) => {
+                    setField('createdFrom', wallTimeBasedOnCurrentLanguageToIso(range?.[0]))
+                    setField('createdTo', wallTimeBasedOnCurrentLanguageToIso(range?.[1]))
+                  }}
+                  suffixIcon={<CalendarOutlined />}
+                  style={{ width: '100%', height: 40 }}
+                />
+              </Form.Item>
+            </FieldBox>
+          </Col>
+        </FilterSectionLayout>
         <GenericTable
           data={transactions.data?.collection}
           fields={fields}
