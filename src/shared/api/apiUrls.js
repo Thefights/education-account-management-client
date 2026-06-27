@@ -50,6 +50,7 @@ export const ApiUrls = {
   ENROLLMENT_MANAGEMENT: {
     INDEX: '/enrollment-management',
     DETAIL: (id) => `/enrollment-management/${id}`,
+    WITHDRAW: (id) => `/enrollment-management/${id}/withdraw`,
     DELETE_SELECTED: '/enrollment-management/selected',
   },
 

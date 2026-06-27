@@ -27,15 +27,16 @@
       "account_number": "账号",
       "nric": "NRIC",
       "full_name": "姓名",
+      "courses": "课程",
       "email": "电子邮件",
       "phone_number": "电话号码",
       "status": "状态"
     },
     "label": {
-      "search": "搜索"
+      "search": "按姓名、NRIC、电子邮件或电话号码搜索"
     },
     "placeholder": {
-      "search": "按姓名、NRIC、电子邮件搜索..."
+      "search": "搜索..."
     },
     "confirm": {
       "delete_title": "删除学生",

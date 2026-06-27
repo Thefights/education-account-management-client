@@ -1,5 +1,4 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { PlusOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 
 const SchoolStudentToolbarSection = ({
@@ -25,8 +24,8 @@ const SchoolStudentToolbarSection = ({
         {t('button.deactivate')}
       </Button>
       <Button onClick={onImport}>{t('button.import')}</Button>
-      <Button type="primary" icon={<PlusOutlined />} onClick={onAddClick}>
-        {t('button.add')}
+      <Button type="primary" onClick={onAddClick}>
+        {t('button.create')}
       </Button>
     </Flex>
   )

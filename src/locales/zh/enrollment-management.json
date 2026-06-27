@@ -7,7 +7,10 @@
       "add_students_to_course": "将学生添加到 {{course}}"
     },
     "placeholder": {
-      "search": "按学生姓名，电子邮件，NRIC或帐号搜索"
+      "search": "搜索..."
+    },
+    "label": {
+      "search": "按学生姓名、NRIC、电子邮件、电话号码或账号搜索"
     },
     "field": {
       "id": "报名ID",
@@ -19,6 +22,7 @@
       "email": "电子邮箱",
       "phone": "电话号码",
       "account_number": "账号",
+      "status": "报名状态",
       "enrolled_at": "报名时间",
       "charge_status": "收费状态",
       "gross_amount": "总金额",
@@ -31,13 +35,16 @@
       "assign": "分配",
       "delete_selected": "删除所选",
       "manage_students": "管理学生",
-      "view_students": "查看学生"
+      "view_students": "查看学生",
+      "withdraw": "退课"
     },
     "confirm": {
       "delete_title": "删除报名",
       "delete_description": "您确定要删除 {{name}} 的报名吗？",
       "delete_selected_title": "删除所选报名",
-      "delete_selected_description": "您确定要删除 {{count}} 个所选报名吗？"
+      "delete_selected_description": "您确定要删除 {{count}} 个所选报名吗？",
+      "withdraw_title": "学生退课？",
+      "withdraw_description": "将 {name} 标记为已退出此课程？"
     },
     "status": {
       "charge": {

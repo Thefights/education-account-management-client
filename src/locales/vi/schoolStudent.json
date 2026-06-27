@@ -27,15 +27,16 @@
       "account_number": "Số tài khoản",
       "nric": "NRIC",
       "full_name": "Họ và tên",
+      "courses": "Khóa học",
       "email": "Email",
       "phone_number": "Số điện thoại",
       "status": "Trạng thái"
     },
     "label": {
-      "search": "Tìm kiếm"
+      "search": "Tìm theo họ tên, NRIC, email hoặc số điện thoại"
     },
     "placeholder": {
-      "search": "Tìm theo Tên, NRIC, Email..."
+      "search": "Tìm kiếm..."
     },
     "confirm": {
       "delete_title": "Xóa học sinh",

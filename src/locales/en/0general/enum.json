@@ -27,6 +27,10 @@
       "in_progress": "In progress",
       "closed": "Closed"
     },
+    "enrollment_status": {
+      "active": "Active",
+      "withdrawn": "Withdrawn"
+    },
     "charge_status": {
       "unpaid": "Unpaid",
       "partially_paid": "Partially Paid",

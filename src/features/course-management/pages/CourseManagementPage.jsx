@@ -3,18 +3,20 @@ import axiosConfig from '@/shared/api/axiosClient'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getLocalDateFromServerDateTime } from '@/shared/utils/formatDateUtil'
 import { showWarningToast } from '@/shared/utils/toastUtil'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CourseManagementFilterSection from '../components/CourseManagementFilterSection'
 import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
 import CourseManagementToolbarSection from '../components/CourseManagementToolbarSection'
-import CourseStudentsDialog from '../components/CourseStudentsDialog'
 
 const defaultFilters = { search: '', statuses: [] }
 
@@ -32,8 +34,7 @@ const CourseManagementPage = () => {
   const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const [deleteLoading, setDeleteLoading] = useState(false)
-  const [selectedCourseForStudents, setSelectedCourseForStudents] = useState(null)
-  const [openStudentsDialog, setOpenStudentsDialog] = useState(false)
+  const navigate = useNavigate()
 
   const queryParams = useMemo(
     () => ({ sort: `${sort.key} ${sort.direction}`, ...filters, page, pageSize }),
@@ -143,10 +144,11 @@ const CourseManagementPage = () => {
 
   const handlePublish = async () => {
     if (!selectedCourses.length) return
-    const hasExpiredEnrollment = selectedCourses.some(
-      (course) => new Date(course.enrollmentDueDate).getTime() <= Date.now()
-    )
-    if (hasExpiredEnrollment) {
+    const hasExpiredFasDeadline = selectedCourses.some((course) => {
+      const deadline = getLocalDateFromServerDateTime(course.fasApplicationDueDate)
+      return !deadline || deadline.getTime() <= Date.now()
+    })
+    if (hasExpiredFasDeadline) {
       showWarningToast(t('course_management.message.publish_deadline_expired'))
       return
     }
@@ -214,10 +216,9 @@ const CourseManagementPage = () => {
             setOpenUpdate(true)
           }}
           onDelete={handleDelete}
-          onManageStudents={(row) => {
-            setSelectedCourseForStudents(row)
-            setOpenStudentsDialog(true)
-          }}
+          onDetail={(row) =>
+            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(row.id)))
+          }
         />
         <GenericTablePagination
           totalCount={courses.data?.totalCount}
@@ -248,15 +249,6 @@ const CourseManagementPage = () => {
         result={importResult}
         template={csvImportTemplates.courses}
         onSubmit={handleImport}
-      />
-      <CourseStudentsDialog
-        open={openStudentsDialog}
-        onClose={() => {
-          setOpenStudentsDialog(false)
-          setSelectedCourseForStudents(null)
-        }}
-        course={selectedCourseForStudents}
-        onEnrollmentsChanged={courses.fetch}
       />
     </Card>
   )

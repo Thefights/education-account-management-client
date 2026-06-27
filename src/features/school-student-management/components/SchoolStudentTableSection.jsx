@@ -1,8 +1,11 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
+import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { Space, Tag } from 'antd'
+import { Link } from 'react-router-dom'
 
 const SchoolStudentTableSection = ({
   students,
@@ -34,6 +37,29 @@ const SchoolStudentTableSection = ({
       title: t('school_student.field.full_name'),
       width: 220,
       sortable: true,
+    },
+    {
+      key: 'courses',
+      title: t('school_student.field.courses'),
+      width: 320,
+      sortable: true,
+      render: (courses = []) =>
+        courses.length ? (
+          <Space size={[4, 4]} wrap>
+            {courses.map((course) => (
+              <Link
+                key={course.id}
+                to={routeUrls.BASE_ROUTE.SCHOOL_ADMIN(
+                  routeUrls.COURSE_MANAGEMENT.DETAIL(course.id)
+                )}
+              >
+                <Tag color={defaultManagementStatusStyle(course.status)}>
+                  {course.courseCode} · {course.courseName}
+                </Tag>
+              </Link>
+            ))}
+          </Space>
+        ) : null,
     },
     {
       key: 'email',

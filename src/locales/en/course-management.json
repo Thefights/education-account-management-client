@@ -5,7 +5,7 @@
       "management": "Course Management",
       "create": "Create Course",
       "update": "Update Course",
-      "list_of_course": "List of Course",
+      "list_of_course": "List of Courses",
       "important_dates": "Important Dates"
     },
     "field": {
@@ -28,10 +28,11 @@
       "publish": "Publish",
       "delete_selected": "Delete selected"
     },
-    "placeholder": { 
-      "searchbyID": "Search by course name or ID" 
-    },
     "label": { "search": "Search by course name, course code, or school name" },
+    "placeholder": { 
+      "search": "Search...",
+      "searchbyID": "Search by course name or ID"  
+    },
     "confirm": {
       "delete_title": "Delete course?",
       "delete_description": "Are you sure you want to delete {name}?",

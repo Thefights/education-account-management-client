@@ -27,6 +27,7 @@ const getTagColor = (color, value, row) => {
 
 const tableSortDirections = ['ascend', 'descend', 'ascend']
 const defaultRowSelectable = () => true
+const defaultRowClassName = () => ''
 
 const renderCellValue = (field, value, row, rowIndex) => {
   if (field.render) {
@@ -77,6 +78,8 @@ const GenericTable = ({
   stickyHeader = false,
   expandedRowKeys,
   expandelement,
+  onRowClick,
+  getRowClassName = defaultRowClassName,
 }) => {
   const columns = useMemo(() => {
     return fields.map((field) => ({
@@ -153,6 +156,15 @@ const GenericTable = ({
         y: stickyHeader ? 560 : undefined,
       }}
       onChange={handleTableChange}
+      onRow={(row) => ({
+        onClick: (event) => {
+          if (!onRowClick || event.target.closest('button, a, input, [role="menuitem"]')) return
+          onRowClick(row)
+        },
+      })}
+      rowClassName={(row) =>
+        [onRowClick ? 'clickable-table-row' : '', getRowClassName(row)].filter(Boolean).join(' ')
+      }
       locale={{
         emptyText:
           loading && !hasData ? (

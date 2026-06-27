@@ -8,10 +8,10 @@ import AccountTransactionHistoryPage from '@/features/account-holder/pages/Accou
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
 import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
+import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
-import EnrollmentManagementPage from '@/features/enrollment-management/pages/EnrollmentManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
@@ -110,8 +110,8 @@ const roleRouteGroups = [
         element: <CourseManagementPage />,
       },
       {
-        path: routeUrls.ENROLLMENT_MANAGEMENT.INDEX,
-        element: <EnrollmentManagementPage />,
+        path: routeUrls.COURSE_MANAGEMENT.DETAIL(),
+        element: <CourseDetailPage />,
       },
       {
         path: routeUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
