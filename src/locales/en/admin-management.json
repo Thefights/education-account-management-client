@@ -4,7 +4,8 @@
     "title": {
       "management": "Admin Management",
       "create": "Create Admin Account",
-      "update": "Update Admin Account"
+      "update": "Update Admin Account",
+      "detail": "Admin Account Details"
     },
     "field": {
       "user_id": "User ID",

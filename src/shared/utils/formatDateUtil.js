@@ -1,7 +1,29 @@
+const getCurrentLanguage = () => {
+  let language = localStorage.getItem('language') || 'en'
+  try {
+    language = JSON.parse(language)
+  } catch {
+    /* empty */
+  }
+
+  return language
+}
+
+export const getDateHourFormatBasedOnCurrentLanguage = () => {
+  switch (getCurrentLanguage()) {
+    case 'vi':
+    case 'zh':
+      return 'D/M/YYYY HH'
+    case 'en':
+    default:
+      return 'M/D/YYYY HH'
+  }
+}
+
 export const formatDateBasedOnCurrentLanguage = (date) => {
   if (!date) return ''
-  let language = localStorage.getItem('language') || 'en'
-  language = JSON.parse(language)
+
+  const language = getCurrentLanguage()
   switch (language) {
     case 'en':
       return formatDateToMMDDYYYY(date)
@@ -17,12 +39,7 @@ export const formatDateBasedOnCurrentLanguage = (date) => {
 export const formatDateAndTimeBasedOnCurrentLanguage = (date, time = null) => {
   if (!date) return ''
 
-  let language = localStorage.getItem('language') || 'en'
-  try {
-    language = JSON.parse(language)
-  } catch {
-    /* empty */
-  }
+  const language = getCurrentLanguage()
 
   if (time) {
     const datetime = `${date} ${time}`
@@ -42,12 +59,7 @@ export const formatDateAndTimeBasedOnCurrentLanguage = (date, time = null) => {
 }
 
 export const formatDatetimeStringBasedOnCurrentLanguage = (datetime) => {
-  let language = localStorage.getItem('language') || 'en'
-  try {
-    language = JSON.parse(language)
-  } catch {
-    /* empty */
-  }
+  const language = getCurrentLanguage()
 
   switch (language) {
     case 'en':

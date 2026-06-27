@@ -1,5 +1,3 @@
-import ActionMenu from '@/shared/components/generals/ActionMenu'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultAuthAccountStatusStyle,
@@ -7,7 +5,6 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { useMemo } from 'react'
 
 const AdminManagementTableSection = ({
@@ -17,7 +14,7 @@ const AdminManagementTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onEdit,
+  onDetail,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -42,34 +39,6 @@ const AdminManagementTableSection = ({
         sortable: true,
       },
       {
-        key: 'nric',
-        title: t('admin_management.field.nric'),
-        width: 130,
-        sortable: true,
-        render: (value) => <MaskedNric value={value} />,
-      },
-      {
-        key: 'phoneNumber',
-        title: t('admin_management.field.phone_number'),
-        width: 150,
-        sortable: true,
-      },
-      {
-        key: 'schoolName',
-        title: t('admin_management.field.school'),
-        width: 190,
-        sortable: true,
-      },
-      {
-        key: 'azureObjectId',
-        title: t('admin_management.field.azure_object_id'),
-        width: 280,
-        sortable: true,
-        render: (value) => (
-          <MaskedNric value={value} label={t('admin_management.field.azure_object_id')} />
-        ),
-      },
-      {
         key: 'role',
         title: t('admin_management.field.role'),
         width: 150,
@@ -87,23 +56,8 @@ const AdminManagementTableSection = ({
         options: _enum.authAccountStatusOptions,
         color: defaultAuthAccountStatusStyle,
       },
-      {
-        key: 'createdAt',
-        title: t('audit_log.field.created_at'),
-        width: 180,
-        sortable: true,
-        render: formatDatetimeStringBasedOnCurrentLanguage,
-      },
-      {
-        key: 'actions',
-        title: '',
-        width: 70,
-        render: (_, row) => (
-          <ActionMenu actions={[{ title: t('button.edit'), onClick: () => onEdit?.(row) }]} />
-        ),
-      },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.roleOptions, onEdit]
+    [t, _enum.authAccountStatusOptions, _enum.roleOptions]
   )
 
   return (
@@ -117,6 +71,7 @@ const AdminManagementTableSection = ({
       canSelectRows
       selectedRows={selectedIds}
       setSelectedRows={setSelectedIds}
+      onRowClick={onDetail}
     />
   )
 }

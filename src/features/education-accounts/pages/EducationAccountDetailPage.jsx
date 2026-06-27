@@ -1,11 +1,20 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
+import GenericDetail from '@/shared/components/details/GenericDetail'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button, Card, Descriptions, Flex, Skeleton, Statistic, Tag, Typography } from 'antd'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
+import { Flex, Tag } from 'antd'
+import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionHistorySection from '../components/TransactionHistorySection'
+
+const statusColors = {
+  Active: 'success',
+  Extended: 'processing',
+  Closed: 'default',
+}
 
 const EducationAccountDetailPage = () => {
   const { id } = useParams()
@@ -13,39 +22,54 @@ const EducationAccountDetailPage = () => {
   const { t } = useTranslation()
   const detail = useFetch(ApiUrls.EDUCATION_ACCOUNT.DETAIL(id))
   const account = detail.data
+  const fields = useMemo(
+    () => [
+      {
+        key: 'accountNumber',
+        label: t('education_account.account_number'),
+      },
+      {
+        key: 'name',
+        label: t('education_account.name'),
+      },
+      {
+        key: 'status',
+        label: t('education_account.status'),
+        render: (value) =>
+          value ? <Tag color={statusColors[value]}>{value}</Tag> : renderEmptyFallback(null),
+      },
+      {
+        key: 'dateOfBirth',
+        label: t('education_account.dob'),
+      },
+      {
+        key: 'nric',
+        label: t('education_account.nric_full'),
+        render: (value) => <MaskedNric value={value} />,
+      },
+      {
+        key: 'balance',
+        label: t('education_account.balance'),
+      },
+      {
+        key: 'createdAt',
+        label: t('education_account.created_at'),
+        render: (value) =>
+          formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
+      },
+    ],
+    [t]
+  )
 
   return (
     <Flex vertical gap={16}>
-      <Card>
-        <Flex vertical gap={16}>
-          <Flex align="center" gap={12}>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
-            <Typography.Title level={4} style={{ margin: 0 }}>
-              {t('education_account.detail_title')}
-            </Typography.Title>
-          </Flex>
-          {detail.loading && !account ? <Skeleton active /> : (
-            <>
-              <Flex align="center" gap={8}>
-                <Typography.Title level={5} style={{ margin: 0 }}>{account?.name}</Typography.Title>
-                <Tag color={account?.status === 'Active' ? 'success' : 'processing'}>{account?.status}</Tag>
-              </Flex>
-              <Statistic title={t('education_account.balance')} value={account?.balance} precision={2} />
-              <Descriptions bordered column={{ xs: 1, md: 2 }}>
-                <Descriptions.Item label={t('education_account.account_number')}>{account?.accountNumber}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.nric')}><MaskedNric value={account?.nric} /></Descriptions.Item>
-                <Descriptions.Item label={t('education_account.date_of_birth')}>{account?.dateOfBirth}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.created_date')}>{account?.createdDate}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.expected_closing_date')}>{account?.expectedClosingDate}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.email')}>{account?.email}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.phone')}>{account?.phoneNumber}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.residential_address')}>{account?.residentialAddress}</Descriptions.Item>
-                <Descriptions.Item label={t('education_account.mailing_address')}>{account?.mailingAddress}</Descriptions.Item>
-              </Descriptions>
-            </>
-          )}
-        </Flex>
-      </Card>
+      <GenericDetail
+        title={t('education_account.detail_title')}
+        data={account}
+        fields={fields}
+        loading={detail.loading}
+        onBack={() => navigate(-1)}
+      />
       <TransactionHistorySection url={ApiUrls.EDUCATION_ACCOUNT.TRANSACTIONS(id)} />
     </Flex>
   )

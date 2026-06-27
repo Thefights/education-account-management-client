@@ -4,13 +4,17 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
+import {
+  toPickerValueBasedOnCurrentLanguage,
+  wallTimeBasedOnCurrentLanguageToIso,
+} from '@/shared/utils/dateTimeUtil'
+import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 
-const DATE_TIME_FORMAT = 'D/M/YYYY HH:mm'
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -97,8 +101,8 @@ const AuditLogFilterSection = ({
   }
 
   const handleDateRangeChange = (range) => {
-    const occurredFrom = singaporeWallTimeToIso(range?.[0])
-    const occurredTo = singaporeWallTimeToIso(range?.[1])
+    const occurredFrom = wallTimeBasedOnCurrentLanguageToIso(range?.[0])
+    const occurredTo = wallTimeBasedOnCurrentLanguageToIso(range?.[1])
 
     setField('occurredFrom', occurredFrom)
     setField('occurredTo', occurredTo)
@@ -118,7 +122,10 @@ const AuditLogFilterSection = ({
 
   const dateRangeValue =
     values.occurredFrom || values.occurredTo
-      ? [toSingaporePickerValue(values.occurredFrom), toSingaporePickerValue(values.occurredTo)]
+      ? [
+          toPickerValueBasedOnCurrentLanguage(values.occurredFrom),
+          toPickerValueBasedOnCurrentLanguage(values.occurredTo),
+        ]
       : null
 
   return (
@@ -137,16 +144,16 @@ const AuditLogFilterSection = ({
         </Col>
 
         <Col xs={24} md={6}>
-          <FieldBox title={`${t('audit_log.field.created_at')} (${t('text.singapore_time')})`}>
+          <FieldBox title={t('audit_log.field.created_at')}>
             <Form.Item
               validateStatus={dateRangeError ? 'error' : undefined}
               help={dateRangeError || undefined}
               style={{ marginBottom: 0 }}
             >
               <DatePicker.RangePicker
-                showTime
+                showTime={DATE_HOUR_SHOW_TIME}
                 allowClear
-                format={DATE_TIME_FORMAT}
+                format={getDateHourFormatBasedOnCurrentLanguage()}
                 suffixIcon={<CalendarOutlined />}
                 value={dateRangeValue}
                 placeholder={[

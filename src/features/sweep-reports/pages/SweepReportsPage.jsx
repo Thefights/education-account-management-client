@@ -1,7 +1,7 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { getCurrentSingaporeDate } from '@/shared/utils/dateTimeUtil'
+import { getCurrentDateBasedOnCurrentLanguage } from '@/shared/utils/dateTimeUtil'
 import { Alert, Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import SweepReportFilterSection from '../components/SweepReportFilterSection'
@@ -10,7 +10,7 @@ import SweepReportTargetsTable from '../components/SweepReportTargetsTable'
 
 const SweepReportsPage = () => {
   const { t } = useTranslation()
-  const [batchDate, setBatchDate] = useState(getCurrentSingaporeDate)
+  const [batchDate, setBatchDate] = useState(getCurrentDateBasedOnCurrentLanguage)
   const queryParams = useMemo(() => (batchDate ? { date: batchDate } : {}), [batchDate])
   const reportRequest = useFetch(ApiUrls.SWEEP_REPORT.INDEX, queryParams, [queryParams])
   const report = reportRequest.data
@@ -26,7 +26,7 @@ const SweepReportsPage = () => {
           batchDate={batchDate}
           onFilter={setBatchDate}
           onReset={() => {
-            const currentDate = getCurrentSingaporeDate()
+            const currentDate = getCurrentDateBasedOnCurrentLanguage()
             setBatchDate(currentDate)
             return currentDate
           }}
