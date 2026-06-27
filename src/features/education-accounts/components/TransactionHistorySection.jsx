@@ -10,8 +10,9 @@ import {
   toPickerValueBasedOnCurrentLanguage,
   wallTimeBasedOnCurrentLanguageToIso,
 } from '@/shared/utils/dateTimeUtil'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import {
-  formatDateBasedOnCurrentLanguage,
+  formatDatetimeStringBasedOnCurrentLanguage,
   getDateHourFormatBasedOnCurrentLanguage,
 } from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
@@ -130,20 +131,32 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
           const isCredit = row.direction === 'Credit'
           return (
             <Typography.Text strong type={isCredit ? 'success' : 'danger'}>
-              {isCredit ? <ArrowUpOutlined /> : <ArrowDownOutlined />} {isCredit ? '+' : '-'}
-              {Number(amount).toFixed(2)}
+              {isCredit ? <ArrowUpOutlined /> : <ArrowDownOutlined />}{' '}
+              {formatCurrencyBasedOnCurrentLanguage(amount, {
+                sign: isCredit ? 'credit' : 'debit',
+              })}
             </Typography.Text>
           )
         },
       },
-      { key: 'balanceBefore', title: t('transaction.balance_before'), width: 140 },
-      { key: 'balanceAfter', title: t('transaction.balance_after'), width: 140 },
+      {
+        key: 'balanceBefore',
+        title: t('transaction.balance_before'),
+        width: 150,
+        render: formatCurrencyBasedOnCurrentLanguage,
+      },
+      {
+        key: 'balanceAfter',
+        title: t('transaction.balance_after'),
+        width: 150,
+        render: formatCurrencyBasedOnCurrentLanguage,
+      },
       {
         key: 'createdAt',
         title: t('transaction.created_at'),
         width: 190,
         sortable: true,
-        render: formatDateBasedOnCurrentLanguage,
+        render: formatDatetimeStringBasedOnCurrentLanguage,
       },
     ],
     [t, typeLabels, directionLabels]

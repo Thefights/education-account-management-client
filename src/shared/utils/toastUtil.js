@@ -30,6 +30,4 @@ export const showSuccessToast = (message) => showToast(message, 'success')
 
 export const showErrorToast = (message) => showToast(message, 'error')
 
-export const showInfoToast = (message) => showToast(message, 'info')
-
 export const showWarningToast = (message) => showToast(message, 'warning')

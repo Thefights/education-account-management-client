@@ -1,12 +1,3 @@
-export const getStringCapitalized = (string) => {
-  return string
-    .trim()
-    .toLowerCase()
-    .split(/[\s_]+/)
-    .map((str) => str.replace(/(?:^|\s|["'([{])+\S/g, (match) => match.toUpperCase()))
-    .join(' ')
-}
-
 export const getTrimString = (input) => {
   if (typeof input === 'string') return input.trim()
   if (Array.isArray(input)) return input.map(getTrimString)
@@ -40,13 +31,6 @@ export const getEnumLabelByValue = (enumArray, value) => {
     return false
   })
   return found ? (found.label ?? (typeof found === 'string' ? found : String(value))) : null
-}
-
-export const stripHtml = (html) => {
-  if (!html || typeof html !== 'string') return ''
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  const text = doc.body.textContent || ''
-  return text
 }
 
 export const renderEmptyFallback = (value) => value ?? 'N/A'

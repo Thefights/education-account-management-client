@@ -133,7 +133,7 @@ const TopupConfigurationDetailPage = ({ type }) => {
           <Descriptions.Item label="ID">#{data.id}</Descriptions.Item>
           <Descriptions.Item label={t('topup_form.topup_amount')}>
             <Typography.Text strong>
-              {formatCurrencyBasedOnCurrentLanguage(data.topupAmount) || '—'}
+              {formatCurrencyBasedOnCurrentLanguage(data.topupAmount)}
             </Typography.Text>
           </Descriptions.Item>
           <Descriptions.Item label={t('topup_form.status')}>

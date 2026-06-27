@@ -26,7 +26,7 @@ export const createEmptyTopupConditionGroup = () => ({
   groups: [],
 })
 
-export const normalizeTopupCondition = (condition = {}) => ({
+const normalizeTopupCondition = (condition = {}) => ({
   ...condition,
   field: typeof condition.field === 'number' ? condition.field : fieldValues[condition.field] || 1,
   operator:

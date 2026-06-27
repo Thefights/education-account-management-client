@@ -11,7 +11,7 @@ const claimKeys = {
   userId: 'UserId',
 }
 
-export const decodeJwtPayload = (token) => {
+const decodeJwtPayload = (token) => {
   if (!token) return {}
 
   try {

@@ -7,15 +7,12 @@ import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/forma
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { useMemo } from 'react'
 
-const formatAmount = (value) =>
-  formatCurrencyBasedOnCurrentLanguage(value) || renderEmptyFallback(null)
-
 const TopupHistoryDetailTableSection = ({ targets, loading, sort, setSort }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
 
   const fields = useMemo(
-      () => [
+    () => [
       { key: 'accountNumber', title: t('topup.account_number'), sortable: true },
       { key: 'accountName', title: t('topup.account_name'), sortable: true },
       { key: 'transactionCode', title: t('topup.transaction_code'), sortable: true },
@@ -33,7 +30,7 @@ const TopupHistoryDetailTableSection = ({ targets, loading, sort, setSort }) => 
         title: t('topup.amount'),
         sortable: true,
         isNumeric: true,
-        render: formatAmount,
+        render: formatCurrencyBasedOnCurrentLanguage,
       },
       {
         key: 'createdAt',
