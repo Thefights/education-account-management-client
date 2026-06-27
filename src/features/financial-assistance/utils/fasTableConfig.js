@@ -11,7 +11,6 @@ export const fasApplicationStatusOptions = [
   { value: FAS_APPLICATION_STATUS.Approved, label: 'Approved' },
   { value: 'expired', label: 'Expired' },
   { value: FAS_APPLICATION_STATUS.Rejected, label: 'Rejected' },
-  { value: FAS_APPLICATION_STATUS.Withdrawn, label: 'Withdrawn' },
 ]
 
 export const myFasApplicationStatusOptions = [

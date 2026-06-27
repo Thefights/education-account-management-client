@@ -1,25 +1,21 @@
 import {
   FAS_APPLICATION_STATUS,
-  FAS_STATUS,
   MOCK_ACCOUNT_HOLDER,
 } from '@/features/financial-assistance/data/fasSeedData'
 import {
   buildAvailableSchemesParams,
   buildSubmitFasApplicationFormData,
+  normalizeApiApplicationPage,
   normalizeApiAvailableSchemesResponse,
+  normalizeApiScheme,
   normalizeFasProfileFromApi,
   normalizeFasSnapshotProfile,
 } from '@/features/financial-assistance/api/accountHolderFasApi'
-import {
-  fasMockStore,
-  useFasMockStore,
-} from '@/features/financial-assistance/data/fasMockStore'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
   buildEligibilityPreview,
   collectConditionFields,
   describeTierSubsidy,
-  evaluateSchemeEligibility,
   formatTierConditionText,
   getSuggestedTier,
   getPci,
@@ -56,6 +52,34 @@ const parentNationalityOptions = ['Singapore Citizen', 'Other'].map((value) => (
 }))
 
 const noExpandedSchemeId = '__none__'
+const applicationListParams = { Page: 1, PageSize: 100, Sort: 'createdAt desc' }
+const isBlockingApplicationForReapply = (application, sourceApplicationId) => {
+  if (application?.displayStatus === FAS_APPLICATION_STATUS.Pending) {
+    return sourceApplicationId == null
+  }
+
+  return (
+    application?.displayStatus === FAS_APPLICATION_STATUS.Approved &&
+    !isApprovedApplicationExpired(application)
+  )
+}
+
+const getSchemeLookupId = (scheme) => {
+  const value = scheme?.apiId ?? scheme?.id ?? scheme?.schemeId
+  return value == null ? '' : String(value)
+}
+
+const findActiveApplicationForScheme = (applications, scheme, sourceApplicationId) => {
+  const schemeId = getSchemeLookupId(scheme)
+  if (!schemeId) return null
+
+  return (applications || []).find(
+    (application) =>
+      String(application.schemeId) === schemeId &&
+      (sourceApplicationId == null || String(application.apiId) !== String(sourceApplicationId)) &&
+      isBlockingApplicationForReapply(application, sourceApplicationId)
+  ) || null
+}
 
 const getAgeFromDateOfBirth = (dateOfBirth) => {
   if (!dateOfBirth) return null
@@ -115,11 +139,18 @@ const getApiErrorMessage = (error) => {
 }
 
 const MyFasApplyPage = () => {
-  const { schemes: mockSchemes, applications } = useFasMockStore()
   const location = useLocation()
   const navigate = useNavigate()
-  const initialSchemeId = location.state?.schemeId != null ? String(location.state.schemeId) : null
-  const snapshotProfile = normalizeFasSnapshotProfile(location.state?.snapshot, initialProfile)
+  const [initialSchemeId] = useState(() =>
+    location.state?.schemeId != null ? String(location.state.schemeId) : null
+  )
+  const [initialScheme] = useState(() => normalizeApiScheme(location.state?.scheme))
+  const [sourceApplicationId] = useState(() =>
+    location.state?.sourceApplicationId != null ? String(location.state.sourceApplicationId) : null
+  )
+  const [snapshotProfile] = useState(() =>
+    normalizeFasSnapshotProfile(location.state?.snapshot, initialProfile)
+  )
   const startingProfile = snapshotProfile || initialProfile
   const [profile, setProfile] = useState(startingProfile)
   const [shown, setShown] = useState(Boolean(snapshotProfile))
@@ -140,12 +171,29 @@ const MyFasApplyPage = () => {
     availableParams,
     [availableParams]
   )
+  const applicationsQuery = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    applicationListParams,
+    []
+  )
+  const applicationPage = useMemo(
+    () => normalizeApiApplicationPage(applicationsQuery.data),
+    [applicationsQuery.data]
+  )
+  const activeApplications = applicationPage.collection
   const apiAvailableSchemes = useMemo(
     () => normalizeApiAvailableSchemesResponse(availableSchemesQuery.data),
     [availableSchemesQuery.data]
   )
   const usingApiSchemes = Array.isArray(apiAvailableSchemes.schemes) && !availableSchemesQuery.error
-  const schemes = usingApiSchemes ? apiAvailableSchemes.schemes : mockSchemes
+  const schemes = useMemo(() => {
+    const apiSchemes = usingApiSchemes ? apiAvailableSchemes.schemes : []
+    if (!initialScheme) return apiSchemes
+    if (apiSchemes.some((scheme) => String(scheme.id) === String(initialScheme.id))) {
+      return apiSchemes
+    }
+    return [initialScheme, ...apiSchemes]
+  }, [apiAvailableSchemes.schemes, initialScheme, usingApiSchemes])
 
   const schemeById = useMemo(
     () => Object.fromEntries(schemes.map((scheme) => [String(scheme.id), scheme])),
@@ -153,9 +201,9 @@ const MyFasApplyPage = () => {
   )
 
   useEffect(() => {
-    if (!initialSchemeId && !snapshotProfile) return
+    if (!initialSchemeId && !snapshotProfile && !sourceApplicationId) return
     navigate(location.pathname, { replace: true })
-  }, [initialSchemeId, location.pathname, navigate, snapshotProfile])
+  }, [initialSchemeId, location.pathname, navigate, snapshotProfile, sourceApplicationId])
 
   useEffect(() => {
     if (!profileQuery.data || snapshotProfile) return
@@ -166,35 +214,7 @@ const MyFasApplyPage = () => {
     })
   }, [profileQuery.data, snapshotProfile])
 
-  const accountApplications = useMemo(
-    () =>
-      applications.filter(
-        (application) => application.accountNumber === MOCK_ACCOUNT_HOLDER.accountNumber
-      ),
-    [applications]
-  )
-
-  const blockingSchemeIds = useMemo(
-    () =>
-      new Set(
-        accountApplications
-          .filter(
-            (application) =>
-              application.status === FAS_APPLICATION_STATUS.Pending ||
-              (application.status === FAS_APPLICATION_STATUS.Approved &&
-                !isApprovedApplicationExpired(application))
-          )
-          .map((application) => application.schemeId)
-      ),
-    [accountApplications]
-  )
-
-  const activeAvailableSchemes = useMemo(() => {
-    if (usingApiSchemes) return schemes
-    return schemes.filter(
-      (scheme) => scheme.status === FAS_STATUS.Active && !blockingSchemeIds.has(scheme.id)
-    )
-  }, [blockingSchemeIds, schemes, usingApiSchemes])
+  const activeAvailableSchemes = schemes
 
   const visibleSchemes = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -209,14 +229,10 @@ const MyFasApplyPage = () => {
     return activeAvailableSchemes.filter((scheme) => {
       const matchesQuery = !query || scheme.name.toLowerCase().includes(query)
       if (!matchesQuery) return false
+      if (findActiveApplicationForScheme(activeApplications, scheme, sourceApplicationId)) return false
       if (!shown) return true
-      if (usingApiSchemes) {
-        return !!getSuggestedTier(scheme, { data: eligibleProfile })
-      }
-      return (
-        evaluateSchemeEligibility(scheme, eligibleProfile) &&
-        !!getSuggestedTier(scheme, { data: eligibleProfile })
-      )
+      if (scheme.reapplyFallback || !scheme.tiers?.length) return true
+      return !!getSuggestedTier(scheme, { data: eligibleProfile })
     })
   }, [
     activeAvailableSchemes,
@@ -228,6 +244,8 @@ const MyFasApplyPage = () => {
     search,
     shown,
     usingApiSchemes,
+    activeApplications,
+    sourceApplicationId,
   ])
 
   const openForm = (schemeId) => {
@@ -255,10 +273,18 @@ const MyFasApplyPage = () => {
       )
     }
 
+    const blockingApplication = findActiveApplicationForScheme(
+      activeApplications,
+      scheme,
+      sourceApplicationId
+    )
+
     return (
       <ApplyForm
         scheme={scheme}
         profile={formProfile}
+        sourceApplicationId={sourceApplicationId}
+        blockingApplication={blockingApplication}
         attachedDocs={attachedDocs}
         onBack={() => setFormSchemeId(null)}
         onProfileChange={setFormProfile}
@@ -390,7 +416,7 @@ const MyFasApplyPage = () => {
                 <div className="fas-note">
                   Showing active schemes that do not already have an application. Enter details and
                   use the button to narrow the list.
-                  {!usingApiSchemes && availableSchemesQuery.error ? ' Real API is unavailable, so mock data is shown.' : ''}
+                  {availableSchemesQuery.error ? ' Unable to load FAS schemes from the API.' : ''}
                 </div>
               )}
             </div>
@@ -470,6 +496,8 @@ const SchemeInfo = ({ scheme }) => (
 const ApplyForm = ({
   scheme,
   profile,
+  sourceApplicationId,
+  blockingApplication,
   attachedDocs,
   onBack,
   onProfileChange,
@@ -499,7 +527,12 @@ const ApplyForm = ({
     (!schemeFieldSet.has('parentNationality') || !!profile.parentNationality) &&
     (!requiresIncome || !!profile.income) &&
     (!requiresMembers || !!profile.members)
-  const isReadyToSubmit = hasProfileDetails && !!matchingTier && attachedCount === totalDocuments
+  const needsTierMatch = scheme.tiers?.length > 0
+  const isReadyToSubmit =
+    !blockingApplication &&
+    hasProfileDetails &&
+    (!needsTierMatch || !!matchingTier) &&
+    attachedCount === totalDocuments
 
   const attachDoc = (documentId, file) => {
     onAttachedDocsChange((current) => ({
@@ -514,12 +547,17 @@ const ApplyForm = ({
   }
 
   const submit = async () => {
+    if (blockingApplication) {
+      message.error('You already have a pending or approved application for this scheme.')
+      return
+    }
+
     if (!hasProfileDetails) {
       message.error('Confirm the required application details')
       return
     }
 
-    if (!matchingTier) {
+    if (needsTierMatch && !matchingTier) {
       message.error('The entered details do not match any tier for this scheme')
       return
     }
@@ -530,36 +568,23 @@ const ApplyForm = ({
       return
     }
 
-    if (scheme.apiId) {
-      setSubmitting(true)
-      try {
-        const formData = buildSubmitFasApplicationFormData({
-          scheme,
-          profile,
-          documents: scheme.documents,
-          attachedDocs,
-        })
-        await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, formData)
-        message.success(`Application submitted: ${scheme.name}`)
-        onSubmitted()
-      } catch (error) {
-        message.error(getApiErrorMessage(error))
-      } finally {
-        setSubmitting(false)
-      }
-      return
+    setSubmitting(true)
+    try {
+      const formData = buildSubmitFasApplicationFormData({
+        scheme,
+        profile,
+        documents: scheme.documents,
+        attachedDocs,
+        sourceApplicationId,
+      })
+      await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, formData)
+      message.success(`Application submitted: ${scheme.name}`)
+      onSubmitted()
+    } catch (error) {
+      message.error(getApiErrorMessage(error))
+    } finally {
+      setSubmitting(false)
     }
-
-    fasMockStore.createAccountHolderApplication({
-      schemeId: scheme.id,
-      profile,
-      attachedDocuments: scheme.documents.map((document) => ({
-        documentId: document.id,
-        fileName: attachedDocs[document.id]?.fileName || `${document.id}.pdf`,
-      })),
-    })
-    message.success(`Application submitted: ${scheme.name}`)
-    onSubmitted()
   }
 
   return (
@@ -676,7 +701,7 @@ const ApplyForm = ({
                 />
                 <div className="fas-summary-row">
                   <span>Estimated tier</span>
-                  <strong>{matchingTier?.name || 'No matching tier'}</strong>
+                  <strong>{matchingTier?.name || (scheme.tiers?.length ? 'No matching tier' : 'To be confirmed')}</strong>
                 </div>
                 <div className="fas-summary-row">
                   <span>FAS duration</span>
@@ -688,6 +713,12 @@ const ApplyForm = ({
                     {attachedCount}/{totalDocuments}
                   </strong>
                 </div>
+                {blockingApplication && (
+                  <p style={{ color: 'var(--fas-red)', marginTop: 0 }}>
+                    You already have a pending or approved application for this scheme
+                    {blockingApplication.id ? ` (${blockingApplication.id})` : ''}.
+                  </p>
+                )}
                 <Button
                   type="primary"
                   block

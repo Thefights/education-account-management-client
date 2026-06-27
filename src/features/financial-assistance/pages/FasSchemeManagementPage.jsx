@@ -458,6 +458,15 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
       return
     }
 
+    // Overlapping tier check (duplicate max PCI)
+    const pciValues = scheme.tiers
+      .map(t => t.maxPci !== '' && t.maxPci != null ? Number(t.maxPci) : null)
+      .filter(v => v !== null)
+    if (new Set(pciValues).size !== pciValues.length) {
+      message.error('Some tiers have overlapping/duplicate Max PCI. Please adjust.')
+      return
+    }
+
     if (status === FAS_STATUS.Active && !Number(scheme.validityMonths)) {
       message.error('Set the FAS duration before publishing')
       return

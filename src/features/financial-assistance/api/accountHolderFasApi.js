@@ -85,6 +85,9 @@ export const isApiApprovedExpired = (application) => {
 const normalizeSubsidyType = (value) =>
   String(value || '').toLowerCase().includes('fixed') ? 'fixed' : 'percent'
 
+const getDocumentId = (document, index) =>
+  document.requiredDocumentId ?? document.requiredDocumentIdSnapshot ?? document.id ?? index + 1
+
 export const normalizeApiScheme = (scheme) => {
   if (!scheme) return null
 
@@ -93,37 +96,45 @@ export const normalizeApiScheme = (scheme) => {
 
   return {
     id: String(scheme.id),
-    apiId: scheme.id,
-    code: scheme.schemeCode,
+    apiId: scheme.apiId ?? scheme.id,
+    code: scheme.schemeCode || scheme.code,
     name: scheme.schemeName || scheme.name || scheme.schemeCode || String(scheme.id),
     description: scheme.description || 'Financial assistance scheme for eligible students.',
     status: 'active',
     subsidyType,
     validityMonths: scheme.durationInMonths || scheme.validityMonths || 12,
-    linkedCourses: [],
+    linkedCourses: scheme.linkedCourses || [],
     conditionsSummary: scheme.conditionsSummary || [],
+    reapplyFallback: Boolean(scheme.reapplyFallback),
     tiers: (scheme.tiers || []).map((tier, index) => {
       const maxPci = tier.maxPerCapitaIncome ?? tier.maxPci ?? ''
       return {
         id: String(tier.id ?? index + 1),
-        apiId: tier.id,
+        apiId: tier.apiId ?? tier.id,
         name: tier.tierName || tier.name || `Tier ${index + 1}`,
         conditionText: maxPci !== '' && maxPci != null ? `PCI ≤ ${Number(maxPci).toLocaleString()}` : '',
         maxPci,
         perComponent,
-        value: tier.subsidyValue ?? '',
-        courseValue: tier.courseFeeSubsidyValue ?? '',
-        miscValue: tier.miscFeeSubsidyValue ?? '',
+        value: tier.subsidyValue ?? tier.value ?? '',
+        courseValue: tier.courseFeeSubsidyValue ?? tier.courseValue ?? '',
+        miscValue: tier.miscFeeSubsidyValue ?? tier.miscValue ?? '',
         displayOrder: tier.displayOrder ?? index + 1,
       }
     }),
-    documents: (scheme.requiredDocuments || scheme.documents || []).map((document) => ({
-      id: String(document.id),
-      apiId: document.id,
-      name: document.documentName || document.name || 'Required document',
-      templateName: document.templateUrl || '',
-      templateUrl: document.templateUrl || '',
-    })),
+    documents: (scheme.requiredDocuments || scheme.documents || []).map((document, index) => {
+      const id = getDocumentId(document, index)
+      return {
+        id: String(id),
+        apiId: id,
+        name:
+          document.documentName ||
+          document.documentNameSnapshot ||
+          document.name ||
+          'Required document',
+        templateName: document.templateName || document.templateUrl || '',
+        templateUrl: document.templateUrl || '',
+      }
+    }),
   }
 }
 
@@ -139,15 +150,18 @@ export const normalizeApiAvailableSchemesResponse = (payload) => {
   }
 }
 
-export const buildAvailableSchemesParams = ({ shown, profile }) => {
-  if (!shown) return {}
-
-  return {
-    grossHouseholdIncome: Number(profile.income || 0),
-    householdMemberCount: Number(profile.members || 0),
-    guardianNationality: toGuardianNationalityApi(profile.parentNationality),
-  }
-}
+export const buildAvailableSchemesParams = ({ shown, profile }) => ({
+  Page: 1,
+  PageSize: 100,
+  Sort: 'schemeName asc',
+  ...(shown
+    ? {
+        GrossHouseholdIncome: Number(profile.income || 0),
+        HouseholdMemberCount: Number(profile.members || 0),
+        GuardianNationality: toGuardianNationalityApi(profile.parentNationality),
+      }
+    : {}),
+})
 
 export const normalizeFasProfileFromApi = (payload, fallback) => {
   const accountHolder = payload?.data || payload
@@ -162,6 +176,8 @@ export const normalizeFasProfileFromApi = (payload, fallback) => {
 
   return {
     ...fallback,
+    name: accountHolder.name || fallback?.name,
+    accountNumber: accountHolder.accountNumber || fallback?.accountNumber,
     age:
       getAgeFromDateOfBirth(accountHolder.dateOfBirth) ??
       accountHolder.age ??
@@ -183,6 +199,8 @@ export const normalizeFasSnapshotProfile = (snapshot, fallback) => {
 
   return {
     ...fallback,
+    name: snapshot.name || fallback?.name,
+    accountNumber: snapshot.accountNumber || fallback?.accountNumber,
     age: snapshot.age ?? snapshot.studentAgeSnapshot ?? fallback?.age,
     nationality:
       snapshot.nationality || fromNationalityApi(snapshot.studentNationalitySnapshot) || fallback?.nationality,
@@ -195,12 +213,21 @@ export const normalizeFasSnapshotProfile = (snapshot, fallback) => {
   }
 }
 
-export const buildSubmitFasApplicationFormData = ({ scheme, profile, documents, attachedDocs }) => {
+export const buildSubmitFasApplicationFormData = ({
+  scheme,
+  profile,
+  documents,
+  attachedDocs,
+  sourceApplicationId,
+}) => {
   const formData = new FormData()
   formData.append('FasSchemeId', scheme.apiId ?? scheme.id)
   formData.append('GuardianNationality', toGuardianNationalityApi(profile.parentNationality))
   formData.append('GrossHouseholdIncome', Number(profile.income || 0))
   formData.append('HouseholdMemberCount', Number(profile.members || 0))
+  if (sourceApplicationId != null) {
+    formData.append('ReapplySourceApplicationId', sourceApplicationId)
+  }
 
   documents.forEach((document, index) => {
     const attachment = attachedDocs[document.id]
@@ -239,11 +266,15 @@ const normalizePaginationCollection = (payload) => {
   }
 }
 
+const getApplicationApiId = (application) =>
+  application?.id ?? application?.applicationId ?? application?.fasApplicationId
+
 export const normalizeApiApplicationSummary = (application) => {
   const status = fromApiApplicationStatus(application.status)
+  const apiId = getApplicationApiId(application)
   const normalized = {
-    id: application.applicationNumber || String(application.id),
-    apiId: application.id,
+    id: application.applicationNumber || (apiId != null ? String(apiId) : '-'),
+    apiId,
     applicationNumber: application.applicationNumber,
     schemeId: application.schemeId != null ? String(application.schemeId) : undefined,
     schemeName: application.schemeName || '-',
@@ -285,7 +316,8 @@ const mapApprovedTierToUi = (approvedTier) => {
   }
 }
 
-export const normalizeApiApplicationDetail = (detail, summary = {}) => {
+export const normalizeApiApplicationDetail = (payload, summary = {}) => {
+  const detail = payload?.data || payload
   if (!detail) return null
 
   const status = fromApiApplicationStatus(detail.status)
@@ -302,10 +334,11 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
       getPci(detail.grossHouseholdIncomeSnapshot, detail.householdMemberCountSnapshot),
   }
 
+  const apiId = getApplicationApiId(detail)
   const application = {
     ...summary,
-    id: detail.applicationNumber || summary.id || String(detail.id),
-    apiId: detail.id,
+    id: detail.applicationNumber || summary.id || (apiId != null ? String(apiId) : '-'),
+    apiId,
     applicationNumber: detail.applicationNumber,
     schemeId,
     schemeName: detail.scheme?.schemeName || summary.schemeName,
@@ -327,16 +360,17 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
     application.displayStatus = 'expired'
   }
 
-  application.scheme = {
-    id: schemeId,
-    apiId: detail.scheme?.id,
-    code: detail.scheme?.schemeCode,
-    name: detail.scheme?.schemeName || summary.schemeName || '-',
+  application.scheme = normalizeApiScheme({
+    ...(detail.scheme || {}),
+    id: detail.scheme?.id ?? schemeId,
+    schemeName: detail.scheme?.schemeName || summary.schemeName || '-',
     description: detail.scheme?.description || '',
-    subsidyType: approvedTier?.subsidyValue != null ? 'fixed' : 'percent',
-    validityMonths: undefined,
+    subsidyType: approvedTier?.subsidyValue != null ? 'FixedAmount' : 'Percent',
+    validityMonths: summary.scheme?.validityMonths,
     tiers: approvedTier ? [approvedTier] : [],
-  }
+    documents: detail.documents || [],
+    reapplyFallback: true,
+  })
 
   return application
 }
