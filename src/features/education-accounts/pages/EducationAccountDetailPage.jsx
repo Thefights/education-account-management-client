@@ -3,6 +3,7 @@ import GenericDetail from '@/shared/components/details/GenericDetail'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { Flex, Tag } from 'antd'
@@ -50,6 +51,7 @@ const EducationAccountDetailPage = () => {
       {
         key: 'balance',
         label: t('education_account.balance'),
+        render: (value) => formatCurrencyBasedOnCurrentLanguage(value),
       },
       {
         key: 'createdAt',

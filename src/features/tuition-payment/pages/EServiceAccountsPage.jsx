@@ -1,3 +1,4 @@
+import EServiceAccountsFilterSection from '@/features/education-accounts/components/EServiceAccountsFilterSection'
 import ManualAccountResultSection from '@/features/manual-account-creation/components/ManualAccountResultSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
@@ -9,11 +10,11 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { minLen } from '@/shared/utils/validateUtil'
 import { Card, Flex, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import TuitionCourseFilterSection from '../components/TuitionCourseFilterSection'
 import EServiceAccountsTableSection from '../components/EServiceAccountsTableSection'
 import EServiceAccountsToolbarSection from '../components/EServiceAccountsToolbarSection'
 
@@ -38,6 +39,9 @@ const EServiceAccountsPage = () => {
   const { submit: submitImport } = useAxiosSubmit({
     url: ApiUrls.EDUCATION_ACCOUNT.IMPORT,
     method: 'POST',
+    onError: async (error) => {
+      setImportResult(getImportErrorResult(error))
+    },
   })
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.EDUCATION_ACCOUNT.UPDATE_STATUS,
@@ -92,6 +96,7 @@ const EServiceAccountsPage = () => {
     const formData = new FormData()
     formData.append('file', values.file)
     const response = await submitImport({ overrideData: formData })
+    if (!response) return
     const result = response?.data
     setImportResult(result || null)
     if (result?.succeeded) await accounts.fetch()

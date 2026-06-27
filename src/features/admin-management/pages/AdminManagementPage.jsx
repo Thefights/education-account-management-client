@@ -7,6 +7,7 @@ import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -51,6 +52,9 @@ const AdminManagementPage = () => {
   const submitImport = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.IMPORT,
     method: 'POST',
+    onError: async (error) => {
+      setImportResult(getImportErrorResult(error))
+    },
   })
 
   const handleFilter = (values) => {
@@ -72,6 +76,7 @@ const AdminManagementPage = () => {
     const formData = new FormData()
     formData.append('file', values.file)
     const response = await submitImport.submit({ overrideData: formData })
+    if (!response) return
     const result = response?.data
     setImportResult(result || null)
     if (result?.succeeded) await getAdmins.fetch()

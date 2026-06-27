@@ -104,8 +104,8 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   ]
   const fields = useMemo(
     () => [
-      { key: 'transactionCode', title: t('transaction.code'), width: 250 },
-      { key: 'description', title: t('transaction.description'), width: 240 },
+      { key: 'transactionCode', title: t('transaction.code'), width: 250, sortable: true },
+      { key: 'description', title: t('transaction.description'), width: 240, sortable: true },
       {
         key: 'type',
         title: t('transaction.type'),
@@ -117,6 +117,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         key: 'direction',
         title: t('transaction.direction'),
         width: 110,
+        sortable: true,
         render: (value) => (
           <Tag color={value === 'Credit' ? 'success' : 'error'}>
             {directionLabels[value] || value}
@@ -144,12 +145,14 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         key: 'balanceBefore',
         title: t('transaction.balance_before'),
         width: 150,
+        sortable: true,
         render: formatCurrencyBasedOnCurrentLanguage,
       },
       {
         key: 'balanceAfter',
         title: t('transaction.balance_after'),
         width: 150,
+        sortable: true,
         render: formatCurrencyBasedOnCurrentLanguage,
       },
       {

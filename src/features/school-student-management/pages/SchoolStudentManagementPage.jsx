@@ -6,6 +6,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import SchoolStudentFilterSection from '../components/SchoolStudentFilterSection'
@@ -51,6 +52,9 @@ const SchoolStudentManagementPage = () => {
   const submitImport = useAxiosSubmit({
     url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.IMPORT,
     method: 'POST',
+    onError: async (error) => {
+      setImportResult(getImportErrorResult(error))
+    },
   })
 
   const handleFilter = (values) => {
@@ -91,6 +95,7 @@ const SchoolStudentManagementPage = () => {
     const formData = new FormData()
     formData.append('file', values.file)
     const response = await submitImport.submit({ overrideData: formData })
+    if (!response) return
     const result = response?.data
     setImportResult(result || null)
     if (result?.succeeded) await getStudents.fetch()
