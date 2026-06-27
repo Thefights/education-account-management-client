@@ -11,6 +11,8 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import { minLen } from '@/shared/utils/validateUtil'
 import CourseListSection from '../components/CourseListSection'
 import FilterButton from '@/shared/components/buttons/FilterButton'
+import { useOutletContext } from 'react-router-dom'
+import { useLocation } from 'react-router-dom';
 
 
 
@@ -18,6 +20,10 @@ const defaultFilters = { search: '', statuses: [] }
 
 
 const PayPage = () => {
+  const { state } = useLocation();
+
+  const selected = state?.selected ?? [];
+  console.log(selected)
   const { t } = useTranslation()
   const { token } = theme.useToken()
   const screens = Grid.useBreakpoint()
@@ -102,176 +108,153 @@ const PayPage = () => {
   ]
 
   return (
-    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1400, margin: '0 auto' }}>
-      <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
-        Pay Now
-      </Typography.Title>
+    <Flex vertical gap={24}>
+  {/* TOP */}
+  <Card bordered={false}>
+    <CourseListSection selected={selected} />
+  </Card>
 
-      {profile.loading && !data ? (
-        <Card>
-          <Skeleton active paragraph={{ rows: 8 }} />
-        </Card>
-      ) : (
-        <>
-          
-          <Row gutter={24} align="top">
-            {/* LEFT */}
-            <Col xs={24} lg={12}>
-              <Flex vertical gap={16}>
-                <CourseListSection />
-              </Flex>
-            </Col>
+  {/* BOTTOM */}
+  <Card
+    bordered={false}
+    style={{
+      width: '100%'
+    }}
+  >
+    <Flex vertical gap={24}>
+      {/* QR */}
+      <Button
+        type="primary"
+        size="large"
+        block
+        icon={<QrcodeOutlined />}
+      >
+        QR Code
+      </Button>
 
-            {/* RIGHT */}
-            <Col xs={24} lg={12}>
-              <Card
-                bordered={false}
-                style={{
-                  height: '100%'
-                }}
-              >
-                <Flex vertical gap={24}>
-                  {/* QR */}
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    icon={<QrcodeOutlined />}
-                  >
-                    QR Code
-                  </Button>
+      <Divider style={{ margin: 0 }}>
+        Or pay with card
+      </Divider>
 
-                  {/* Divider */}
-                  <Divider style={{ margin: 0 }}>
-                    Or pay with card
-                  </Divider>
+      {/* SHIPPING INFO */}
+      <div>
+        <Typography.Title
+          level={4}
+          style={{ marginBottom: 16 }}
+        >
+          Shipping information
+        </Typography.Title>
 
-                  {/* SHIPPING INFO */}
-                  <div>
-                    <Typography.Title
-                      level={4}
-                      style={{ marginBottom: 16 }}
-                    >
-                      Shipping information
-                    </Typography.Title>
+        <Form layout="vertical">
+          <Form.Item
+            label="Email"
+            style={{ marginBottom: 16 }}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </div>
 
-                    <Form layout="vertical">
-                      <Form.Item
-                        label="Email"
-                        style={{ marginBottom: 16 }}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Form>
-                  </div>
+      {/* SHIPPING ADDRESS */}
+      <div>
+        <Typography.Text
+          strong
+          style={{
+            display: 'block',
+            marginBottom: 8
+          }}
+        >
+          Shipping address
+        </Typography.Text>
 
-                  {/* SHIPPING ADDRESS */}
-                  <div>
-                    <Typography.Text
-                      strong
-                      style={{
-                        display: 'block',
-                        marginBottom: 8
-                      }}
-                    >
-                      Shipping address
-                    </Typography.Text>
+        <Input
+          placeholder="Name"
+          style={{
+            borderRadius: '6px 6px 0 0'
+          }}
+        />
 
-                    <Input
-                      placeholder="Name"
-                      style={{
-                        borderRadius: '6px 6px 0 0'
-                      }}
-                    />
+        <Select
+          defaultValue="United States"
+          style={{
+            width: '100%'
+          }}
+          options={[
+            {
+              label: 'United States',
+              value: 'United States'
+            }
+          ]}
+        />
 
-                    <Select
-                      defaultValue="United States"
-                      style={{
-                        width: '100%'
-                      }}
-                      options={[
-                        {
-                          label: 'United States',
-                          value: 'United States'
-                        }
-                      ]}
-                    />
+        <Input
+          placeholder="Address"
+          style={{
+            borderRadius: '0 0 6px 6px'
+          }}
+        />
+      </div>
 
-                    <Input
-                      placeholder="Address"
-                      style={{
-                        borderRadius: '0 0 6px 6px'
-                      }}
-                    />
-                  </div>
+      {/* PAYMENT DETAILS */}
+      <div>
+        <Typography.Title
+          level={4}
+          style={{ marginBottom: 16 }}
+        >
+          Payment details
+        </Typography.Title>
 
-                  {/* PAYMENT DETAILS */}
-                  <div>
-                    <Typography.Title
-                      level={4}
-                      style={{ marginBottom: 16 }}
-                    >
-                      Payment details
-                    </Typography.Title>
+        <Typography.Text
+          style={{
+            display: 'block',
+            marginBottom: 8
+          }}
+        >
+          Card information
+        </Typography.Text>
 
-                    <Typography.Text
-                      style={{
-                        display: 'block',
-                        marginBottom: 8
-                      }}
-                    >
-                      Card information
-                    </Typography.Text>
+        <Input
+          placeholder="1234 1234 1234 1234"
+          style={{
+            borderRadius: '6px 6px 0 0'
+          }}
+        />
 
-                    <Input
-                      placeholder="1234 1234 1234 1234"
-                      style={{
-                        borderRadius: '6px 6px 0 0'
-                      }}
-                    />
+        <Input.Group compact>
+          <Input
+            placeholder="MM / YY"
+            style={{
+              width: '50%',
+              borderRadius: 0
+            }}
+          />
 
-                    <Input.Group compact>
-                      <Input
-                        placeholder="MM / YY"
-                        style={{
-                          width: '50%',
-                          borderRadius: 0
-                        }}
-                      />
+          <Input
+            placeholder="CVC"
+            style={{
+              width: '50%',
+              borderRadius: 0
+            }}
+          />
+        </Input.Group>
+      </div>
 
-                      <Input
-                        placeholder="CVC"
-                        style={{
-                          width: '50%',
-                          borderRadius: 0
-                        }}
-                      />
-                    </Input.Group>
-                  </div>
-
-                  {/* PAY BUTTON */}
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    style={{
-                      marginTop: 12,
-                      height: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    Pay $2,445.00
-                  </Button>
-                </Flex>
-              </Card>
-            </Col>
-
-
-          </Row>
-          <Button style={{alignSelf:'flex-end', width:'100px'}}>Pay</Button>
-        </>
-      )}
+      {/* PAY BUTTON */}
+      <Button
+        type="primary"
+        size="large"
+        block
+        style={{
+          marginTop: 12,
+          height: 48,
+          fontWeight: 600
+        }}
+      >
+        Pay $2,445.00
+      </Button>
     </Flex>
+  </Card>
+</Flex>
   )
 }
 

@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import { useState } from "react";
 
-const CourseEntry = ({ invoice }) => {
+const CourseEntry = ({ invoice, handleCheck }) => {
     const [view, setView] = useState('0px');
     return (
         <Card
@@ -18,8 +18,8 @@ const CourseEntry = ({ invoice }) => {
             <Flex justify="space-between" align="flex-start" gap={24}>
                 <Flex vertical gap={12} align="flex-start" justify="space-between">
                     <Flex gap={12} align="center" gap={12}>
-                    
-                        <CheckSquareOutlined style={{ fontSize: 20 }} />
+                
+                        <input type="checkbox" style={{ fontSize: 50 }} onChange={(e) => {handleCheck(invoice, e.target.checked)}}></input>
 
                         <div>
                             <Typography.Title
@@ -216,13 +216,13 @@ const Divider = () => (
   />
 );
 
-const CourseListSection = ( {collection} ) => {
+const CourseListSection = ( {collection, handleCheck } ) => {
     return (
 
         <div style={{height:'500px', overflowY:'scroll'}}>
             <Flex vertical gap={5} style={{ flex: 1 }}>
                 {collection.map((entry) => (
-                <CourseEntry invoice={entry}/>
+                <CourseEntry invoice={entry} handleCheck={handleCheck}/>
                 ))}
             </Flex>
         </div>
