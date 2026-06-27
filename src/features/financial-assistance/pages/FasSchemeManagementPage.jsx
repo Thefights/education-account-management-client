@@ -138,6 +138,7 @@ const mapBackendSchemeToFrontend = (dto) => {
   return {
     id: dto.id,
     schoolId: dto.schoolId,
+    createdAt: dto.createdAt,
     name: dto.schemeName || '',
     description: dto.description || '',
     status: (dto.status || 'Draft').toLowerCase(),

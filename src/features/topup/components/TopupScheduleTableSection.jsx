@@ -3,7 +3,10 @@ import { defaultTopupStatusStyle } from '@/shared/config/theme/defaultStylesConf
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import {
+  formatDateBasedOnCurrentLanguage,
+  formatDatetimeStringBasedOnCurrentLanguage,
+} from '@/shared/utils/formatDateUtil'
 import { Space, Typography } from 'antd'
 
 const formatAmount = (value) => formatCurrencyBasedOnCurrentLanguage(value) || '-'
@@ -26,14 +29,6 @@ const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail
       ),
     },
     {
-      key: 'topupAmount',
-      title: t('topup.amount'),
-      width: 130,
-      isNumeric: true,
-      sortable: true,
-      render: formatAmount,
-    },
-    {
       key: 'frequency',
       title: t('topup.schedule_type'),
       width: 140,
@@ -50,10 +45,26 @@ const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail
       color: defaultTopupStatusStyle,
     },
     {
+      key: 'topupAmount',
+      title: t('topup.amount'),
+      width: 130,
+      isNumeric: true,
+      sortable: true,
+      render: formatAmount,
+    },
+    {
       key: 'nextExecutionAt',
       title: t('topup.next_execution'),
       width: 190,
+      sortable: true,
       render: formatDateBasedOnCurrentLanguage,
+    },
+    {
+      key: 'createdAt',
+      title: t('topup.created_at'),
+      width: 190,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
   ]
 

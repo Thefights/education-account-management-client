@@ -83,7 +83,6 @@ const InputNumberRenderField = (
           if (error) runWith(nextValue, { skipEmpty: true })
           onChange?.({ target: { name, value: nextValue } })
         }}
-        onBlur={run}
         style={{ width: '100%', height: 40, ...style }}
         {...props}
       />

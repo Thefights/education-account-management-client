@@ -2,12 +2,14 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { routeUrls } from '@/shared/config/routeUrls'
 import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AdminManagementFilterSection from '../components/AdminManagementFilterSection'
 import AdminManagementFormSection from '../components/AdminManagementFormSection'
 import AdminManagementTableSection from '../components/AdminManagementTableSection'
@@ -18,15 +20,14 @@ const defaultSort = { key: 'id', direction: 'desc' }
 
 const AdminManagementPage = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState(defaultSort)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(false)
-  const [openUpdate, setOpenUpdate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
-  const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const schools = useApiOptions({
     url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
@@ -42,10 +43,6 @@ const AdminManagementPage = () => {
   const createAdmin = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.INDEX,
     method: 'POST',
-  })
-  const updateAdmin = useAxiosSubmit({
-    url: ApiUrls.ADMIN_MANAGEMENT.DETAIL(selectedRow.userId),
-    method: 'PUT',
   })
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.UPDATE_STATUS,
@@ -108,10 +105,10 @@ const AdminManagementPage = () => {
           setSort={setSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onCreate={() => setOpenCreate(true)}
-          onEdit={(row) => {
-            setSelectedRow(row)
-            setOpenUpdate(true)
+          onDetail={(row) => {
+            navigate(
+              routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.DETAIL(row.userId))
+            )
           }}
         />
         <GenericTablePagination
@@ -127,11 +124,11 @@ const AdminManagementPage = () => {
       <AdminManagementFormSection
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
-        openUpdate={openUpdate}
-        setOpenUpdate={setOpenUpdate}
-        selectedRow={selectedRow}
+        openUpdate={false}
+        setOpenUpdate={() => {}}
+        selectedRow={{}}
         onCreateSubmit={createAdmin.submit}
-        onUpdateSubmit={updateAdmin.submit}
+        onUpdateSubmit={async () => undefined}
         refetch={getAdmins.fetch}
         schoolOptions={schools.options}
         schoolsLoading={schools.loading}

@@ -6,13 +6,19 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import {
+  toPickerValueBasedOnCurrentLanguage,
+  wallTimeBasedOnCurrentLanguageToIso,
+} from '@/shared/utils/dateTimeUtil'
+import {
+  formatDateBasedOnCurrentLanguage,
+  getDateHourFormatBasedOnCurrentLanguage,
+} from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Tag, Typography } from 'antd'
-import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 
-const DATE_FORMAT = 'D/M/YYYY'
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -98,6 +104,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   const fields = useMemo(
     () => [
       { key: 'transactionCode', title: t('transaction.code'), width: 250 },
+      { key: 'description', title: t('transaction.description'), width: 240 },
       {
         key: 'type',
         title: t('transaction.type'),
@@ -105,7 +112,16 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         sortable: true,
         render: (value) => <Tag>{typeLabels[value] || value}</Tag>,
       },
-      { key: 'description', title: t('transaction.description'), width: 240 },
+      {
+        key: 'direction',
+        title: t('transaction.direction'),
+        width: 110,
+        render: (value) => (
+          <Tag color={value === 'Credit' ? 'success' : 'error'}>
+            {directionLabels[value] || value}
+          </Tag>
+        ),
+      },
       {
         key: 'amount',
         title: t('transaction.amount'),
@@ -123,16 +139,6 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       },
       { key: 'balanceBefore', title: t('transaction.balance_before'), width: 140 },
       { key: 'balanceAfter', title: t('transaction.balance_after'), width: 140 },
-      {
-        key: 'direction',
-        title: t('transaction.direction'),
-        width: 110,
-        render: (value) => (
-          <Tag color={value === 'Credit' ? 'success' : 'error'}>
-            {directionLabels[value] || value}
-          </Tag>
-        ),
-      },
       {
         key: 'createdAt',
         title: t('transaction.created_at'),
@@ -174,13 +180,19 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
               <FieldBox title={t('transaction.created_at')}>
                 <Form.Item style={{ marginBottom: 0 }}>
                   <DatePicker.RangePicker
-                    showTime
+                    showTime={DATE_HOUR_SHOW_TIME}
+                    format={getDateHourFormatBasedOnCurrentLanguage()}
                     value={
-                      values.createdFrom ? [dayjs(values.createdFrom), dayjs(values.createdTo)] : null
+                      values.createdFrom
+                        ? [
+                            toPickerValueBasedOnCurrentLanguage(values.createdFrom),
+                            toPickerValueBasedOnCurrentLanguage(values.createdTo),
+                          ]
+                        : null
                     }
                     onChange={(range) => {
-                      setField('createdFrom', range?.[0]?.toISOString() || '')
-                      setField('createdTo', range?.[1]?.toISOString() || '')
+                      setField('createdFrom', wallTimeBasedOnCurrentLanguageToIso(range?.[0]))
+                      setField('createdTo', wallTimeBasedOnCurrentLanguageToIso(range?.[1]))
                     }}
                     suffixIcon={<CalendarOutlined />}
                     style={{ width: '100%', height: 40 }}

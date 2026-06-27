@@ -164,7 +164,6 @@ const ValidationTextField = (
               if (error) runWith(val, { skipEmpty: true })
               onChange?.({ target: { name: props.name, value: val } })
             }}
-            onBlur={run}
             onClick={() => {
               if (isMultipleSelect && !isReadOnlyOrDisabled) setOpenMultipleSelect(true)
               if (isSelectDialog && !isReadOnlyOrDisabled) setOpenSelectDialog(true)
@@ -225,7 +224,6 @@ const ValidationTextField = (
             if (error) runWith(e.target.value, { skipEmpty: true })
             onChange?.(e)
           }}
-          onBlur={run}
           disabled={isReadOnlyOrDisabled}
           readOnly={readOnly}
           rows={minRows}
@@ -239,7 +237,6 @@ const ValidationTextField = (
             if (error) runWith(e.target.value, { skipEmpty: true })
             onChange?.(e)
           }}
-          onBlur={run}
           disabled={isReadOnlyOrDisabled}
           readOnly={readOnly}
           min={minValue}

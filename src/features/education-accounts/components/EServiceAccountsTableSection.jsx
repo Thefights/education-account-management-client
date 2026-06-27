@@ -1,8 +1,6 @@
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { Button, Tag } from 'antd'
+import { Tag } from 'antd'
 import { useMemo } from 'react'
 
 const statusColors = {
@@ -18,7 +16,7 @@ const EServiceAccountsTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onView,
+  onDetail,
 }) => {
   const { t } = useTranslation()
   const fields = useMemo(
@@ -30,15 +28,7 @@ const EServiceAccountsTableSection = ({
         sortable: true,
         fixedColumn: true,
       },
-      {
-        key: 'nric',
-        title: t('education_account.nric_full'),
-        width: 130,
-        sortable: true,
-        render: (value) => <MaskedNric value={value} />,
-      },
       { key: 'name', title: t('education_account.name'), width: 180, sortable: true },
-      { key: 'dateOfBirth', title: t('education_account.dob'), width: 130, sortable: true },
       {
         key: 'status',
         title: t('education_account.status'),
@@ -46,26 +36,9 @@ const EServiceAccountsTableSection = ({
         sortable: true,
         render: (value) => <Tag color={statusColors[value]}>{value}</Tag>,
       },
-      { key: 'balance', title: t('education_account.balance'), width: 130, sortable: true },
-      {
-        key: 'createdDate',
-        title: t('education_account.created'),
-        width: 170,
-        sortable: true,
-        render: formatDateBasedOnCurrentLanguage,
-      },
-      {
-        key: 'action',
-        title: '',
-        width: 80,
-        render: (_, row) => (
-          <Button type="link" onClick={() => onView(row)}>
-            {t('education_account.view')}
-          </Button>
-        ),
-      },
+      { key: 'dateOfBirth', title: t('education_account.dob'), width: 130, sortable: true },
     ],
-    [onView, t]
+    [t]
   )
 
   return (
@@ -76,10 +49,10 @@ const EServiceAccountsTableSection = ({
       loading={loading}
       sort={sort}
       setSort={setSort}
-      rowSelection={{
-        selectedRowKeys: selectedIds,
-        onChange: setSelectedIds,
-      }}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
+      onRowClick={onDetail}
     />
   )
 }

@@ -4,13 +4,17 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { localDateTimeToIso, toLocalPickerValue } from '@/shared/utils/dateTimeUtil'
+import {
+  toPickerValueBasedOnCurrentLanguage,
+  wallTimeBasedOnCurrentLanguageToIso,
+} from '@/shared/utils/dateTimeUtil'
+import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { CalendarOutlined } from '@ant-design/icons'
 import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 
-const DATE_TIME_FORMAT = 'D/M/YYYY HH:mm'
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -96,8 +100,8 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
   }
 
   const handleDateRangeChange = (range) => {
-    const createdFrom = localDateTimeToIso(range?.[0])
-    const createdTo = localDateTimeToIso(range?.[1])
+    const createdFrom = wallTimeBasedOnCurrentLanguageToIso(range?.[0])
+    const createdTo = wallTimeBasedOnCurrentLanguageToIso(range?.[1])
 
     setField('createdFrom', createdFrom)
     setField('createdTo', createdTo)
@@ -117,7 +121,10 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
 
   const dateRangeValue =
     values.createdFrom || values.createdTo
-      ? [toLocalPickerValue(values.createdFrom), toLocalPickerValue(values.createdTo)]
+      ? [
+          toPickerValueBasedOnCurrentLanguage(values.createdFrom),
+          toPickerValueBasedOnCurrentLanguage(values.createdTo),
+        ]
       : null
 
   return (
@@ -141,9 +148,9 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
               style={{ marginBottom: 0 }}
             >
               <DatePicker.RangePicker
-                showTime
+                showTime={DATE_HOUR_SHOW_TIME}
                 allowClear
-                format={DATE_TIME_FORMAT}
+                format={getDateHourFormatBasedOnCurrentLanguage()}
                 suffixIcon={<CalendarOutlined />}
                 value={dateRangeValue}
                 onChange={handleDateRangeChange}
