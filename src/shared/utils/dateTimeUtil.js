@@ -6,7 +6,7 @@ import { getLocalDateFromServerDateTime } from './formatDateUtil'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-export const SINGAPORE_TIME_ZONE = 'Asia/Singapore'
+const SINGAPORE_TIME_ZONE = 'Asia/Singapore'
 
 const LANGUAGE_TIME_ZONES = {
   en: SINGAPORE_TIME_ZONE,
@@ -25,7 +25,7 @@ const getCurrentLanguage = () => {
   return language
 }
 
-export const getTimeZoneBasedOnCurrentLanguage = () =>
+const getTimeZoneBasedOnCurrentLanguage = () =>
   LANGUAGE_TIME_ZONES[getCurrentLanguage()] || SINGAPORE_TIME_ZONE
 
 export const getCurrentDateBasedOnCurrentLanguage = () =>
@@ -57,8 +57,6 @@ export const toLocalPickerValue = (value) => {
   const date = dayjs(getLocalDateFromServerDateTime(value))
   return date.isValid() ? date : null
 }
-
-export const toLocalTimePickerValue = (value = '00:00:00') => dayjs(`2000-01-01T${value}`)
 
 export const isDateTimeBefore = (earlier, later) => {
   if (!earlier || !later) return false

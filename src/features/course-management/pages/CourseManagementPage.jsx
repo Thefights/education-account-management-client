@@ -8,6 +8,7 @@ import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getLocalDateFromServerDateTime } from '@/shared/utils/formatDateUtil'
+import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { showWarningToast } from '@/shared/utils/toastUtil'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
@@ -47,6 +48,9 @@ const CourseManagementPage = () => {
   const submitImport = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.IMPORT,
     method: 'POST',
+    onError: async (error) => {
+      setImportResult(getImportErrorResult(error))
+    },
   })
   const deleteSelectedCourses = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.DELETE_SELECTED,
@@ -131,6 +135,7 @@ const CourseManagementPage = () => {
     const formData = new FormData()
     formData.append('file', values.file)
     const response = await submitImport.submit({ overrideData: formData })
+    if (!response) return
     const result = response?.data
     setImportResult(result || null)
     if (result?.succeeded) {

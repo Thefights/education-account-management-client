@@ -1,10 +1,8 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Card, Col, Flex, Row, Space } from 'antd'
 
 const emptyFilters = { search: '', statuses: [] }
 
@@ -39,30 +37,19 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
   ]
 
   return (
-    <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} md={14} lg={16}>
-          {renderField(fields[0])}
-        </Col>
-        <Col xs={24} md={10} lg={8}>
-          {renderField(fields[1])}
-        </Col>
-        <Col xs={24}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton
-                loading={loading}
-                onResetFilterClick={() => {
-                  reset(emptyFilters)
-                  onReset?.()
-                }}
-              />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    <GenericFilterSection
+      fields={fields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      resetValues={emptyFilters}
+      onReset={onReset}
+      onFilter={onFilter}
+      loading={loading}
+      getFieldColProps={(_, index) =>
+        index === 0 ? { xs: 24, md: 14, lg: 16 } : { xs: 24, md: 10, lg: 8 }
+      }
+    />
   )
 }
 

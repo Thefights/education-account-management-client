@@ -19,8 +19,6 @@ import {
 } from '../utils/topupRuleFormUtil'
 import TopupRuleConditionsField from './TopupRuleConditionsField'
 
-const frequencyValues = { OneTime: 1, Monthly: 2, Yearly: 3 }
-const statusValues = { Active: 1, Inactive: 2, Completed: 3 }
 const getScheduleExecutionAt = (data = {}) => {
   if (data.oneTimeExecutionAt) return toLocalPickerValue(data.oneTimeExecutionAt)
 
@@ -60,7 +58,7 @@ const TopupScheduleFormSection = ({
       return {
         name: '',
         topupAmount: null,
-        frequency: EnumConfig.ScheduleTopupFrequencyId.OneTime,
+        frequency: EnumConfig.ScheduleTopupFrequency.OneTime,
         scheduleExecutionAt: null,
         rootConditionGroup: createEmptyTopupConditionGroup(),
       }
@@ -68,8 +66,8 @@ const TopupScheduleFormSection = ({
 
     return {
       ...detail.data,
-      frequency: frequencyValues[detail.data?.frequency] ?? detail.data?.frequency ?? 1,
-      status: statusValues[detail.data?.status] ?? detail.data?.status ?? 1,
+      frequency: detail.data?.frequency ?? EnumConfig.ScheduleTopupFrequency.OneTime,
+      status: detail.data?.status ?? EnumConfig.ScheduleTopupStatus.Active,
       scheduleExecutionAt: getScheduleExecutionAt(detail.data),
       rootConditionGroup: normalizeTopupConditionGroup(detail.data?.rootConditionGroup),
     }
@@ -89,7 +87,7 @@ const TopupScheduleFormSection = ({
         key: 'frequency',
         title: t('topup_form.schedule_type'),
         type: 'select',
-        options: _enum.scheduleTopupFrequencyIdOptions,
+        options: _enum.scheduleTopupFrequencyOptions,
       },
       {
         key: 'scheduleExecutionAt',
@@ -105,7 +103,7 @@ const TopupScheduleFormSection = ({
         ),
       },
     ]
-  }, [_enum.scheduleTopupFrequencyIdOptions, t])
+  }, [_enum.scheduleTopupFrequencyOptions, t])
   const handleClose = () => {
     detail.setData(null)
     onClose?.()

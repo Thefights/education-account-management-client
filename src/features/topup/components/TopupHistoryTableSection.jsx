@@ -10,9 +10,6 @@ import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/forma
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { useMemo } from 'react'
 
-const renderCurrency = (value) =>
-  formatCurrencyBasedOnCurrentLanguage(value) || renderEmptyFallback(null)
-
 const TopupHistoryTableSection = ({ history, loading, sort, setSort, onDetail }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -72,7 +69,7 @@ const TopupHistoryTableSection = ({ history, loading, sort, setSort, onDetail })
         width: 150,
         sortable: true,
         isNumeric: true,
-        render: renderCurrency,
+        render: formatCurrencyBasedOnCurrentLanguage,
       },
       {
         key: 'createdAt',

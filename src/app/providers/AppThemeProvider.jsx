@@ -89,6 +89,7 @@ const AppThemeProvider = ({ children }) => {
       ...baseTheme.token,
       fontFamily: '"Open Sans", "Segoe UI", Segoe, "Helvetica Neue", Arial, sans-serif',
       fontSize: 16,
+      motion: false,
     },
   }
 

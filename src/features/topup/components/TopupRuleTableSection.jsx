@@ -6,8 +6,6 @@ import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurre
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { Space, Typography } from 'antd'
 
-const formatAmount = (value) => formatCurrencyBasedOnCurrentLanguage(value) || '-'
-
 const TopupRuleTableSection = ({ rules, loading, sort, setSort, onDetail }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -40,7 +38,7 @@ const TopupRuleTableSection = ({ rules, loading, sort, setSort, onDetail }) => {
       width: 140,
       isNumeric: true,
       sortable: true,
-      render: formatAmount,
+      render: formatCurrencyBasedOnCurrentLanguage,
     },
     {
       key: 'createdAt',

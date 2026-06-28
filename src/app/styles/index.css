@@ -131,10 +131,9 @@ a {
 .ant-dropdown,
 .ant-table-wrapper {
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    transform 160ms ease !important;
+    border-color 80ms ease,
+    box-shadow 80ms ease,
+    transform 80ms ease !important;
 }
 
 .ant-btn-primary:hover {

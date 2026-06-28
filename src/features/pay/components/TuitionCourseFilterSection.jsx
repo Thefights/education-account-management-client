@@ -1,11 +1,9 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Card, Col, Flex, Row, Space } from 'antd'
 import { useMemo } from 'react'
 
 const TuitionCourseFilterSection = ({
@@ -48,7 +46,7 @@ const TuitionCourseFilterSection = ({
         key: 'statuses',
         title: t('admin_management.field.status'),
         type: 'multi-check-dropdown',
-        options: _enum.tuitionstatus,
+        options: _enum.studentTuitionFilterStatusOptions,
         required: false,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
@@ -58,32 +56,21 @@ const TuitionCourseFilterSection = ({
         selectedText: (count) => `${count} ${t('text.items')}`,
       }
     ],
-    [t, adminRoleOptions, _enum.authAccountStatusOptions, schoolOptions, schoolsLoading]
+    [t, adminRoleOptions, _enum.studentTuitionFilterStatusOptions, schoolOptions, schoolsLoading]
   )
 
-  const handleReset = () => {
-    reset({ search: '', roles: [], statuses: [], schoolIds: [] })
-    onReset?.()
-  }
-
   return (
-    <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field) => (
-          <Col key={field.key} xs={24} md={6}>
-            {renderField(field)}
-          </Col>
-        ))}
-        <Col xs={24} md={{ span: 20, offset: 4 }}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    <GenericFilterSection
+      fields={fields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      resetValues={{ search: '', roles: [], statuses: [], schoolIds: [] }}
+      onReset={onReset}
+      onFilter={onFilter}
+      loading={loading}
+      actionColProps={{ xs: 24, md: { span: 20, offset: 4 } }}
+    />
   )
 }
 

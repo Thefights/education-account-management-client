@@ -9,8 +9,6 @@ import {
 } from '@/shared/utils/formatDateUtil'
 import { Space, Typography } from 'antd'
 
-const formatAmount = (value) => formatCurrencyBasedOnCurrentLanguage(value) || '-'
-
 const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -50,7 +48,7 @@ const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail
       width: 130,
       isNumeric: true,
       sortable: true,
-      render: formatAmount,
+      render: formatCurrencyBasedOnCurrentLanguage,
     },
     {
       key: 'nextExecutionAt',

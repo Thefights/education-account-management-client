@@ -67,7 +67,7 @@ const TopupHistoryDetailPage = () => {
             <Descriptions.Item label={t('topup.succeeded')}>{data?.successCount}</Descriptions.Item>
             <Descriptions.Item label={t('topup.failed')}>{data?.failedCount}</Descriptions.Item>
             <Descriptions.Item label={t('topup.amount')}>
-              {formatCurrencyBasedOnCurrentLanguage(data?.totalExecutedAmount) || '—'}
+              {formatCurrencyBasedOnCurrentLanguage(data?.totalExecutedAmount)}
             </Descriptions.Item>
             <Descriptions.Item label={t('topup.reason')}>{data?.manualReason}</Descriptions.Item>
             <Descriptions.Item label={t('topup.created_at')}>

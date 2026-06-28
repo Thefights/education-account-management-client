@@ -1,5 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { Form, InputNumber, Skeleton } from 'antd'
@@ -11,8 +12,6 @@ import {
   serializeTopupConditionGroup,
 } from '../utils/topupRuleFormUtil'
 import TopupRuleConditionsField from './TopupRuleConditionsField'
-
-const statusValues = { Active: 1, Inactive: 2 }
 
 const TopupRuleFormSection = ({
   open,
@@ -39,7 +38,7 @@ const TopupRuleFormSection = ({
     }
     return {
       ...detail.data,
-      status: statusValues[detail.data?.status] ?? detail.data?.status ?? 1,
+      status: detail.data?.status ?? EnumConfig.SystemTopupStatus.Active,
       rootConditionGroup: normalizeTopupConditionGroup(detail.data?.rootConditionGroup),
     }
   }, [detail.data, ruleId])
