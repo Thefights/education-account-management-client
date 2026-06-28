@@ -94,8 +94,7 @@ const TuitionCourseFilterSection = ({
         onClick={() => {
             onFilter?.({
               ...values,
-              statuses: [],
-              isInstallment: false
+              statuses: []
             })
           }
         }

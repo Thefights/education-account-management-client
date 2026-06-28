@@ -218,6 +218,7 @@ const CouresTuition = () => {
               <CourseListSection pay={nvPay} collection = {charges?.data?.collection?? []} handleCheck={handleCheck}/>
 
               <Button 
+                type='primary'
                 style={{alignSelf:'flex-end', width:'100px'}}
                 onClick={nvPay}
                 disabled={selected.length > 0 ? false : true}

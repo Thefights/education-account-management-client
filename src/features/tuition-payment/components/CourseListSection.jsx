@@ -80,20 +80,34 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                         style={{
                             margin: 0,
                             color:
-                                invoice.remainingAmount > 0
+                                invoice.isInstallment && invoice.installments[0].status != 'Overdue' ? 'geekblue' 
+                                : invoice.remainingAmount > 0
                                     ? '#cf1322'
                                     : '#52c41a',
                         }}
                     >
-                    ${invoice.remainingAmount.toLocaleString()}
+                    ${invoice.isInstallment ? invoice.installments[0].amount : invoice.remainingAmount.toLocaleString()}
                     </Typography.Title>
 
-                    <Tag color="error"
+                    <Tag 
+                        color={
+                            invoice.paymentStatus === 'paid'
+                                ? 'success'
+                                : invoice.paymentStatus === 'due'
+                                ? 'warning'
+                                : invoice.paymentStatus === 'overdue'
+                                ? 'error'
+                                : invoice.installments[0].status === 'Overdue'
+                                ? 'error'
+                                : invoice.isInstallment
+                                ? 'geekblue'
+                                : 'default'
+                        }
                         style={{
                             borderRadius: 20,
                             padding: '2px 10px',
                         }}
-                    >{invoice.paymentStatus}</Tag>
+                    >{invoice.isInstallment ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : invoice.paymentStatus}</Tag>
                 </Flex>
             </Flex>
 
