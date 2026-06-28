@@ -29,7 +29,7 @@ const TopupHistoryDetailFilterSection = ({ filters, loading, onFilter, onReset }
       key: 'statuses',
       title: t('topup.status'),
       type: 'multi-check-dropdown',
-      options: _enum.topupTargetStatusIdOptions,
+      options: _enum.topupTargetStatusOptions,
       required: false,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),

@@ -46,7 +46,7 @@ const TuitionCourseFilterSection = ({
         key: 'statuses',
         title: t('admin_management.field.status'),
         type: 'multi-check-dropdown',
-        options: _enum.tuitionstatus,
+        options: _enum.studentTuitionFilterStatusOptions,
         required: false,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
@@ -56,7 +56,7 @@ const TuitionCourseFilterSection = ({
         selectedText: (count) => `${count} ${t('text.items')}`,
       }
     ],
-    [t, adminRoleOptions, _enum.authAccountStatusOptions, schoolOptions, schoolsLoading]
+    [t, adminRoleOptions, _enum.studentTuitionFilterStatusOptions, schoolOptions, schoolsLoading]
   )
 
   return (

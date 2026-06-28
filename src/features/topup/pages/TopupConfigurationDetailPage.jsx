@@ -1,4 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultTopupStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -45,7 +46,16 @@ const TopupConfigurationDetailPage = ({ type }) => {
 
   const handleStatus = async () => {
     const response = await updateStatus.submit({
-      overrideData: { ids: [Number(id)], status: isActive ? 2 : 1 },
+      overrideData: {
+        ids: [Number(id)],
+        status: isActive
+          ? isSchedule
+            ? EnumConfig.ScheduleTopupStatus.Inactive
+            : EnumConfig.SystemTopupStatus.Inactive
+          : isSchedule
+            ? EnumConfig.ScheduleTopupStatus.Active
+            : EnumConfig.SystemTopupStatus.Active,
+      },
     })
     if (response) await detail.fetch()
   }

@@ -48,7 +48,7 @@ const SweepReportTargetsTable = ({ batchDate }) => {
         key: 'actions',
         title: t('batch_report.action'),
         type: 'multi-check-dropdown',
-        options: _enum.sweepActionFilterOptions,
+        options: _enum.sweepActionOptions,
         required: false,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
@@ -61,7 +61,7 @@ const SweepReportTargetsTable = ({ batchDate }) => {
         key: 'statuses',
         title: t('batch_report.status'),
         type: 'multi-check-dropdown',
-        options: _enum.sweepTargetStatusFilterOptions,
+        options: _enum.sweepTargetStatusOptions,
         required: false,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
@@ -71,7 +71,7 @@ const SweepReportTargetsTable = ({ batchDate }) => {
         selectedText: (count) => `${count} ${t('text.items')}`,
       },
     ],
-    [t, _enum.sweepActionFilterOptions, _enum.sweepTargetStatusFilterOptions]
+    [t, _enum.sweepActionOptions, _enum.sweepTargetStatusOptions]
   )
 
   const tableFields = useMemo(

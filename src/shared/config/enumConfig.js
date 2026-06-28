@@ -47,12 +47,6 @@ export const EnumConfig = {
     Withdrawn: 'Withdrawn',
   },
 
-  ChargeStatusId: {
-    PendingPayment: 1,
-    Paid: 2,
-    Overdue: 3,
-  },
-
   ChargeStatus: {
     PendingPayment: 'PendingPayment',
     Paid: 'Paid',
@@ -98,37 +92,52 @@ export const EnumConfig = {
     Extend: 'Extend',
   },
 
-  SweepActionId: {
-    Create: 0,
-    Close: 1,
-    Extend: 2,
-  },
-
-  SweepTargetStatusId: {
-    Pending: 0,
-    Success: 1,
-    Failed: 2,
-  },
-
   SweepTargetStatus: {
     Pending: 'Pending',
     Success: 'Success',
     Failed: 'Failed',
   },
 
-  SystemTopupStatusId: { Active: 1, Inactive: 2 },
-  TopupLogicalOperatorId: { And: 1, Or: 2 },
-  TopupExecutionSourceTypeId: { System: 1, Schedule: 2, Manual: 3 },
+  SystemTopupStatus: { Active: 'Active', Inactive: 'Inactive' },
+  TopupLogicalOperator: { And: 'And', Or: 'Or' },
+  TopupConditionField: { Age: 'Age', Balance: 'Balance', SchoolingStatus: 'SchoolingStatus' },
+  TopupConditionOperator: {
+    Equals: 'Equals',
+    NotEquals: 'NotEquals',
+    GreaterThan: 'GreaterThan',
+    GreaterThanOrEqual: 'GreaterThanOrEqual',
+    LessThan: 'LessThan',
+    LessThanOrEqual: 'LessThanOrEqual',
+    Between: 'Between',
+  },
   TopupExecutionSourceType: { System: 'System', Schedule: 'Schedule', Manual: 'Manual' },
-  TopupExecutionStatusId: { Pending: 1, Executing: 2, Completed: 3 },
   TopupExecutionStatus: { Pending: 'Pending', Executing: 'Executing', Completed: 'Completed' },
-  TopupTargetStatusId: { Pending: 1, Processing: 2, Success: 3, Failed: 4 },
   TopupTargetStatus: {
     Pending: 'Pending',
     Processing: 'Processing',
     Success: 'Success',
     Failed: 'Failed',
   },
-  ScheduleTopupFrequencyId: { OneTime: 1, Monthly: 2, Yearly: 3 },
-  ScheduleTopupStatusId: { Active: 1, Inactive: 2, Completed: 3 },
+  ScheduleTopupFrequency: { OneTime: 'OneTime', Monthly: 'Monthly', Yearly: 'Yearly' },
+  ScheduleTopupStatus: { Active: 'Active', Inactive: 'Inactive', Completed: 'Completed' },
+  StudentTuitionFilterStatus: {
+    All: 'All',
+    Due: 'Due',
+    Overdue: 'Overdue',
+    Paid: 'Paid',
+  },
+  EducationAccountStatus: {
+    Active: 'Active',
+    Extended: 'Extended',
+    Closed: 'Closed',
+  },
+  EducationCreditTransactionType: {
+    Topup: 'Topup',
+    CourseFeePayment: 'CourseFeePayment',
+    ExpiredBalance: 'ExpiredBalance',
+  },
+  EducationCreditTransactionDirection: {
+    Credit: 'Credit',
+    Debit: 'Debit',
+  },
 }

@@ -1,3 +1,4 @@
+import { EnumConfig } from '@/shared/config/enumConfig'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import {
@@ -28,20 +29,23 @@ import {
 } from '../utils/topupRuleFormUtil'
 
 const getFieldOptions = (t) => [
-  { value: 1, label: t('topup_form.age') },
-  { value: 2, label: t('topup_form.balance') },
-  { value: 3, label: t('topup_form.schooling_status') },
+  { value: EnumConfig.TopupConditionField.Age, label: t('topup_form.age') },
+  { value: EnumConfig.TopupConditionField.Balance, label: t('topup_form.balance') },
+  {
+    value: EnumConfig.TopupConditionField.SchoolingStatus,
+    label: t('topup_form.schooling_status'),
+  },
 ]
 
 const getOperatorOptions = (isText = false) => {
   const options = [
-    { value: 1, label: '=' },
-    { value: 2, label: '!=' },
-    { value: 3, label: '>' },
-    { value: 4, label: '>=' },
-    { value: 5, label: '<' },
-    { value: 6, label: '<=' },
-    { value: 7, label: '...' },
+    { value: EnumConfig.TopupConditionOperator.Equals, label: '=' },
+    { value: EnumConfig.TopupConditionOperator.NotEquals, label: '!=' },
+    { value: EnumConfig.TopupConditionOperator.GreaterThan, label: '>' },
+    { value: EnumConfig.TopupConditionOperator.GreaterThanOrEqual, label: '>=' },
+    { value: EnumConfig.TopupConditionOperator.LessThan, label: '<' },
+    { value: EnumConfig.TopupConditionOperator.LessThanOrEqual, label: '<=' },
+    { value: EnumConfig.TopupConditionOperator.Between, label: '...' },
   ]
   return isText ? options.slice(0, 2) : options
 }
@@ -50,7 +54,7 @@ const getOptionLabel = (options, value) =>
   options.find((option) => option.value === value)?.label || value || '—'
 
 const getConditionValueText = (condition, t) => {
-  if (condition.field === 3) {
+  if (condition.field === EnumConfig.TopupConditionField.SchoolingStatus) {
     return condition.valueText === 'Enrolled'
       ? t('topup_form.enrolled')
       : condition.valueText === 'Not Enrolled'
@@ -58,13 +62,14 @@ const getConditionValueText = (condition, t) => {
         : t('topup_form.value_missing')
   }
   if (condition.valueNumber == null) return t('topup_form.value_missing')
-  const suffix = condition.field === 1 ? ` ${t('topup_form.years')}` : ''
+  const suffix =
+    condition.field === EnumConfig.TopupConditionField.Age ? ` ${t('topup_form.years')}` : ''
   const formatValue = (value) =>
-    condition.field === 2
+    condition.field === EnumConfig.TopupConditionField.Balance
       ? formatCurrencyBasedOnCurrentLanguage(value)
       : `${Number(value).toLocaleString()}${suffix}`
   const first = formatValue(condition.valueNumber)
-  if (condition.operator !== 7) return first
+  if (condition.operator !== EnumConfig.TopupConditionOperator.Between) return first
   const upperValue =
     condition.valueNumberTo == null
       ? t('topup_form.value_missing')
@@ -74,7 +79,10 @@ const getConditionValueText = (condition, t) => {
 
 const getConditionText = (condition, t) => {
   const field = getOptionLabel(getFieldOptions(t), condition.field)
-  const operator = getOptionLabel(getOperatorOptions(condition.field === 3), condition.operator)
+  const operator = getOptionLabel(
+    getOperatorOptions(condition.field === EnumConfig.TopupConditionField.SchoolingStatus),
+    condition.operator
+  )
   return `${field} ${operator} ${getConditionValueText(condition, t)}`
 }
 
@@ -93,7 +101,7 @@ const buildEligibilityCases = (group, t) => {
 
   if (!items.length) return []
 
-  if (group.logicalOperator === 2) {
+  if (group.logicalOperator === EnumConfig.TopupLogicalOperator.Or) {
     return items.flat()
   }
 
@@ -112,7 +120,10 @@ export const TopupConditionSentence = ({ condition }) => {
       <Typography.Text strong>
         {getOptionLabel(getFieldOptions(t), condition.field)}
       </Typography.Text>{' '}
-      {getOptionLabel(getOperatorOptions(condition.field === 3), condition.operator)}{' '}
+      {getOptionLabel(
+        getOperatorOptions(condition.field === EnumConfig.TopupConditionField.SchoolingStatus),
+        condition.operator
+      )}{' '}
       <Typography.Text strong>{getConditionValueText(condition, t)}</Typography.Text>
     </Typography.Text>
   )
@@ -126,16 +137,16 @@ const buildTreeNode = (group, t, key = 'root', isRoot = true) => ({
       <Typography.Text strong>
         {t(
           isRoot
-            ? group.logicalOperator === 2
+            ? group.logicalOperator === EnumConfig.TopupLogicalOperator.Or
               ? 'topup_form.preview_any_requirement'
               : 'topup_form.preview_all_requirement'
-            : group.logicalOperator === 2
+            : group.logicalOperator === EnumConfig.TopupLogicalOperator.Or
               ? 'topup_form.preview_any_scenario'
               : 'topup_form.preview_all_scenario'
         )}
       </Typography.Text>
-      <Tag color={group.logicalOperator === 2 ? 'purple' : 'blue'}>
-        {group.logicalOperator === 2 ? '||' : '&&'}
+      <Tag color={group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? 'purple' : 'blue'}>
+        {group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? '||' : '&&'}
       </Tag>
     </Space>
   ),
@@ -238,8 +249,8 @@ const SectionShell = ({ title, subtitle, accentColor, onDelete, children, t, tok
 
 const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showValidationErrors }) => {
   const [touched, setTouched] = useState({ value: false, valueTo: false })
-  const isText = condition.field === 3
-  const isBetween = !isText && condition.operator === 7
+  const isText = condition.field === EnumConfig.TopupConditionField.SchoolingStatus
+  const isBetween = !isText && condition.operator === EnumConfig.TopupConditionOperator.Between
   const missingValue = isText ? !condition.valueText : condition.valueNumber == null
   const missingUpperValue = isBetween && condition.valueNumberTo == null
   const invalidRange =
@@ -284,7 +295,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
               onChange({
                 ...condition,
                 field,
-                operator: 1,
+                operator: EnumConfig.TopupConditionOperator.Equals,
                 valueText: null,
                 valueNumber: null,
                 valueNumberTo: null,
@@ -302,7 +313,10 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
               onChange({
                 ...condition,
                 operator,
-                valueNumberTo: operator === 7 ? condition.valueNumberTo : null,
+                valueNumberTo:
+                  operator === EnumConfig.TopupConditionOperator.Between
+                    ? condition.valueNumberTo
+                    : null,
               })
             }
           />
@@ -330,9 +344,13 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 value={condition.valueNumber}
                 placeholder={isBetween ? t('topup_form.from_value') : t('topup_form.value')}
                 min={0}
-                precision={condition.field === 1 ? 0 : 2}
-                prefix={condition.field === 2 ? '$' : undefined}
-                suffix={condition.field === 1 ? t('topup_form.years') : undefined}
+                precision={condition.field === EnumConfig.TopupConditionField.Age ? 0 : 2}
+                prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
+                suffix={
+                  condition.field === EnumConfig.TopupConditionField.Age
+                    ? t('topup_form.years')
+                    : undefined
+                }
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumber) => onChange({ ...condition, valueNumber })}
                 onBlur={() => setTouched((current) => ({ ...current, value: true }))}
@@ -354,9 +372,13 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 value={condition.valueNumberTo}
                 placeholder={t('topup_form.to_value')}
                 min={0}
-                precision={condition.field === 1 ? 0 : 2}
-                prefix={condition.field === 2 ? '$' : undefined}
-                suffix={condition.field === 1 ? t('topup_form.years') : undefined}
+                precision={condition.field === EnumConfig.TopupConditionField.Age ? 0 : 2}
+                prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
+                suffix={
+                  condition.field === EnumConfig.TopupConditionField.Age
+                    ? t('topup_form.years')
+                    : undefined
+                }
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumberTo) => onChange({ ...condition, valueNumberTo })}
                 onBlur={() => setTouched((current) => ({ ...current, valueTo: true }))}
@@ -384,7 +406,7 @@ const GroupEditor = ({
   token,
   showValidationErrors = false,
 }) => {
-  const mode = group.logicalOperator === 2 ? 'ANY' : 'ALL'
+  const mode = group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? 'ANY' : 'ALL'
   const isRoot = depth === 1
   const conditions = group.conditions || []
   const groups = group.groups || []
@@ -417,11 +439,11 @@ const GroupEditor = ({
             style={{ minWidth: 260, height: 32 }}
             options={[
               {
-                value: 1,
+                value: EnumConfig.TopupLogicalOperator.And,
                 label: '&&',
               },
               {
-                value: 2,
+                value: EnumConfig.TopupLogicalOperator.Or,
                 label: '||',
               },
             ]}
