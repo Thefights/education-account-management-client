@@ -102,7 +102,6 @@ const AuditLogManagementPage = () => {
           loading={getAuditLogs.loading}
           sort={sort}
           setSort={setSort}
-          onExport={() => setOpenExport(true)}
         />
 
         <GenericTablePagination
