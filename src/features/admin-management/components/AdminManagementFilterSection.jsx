@@ -96,7 +96,6 @@ const AdminManagementFilterSection = ({
       onReset={onReset}
       onFilter={onFilter}
       loading={loading}
-      actionColProps={{ xs: 24, md: { span: 20, offset: 4 } }}
     />
   )
 }

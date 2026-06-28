@@ -1,17 +1,14 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
-import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { Col } from 'antd'
 import { useMemo } from 'react'
 
 const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
-const AuditLogFilterSection = ({
+const AuditLogManagementFilterSection = ({
   filters = {},
   defaultFilters = {},
   onFilter,
@@ -49,7 +46,6 @@ const AuditLogFilterSection = ({
         title: t('audit_log.field.category'),
         type: 'multi-check-dropdown',
         options: _enum.auditLogCategoryOptions,
-        loading,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
         searchPlaceholder: t('general.input_keyword'),
@@ -74,42 +70,32 @@ const AuditLogFilterSection = ({
         ],
       },
     ],
-    [_enum.auditLogCategoryOptions, loading, t]
+    [_enum.auditLogCategoryOptions, t]
   )
 
-  const handleFilter = () => {
+  const handleFilter = (nextValues) => {
     if (!validateAll()) return
-    onFilter?.(values)
+    onFilter?.(nextValues)
   }
 
   const handleReset = () => {
-    reset(defaultFilters)
     resetValidation()
     onReset?.()
   }
 
   return (
-    <FilterSectionLayout
-      actions={
-        <>
-          <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-          <FilterButton loading={loading} onFilterClick={handleFilter} />
-        </>
-      }
-    >
-      <Col xs={24} md={12} xl={8}>
-        {renderField(filterFields[0])}
-      </Col>
-
-      <Col xs={24} md={12} xl={5}>
-        {renderField(filterFields[1])}
-      </Col>
-
-      <Col xs={24} md={12} xl={5}>
-        {renderField(filterFields[2])}
-      </Col>
-    </FilterSectionLayout>
+    <GenericFilterSection
+      fields={filterFields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      resetValues={defaultFilters}
+      onReset={handleReset}
+      onFilter={handleFilter}
+      loading={loading}
+      getFieldColProps={() => ({ xs: 24, md: 12, xl: 8 })}
+    />
   )
 }
 
-export default AuditLogFilterSection
+export default AuditLogManagementFilterSection

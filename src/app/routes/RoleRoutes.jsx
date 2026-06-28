@@ -9,7 +9,7 @@ import AccountTransactionHistoryPage from '@/features/account-holder/pages/Accou
 import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
-import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
+import AuditLogManagementPage from '@/features/audit-log/pages/AuditLogManagementPage'
 import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
 import CourseManagementFormPage from '@/features/course-management/pages/CourseManagementFormPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
@@ -71,7 +71,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.AUDIT_LOGS.INDEX,
-        element: <AuditLogPage />,
+        element: <AuditLogManagementPage />,
       },
     ],
   },

@@ -7,7 +7,7 @@ import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/forma
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { useMemo } from 'react'
 
-const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
+const AuditLogManagementTableSection = ({ auditLogs, loading, sort, setSort }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
 
@@ -77,4 +77,4 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
   )
 }
 
-export default AuditLogTableSection
+export default AuditLogManagementTableSection

@@ -2,7 +2,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { DownloadOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 
-const AuditLogToolbarSection = ({ onExport }) => {
+const AuditLogManagementToolbarSection = ({ onExport }) => {
   const { t } = useTranslation()
 
   return (
@@ -14,4 +14,4 @@ const AuditLogToolbarSection = ({ onExport }) => {
   )
 }
 
-export default AuditLogToolbarSection
+export default AuditLogManagementToolbarSection

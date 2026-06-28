@@ -17,7 +17,7 @@ const initialExportValues = {
   fields: exportFieldKeys,
 }
 
-const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
+const AuditLogManagementExportSection = ({ open, onClose, onSubmit }) => {
   const { t } = useTranslation()
 
   const exportFieldOptions = useMemo(
@@ -90,4 +90,4 @@ const AuditLogExportSection = ({ open, onClose, onSubmit }) => {
   )
 }
 
-export default AuditLogExportSection
+export default AuditLogManagementExportSection
