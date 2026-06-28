@@ -3,6 +3,7 @@ import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
 import SortButton from '@/shared/components/buttons/SortButton'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
+
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -103,11 +104,11 @@ const TuitionCourseFilterSection = ({
       </Button>
 
       <Button
-        type={values.statuses?.includes(1) ? 'primary' : 'default'}
+        type={values.statuses?.includes(EnumConfig.StudentTuitionFilterStatus.Overdue) ? 'primary' : 'default'}
         onClick={() => {
             onFilter?.({
               ...values,
-              statuses: [1],
+              statuses: [EnumConfig.StudentTuitionFilterStatus.Overdue],
               isInstallment: false
             })
           }
@@ -117,11 +118,11 @@ const TuitionCourseFilterSection = ({
       </Button>
 
       <Button
-        type={values.statuses?.includes(2) ? 'primary' : 'default'}
+        type={values.statuses?.includes(EnumConfig.StudentTuitionFilterStatus.Due) ? 'primary' : 'default'}
         onClick={() => {
             onFilter?.({
               ...values,
-              statuses: [2],
+              statuses: [EnumConfig.StudentTuitionFilterStatus.Due],
               isInstallment: false
             })
           }
@@ -141,15 +142,15 @@ const TuitionCourseFilterSection = ({
           }
         }
       >
-        {"installment"}
+        {"Installment"}
       </Button>
 
       <Button
-        type={values.statuses?.includes(4) ? 'primary' : 'default'}
+        type={values.statuses?.includes(EnumConfig.StudentTuitionFilterStatus.Paid) ? 'primary' : 'default'}
         onClick={() => {
             onFilter?.({
               ...values,
-              statuses: [4],
+              statuses: [EnumConfig.StudentTuitionFilterStatus.Paid],
               isInstallment: false
             })
           }
