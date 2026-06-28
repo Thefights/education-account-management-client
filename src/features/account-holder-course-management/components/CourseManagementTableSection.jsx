@@ -3,8 +3,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useState } from 'react'
-import { Button, Flex, Typography, Modal, Tag, Card, Collapse, Divider} from 'antd'
-import { data } from 'react-router'
+import { Button, Flex, Typography, Modal, Tag, Card, Divider} from 'antd'
 
 const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
 

@@ -7,8 +7,6 @@ import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import CourseManagementFilterSection from '../components/CourseManagementFilterSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
-import { useEffect } from 'react'
-import Search from 'antd/es/transfer/search'
 
 const defaultFilters = { Search: '', searchfields: ['Course.CourseName', 'Course.CourseCode'] }
 

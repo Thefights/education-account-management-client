@@ -1,13 +1,6 @@
 import { Table, Typography, Flex, Button, Divider } from "antd";
 import { theme } from "antd";
-
-const PLAN_OPTIONS = [
-  { label: "Full", months: 1 },
-  { label: "3mo", months: 3 },
-  { label: "6mo", months: 6 },
-  { label: "9mo", months: 9 },
-  { label: "12mo", months: 12 },
-];
+import useEnum from "@/shared/hooks/useEnum";
 
 const CourseListSection = ({
   selected = [],
@@ -15,17 +8,10 @@ const CourseListSection = ({
   onPlanChange,
   getPayToday,
   totalDueToday = 0,
+  totalGross = 0,
 }) => {
   const { token } = theme.useToken();
-
-  const totalGross = selected.reduce(
-    (sum, item) =>
-      sum +
-      Number(item.courseFee || 0) +
-      Number(item.miscFee || 0) +
-      Number(item.gstAmount || 0),
-    0
-  );
+  const _enum = useEnum();
 
   const totalFasDeduction = selected.reduce(
     (sum, item) => sum + Number(item.fasSubsidyAmount || 0),
@@ -75,17 +61,17 @@ const CourseListSection = ({
         const currentMonths = plans[record.courseCode] || 1;
         return (
           <Flex gap={4} wrap="wrap" justify="center">
-            {PLAN_OPTIONS.map((opt) => (
+            {_enum.paymentPlanOptions.map((opt) => (
               <Button
-                key={opt.months}
+                key={opt.value}
                 size="small"
-                type={currentMonths === opt.months ? "primary" : "default"}
+                type={currentMonths === opt.value ? "primary" : "default"}
                 style={{
                   borderRadius: 20,
                   minWidth: 42,
                   fontSize: 12,
                 }}
-                onClick={() => onPlanChange(record.courseCode, opt.months)}
+                onClick={() => onPlanChange(record.courseCode, opt.value)}
               >
                 {opt.label}
               </Button>

@@ -55,6 +55,13 @@
       "pending": "待办的",
       "success": "成功",
       "failed": "失败的"
+    },
+    "payment_plan_months": {
+      "full": "全额",
+      "three_months": "3个月",
+      "six_months": "6个月",
+      "nine_months": "9个月",
+      "twelve_months": "12个月"
     }
   }
 }

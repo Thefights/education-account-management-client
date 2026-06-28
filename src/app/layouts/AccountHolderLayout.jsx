@@ -1,8 +1,6 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { HistoryOutlined, UserOutlined, BookOutlined, CreditCardOutlined } from '@ant-design/icons'
-import { AIPopover } from '@/features/slabbot-chat-ai/Popover/AIPopover'
 import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
 
 const AccountHolderLayout = () => {
@@ -39,17 +37,17 @@ const AccountHolderLayout = () => {
             },
             {
               key: 'my-fas',
-              label: 'My FAS',
+              label: t('my_fas.title'),
               icon: FileProtectOutlined,
               of: [
                 {
                   key: 'my-fas-apply',
-                  label: 'Apply',
+                  label: t('my_fas.apply'),
                   url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
                 },
                 {
                   key: 'my-fas-management',
-                  label: 'Management',
+                  label: t('my_fas.management'),
                   url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT),
                 },
               ],

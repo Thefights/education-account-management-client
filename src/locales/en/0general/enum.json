@@ -55,6 +55,13 @@
       "pending": "Pending",
       "success": "Success",
       "failed": "Failed"
+    },
+    "payment_plan_months": {
+      "full": "Full",
+      "three_months": "3mo",
+      "six_months": "6mo",
+      "nine_months": "9mo",
+      "twelve_months": "12mo"
     }
   }
 }

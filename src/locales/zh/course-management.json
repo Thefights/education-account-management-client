@@ -55,6 +55,11 @@
       "update_conflict": "该课程已被其他人修改。最新数据已重新加载，请重新编辑。",
       "publish_deadline_expired": "所有所选课程的报名确认截止时间必须在未来。",
       "no_applicable_fas": "此课程尚未关联任何FAS计划。"
+    },
+    "tab": {
+      "upcoming": "即将开始",
+      "in_progress": "进行中",
+      "closed": "已结束"
     }
   }
 }

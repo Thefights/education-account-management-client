@@ -66,6 +66,11 @@
       "update_conflict": "This course was changed by someone else. The latest data has been reloaded; please edit it again.",
       "publish_deadline_expired": "All selected courses must have a future enrollment deadline.",
       "no_applicable_fas": "No FAS schemes are linked to this course."
+    },
+    "tab": {
+      "upcoming": "Upcoming",
+      "in_progress": "In Progress",
+      "closed": "Closed"
     }
   }
 }
