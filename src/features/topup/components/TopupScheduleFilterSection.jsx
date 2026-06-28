@@ -1,11 +1,8 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
-import { Card, Col, DatePicker, Flex, Row, Space, Typography } from 'antd'
 
 const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
 
@@ -27,7 +24,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       key: 'frequencies',
       title: t('topup.schedule_type'),
       type: 'multi-check-dropdown',
-      options: _enum.scheduleTopupFrequencyIdOptions,
+      options: _enum.scheduleTopupFrequencyOptions,
       required: false,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
@@ -40,7 +37,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       key: 'statuses',
       title: t('topup.status'),
       type: 'multi-check-dropdown',
-      options: _enum.scheduleTopupStatusIdOptions,
+      options: _enum.scheduleTopupStatusOptions,
       required: false,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
@@ -50,48 +47,27 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       selectedText: (count) => `${count} ${t('text.items')}`,
     },
   ]
-  const dateRangeValue =
-    values.createdFrom || values.createdTo
-      ? [toSingaporePickerValue(values.createdFrom), toSingaporePickerValue(values.createdTo)]
-      : null
-
   return (
-    <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field) => (
-          <Col key={field.key} xs={24} md={6}>
-            {renderField(field)}
-          </Col>
-        ))}
-        <Col xs={24} md={6}>
-          <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
-            {t('topup.created_at')}
-          </Typography.Text>
-          <DatePicker.RangePicker
-            value={dateRangeValue}
-            style={{ width: '100%' }}
-            onChange={(range) => {
-              setField('createdFrom', singaporeWallTimeToIso(range?.[0]))
-              setField('createdTo', singaporeWallTimeToIso(range?.[1]?.endOf('day')))
-            }}
-          />
-        </Col>
-        <Col xs={24}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton
-                loading={loading}
-                onResetFilterClick={() => {
-                  reset(defaultFilters)
-                  onReset?.()
-                }}
-              />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    <div
+      style={{
+        padding: '12px 0',
+        borderTop: '1px solid var(--app-border-color)',
+        borderBottom: '1px solid var(--app-border-color)',
+      }}
+    >
+      <GenericFilterSection
+        fields={fields}
+        values={values}
+        renderField={renderField}
+        reset={reset}
+        resetValues={defaultFilters}
+        onReset={onReset}
+        onFilter={onFilter}
+        loading={loading}
+        cardProps={false}
+        getFieldColProps={() => ({ xs: 24, md: 8 })}
+      />
+    </div>
   )
 }
 

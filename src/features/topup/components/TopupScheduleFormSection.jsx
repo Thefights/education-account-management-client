@@ -5,12 +5,12 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import {
-  singaporeWallTimeToIso,
-  toSingaporePickerValue,
-  toSingaporeTimePickerValue,
+  localDateTimeToIso,
+  toLocalPickerValue,
 } from '@/shared/utils/dateTimeUtil'
-import { DatePicker, InputNumber, Skeleton, TimePicker } from 'antd'
-import { useCallback, useMemo, useState } from 'react'
+import { Skeleton } from 'antd'
+import dayjs from 'dayjs'
+import { useMemo } from 'react'
 import {
   createEmptyTopupConditionGroup,
   isTopupConditionGroupValid,
@@ -19,8 +19,23 @@ import {
 } from '../utils/topupRuleFormUtil'
 import TopupRuleConditionsField from './TopupRuleConditionsField'
 
-const frequencyValues = { OneTime: 1, Monthly: 2, Yearly: 3 }
-const statusValues = { Active: 1, Inactive: 2, Completed: 3 }
+const getScheduleExecutionAt = (data = {}) => {
+  if (data.oneTimeExecutionAt) return toLocalPickerValue(data.oneTimeExecutionAt)
+
+  const [hour = 0, minute = 0, second = 0] = String(data.executionTime || '00:00:00')
+    .split(':')
+    .map((value) => Number(value))
+  const now = dayjs()
+  const month = Number(data.executeAtMonth) || now.month() + 1
+  const day = Number(data.executeAtDay) || now.date()
+
+  return dayjs()
+    .month(month - 1)
+    .date(day)
+    .hour(hour)
+    .minute(minute)
+    .second(second)
+}
 
 const TopupScheduleFormSection = ({
   open,
@@ -32,7 +47,6 @@ const TopupScheduleFormSection = ({
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-  const [currentFrequency, setCurrentFrequency] = useState(null)
   const detail = useFetch(
     scheduleId ? ApiUrls.SCHEDULE_TOPUP.DETAIL(scheduleId) : '',
     {},
@@ -44,103 +58,41 @@ const TopupScheduleFormSection = ({
       return {
         name: '',
         topupAmount: null,
-        frequency: EnumConfig.ScheduleTopupFrequencyId.OneTime,
-        oneTimeExecutionAt: null,
-        executeAtDay: null,
-        executeAtMonth: null,
-        executionTime: toSingaporeTimePickerValue(),
+        frequency: EnumConfig.ScheduleTopupFrequency.OneTime,
+        scheduleExecutionAt: null,
         rootConditionGroup: createEmptyTopupConditionGroup(),
       }
     }
 
     return {
       ...detail.data,
-      frequency: frequencyValues[detail.data?.frequency] ?? detail.data?.frequency ?? 1,
-      status: statusValues[detail.data?.status] ?? detail.data?.status ?? 1,
-      executionTime: detail.data?.executionTime
-        ? toSingaporeTimePickerValue(detail.data.executionTime)
-        : toSingaporeTimePickerValue(),
-      oneTimeExecutionAt: detail.data?.oneTimeExecutionAt
-        ? toSingaporePickerValue(detail.data.oneTimeExecutionAt)
-        : null,
+      frequency: detail.data?.frequency ?? EnumConfig.ScheduleTopupFrequency.OneTime,
+      status: detail.data?.status ?? EnumConfig.ScheduleTopupStatus.Active,
+      scheduleExecutionAt: getScheduleExecutionAt(detail.data),
       rootConditionGroup: normalizeTopupConditionGroup(detail.data?.rootConditionGroup),
     }
   }, [detail.data, scheduleId])
-  const displayedFrequency = currentFrequency ?? initialValues.frequency
 
   const fields = useMemo(() => {
-    const frequencyFields = []
-    if (displayedFrequency === EnumConfig.ScheduleTopupFrequencyId.OneTime) {
-      frequencyFields.push({
-        key: 'oneTimeExecutionAt',
-        title: `${t('topup_form.execution_date')} (${t('text.singapore_time')})`,
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <DatePicker showTime value={value} onChange={onChange} style={{ width: '100%' }} />
-        ),
-      })
-    }
-    if (
-      [
-        EnumConfig.ScheduleTopupFrequencyId.Monthly,
-        EnumConfig.ScheduleTopupFrequencyId.Yearly,
-      ].includes(displayedFrequency)
-    ) {
-      frequencyFields.push({
-        key: 'executeAtDay',
-        title: t('topup_form.day_of_month'),
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <InputNumber min={1} max={31} value={value} onChange={onChange} style={{ width: '100%' }} />
-        ),
-      })
-    }
-    if (displayedFrequency === EnumConfig.ScheduleTopupFrequencyId.Yearly) {
-      frequencyFields.push({
-        key: 'executeAtMonth',
-        title: t('topup_form.month'),
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <InputNumber min={1} max={12} value={value} onChange={onChange} style={{ width: '100%' }} />
-        ),
-      })
-    }
-
     return [
       { key: 'name', title: t('topup_form.topup_name') },
       {
         key: 'topupAmount',
         title: t('topup_form.topup_amount'),
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <InputNumber
-            min={0.01}
-            precision={2}
-            value={value}
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
-        ),
+        type: 'input-number',
+        minValue: 0.01,
+        props: { precision: 2, prefix: '$' },
       },
       {
         key: 'frequency',
         title: t('topup_form.schedule_type'),
         type: 'select',
-        options: _enum.scheduleTopupFrequencyIdOptions,
+        options: _enum.scheduleTopupFrequencyOptions,
       },
-      ...frequencyFields,
       {
-        key: 'executionTime',
-        title: `${t('topup_form.execution_time')} (${t('text.singapore_time')})`,
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <TimePicker
-            format="HH:mm:ss"
-            value={value}
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
-        ),
+        key: 'scheduleExecutionAt',
+        title: t('topup_form.execution_date'),
+        type: 'datetime',
       },
       {
         key: 'rootConditionGroup',
@@ -151,13 +103,9 @@ const TopupScheduleFormSection = ({
         ),
       },
     ]
-  }, [_enum.scheduleTopupFrequencyIdOptions, displayedFrequency, t])
-  const handleValuesChange = useCallback((values) => {
-    setCurrentFrequency((current) => (current === values.frequency ? current : values.frequency))
-  }, [])
+  }, [_enum.scheduleTopupFrequencyOptions, t])
   const handleClose = () => {
     detail.setData(null)
-    setCurrentFrequency(null)
     onClose?.()
   }
 
@@ -176,25 +124,12 @@ const TopupScheduleFormSection = ({
   }
 
   const handleSubmit = async ({ values, closeDialog }) => {
+    const scheduleExecutionAt = values.scheduleExecutionAt
     const payload = {
       name: values.name.trim(),
       topupAmount: values.topupAmount,
       frequency: values.frequency,
-      oneTimeExecutionAt:
-        values.frequency === EnumConfig.ScheduleTopupFrequencyId.OneTime
-          ? singaporeWallTimeToIso(values.oneTimeExecutionAt)
-          : null,
-      executeAtDay: [
-        EnumConfig.ScheduleTopupFrequencyId.Monthly,
-        EnumConfig.ScheduleTopupFrequencyId.Yearly,
-      ].includes(values.frequency)
-        ? values.executeAtDay
-        : null,
-      executeAtMonth:
-        values.frequency === EnumConfig.ScheduleTopupFrequencyId.Yearly
-          ? values.executeAtMonth
-          : null,
-      executionTime: values.executionTime.format('HH:mm:ss'),
+      scheduleExecutionAt: localDateTimeToIso(scheduleExecutionAt),
       rootConditionGroup: serializeTopupConditionGroup(values.rootConditionGroup),
       ...(scheduleId ? { status: values.status } : {}),
     }
@@ -219,22 +154,15 @@ const TopupScheduleFormSection = ({
       initialValues={initialValues}
       fields={fields}
       destroyOnHidden
-      onValuesChange={handleValuesChange}
       isSubmitDisabled={(values) => {
         if (
           !values.name?.trim() ||
           !(Number(values.topupAmount) > 0) ||
           !values.frequency ||
-          !values.executionTime ||
+          !values.scheduleExecutionAt ||
           !isTopupConditionGroupValid(values.rootConditionGroup)
         )
           return true
-        if (values.frequency === 1 && !values.oneTimeExecutionAt) return true
-        if ([2, 3].includes(values.frequency) && !values.executeAtDay) return true
-        if (values.frequency === 3 && !values.executeAtMonth) return true
-        if (values.frequency === 3 && values.executeAtDay && values.executeAtMonth) {
-          return values.executeAtDay > new Date(2024, values.executeAtMonth, 0).getDate()
-        }
         return false
       }}
       onSubmit={handleSubmit}

@@ -1,4 +1,5 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultChargeStatusStyle,
@@ -10,7 +11,8 @@ import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurre
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 
 const isEnrollmentRemovable = (enrollment) =>
-  enrollment.courseStatus === 'Draft' && enrollment.chargeStatus == null
+  (enrollment.courseStatus === 'Draft' || enrollment.courseStatus === 'Enrolling') &&
+  enrollment.chargeStatus == null
 
 const isEnrollmentWithdrawable = (enrollment) =>
   enrollment.status === 'Active' &&
@@ -26,6 +28,7 @@ const EnrollmentManagementTableSection = ({
   onDelete,
   onWithdraw,
   showCourse = true,
+  showGrossAmount = true,
   readOnly = false,
   allowWithdraw = false,
 }) => {
@@ -57,6 +60,7 @@ const EnrollmentManagementTableSection = ({
             key: 'courseStatus',
             title: t('enrollment_management.field.course_status'),
             width: 130,
+            sortable: true,
             type: 'tag',
             options: _enum.courseStatusOptions,
             color: defaultManagementStatusStyle,
@@ -68,6 +72,7 @@ const EnrollmentManagementTableSection = ({
       title: t('enrollment_management.field.nric'),
       width: 140,
       sortable: true,
+      render: (value) => <MaskedNric value={value} />,
     },
     {
       key: 'citizenFullName',
@@ -75,14 +80,17 @@ const EnrollmentManagementTableSection = ({
       width: 200,
       sortable: true,
     },
-    { key: 'citizenEmail', title: t('enrollment_management.field.email'), width: 220 },
-    { key: 'citizenPhoneNumber', title: t('enrollment_management.field.phone'), width: 150 },
     {
-      key: 'enrolledAt',
-      title: t('enrollment_management.field.enrolled_at'),
-      width: 180,
+      key: 'citizenEmail',
+      title: t('enrollment_management.field.email'),
+      width: 220,
       sortable: true,
-      render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'citizenPhoneNumber',
+      title: t('enrollment_management.field.phone'),
+      width: 150,
+      sortable: true,
     },
     {
       key: 'status',
@@ -102,17 +110,45 @@ const EnrollmentManagementTableSection = ({
       options: _enum.chargeStatusOptions,
       color: defaultChargeStatusStyle,
     },
+    ...(showGrossAmount
+      ? [
+          {
+            key: 'grossAmount',
+            title: t('enrollment_management.field.gross_amount'),
+            width: 140,
+            sortable: true,
+            isNumeric: true,
+            render: formatCurrencyBasedOnCurrentLanguage,
+          },
+        ]
+      : []),
     {
-      key: 'grossAmount',
-      title: t('enrollment_management.field.gross_amount'),
-      width: 140,
+      key: 'subsidyAmount',
+      title: t('enrollment_management.field.fas_deduction'),
+      width: 150,
+      sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
+    },
+    {
+      key: 'enrolledAt',
+      title: t('enrollment_management.field.enrolled_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'paidAmount',
       title: t('enrollment_management.field.paid_amount'),
       width: 140,
+      sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
     },
@@ -120,6 +156,7 @@ const EnrollmentManagementTableSection = ({
       key: 'remainingAmount',
       title: t('enrollment_management.field.remaining_amount'),
       width: 160,
+      sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
     },

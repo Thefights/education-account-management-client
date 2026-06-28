@@ -48,29 +48,15 @@ export default function useEnum() {
       { value: EnumConfig.CourseStatus.Closed, label: t('enum.course_status.closed') },
     ],
 
-    chargeStatusIdOptions: [
-      { value: EnumConfig.ChargeStatusId.Unpaid, label: t('enum.charge_status.unpaid') },
-      {
-        value: EnumConfig.ChargeStatusId.PartiallyPaid,
-        label: t('enum.charge_status.partially_paid'),
-      },
-      { value: EnumConfig.ChargeStatusId.Paid, label: t('enum.charge_status.paid') },
-      {
-        value: EnumConfig.ChargeStatusId.Outstanding,
-        label: t('enum.charge_status.outstanding'),
-      },
-    ],
-
     chargeStatusOptions: [
-      { value: EnumConfig.ChargeStatus.Unpaid, label: t('enum.charge_status.unpaid') },
       {
-        value: EnumConfig.ChargeStatus.PartiallyPaid,
-        label: t('enum.charge_status.partially_paid'),
+        value: EnumConfig.ChargeStatus.PendingPayment,
+        label: t('enum.charge_status.pending_payment'),
       },
       { value: EnumConfig.ChargeStatus.Paid, label: t('enum.charge_status.paid') },
       {
-        value: EnumConfig.ChargeStatus.Outstanding,
-        label: t('enum.charge_status.outstanding'),
+        value: EnumConfig.ChargeStatus.Overdue,
+        label: t('enum.charge_status.overdue'),
       },
     ],
 
@@ -176,33 +162,10 @@ export default function useEnum() {
       { value: EnumConfig.SweepAction.Extend, label: t('enum.sweep_action.extend') },
     ],
 
-    sweepActionFilterOptions: [
-      { value: EnumConfig.SweepActionId.Create, label: t('enum.sweep_action.create') },
-      { value: EnumConfig.SweepActionId.Close, label: t('enum.sweep_action.close') },
-      { value: EnumConfig.SweepActionId.Extend, label: t('enum.sweep_action.extend') },
-    ],
-
-    sweepTargetStatusFilterOptions: [
-      {
-        value: EnumConfig.SweepTargetStatusId.Pending,
-        label: t('enum.sweep_target_status.pending'),
-      },
-      {
-        value: EnumConfig.SweepTargetStatusId.Success,
-        label: t('enum.sweep_target_status.success'),
-      },
-      { value: EnumConfig.SweepTargetStatusId.Failed, label: t('enum.sweep_target_status.failed') },
-    ],
-
     sweepTargetStatusOptions: [
       { value: EnumConfig.SweepTargetStatus.Pending, label: t('enum.sweep_target_status.pending') },
       { value: EnumConfig.SweepTargetStatus.Success, label: t('enum.sweep_target_status.success') },
       { value: EnumConfig.SweepTargetStatus.Failed, label: t('enum.sweep_target_status.failed') },
-    ],
-
-    systemTopupStatusIdOptions: [
-      { value: EnumConfig.SystemTopupStatusId.Active, label: t('topup_form.active') },
-      { value: EnumConfig.SystemTopupStatusId.Inactive, label: t('topup_form.inactive') },
     ],
 
     enrollmentStatusOptions: [
@@ -214,14 +177,8 @@ export default function useEnum() {
     ],
 
     systemTopupStatusOptions: [
-      { value: 'Active', label: t('topup_form.active') },
-      { value: 'Inactive', label: t('topup_form.inactive') },
-    ],
-
-    topupExecutionSourceTypeIdOptions: [
-      { value: EnumConfig.TopupExecutionSourceTypeId.System, label: t('topup.system_tab') },
-      { value: EnumConfig.TopupExecutionSourceTypeId.Schedule, label: t('topup.schedule_tab') },
-      { value: EnumConfig.TopupExecutionSourceTypeId.Manual, label: t('topup.manual_tab') },
+      { value: EnumConfig.SystemTopupStatus.Active, label: t('topup_form.active') },
+      { value: EnumConfig.SystemTopupStatus.Inactive, label: t('topup_form.inactive') },
     ],
 
     topupExecutionSourceTypeOptions: [
@@ -230,23 +187,10 @@ export default function useEnum() {
       { value: EnumConfig.TopupExecutionSourceType.Manual, label: t('topup.manual_tab') },
     ],
 
-    topupExecutionStatusIdOptions: [
-      { value: EnumConfig.TopupExecutionStatusId.Pending, label: t('topup.pending') },
-      { value: EnumConfig.TopupExecutionStatusId.Executing, label: t('topup.executing') },
-      { value: EnumConfig.TopupExecutionStatusId.Completed, label: t('topup.completed') },
-    ],
-
     topupExecutionStatusOptions: [
       { value: EnumConfig.TopupExecutionStatus.Pending, label: t('topup.pending') },
       { value: EnumConfig.TopupExecutionStatus.Executing, label: t('topup.executing') },
       { value: EnumConfig.TopupExecutionStatus.Completed, label: t('topup.completed') },
-    ],
-
-    topupTargetStatusIdOptions: [
-      { value: EnumConfig.TopupTargetStatusId.Pending, label: t('topup.pending') },
-      { value: EnumConfig.TopupTargetStatusId.Processing, label: t('topup.processing') },
-      { value: EnumConfig.TopupTargetStatusId.Success, label: t('topup.succeeded') },
-      { value: EnumConfig.TopupTargetStatusId.Failed, label: t('topup.failed') },
     ],
 
     topupTargetStatusOptions: [
@@ -256,34 +200,39 @@ export default function useEnum() {
       { value: EnumConfig.TopupTargetStatus.Failed, label: t('topup.failed') },
     ],
 
-    scheduleTopupFrequencyIdOptions: [
-      { value: EnumConfig.ScheduleTopupFrequencyId.OneTime, label: t('topup_form.one_time') },
-      { value: EnumConfig.ScheduleTopupFrequencyId.Monthly, label: t('topup_form.monthly') },
-      { value: EnumConfig.ScheduleTopupFrequencyId.Yearly, label: t('topup_form.yearly') },
-    ],
-
     scheduleTopupFrequencyOptions: [
-      { value: 'OneTime', label: t('topup_form.one_time') },
-      { value: 'Monthly', label: t('topup_form.monthly') },
-      { value: 'Yearly', label: t('topup_form.yearly') },
-    ],
-
-    scheduleTopupStatusIdOptions: [
-      { value: EnumConfig.ScheduleTopupStatusId.Active, label: t('topup_form.active') },
-      { value: EnumConfig.ScheduleTopupStatusId.Inactive, label: t('topup_form.inactive') },
-      { value: EnumConfig.ScheduleTopupStatusId.Completed, label: t('topup_form.completed') },
+      { value: EnumConfig.ScheduleTopupFrequency.OneTime, label: t('topup_form.one_time') },
+      { value: EnumConfig.ScheduleTopupFrequency.Monthly, label: t('topup_form.monthly') },
+      { value: EnumConfig.ScheduleTopupFrequency.Yearly, label: t('topup_form.yearly') },
     ],
 
     scheduleTopupStatusOptions: [
-      { value: 'Active', label: t('topup_form.active') },
-      { value: 'Inactive', label: t('topup_form.inactive') },
-      { value: 'Completed', label: t('topup_form.completed') },
+      { value: EnumConfig.ScheduleTopupStatus.Active, label: t('topup_form.active') },
+      { value: EnumConfig.ScheduleTopupStatus.Inactive, label: t('topup_form.inactive') },
+      { value: EnumConfig.ScheduleTopupStatus.Completed, label: t('topup_form.completed') },
     ],
 
-    tuitionstatus: [
-      { value: 1, label: t('text.overdue') },
-      { value: 2, label: t('text.due') },
-      { value: 3, label: t('text.paid') },
+    studentTuitionFilterStatusOptions: [
+      { value: EnumConfig.StudentTuitionFilterStatus.Overdue, label: t('text.overdue') },
+      { value: EnumConfig.StudentTuitionFilterStatus.Due, label: t('text.due') },
+      { value: EnumConfig.StudentTuitionFilterStatus.Paid, label: t('text.paid') },
+    ],
+
+    educationAccountStatusOptions: [
+      { value: EnumConfig.EducationAccountStatus.Active, label: t('topup_form.active') },
+      { value: EnumConfig.EducationAccountStatus.Extended, label: 'Extended' },
+      { value: EnumConfig.EducationAccountStatus.Closed, label: t('course_management.status.closed') },
+    ],
+
+    educationCreditTransactionTypeOptions: [
+      { value: EnumConfig.EducationCreditTransactionType.Topup, label: 'Top-up' },
+      { value: EnumConfig.EducationCreditTransactionType.CourseFeePayment, label: 'Course Fee Payment' },
+      { value: EnumConfig.EducationCreditTransactionType.ExpiredBalance, label: 'Expired Balance' },
+    ],
+
+    educationCreditTransactionDirectionOptions: [
+      { value: EnumConfig.EducationCreditTransactionDirection.Credit, label: 'Credit' },
+      { value: EnumConfig.EducationCreditTransactionDirection.Debit, label: 'Debit' },
     ],
   }
 }

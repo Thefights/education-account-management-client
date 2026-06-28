@@ -7,21 +7,21 @@ export const lightPalette = {
   },
 
   primary: {
-    main: '#2878E3',
-    light: '#69A7F4',
-    dark: '#175CB8',
+    main: '#2563EB',
+    light: '#60A5FA',
+    dark: '#1D4ED8',
     contrastText: '#FFFFFF',
-    softBg: '#EAF4FF',
-    softBorder: '#C8E0FB',
+    softBg: '#EEF4FF',
+    softBorder: '#BFD7FF',
   },
 
   secondary: {
-    main: '#00897B',
-    light: '#4FD1C5',
-    dark: '#007C73',
+    main: '#0FAD9E',
+    light: '#5EEAD4',
+    dark: '#0F766E',
     contrastText: '#FFFFFF',
-    softBg: '#E6FAF8',
-    softBorder: '#B7EFEA',
+    softBg: '#ECFEFA',
+    softBorder: '#99F6E4',
   },
 
   success: {
@@ -34,12 +34,12 @@ export const lightPalette = {
   },
 
   warning: {
-    main: '#FAAD14',
-    light: '#FFD666',
-    dark: '#D48806',
+    main: '#F59E0B',
+    light: '#FCD34D',
+    dark: '#B45309',
     contrastText: '#FFFFFF',
-    softBg: '#FFFBE6',
-    softBorder: '#FFE58F',
+    softBg: '#FFFBEB',
+    softBorder: '#FDE68A',
   },
 
   error: {
@@ -61,12 +61,12 @@ export const lightPalette = {
   },
 
   background: {
-    default: '#F3F8FD',
-    paper: '#FFFFFF',
-    header: '#FFFFFF',
-    sider: '#EAF4FF',
-    lightBlue: '#EAF4FF',
-    lightGray: '#F5F8FC',
+    default: '#f4f6fa2d',
+    paper: '#ffffff36',
+    header: 'rgba(255, 255, 255, 0.86)',
+    sider: '#EEF2F7',
+    lightBlue: '#EEF3FA',
+    lightGray: '#F3F5F8',
   },
 
   text: {
@@ -75,7 +75,7 @@ export const lightPalette = {
     disabled: '#94A3B8',
   },
 
-  divider: '#E2EAF3',
+  divider: '#DDE3EC',
 
   grey: {
     50: '#F8FAFC',
@@ -91,12 +91,13 @@ export const lightPalette = {
   },
 
   gradients: {
-    brand_45deg: 'linear-gradient(45deg, #636ABC 0%, #858DD2 100%)',
-    brand_135deg: 'linear-gradient(135deg, #636ABC 0%, #858DD2 100%)',
-    brand_reverse_45deg: 'linear-gradient(45deg, #858DD2 0%, #636ABC 100%)',
-    brand_reverse_135deg: 'linear-gradient(135deg, #858DD2 0%, #636ABC 100%)',
-    calm: 'linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 100%)',
-    background: 'linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)',
+    brand_45deg: 'linear-gradient(45deg, #2563EB 0%, #0FAD9E 100%)',
+    brand_135deg: 'linear-gradient(135deg, #2563EB 0%, #0FAD9E 100%)',
+    brand_reverse_45deg: 'linear-gradient(45deg, #0FAD9E 0%, #2563EB 100%)',
+    brand_reverse_135deg: 'linear-gradient(135deg, #0FAD9E 0%, #2563EB 100%)',
+    calm: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 48%, #EEF3FA 100%)',
+    background:
+      'radial-gradient(circle at 8% 8%, rgba(37, 99, 235, 0.08), transparent 28%), radial-gradient(circle at 92% 12%, rgba(15, 173, 158, 0.08), transparent 30%), radial-gradient(circle at 50% 100%, rgba(100, 116, 139, 0.10), transparent 34%)',
   },
 }
 

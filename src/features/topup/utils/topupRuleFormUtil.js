@@ -1,18 +1,22 @@
-const fieldValues = { Age: 1, Balance: 2, SchoolingStatus: 3 }
+import { EnumConfig } from '@/shared/config/enumConfig'
+
+const fieldValues = { 1: 'Age', 2: 'Balance', 3: 'SchoolingStatus' }
 const operatorValues = {
-  Equals: 1,
-  NotEquals: 2,
-  GreaterThan: 3,
-  GreaterThanOrEqual: 4,
-  LessThan: 5,
-  LessThanOrEqual: 6,
-  Between: 7,
+  1: 'Equals',
+  2: 'NotEquals',
+  3: 'GreaterThan',
+  4: 'GreaterThanOrEqual',
+  5: 'LessThan',
+  6: 'LessThanOrEqual',
+  7: 'Between',
 }
-const logicalOperatorValues = { And: 1, Or: 2 }
+const logicalOperatorValues = { 1: 'And', 2: 'Or' }
+const textField = EnumConfig.TopupConditionField.SchoolingStatus
+const betweenOperator = EnumConfig.TopupConditionOperator.Between
 
 export const createEmptyTopupCondition = () => ({
-  field: 1,
-  operator: 1,
+  field: EnumConfig.TopupConditionField.Age,
+  operator: EnumConfig.TopupConditionOperator.Equals,
   valueText: null,
   valueNumber: null,
   valueNumberTo: null,
@@ -20,19 +24,21 @@ export const createEmptyTopupCondition = () => ({
 })
 
 export const createEmptyTopupConditionGroup = () => ({
-  logicalOperator: 1,
+  logicalOperator: EnumConfig.TopupLogicalOperator.And,
   displayOrder: 0,
   conditions: [createEmptyTopupCondition()],
   groups: [],
 })
 
-export const normalizeTopupCondition = (condition = {}) => ({
+const normalizeTopupCondition = (condition = {}) => ({
   ...condition,
-  field: typeof condition.field === 'number' ? condition.field : fieldValues[condition.field] || 1,
+  field: typeof condition.field === 'number'
+    ? fieldValues[condition.field] || EnumConfig.TopupConditionField.Age
+    : condition.field || EnumConfig.TopupConditionField.Age,
   operator:
     typeof condition.operator === 'number'
-      ? condition.operator
-      : operatorValues[condition.operator] || 1,
+      ? operatorValues[condition.operator] || EnumConfig.TopupConditionOperator.Equals
+      : condition.operator || EnumConfig.TopupConditionOperator.Equals,
 })
 
 export const normalizeTopupConditionGroup = (group) => {
@@ -41,8 +47,8 @@ export const normalizeTopupConditionGroup = (group) => {
     ...group,
     logicalOperator:
       typeof group.logicalOperator === 'number'
-        ? group.logicalOperator
-        : logicalOperatorValues[group.logicalOperator] || 1,
+        ? logicalOperatorValues[group.logicalOperator] || EnumConfig.TopupLogicalOperator.And
+        : group.logicalOperator || EnumConfig.TopupLogicalOperator.And,
     conditions: (group.conditions || []).map(normalizeTopupCondition),
     groups: (group.groups || []).map(normalizeTopupConditionGroup),
   }
@@ -56,10 +62,12 @@ export const serializeTopupConditionGroup = (group, displayOrder = 0) => {
     conditions: conditions.map((condition, index) => ({
       field: condition.field,
       operator: condition.operator,
-      valueText: condition.field === 3 ? condition.valueText : null,
-      valueNumber: condition.field === 3 ? null : condition.valueNumber,
+      valueText: condition.field === textField ? condition.valueText : null,
+      valueNumber: condition.field === textField ? null : condition.valueNumber,
       valueNumberTo:
-        condition.field !== 3 && condition.operator === 7 ? condition.valueNumberTo : null,
+        condition.field !== textField && condition.operator === betweenOperator
+          ? condition.valueNumberTo
+          : null,
       displayOrder: index,
     })),
     groups: (group.groups || []).map((child, index) =>
@@ -68,21 +76,31 @@ export const serializeTopupConditionGroup = (group, displayOrder = 0) => {
   }
 }
 
-export const isTopupConditionGroupValid = (group) => {
-  if (!group || !(group.conditions?.length || group.groups?.length)) return false
+export const isTopupConditionGroupValid = (group, depth = 1) => {
+  if (depth > 2 || !group || !(group.conditions?.length || group.groups?.length)) return false
   const conditionsValid = (group.conditions || []).every((condition) => {
-    if (condition.field === 3) {
-      return [1, 2].includes(condition.operator) && Boolean(condition.valueText)
+    if (condition.field === textField) {
+      return [
+        EnumConfig.TopupConditionOperator.Equals,
+        EnumConfig.TopupConditionOperator.NotEquals,
+      ].includes(condition.operator) && Boolean(condition.valueText)
     }
     if (condition.valueNumber == null || Number(condition.valueNumber) < 0) return false
-    if (condition.field === 1 && !Number.isInteger(Number(condition.valueNumber))) return false
-    if (condition.operator !== 7) return true
-    if (condition.valueNumberTo == null || condition.valueNumberTo < condition.valueNumber) return false
-    return condition.field !== 1 || Number.isInteger(Number(condition.valueNumberTo))
+    if (
+      condition.field === EnumConfig.TopupConditionField.Age &&
+      !Number.isInteger(Number(condition.valueNumber))
+    )
+      return false
+    if (condition.operator !== betweenOperator) return true
+    if (condition.valueNumberTo == null || condition.valueNumberTo < condition.valueNumber)
+      return false
+    return (
+      condition.field !== EnumConfig.TopupConditionField.Age ||
+      Number.isInteger(Number(condition.valueNumberTo))
+    )
   })
-  return conditionsValid && (group.groups || []).every(isTopupConditionGroupValid)
+  return (
+    conditionsValid &&
+    (group.groups || []).every((child) => isTopupConditionGroupValid(child, depth + 1))
+  )
 }
-
-export const countTopupConditions = (group) =>
-  (group?.conditions?.length || 0) +
-  (group?.groups || []).reduce((total, child) => total + countTopupConditions(child), 0)

@@ -30,17 +30,15 @@ export const csvImportTemplates = {
     filename: 'course-import-template.csv',
     headers: [
       'CourseName',
-      'Description',
       'CourseFeeAmount',
       'MiscFeeAmount',
-      'FasApplicationDueDate',
+      'EnrollmentDeadline',
       'StartDate',
       'EndDate',
     ],
     sampleRows: [
       [
         'Sample Mathematics Course',
-        'Introductory mathematics course',
         1200,
         100,
         '2026-08-08T02:00:00Z',

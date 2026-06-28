@@ -6,7 +6,15 @@
       "create": "Tạo khóa học",
       "update": "Cập nhật khóa học",
       "list_of_course": "Danh sách khóa học",
-      "important_dates": "Các ngày quan trọng"
+      "important_dates": "Các ngày quan trọng",
+      "applicable_fas": "FAS áp dụng",
+      "fas_deduction": "FAS áp dụng"
+    },
+    "section": {
+      "basic_info": "Thông tin cơ bản",
+      "fees": "Học phí & Thanh toán",
+      "schedule": "Lịch trình & Thời hạn",
+      "initial_students": "Học sinh"
     },
     "field": {
       "id": "ID",
@@ -17,16 +25,26 @@
       "description": "Mô tả",
       "course_fee_amount": "Học phí",
       "misc_fee_amount": "Phí khác",
-      "gst_amount": "Thuế GST (9%)",
+      "gst_amount": "Tiền thuế",
       "total_fee_amount": "Tổng phí",
-      "fas_application_due_date": "Hạn đăng ký FAS",
+      "fas_application_due_date": "Hạn chốt enrollment",
+      "enrollment_deadline": "Hạn chốt enrollment",
       "start_date": "Ngày bắt đầu",
       "end_date": "Ngày kết thúc",
-      "enrollment_count": "Số lượng ghi danh"
+      "enrollment_count": "Số lượng học sinh",
+      "initial_students": "Học sinh",
+      "applicable_fas": "FAS áp dụng",
+      "duration_in_months": "Thời hạn"
     },
     "action": {
       "publish": "Phát hành",
-      "delete_selected": "Xóa đã chọn"
+      "delete_selected": "Xóa đã chọn",
+      "save_as_draft": "Lưu nháp",
+      "manage_fas": "Thêm FAS"
+    },
+    "fas": {
+      "per_component": "Theo từng khoản phí",
+      "standard": "Tiêu chuẩn"
     },
     "label": { "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường" },
     "placeholder": { "search": "Tìm kiếm..." },
@@ -39,16 +57,12 @@
       "publish_description": "Bạn có chắc muốn phát hành {count} khóa học đã chọn?"
     },
     "validation": {
-      "date_order": "Thứ tự ngày phải là: hạn FAS, ngày bắt đầu, ngày kết thúc."
+      "date_order": "Thứ tự ngày phải là: hạn chốt enrollment, ngày bắt đầu, ngày kết thúc."
     },
     "message": {
       "update_conflict": "Khóa học đã được người khác thay đổi. Dữ liệu mới nhất đã được tải lại; vui lòng sửa lại.",
-      "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn đăng ký trong tương lai."
-    },
-    "tab": {
-      "upcoming": "Sắp diễn ra",
-      "in_progress": "Đang diễn ra",
-      "closed": "Đã kết thúc"
+      "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn chốt enrollment trong tương lai.",
+      "no_applicable_fas": "Chưa có chương trình FAS nào được liên kết với khóa học này."
     }
   }
 }

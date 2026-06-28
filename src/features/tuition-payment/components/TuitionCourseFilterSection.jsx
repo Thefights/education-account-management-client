@@ -141,7 +141,7 @@ const TuitionCourseFilterSection = ({
           }
         }
       >
-        {"Installment"}
+        {"installment"}
       </Button>
 
       <Button

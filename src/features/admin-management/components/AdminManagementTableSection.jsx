@@ -1,5 +1,3 @@
-import ActionMenu from '@/shared/components/generals/ActionMenu'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultAuthAccountStatusStyle,
@@ -9,7 +7,15 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
-const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedIds, setSelectedIds, onEdit }) => {
+const AdminManagementTableSection = ({
+  admins,
+  loading,
+  sort,
+  setSort,
+  selectedIds,
+  setSelectedIds,
+  onDetail,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = useMemo(
@@ -33,18 +39,6 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedI
         sortable: true,
       },
       {
-        key: 'nric',
-        title: t('admin_management.field.nric'),
-        width: 130,
-        sortable: true,
-        render: (value) => <MaskedNric value={value} />,
-      },
-      {
-        key: 'phoneNumber',
-        title: t('admin_management.field.phone_number'),
-        width: 150,
-      },
-      {
         key: 'role',
         title: t('admin_management.field.role'),
         width: 150,
@@ -62,26 +56,8 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedI
         options: _enum.authAccountStatusOptions,
         color: defaultAuthAccountStatusStyle,
       },
-      {
-        key: 'schoolName',
-        title: t('admin_management.field.school'),
-        width: 190,
-      },
-      {
-        key: 'azureObjectId',
-        title: t('admin_management.field.azure_object_id'),
-        width: 280,
-      },
-      {
-        key: 'actions',
-        title: '',
-        width: 70,
-        render: (_, row) => (
-          <ActionMenu actions={[{ title: t('button.edit'), onClick: () => onEdit?.(row) }]} />
-        ),
-      },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.roleOptions, onEdit]
+    [t, _enum.authAccountStatusOptions, _enum.roleOptions]
   )
 
   return (
@@ -95,6 +71,7 @@ const AdminManagementTableSection = ({ admins, loading, sort, setSort, selectedI
       canSelectRows
       selectedRows={selectedIds}
       setSelectedRows={setSelectedIds}
+      onRowClick={onDetail}
     />
   )
 }

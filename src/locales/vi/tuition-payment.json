@@ -1,8 +1,8 @@
 {
   "tuition-payment": {
     "title": "Thanh toán học phí",
-    "unpaid_invoice": "hóa đơn chưa thanh toán",
-    "unpaid_invoices": "hóa đơn chưa thanh toán",
+    "pending_payment_invoice": "hóa đơn chờ thanh toán",
+    "pending_payment_invoices": "hóa đơn chờ thanh toán",
     "topup_from_moe": "Top-up từ MOE",
     "total_outstanding": "Tổng dư nợ"
   }

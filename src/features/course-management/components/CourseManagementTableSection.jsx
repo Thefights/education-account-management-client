@@ -3,8 +3,11 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { CopyOutlined, EditOutlined } from '@ant-design/icons'
 
 const isDraft = (course) => course.status === 'Draft'
+const canEdit = (course) => course.status === 'Draft' || course.status === 'Enrolling'
 
 const CourseManagementTableSection = ({
   courses,
@@ -13,9 +16,9 @@ const CourseManagementTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onEdit,
-  onDelete,
   onDetail,
+  onEdit,
+  onDuplicate,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -42,38 +45,55 @@ const CourseManagementTableSection = ({
       color: defaultManagementStatusStyle,
     },
     {
-      key: 'description',
-      title: t('course_management.field.description'),
-      width: 300,
+      key: 'enrollmentCount',
+      title: t('course_management.field.enrollment_count'),
+      width: 140,
       sortable: true,
-      render: (desc) => (
-        <div
-          style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-          title={desc}
-        >
-          {desc || '-'}
-        </div>
-      ),
+      isNumeric: true,
+      render: (value) => Number(value ?? 0).toLocaleString(),
+    },
+    {
+      key: 'startDate',
+      title: t('course_management.field.start_date'),
+      width: 180,
+      sortable: true,
+      render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
+    },
+    {
+      key: 'endDate',
+      title: t('course_management.field.end_date'),
+      width: 180,
+      sortable: true,
+      render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
+    },
+    {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
     },
     {
       key: 'actions',
       title: '',
       width: 70,
-      render: (_, row) => {
-        const actions = []
-        if (row.status === 'Draft' || row.status === 'Enrolling') {
-          actions.push({ title: t('button.edit'), onClick: () => onEdit(row) })
-        }
-        if (row.status === 'Draft') {
-          actions.push({ title: t('button.delete'), onClick: () => onDelete(row) })
-        }
-        return <ActionMenu actions={actions} />
-      },
+      render: (_, row) => (
+        <ActionMenu
+          actions={[
+            {
+              title: t('button.edit'),
+              icon: <EditOutlined />,
+              disabled: !canEdit(row),
+              onClick: () => onEdit(row),
+            },
+            {
+              title: t('button.duplicate', 'Duplicate'),
+              icon: <CopyOutlined />,
+              onClick: () => onDuplicate(row),
+            },
+          ]}
+        />
+      ),
     },
   ]
 

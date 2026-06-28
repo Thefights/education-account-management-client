@@ -115,7 +115,7 @@ const ContactPage = () => {
               marginBottom: '32px',
             }}
           >
-            Education Account Management System
+            Singapore Financial System
           </Title>
 
           <div

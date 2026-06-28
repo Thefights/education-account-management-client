@@ -1,6 +1,7 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
-import { Card, Col, DatePicker, Flex, Form, Row, Space } from 'antd'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
+import { Col, DatePicker, Form } from 'antd'
 import dayjs from 'dayjs'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useState } from 'react'
@@ -26,8 +27,14 @@ const SweepReportFilterSection = ({ batchDate, onFilter, onReset }) => {
   }
 
   return (
-  <Card size="small">
-    <Row gutter={[16, 16]} align="bottom">
+  <FilterSectionLayout
+    actions={
+      <>
+        <ResetFilterButton onResetFilterClick={handleReset} />
+        <FilterButton onFilterClick={() => onFilter?.(selectedDate)} />
+      </>
+    }
+  >
       <Col xs={24} sm={12} lg={8}>
         <FieldBox title={t('batch_report.batch_date')}>
           <Form.Item style={{ marginBottom: 0 }}>
@@ -42,16 +49,7 @@ const SweepReportFilterSection = ({ batchDate, onFilter, onReset }) => {
           </Form.Item>
         </FieldBox>
       </Col>
-      <Col xs={24} sm={12} lg={16}>
-        <Flex justify="end">
-          <Space>
-            <ResetFilterButton onResetFilterClick={handleReset} />
-            <FilterButton onFilterClick={() => onFilter?.(selectedDate)} />
-          </Space>
-        </Flex>
-      </Col>
-    </Row>
-  </Card>
+  </FilterSectionLayout>
   )
 }
 

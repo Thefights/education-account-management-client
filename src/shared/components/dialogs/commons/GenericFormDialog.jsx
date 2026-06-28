@@ -133,7 +133,7 @@ const GenericFormDialog = ({
         </Space>
       }
     >
-      <Space direction="vertical" style={{ width: '100%', marginTop: 16 }} size={16}>
+      <Space orientation="vertical" style={{ width: '100%', marginTop: 16 }} size={16}>
         {fields.map((field, index) =>
           renderField(
             index === 0 ? { ...field, props: { ...field.props, autoFocus: true } } : field

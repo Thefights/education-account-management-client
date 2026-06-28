@@ -25,6 +25,7 @@ export const routeUrls = {
   },
   ADMIN_MANAGEMENT: {
     INDEX: '/admin-management',
+    DETAIL: (id = ':id') => `/admin-management/${id}`,
   },
   AI_ASSISTANT_SETTING: {
     INDEX: '/ai-assistant-setting',
@@ -44,13 +45,25 @@ export const routeUrls = {
   AUDIT_LOGS: { INDEX: '/audit-logs' },
   COURSE_MANAGEMENT: {
     INDEX: '/course-management',
+    CREATE: '/course-management/create',
     DETAIL: (id = ':id') => `/course-management/${id}`,
+    EDIT: (id = ':id') => `/course-management/${id}/edit`,
   },
   SCHOOL_STUDENT_MANAGEMENT: { INDEX: '/school-student' },
   TOPUP_MANAGEMENT: {
     INDEX: '/topup-management',
+    SYSTEM_CREATE: '/topup-management/system/create',
+    SYSTEM_DETAIL: (id = ':id') => `/topup-management/system/${id}`,
+    SYSTEM_EDIT: (id = ':id') => `/topup-management/system/${id}/edit`,
+    SCHEDULE_CREATE: '/topup-management/schedules/create',
+    SCHEDULE_DETAIL: (id = ':id') => `/topup-management/schedules/${id}`,
+    SCHEDULE_EDIT: (id = ':id') => `/topup-management/schedules/${id}/edit`,
     HISTORY: '/topup-management/history',
     HISTORY_DETAIL: (id = ':id') => `/topup-management/history/${id}`,
+  },
+  FAS_ADMIN: {
+    SCHEMES: '/fas/schemes',
+    APPLICATIONS: '/fas/applications',
   },
   LEGACY_TOPUP: {
     MANUAL: '/manual-topup',
@@ -59,6 +72,10 @@ export const routeUrls = {
   },
   PROFILE: { INDEX: '/profile' },
   TRANSACTIONS: { INDEX: '/transactions' },
+  MY_FAS: {
+    APPLY: '/fas/apply',
+    MANAGEMENT: '/fas/management',
+  },
 }
 
 export const publicRouteUrls = [

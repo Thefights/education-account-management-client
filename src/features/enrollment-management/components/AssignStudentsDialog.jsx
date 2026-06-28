@@ -1,14 +1,25 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
+import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 const getCourseLabel = (course) => `${course.courseCode} - ${course.courseName}`
-const getStudentLabel = (student) =>
-  [student.fullName, student.nric, student.accountNumber].filter(Boolean).join(' · ')
+const getStudentLabel = (student) => (
+  <div
+    style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    {student.fullName && <span>{student.fullName}</span>}
+    {student.fullName && (student.nric || student.accountNumber) && <span>&middot;</span>}
+    {student.nric && <MaskedNric value={student.nric} />}
+    {student.nric && student.accountNumber && <span>&middot;</span>}
+    {student.accountNumber && <span>{student.accountNumber}</span>}
+  </div>
+)
 
 const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
   const { t } = useTranslation()
@@ -28,7 +39,7 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
   const courseOptions = useMemo(
     () =>
       (courses.data || [])
-        .filter((course) => course.status === 'Draft')
+        .filter((course) => course.status === 'Draft' || course.status === 'Enrolling')
         .map((course) => ({ value: course.id, label: getCourseLabel(course) })),
     [courses.data]
   )

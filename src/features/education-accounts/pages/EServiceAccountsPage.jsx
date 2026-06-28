@@ -9,6 +9,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { minLen } from '@/shared/utils/validateUtil'
 import { Card, Flex, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
@@ -24,7 +25,7 @@ const EServiceAccountsPage = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'createdDate', direction: 'desc' })
+  const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
@@ -38,6 +39,9 @@ const EServiceAccountsPage = () => {
   const { submit: submitImport } = useAxiosSubmit({
     url: ApiUrls.EDUCATION_ACCOUNT.IMPORT,
     method: 'POST',
+    onError: async (error) => {
+      setImportResult(getImportErrorResult(error))
+    },
   })
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.EDUCATION_ACCOUNT.UPDATE_STATUS,
@@ -92,6 +96,7 @@ const EServiceAccountsPage = () => {
     const formData = new FormData()
     formData.append('file', values.file)
     const response = await submitImport({ overrideData: formData })
+    if (!response) return
     const result = response?.data
     setImportResult(result || null)
     if (result?.succeeded) await accounts.fetch()
@@ -137,7 +142,7 @@ const EServiceAccountsPage = () => {
           setSort={setSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onView={(account) =>
+          onDetail={(account) =>
             navigate(
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.DETAIL(account.id))
             )

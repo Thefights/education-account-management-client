@@ -3,7 +3,7 @@
     "menu_label": "Enrollment Management",
     "title": {
       "management": "Enrollment Management",
-      "assign_students": "Assign Students",
+      "assign_students": "Add Students",
       "add_students_to_course": "Add Students to {{course}}"
     },
     "placeholder": {
@@ -26,13 +26,14 @@
       "enrolled_at": "Enrolled At",
       "charge_status": "Charge Status",
       "gross_amount": "Gross Amount",
+      "fas_deduction": "FAS Deduction",
       "paid_amount": "Paid Amount",
       "remaining_amount": "Remaining Amount",
       "course": "Course",
       "students": "Students"
     },
     "action": {
-      "assign": "Assign",
+      "assign": "Add",
       "delete_selected": "Delete Selected",
       "manage_students": "Manage Students",
       "view_students": "View Students",
@@ -48,10 +49,9 @@
     },
     "status": {
       "charge": {
-        "unpaid": "Unpaid",
-        "partially_paid": "Partially Paid",
+        "pending_payment": "Pending Payment",
         "paid": "Paid",
-        "outstanding": "Outstanding"
+        "overdue": "Overdue"
       }
     }
   }

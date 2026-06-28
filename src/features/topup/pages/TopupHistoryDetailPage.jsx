@@ -3,7 +3,8 @@ import { GenericTablePagination } from '@/shared/components/generals/GenericPagi
 import { routeUrls } from '@/shared/config/routeUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button, Card, Descriptions, Flex, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
@@ -66,11 +67,11 @@ const TopupHistoryDetailPage = () => {
             <Descriptions.Item label={t('topup.succeeded')}>{data?.successCount}</Descriptions.Item>
             <Descriptions.Item label={t('topup.failed')}>{data?.failedCount}</Descriptions.Item>
             <Descriptions.Item label={t('topup.amount')}>
-              {data?.totalExecutedAmount}
+              {formatCurrencyBasedOnCurrentLanguage(data?.totalExecutedAmount)}
             </Descriptions.Item>
             <Descriptions.Item label={t('topup.reason')}>{data?.manualReason}</Descriptions.Item>
             <Descriptions.Item label={t('topup.created_at')}>
-              {formatDateBasedOnCurrentLanguage(data?.createdAt)}
+              {formatDatetimeStringBasedOnCurrentLanguage(data?.createdAt)}
             </Descriptions.Item>
           </Descriptions>
         </Flex>

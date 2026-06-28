@@ -73,6 +73,11 @@ const TopupHistoryPage = () => {
           loading={history.loading}
           sort={sort}
           setSort={setSort}
+          onDetail={(row) =>
+            navigate(
+              routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(row.id))
+            )
+          }
         />
         <GenericTablePagination
           totalCount={history.data?.totalCount}

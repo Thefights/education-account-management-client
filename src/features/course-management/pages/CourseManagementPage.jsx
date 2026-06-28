@@ -1,5 +1,4 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
@@ -9,12 +8,12 @@ import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getLocalDateFromServerDateTime } from '@/shared/utils/formatDateUtil'
+import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { showWarningToast } from '@/shared/utils/toastUtil'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CourseManagementFilterSection from '../components/CourseManagementFilterSection'
-import CourseManagementFormSection from '../components/CourseManagementFormSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
 import CourseManagementToolbarSection from '../components/CourseManagementToolbarSection'
 
@@ -27,13 +26,9 @@ const CourseManagementPage = () => {
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [openCreate, setOpenCreate] = useState(false)
-  const [openUpdate, setOpenUpdate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
-  const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
-  const [deleteLoading, setDeleteLoading] = useState(false)
   const navigate = useNavigate()
 
   const queryParams = useMemo(
@@ -46,27 +41,22 @@ const CourseManagementPage = () => {
     return (courses.data?.collection || []).filter((course) => selected.has(course.id))
   }, [courses.data?.collection, selectedIds])
 
-  const createCourse = useAxiosSubmit({
-    url: ApiUrls.COURSE_MANAGEMENT.INDEX,
-    method: 'POST',
-  })
-  const updateCourse = useAxiosSubmit({
-    url: ApiUrls.COURSE_MANAGEMENT.DETAIL(selectedRow.id),
-    method: 'PUT',
-    onError: async (error) => {
-      if (error?.response?.status !== 409) return
-      setOpenUpdate(false)
-      setSelectedRow({})
-      await courses.fetch()
-      showWarningToast(t('course_management.message.update_conflict'))
-    },
-  })
   const publishCourses = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.PUBLISH,
     method: 'POST',
   })
   const submitImport = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.IMPORT,
+    method: 'POST',
+    onError: async (error) => {
+      setImportResult(getImportErrorResult(error))
+    },
+  })
+  const deleteSelectedCourses = useAxiosSubmit({
+    url: ApiUrls.COURSE_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
+  })
+  const duplicateCourse = useAxiosSubmit({
     method: 'POST',
   })
 
@@ -89,29 +79,6 @@ const CourseManagementPage = () => {
     clearSelection()
   }
 
-  const handleDelete = async (course) => {
-    const accepted = await confirm({
-      title: t('course_management.confirm.delete_title'),
-      description: t('course_management.confirm.delete_description', { name: course.courseName }),
-      confirmColor: 'error',
-      confirmText: t('button.delete'),
-    })
-    if (!accepted) return
-
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.COURSE_MANAGEMENT.DETAIL(course.id), {
-        headers: { 'If-Match': `"${course.rowVersion}"` },
-      })
-      clearSelection()
-      await courses.fetch()
-    } catch {
-      // The shared Axios interceptor displays the API error.
-    } finally {
-      setDeleteLoading(false)
-    }
-  }
-
   const handleDeleteSelected = async () => {
     if (!selectedCourses.length) return
     const accepted = await confirm({
@@ -130,22 +97,16 @@ const CourseManagementPage = () => {
       formData.append(`items[${index}].rowVersion`, course.rowVersion)
     })
 
-    setDeleteLoading(true)
-    try {
-      await axiosConfig.delete(ApiUrls.COURSE_MANAGEMENT.DELETE_SELECTED, { data: formData })
-      clearSelection()
-      await courses.fetch()
-    } catch {
-      // The shared Axios interceptor displays the API error.
-    } finally {
-      setDeleteLoading(false)
-    }
+    const response = await deleteSelectedCourses.submit({ overrideData: formData })
+    if (!response) return
+    clearSelection()
+    await courses.fetch()
   }
 
   const handlePublish = async () => {
     if (!selectedCourses.length) return
     const hasExpiredFasDeadline = selectedCourses.some((course) => {
-      const deadline = getLocalDateFromServerDateTime(course.fasApplicationDueDate)
+      const deadline = getLocalDateFromServerDateTime(course.enrollmentDeadline)
       return !deadline || deadline.getTime() <= Date.now()
     })
     if (hasExpiredFasDeadline) {
@@ -174,6 +135,7 @@ const CourseManagementPage = () => {
     const formData = new FormData()
     formData.append('file', values.file)
     const response = await submitImport.submit({ overrideData: formData })
+    if (!response) return
     const result = response?.data
     setImportResult(result || null)
     if (result?.succeeded) {
@@ -182,7 +144,22 @@ const CourseManagementPage = () => {
     }
   }
 
-  const mutationLoading = deleteLoading || publishCourses.loading
+  const handleDuplicate = async (course) => {
+    const response = await duplicateCourse.submit({
+      overrideUrl: ApiUrls.COURSE_MANAGEMENT.DUPLICATE(course.id),
+    })
+    if (!response) return
+
+    clearSelection()
+    await courses.fetch()
+    const duplicateId = response?.data?.id
+    if (duplicateId) {
+      navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(duplicateId)))
+    }
+  }
+
+  const mutationLoading =
+    deleteSelectedCourses.loading || duplicateCourse.loading || publishCourses.loading
 
   return (
     <Card>
@@ -191,7 +168,9 @@ const CourseManagementPage = () => {
           {t('course_management.title.management')}
         </Typography.Title>
         <CourseManagementToolbarSection
-          onCreate={() => setOpenCreate(true)}
+          onCreate={() =>
+            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.CREATE))
+          }
           onImport={() => setOpenImport(true)}
           onPublish={handlePublish}
           onDeleteSelected={handleDeleteSelected}
@@ -211,11 +190,10 @@ const CourseManagementPage = () => {
           setSort={handleSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onEdit={(row) => {
-            setSelectedRow(row)
-            setOpenUpdate(true)
-          }}
-          onDelete={handleDelete}
+          onEdit={(row) =>
+            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(row.id)))
+          }
+          onDuplicate={handleDuplicate}
           onDetail={(row) =>
             navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(row.id)))
           }
@@ -230,16 +208,6 @@ const CourseManagementPage = () => {
           loading={courses.loading}
         />
       </Flex>
-      <CourseManagementFormSection
-        openCreate={openCreate}
-        setOpenCreate={setOpenCreate}
-        openUpdate={openUpdate}
-        setOpenUpdate={setOpenUpdate}
-        selectedRow={selectedRow}
-        onCreateSubmit={createCourse.submit}
-        onUpdateSubmit={updateCourse.submit}
-        refetch={courses.fetch}
-      />
       <GenericImportSection
         open={openImport}
         onClose={() => {

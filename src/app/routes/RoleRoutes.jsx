@@ -3,23 +3,34 @@ import FinanceAdminLayout from '@/app/layouts/FinanceAdminLayout'
 import SchoolAdminLayout from '@/app/layouts/SchoolAdminLayout'
 import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import ProtectedRoute from '@/app/routes/ProtectedRoute'
+import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
 import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePage'
 import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
+import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
 import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
 import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
+import CourseManagementFormPage from '@/features/course-management/pages/CourseManagementFormPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
+import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
+import FasSchemeManagementPage from '@/features/financial-assistance/pages/FasSchemeManagementPage'
+import MyFasApplyPage from '@/features/financial-assistance/pages/MyFasApplyPage'
+import MyFasManagementPage from '@/features/financial-assistance/pages/MyFasManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
+import PayPage from '@/features/pay/pages/PayPage'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
+import TopupConfigurationDetailPage from '@/features/topup/pages/TopupConfigurationDetailPage'
+import TopupConfigurationFormPage from '@/features/topup/pages/TopupConfigurationFormPage'
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
+import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -41,6 +52,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.ADMIN_MANAGEMENT.INDEX,
         element: <AdminManagementPage />,
+      },
+      {
+        path: routeUrls.ADMIN_MANAGEMENT.DETAIL(),
+        element: <AdminManagementDetailPage />,
       },
       {
         path: routeUrls.AI_ASSISTANT_SETTING.INDEX,
@@ -70,6 +85,30 @@ const roleRouteGroups = [
     Layout: FinanceAdminLayout,
     routes: [
       { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_CREATE,
+        element: <TopupConfigurationFormPage type="system" mode="create" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_EDIT(),
+        element: <TopupConfigurationFormPage type="system" mode="edit" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_DETAIL(),
+        element: <TopupConfigurationDetailPage type="system" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_CREATE,
+        element: <TopupConfigurationFormPage type="schedule" mode="create" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_EDIT(),
+        element: <TopupConfigurationFormPage type="schedule" mode="edit" />,
+      },
+      {
+        path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_DETAIL(),
+        element: <TopupConfigurationDetailPage type="schedule" />,
+      },
       { path: routeUrls.TOPUP_MANAGEMENT.HISTORY, element: <TopupHistoryPage /> },
       { path: routeUrls.TOPUP_MANAGEMENT.HISTORY_DETAIL(), element: <TopupHistoryDetailPage /> },
       {
@@ -106,9 +145,19 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.SchoolAdmin,
     Layout: SchoolAdminLayout,
     routes: [
+      { path: routeUrls.FAS_ADMIN.SCHEMES, element: <FasSchemeManagementPage /> },
+      { path: routeUrls.FAS_ADMIN.APPLICATIONS, element: <FasApplicationQueuePage /> },
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <CourseManagementPage />,
+      },
+      {
+        path: routeUrls.COURSE_MANAGEMENT.CREATE,
+        element: <CourseManagementFormPage />,
+      },
+      {
+        path: routeUrls.COURSE_MANAGEMENT.EDIT(),
+        element: <CourseManagementFormPage />,
       },
       {
         path: routeUrls.COURSE_MANAGEMENT.DETAIL(),
@@ -125,6 +174,8 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.AccountHolder,
     Layout: AccountHolderLayout,
     routes: [
+      { path: routeUrls.MY_FAS.APPLY, element: <MyFasApplyPage /> },
+      { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
       {
         path: routeUrls.TRANSACTIONS.INDEX,

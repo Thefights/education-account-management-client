@@ -1,40 +1,36 @@
-import { Space, Typography } from 'antd'
+import { useLocalStorage } from '@/shared/hooks/useStorage'
+import { Space } from 'antd'
 
-const SystemLogoAndName = ({ onClick, collapsed = false }) => (
-  <Space
-    align="center"
-    size={10}
-    onClick={onClick}
-    style={{
-      cursor: onClick ? 'pointer' : 'default',
-      minWidth: 0,
-      justifyContent: 'center',
-      width: '100%',
-    }}
-  >
-    <img
-      src="/mp-favicon-logo.svg"
-      alt="MaivenPoint MOS"
+const appName = 'Singapore Financial System'
+
+const SystemLogoAndName = ({ onClick, collapsed = false }) => {
+  const [themeMode] = useLocalStorage('theme', 'light')
+  const logoSrc = themeMode === 'dark' ? '/logo-dark.png' : '/logo-white.png'
+
+  return (
+    <Space
+      align="center"
+      size={10}
+      onClick={onClick}
       style={{
-        width: collapsed ? 36 : 44,
-        height: collapsed ? 36 : 44,
-        flex: '0 0 auto',
+        cursor: onClick ? 'pointer' : 'default',
+        minWidth: 0,
+        justifyContent: 'center',
+        width: '100%',
       }}
-    />
-    {!collapsed && (
-      <div style={{ minWidth: 0, textAlign: 'left' }}>
-        <Typography.Text
-          strong
-          style={{ display: 'block', color: 'var(--app-sider-text)', fontSize: 14 }}
-        >
-          Education Portal
-        </Typography.Text>
-        <Typography.Text style={{ color: 'var(--app-sider-text-muted)', fontSize: 11 }}>
-          Account Management
-        </Typography.Text>
-      </div>
-    )}
-  </Space>
-)
+    >
+      <img
+        src={logoSrc}
+        alt={appName}
+        style={{
+          width: collapsed ? 48 : 180,
+          height: collapsed ? 48 : 180,
+          objectFit: collapsed ? 'contain' : 'cover',
+          objectPosition: 'center',
+        }}
+      />
+    </Space>
+  )
+}
 
 export default SystemLogoAndName

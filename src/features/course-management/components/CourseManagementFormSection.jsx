@@ -10,20 +10,18 @@ import { useMemo } from 'react'
 
 const initialValues = {
   courseName: '',
-  description: '',
   courseFeeAmount: '0',
   miscFeeAmount: '0',
-  fasApplicationDueDate: '',
+  enrollmentDeadline: '',
   startDate: '',
   endDate: '',
 }
 
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
-  description: course.description ?? '',
   courseFeeAmount: String(course.courseFeeAmount ?? 0),
   miscFeeAmount: String(course.miscFeeAmount ?? 0),
-  fasApplicationDueDate: toLocalDateTimeInput(course.fasApplicationDueDate),
+  enrollmentDeadline: toLocalDateTimeInput(course.enrollmentDeadline),
   startDate: toLocalDateTimeInput(course.startDate),
   endDate: toLocalDateTimeInput(course.endDate),
   gstAmount: String(course.gstAmount ?? ''),
@@ -33,10 +31,9 @@ const normalizeInitialValues = (course = {}) => ({
 
 const toPayload = (values, includeRowVersion = false) => ({
   courseName: values.courseName,
-  description: values.description || null,
   courseFeeAmount: Number(values.courseFeeAmount),
   miscFeeAmount: Number(values.miscFeeAmount),
-  fasApplicationDueDate: localDateTimeToIso(values.fasApplicationDueDate),
+  enrollmentDeadline: localDateTimeToIso(values.enrollmentDeadline),
   startDate: localDateTimeToIso(values.startDate),
   endDate: localDateTimeToIso(values.endDate),
   ...(includeRowVersion ? { rowVersion: values.rowVersion } : {}),
@@ -57,14 +54,6 @@ const CourseManagementFormSection = ({
 
   const getFields = (basicInfoOnly = false, showServerFees = false) => [
     { key: 'courseName', title: t('course_management.field.course_name'), validate: [maxLen(150)] },
-    {
-      key: 'description',
-      title: t('course_management.field.description'),
-      multiline: true,
-      minRows: 3,
-      required: false,
-      validate: [maxLen(1000)],
-    },
     {
       key: 'courseFeeAmount',
       title: t('course_management.field.course_fee_amount'),
@@ -100,8 +89,8 @@ const CourseManagementFormSection = ({
         ]
       : []),
     {
-      key: 'fasApplicationDueDate',
-      title: t('course_management.field.fas_application_due_date'),
+      key: 'enrollmentDeadline',
+      title: t('course_management.field.enrollment_deadline'),
       type: 'datetime-local',
       props: { disabled: basicInfoOnly },
     },
@@ -111,7 +100,7 @@ const CourseManagementFormSection = ({
       type: 'datetime-local',
       validate: [
         (value, values) =>
-          !isDateTimeBefore(value, values.fasApplicationDueDate) ||
+          !isDateTimeBefore(value, values.enrollmentDeadline) ||
           t('course_management.validation.date_order'),
       ],
       props: { disabled: basicInfoOnly },
