@@ -15,12 +15,12 @@ import { useOutletContext } from 'react-router-dom'
 
 
 
-const defaultFilters = { Search: ''}
+const defaultFilters = { search: ''}
 
 
 const CouresTuition = () => {
   const profile = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
-  const { nvPay, handleCheck } = useOutletContext()
+  const { nvPay, handleCheck, selected } = useOutletContext()
   
   const data = profile.data
   console.log(profile)
@@ -28,8 +28,6 @@ const CouresTuition = () => {
   const navigate = useNavigate();
   const { token } = theme.useToken()
   const screens = Grid.useBreakpoint()
-
-  
 
   
   const { t } = useTranslation()
@@ -43,6 +41,7 @@ const CouresTuition = () => {
         Tab: tab,
         Sort: `${sort.key} ${sort.direction}`,
         Status: filters.statuses,
+        isInstallation: filters.isInstallment,
         Search: filters.search,
         PageSize: pageSize,
       }),
@@ -190,37 +189,6 @@ const CouresTuition = () => {
 
               </Flex>
 
-              
-              <Space style={{ marginBottom: 16 }}>
-
-                <Button
-                  type={3 === 3 ? 'primary' : 'default'}
-                  onClick={() => setTab(3)}
-                >
-                  {t('course_management.tab.upcoming')} 
-                </Button>
-
-                <Button
-                  type={4 === 4 ? 'primary' : 'default'}
-                  onClick={() => setTab(4)}
-                >
-                  {t('course_management.tab.in_progress')}
-                </Button>
-
-                <Button
-                  type={5 === 5 ? 'primary' : 'default'}
-                  onClick={() => setTab(5)}
-                >
-                  {t('course_management.tab.closed')}
-                </Button>
-
-              </Space>
-
-
-
-
-
-
               <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
                 {t('course_management.title.list_of_course')}
               </Typography.Title>
@@ -228,9 +196,8 @@ const CouresTuition = () => {
               <TuitionCourseFilterSection
                 filters={filters}
                 onFilter={(values) => {
-                  setFilters(values)
+                  setFilters({...values})
                   setPage(1)
-                  setSelectedIds([])
                 }}
                 onSort={() => {
                     setSort((sort) => ({
@@ -239,6 +206,7 @@ const CouresTuition = () => {
                     }))
                   }
                 }
+                setFilter={setFilters}
                 sortStatus={sort.direction}
                 onReset={() => {
                   setFilters(defaultFilters)
@@ -247,13 +215,14 @@ const CouresTuition = () => {
                 }}
               />
 
-              <CourseListSection collection = {charges?.data?.collection?? []} handleCheck={handleCheck}/>
+              <CourseListSection pay={nvPay} collection = {charges?.data?.collection?? []} handleCheck={handleCheck}/>
 
               <Button 
                 style={{alignSelf:'flex-end', width:'100px'}}
                 onClick={nvPay}
+                disabled={selected.length > 0 ? false : true}
               >
-                Pay
+                Pay Selected
               </Button>
             </>
           )}

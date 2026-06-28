@@ -1,6 +1,7 @@
 import { Routes, Route, Outlet } from "react-router-dom";
 import CoursesTuition from "./CouresTuition";
 import PayPage from "@/features/pay/pages/PayPage";
+import InstallmentTrackerPage from "./InstallmentTrackerPage";
 import { routeUrls } from '@/shared/config/routeUrls'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom';
@@ -35,9 +36,10 @@ function TuitionPaymentLayout() {
             setSelected(prev => prev.filter(item => item !== invoice));
         }
         console.log(selected);
+        
     }
     function nvPay() {
-    navigate('../../pay', {
+    navigate('./pay', {
       state: {
         selected,
       },
@@ -45,7 +47,7 @@ function TuitionPaymentLayout() {
   }
   return (
     <>
-      <Outlet context={{ nvPay, handleCheck }} />
+      <Outlet context={{ nvPay, handleCheck, selected }} />
     </>
   );
 }
@@ -55,7 +57,8 @@ function TuitionPaymentlPage() {
     <Routes>
       <Route path="/" element={<TuitionPaymentLayout  />}>
         <Route index element={<CoursesTuition/>} />
-        <Route path="pay" element={<CoursesTuition />} />
+        <Route path="pay" element={<PayPage />} />
+        <Route path="installment" element={<InstallmentTrackerPage />} />
       </Route>
   </Routes>
   );

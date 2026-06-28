@@ -1,262 +1,201 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BankOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Col, Divider, Flex, Form, Grid, Input, Row, Select, Skeleton, Typography, theme } from 'antd'
+import { BankOutlined } from '@ant-design/icons'
+import { Button, Card, Divider, Flex, Form, Grid, Input, InputNumber, Select, Skeleton, Typography, theme } from 'antd'
 import { QrcodeOutlined } from '@ant-design/icons'
-import TuitionCourseFilterSection from '../components/TuitionCourseFilterSection'
-import { useState, useMemo } from 'react'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import { minLen } from '@/shared/utils/validateUtil'
+import { useState } from 'react'
 import CourseListSection from '../components/CourseListSection'
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import { useOutletContext } from 'react-router-dom'
-import { useLocation } from 'react-router-dom';
-
-
-
-const defaultFilters = { search: '', statuses: [] }
-
+import { useLocation } from 'react-router-dom'
 
 const PayPage = () => {
   const { state } = useLocation();
-
   const selected = state?.selected ?? [];
-  console.log(selected)
+
   const { t } = useTranslation()
   const { token } = theme.useToken()
   const screens = Grid.useBreakpoint()
-  const profile = useFetch(ApiUrls.ACCOUNT_HOLDER.PROFILE)
-  const data = profile.data
 
+  const tuitionSummary = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
+  const availableBalance = tuitionSummary.data?.educationAccountBalance ?? 0
 
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'createdDate', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
-  const [openImport, setOpenImport] = useState(false)
-  const [importResult, setImportResult] = useState(null)
-  const [selectedIds, setSelectedIds] = useState([])
-  const { submit: submitAccounts } = useAxiosSubmit({
-    url: ApiUrls.EDUCATION_ACCOUNT.INDEX,
-    method: 'POST',
-  })
-  const { submit: submitImport } = useAxiosSubmit({
-    url: ApiUrls.EDUCATION_ACCOUNT.IMPORT,
-    method: 'POST',
-  })
-  const updateStatus = useAxiosSubmit({
-    url: ApiUrls.EDUCATION_ACCOUNT.UPDATE_STATUS,
-    method: 'PUT',
-  })
-  const queryParams = useMemo(
-    () => ({ ...filters, sort: `${sort.key} ${sort.direction}`, page, pageSize }),
-    [filters, page, pageSize, sort]
-  )
-  const createFields = useMemo(
-    () => [
-      {
-        key: 'nric',
-        title: t('education_account.nric'),
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <NricInput value={value} onChange={onChange} placeholder="S1234567D" />
-        ),
-      },
-      {
-        key: 'reason',
-        title: t('education_account.reason'),
-        multiple: 5,
-        validate: [minLen(20, t('education_account.reason_min'))],
-        props: {
-          placeholder: t('education_account.reason_placeholder'),
-        },
-      },
-    ],
-    [t]
+  const [plans, setPlans] = useState(() => {
+    const initial = {};
+    selected.forEach((item) => {
+      initial[item.courseCode] = 1;
+    });
+    return initial;
+  });
+
+  const getPayToday = (record) => {
+    const net = Number(record.netPayable || 0);
+    const months = plans[record.courseCode] || 1;
+    if (months === 1) return net;
+    return Math.ceil((net / months) * 100) / 100;
+  };
+
+  const totalDueToday = selected.reduce(
+    (sum, item) => sum + getPayToday(item),
+    0
   )
 
+  const handlePlanChange = (courseCode, months) => {
+    setPlans((prev) => ({ ...prev, [courseCode]: months }));
+  };
 
-  const descriptionItems = [
-    {
-      key: 'accountNumber',
-      label: t('account_profile.account_number'),
-      children: data?.accountNumber,
-    },
-    { key: 'name', label: t('account_profile.name'), children: data?.name },
-    { key: 'nric', label: t('account_profile.nric'), children: <MaskedNric value={data?.nric} /> },
-    { key: 'dateOfBirth', label: t('account_profile.date_of_birth'), children: data?.dateOfBirth },
-    {
-      key: 'expectedClosingDate',
-      label: t('education_account.expected_closing_date'),
-      children: data?.expectedClosingDate,
-    },
-    { key: 'email', label: t('account_profile.email'), children: data?.email },
-    { key: 'phoneNumber', label: t('account_profile.phone'), children: data?.phoneNumber },
-    {
-      key: 'residentialAddress',
-      label: t('account_profile.residential_address'),
-      children: data?.residentialAddress,
-    },
-    {
-      key: 'mailingAddress',
-      label: t('account_profile.mailing_address'),
-      children: data?.mailingAddress,
-    },
-  ]
+  const [balanceInput, setBalanceInput] = useState(null)
+
+  const maxUsable = Math.min(availableBalance, totalDueToday)
+  const balanceUsed = balanceInput !== null
+    ? Math.min(Math.max(Number(balanceInput) || 0, 0), maxUsable)
+    : 0
+  const onlinePayment = Math.max(totalDueToday - balanceUsed, 0)
+  const exceedsBalance = (Number(balanceInput) || 0) > availableBalance
+
+  const fmt = (v) =>
+    Number(v || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
 
   return (
     <Flex vertical gap={24}>
-  {/* TOP */}
-  <Card bordered={false}>
-    <CourseListSection selected={selected} />
-  </Card>
+      <Card bordered={false}>
+        <CourseListSection
+          selected={selected}
+          plans={plans}
+          onPlanChange={handlePlanChange}
+          getPayToday={getPayToday}
+          totalDueToday={totalDueToday}
+        />
+      </Card>
 
-  {/* BOTTOM */}
-  <Card
-    bordered={false}
-    style={{
-      width: '100%'
-    }}
-  >
-    <Flex vertical gap={24}>
-      {/* QR */}
-      <Button
-        type="primary"
-        size="large"
-        block
-        icon={<QrcodeOutlined />}
-      >
-        QR Code
-      </Button>
-
-      <Divider style={{ margin: 0 }}>
-        Or pay with card
-      </Divider>
-
-      {/* SHIPPING INFO */}
-      <div>
-        <Typography.Title
-          level={4}
-          style={{ marginBottom: 16 }}
-        >
-          Shipping information
-        </Typography.Title>
-
-        <Form layout="vertical">
-          <Form.Item
-            label="Email"
-            style={{ marginBottom: 16 }}
+      <Card bordered={false}>
+        <Flex vertical gap={12}>
+          <Typography.Text
+            type="secondary"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
           >
-            <Input />
-          </Form.Item>
-        </Form>
-      </div>
+            From education account
+          </Typography.Text>
 
-      {/* SHIPPING ADDRESS */}
-      <div>
-        <Typography.Text
-          strong
-          style={{
-            display: 'block',
-            marginBottom: 8
-          }}
-        >
-          Shipping address
-        </Typography.Text>
+          <Flex align="center" gap={8} wrap="wrap">
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              Available balance
+            </Typography.Text>
+            <Typography.Text strong style={{ fontSize: 13, color: token.colorSuccess }}>
+              {tuitionSummary.loading ? '...' : `$${fmt(availableBalance)}`}
+            </Typography.Text>
+          </Flex>
 
-        <Input
-          placeholder="Name"
-          style={{
-            borderRadius: '6px 6px 0 0'
-          }}
-        />
-
-        <Select
-          defaultValue="United States"
-          style={{
-            width: '100%'
-          }}
-          options={[
-            {
-              label: 'United States',
-              value: 'United States'
-            }
-          ]}
-        />
-
-        <Input
-          placeholder="Address"
-          style={{
-            borderRadius: '0 0 6px 6px'
-          }}
-        />
-      </div>
-
-      {/* PAYMENT DETAILS */}
-      <div>
-        <Typography.Title
-          level={4}
-          style={{ marginBottom: 16 }}
-        >
-          Payment details
-        </Typography.Title>
-
-        <Typography.Text
-          style={{
-            display: 'block',
-            marginBottom: 8
-          }}
-        >
-          Card information
-        </Typography.Text>
-
-        <Input
-          placeholder="1234 1234 1234 1234"
-          style={{
-            borderRadius: '6px 6px 0 0'
-          }}
-        />
-
-        <Input.Group compact>
-          <Input
-            placeholder="MM / YY"
-            style={{
-              width: '50%',
-              borderRadius: 0
-            }}
+          <InputNumber
+            style={{ width: '100%', fontSize: 17, fontWeight: 500 }}
+            size="large"
+            placeholder="0.00"
+            min={0}
+            max={maxUsable}
+            precision={2}
+            prefix="$"
+            value={balanceInput}
+            status={exceedsBalance ? 'error' : undefined}
+            onChange={(val) => setBalanceInput(val)}
           />
 
-          <Input
-            placeholder="CVC"
-            style={{
-              width: '50%',
-              borderRadius: 0
-            }}
-          />
-        </Input.Group>
-      </div>
+          {exceedsBalance ? (
+            <Typography.Text type="danger" style={{ fontSize: 11 }}>
+              Exceeds available balance of ${fmt(availableBalance)}
+            </Typography.Text>
+          ) : (
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              Enter amount to use from balance (max ${fmt(maxUsable)}). Leave blank to pay fully online.
+            </Typography.Text>
+          )}
 
-      {/* PAY BUTTON */}
-      <Button
-        type="primary"
-        size="large"
-        block
-        style={{
-          marginTop: 12,
-          height: 48,
-          fontWeight: 600
-        }}
-      >
-        Pay $2,445.00
-      </Button>
+          <div
+            style={{
+              padding: 12,
+              borderRadius: token.borderRadius,
+              background: token.colorBgLayout,
+            }}
+          >
+            <Flex justify="space-between" align="center">
+              <div>
+                <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 3 }}>
+                  Online payment (PayNow / bank transfer)
+                </Typography.Text>
+                <Typography.Text strong style={{ fontSize: 16, color: token.colorInfo }}>
+                  ${fmt(onlinePayment)}
+                </Typography.Text>
+              </div>
+              <BankOutlined style={{ fontSize: 22, color: token.colorTextSecondary }} />
+            </Flex>
+          </div>
+        </Flex>
+      </Card>
+
+      <Card bordered={false}>
+        <Flex vertical gap={8}>
+          <Typography.Text
+            type="secondary"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            Summary
+          </Typography.Text>
+
+          <Flex justify="space-between">
+            <Typography.Text type="secondary">Total due today</Typography.Text>
+            <Typography.Text strong>${fmt(totalDueToday)}</Typography.Text>
+          </Flex>
+
+          <Flex justify="space-between">
+            <Typography.Text type="secondary">From balance</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorSuccess }}>
+              {balanceUsed > 0 ? `-$${fmt(balanceUsed)}` : '$0.00'}
+            </Typography.Text>
+          </Flex>
+
+          <Flex justify="space-between">
+            <Typography.Text type="secondary">Online payment</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorInfo }}>
+              ${fmt(onlinePayment)}
+            </Typography.Text>
+          </Flex>
+
+          <Divider style={{ margin: '4px 0' }} />
+
+          <Flex justify="space-between">
+            <Typography.Text strong style={{ fontSize: 14 }}>Charge today</Typography.Text>
+            <Typography.Text strong style={{ fontSize: 14, color: token.colorPrimary }}>
+              ${fmt(totalDueToday)}
+            </Typography.Text>
+          </Flex>
+
+          <Button
+            type="primary"
+            size="large"
+            block
+            style={{
+              marginTop: 10,
+              height: 48,
+              fontWeight: 600,
+            }}
+          >
+            Confirm & pay ${fmt(totalDueToday)}
+          </Button>
+        </Flex>
+      </Card>
     </Flex>
-  </Card>
-</Flex>
   )
 }
 
 export default PayPage
-

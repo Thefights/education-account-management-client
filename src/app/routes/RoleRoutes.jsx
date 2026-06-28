@@ -26,6 +26,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
 import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
 import PayPage from '@/features/pay/pages/PayPage'
+import InstallmentTrackerPage from '@/features/tuition-payment/pages/InstallmentTrackerPage'
 
 const roleRouteGroups = [
   {
@@ -134,12 +135,8 @@ const roleRouteGroups = [
         element: <AccountHolderCourseManagementPage />,
       },
       {
-        path: routeUrls.TUITION_PAYMENT.INDEX,
+        path: routeUrls.TUITION_PAYMENT.INDEX + '/*',
         element: <TuitionPaymentlPage />,
-      },
-      {
-        path: routeUrls.PAY.INDEX,
-        element: <PayPage />,
       },
     ],
   },

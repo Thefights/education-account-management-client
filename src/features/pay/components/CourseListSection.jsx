@@ -1,10 +1,47 @@
-import { Table, Typography, Tag, Flex } from "antd";
+import { Table, Typography, Flex, Button, Divider } from "antd";
+import { theme } from "antd";
 
-const CourseListSection = ({ selected = [] }) => {
-  const totalAmount = selected.reduce(
-    (sum, item) => sum + (item.remainingAmount || 0),
+const PLAN_OPTIONS = [
+  { label: "Full", months: 1 },
+  { label: "3mo", months: 3 },
+  { label: "6mo", months: 6 },
+  { label: "9mo", months: 9 },
+  { label: "12mo", months: 12 },
+];
+
+const CourseListSection = ({
+  selected = [],
+  plans = {},
+  onPlanChange,
+  getPayToday,
+  totalDueToday = 0,
+}) => {
+  const { token } = theme.useToken();
+
+  const totalGross = selected.reduce(
+    (sum, item) =>
+      sum +
+      Number(item.courseFee || 0) +
+      Number(item.miscFee || 0) +
+      Number(item.gstAmount || 0),
     0
   );
+
+  const totalFasDeduction = selected.reduce(
+    (sum, item) => sum + Number(item.fasSubsidyAmount || 0),
+    0
+  );
+
+  const totalNetPayable = selected.reduce(
+    (sum, item) => sum + Number(item.netPayable || 0),
+    0
+  );
+
+  const fmt = (v) =>
+    Number(v || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
   const columns = [
     {
@@ -12,113 +49,155 @@ const CourseListSection = ({ selected = [] }) => {
       key: "course",
       render: (_, record) => (
         <Flex vertical>
-          <Typography.Text strong>
-            {record.courseName}
-          </Typography.Text>
-
-          <Typography.Text type="secondary">
+          <Typography.Text strong>{record.courseName}</Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
             {record.courseCode}
           </Typography.Text>
         </Flex>
       ),
     },
     {
-      title: "Remaining Amount",
-      dataIndex: "remainingAmount",
-      key: "remainingAmount",
+      title: "Net Payable",
+      dataIndex: "netPayable",
+      key: "netPayable",
       align: "right",
       render: (value) => (
-        <Typography.Text strong>
-          ${Number(value || 0).toLocaleString()}
+        <Typography.Text strong style={{ color: token.colorPrimary }}>
+          ${fmt(value)}
         </Typography.Text>
       ),
     },
     {
-      title: "Status",
-      dataIndex: "paymentStatus",
-      key: "paymentStatus",
+      title: "Payment Plan",
+      key: "paymentPlan",
       align: "center",
-      render: (status) => (
-        <Tag color="error">
-          {status}
-        </Tag>
-      ),
+      render: (_, record) => {
+        const currentMonths = plans[record.courseCode] || 1;
+        return (
+          <Flex gap={4} wrap="wrap" justify="center">
+            {PLAN_OPTIONS.map((opt) => (
+              <Button
+                key={opt.months}
+                size="small"
+                type={currentMonths === opt.months ? "primary" : "default"}
+                style={{
+                  borderRadius: 20,
+                  minWidth: 42,
+                  fontSize: 12,
+                }}
+                onClick={() => onPlanChange(record.courseCode, opt.months)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </Flex>
+        );
+      },
+    },
+    {
+      title: "Pay Today",
+      key: "payToday",
+      align: "right",
+      render: (_, record) => {
+        const payToday = getPayToday(record);
+        const months = plans[record.courseCode] || 1;
+        return (
+          <Flex vertical align="flex-end">
+            <Typography.Text strong style={{ fontSize: 14 }}>
+              ${fmt(payToday)}
+            </Typography.Text>
+            {months > 1 && (
+              <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                1 of {months} installments
+              </Typography.Text>
+            )}
+          </Flex>
+        );
+      },
     },
   ];
 
   return (
-    <Flex vertical gap={16}>
+    <Flex vertical gap={0}>
+      <div style={{ marginBottom: 8 }}>
+        <Typography.Text
+          type="secondary"
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          Selected courses
+        </Typography.Text>
+      </div>
+
       <Table
         rowKey={(record) => record.courseCode}
         columns={columns}
         dataSource={selected}
         pagination={false}
-        scroll={{
-          y: 600,
-        }}
+        scroll={{ y: 400 }}
         expandable={{
           expandedRowRender: (record) => (
-            <Flex vertical gap={12}>
+            <Flex vertical gap={8} style={{ padding: "4px 0" }}>
               <Flex justify="space-between">
-                <Typography.Text type="secondary">
-                  Course Fee
-                </Typography.Text>
+                <Typography.Text type="secondary">Course fee</Typography.Text>
+                <Typography.Text strong>${fmt(record.courseFee)}</Typography.Text>
+              </Flex>
 
+              <Flex justify="space-between">
+                <Typography.Text type="secondary">Misc fee</Typography.Text>
+                <Typography.Text strong>${fmt(record.miscFee)}</Typography.Text>
+              </Flex>
+
+              <Flex justify="space-between">
+                <Typography.Text type="secondary">Tax (GST 9%)</Typography.Text>
+                <Typography.Text strong>${fmt(record.gstAmount)}</Typography.Text>
+              </Flex>
+
+              <Divider style={{ margin: "4px 0" }} />
+
+              <Flex justify="space-between">
+                <Typography.Text strong>Gross amount</Typography.Text>
                 <Typography.Text strong>
-                  ${Number(record.courseFee || 0).toLocaleString()}
+                  ${fmt(
+                    Number(record.courseFee || 0) +
+                      Number(record.miscFee || 0) +
+                      Number(record.gstAmount || 0)
+                  )}
                 </Typography.Text>
               </Flex>
 
               <Flex justify="space-between">
-                <Typography.Text type="secondary">
-                  Misc Fee
-                </Typography.Text>
-
-                <Typography.Text strong>
-                  ${Number(record.miscFee || 0).toLocaleString()}
-                </Typography.Text>
-              </Flex>
-
-              <Flex justify="space-between">
-                <Typography.Text type="secondary">
-                  FAS Income T1
-                </Typography.Text>
-
-                <Typography.Text style={{ color: "green" }} strong>
-                  -$1,000,000
-                </Typography.Text>
-              </Flex>
-
-              <Flex justify="space-between">
-                <Typography.Text type="secondary">
-                  GST 9%
-                </Typography.Text>
-
-                <Typography.Text strong>
-                  $1,000,000
-                </Typography.Text>
-              </Flex>
-
-              <div
-                style={{
-                  padding: 12,
-                  border: "1px solid #d9d9d9",
-                  borderRadius: 8,
-                }}
-              >
-                <Flex justify="space-between">
-                  <Typography.Text
-                    strong
-                    style={{ color: "green" }}
-                  >
-                    Net Payable
+                <Flex vertical>
+                  <Typography.Text style={{ color: token.colorSuccess }}>
+                    FAS deduction
                   </Typography.Text>
-
-                  <Typography.Text strong>
-                    ${Number(record.netPayable || 0).toLocaleString()}
-                  </Typography.Text>
+                  {record.appliedFasSchemeName && (
+                    <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                      {record.appliedFasSchemeName}
+                    </Typography.Text>
+                  )}
                 </Flex>
-              </div>
+                <Typography.Text strong style={{ color: token.colorSuccess }}>
+                  {Number(record.fasSubsidyAmount || 0) > 0
+                    ? `-$${fmt(record.fasSubsidyAmount)}`
+                    : "—"}
+                </Typography.Text>
+              </Flex>
+
+              <Divider style={{ margin: "4px 0" }} />
+
+              <Flex justify="space-between">
+                <Typography.Text strong style={{ color: token.colorPrimary }}>
+                  Net payable
+                </Typography.Text>
+                <Typography.Text strong style={{ color: token.colorPrimary }}>
+                  ${fmt(record.netPayable)}
+                </Typography.Text>
+              </Flex>
             </Flex>
           ),
         }}
@@ -126,55 +205,42 @@ const CourseListSection = ({ selected = [] }) => {
 
       <div
         style={{
-          borderTop: "1px solid #f0f0f0",
-          paddingTop: 16,
+          background: token.colorBgLayout,
+          borderRadius: `0 0 ${token.borderRadiusLG}px ${token.borderRadiusLG}px`,
+          padding: "14px 16px",
+          borderTop: `1px solid ${token.colorBorder}`,
         }}
       >
-        <Flex justify="space-between">
-          <Typography.Title
-            level={5}
-            style={{
-              margin: 0,
-              color: "gray",
-            }}
-          >
-            Balance
-          </Typography.Title>
-
-          <Typography.Title
-            level={5}
-            style={{
-              margin: 0,
-              color: "green",
-            }}
-          >
-            -$1,000,000
-          </Typography.Title>
+        <Flex justify="space-between" style={{ marginBottom: 6 }}>
+          <Typography.Text type="secondary">Total gross amount</Typography.Text>
+          <Typography.Text strong>${fmt(totalGross)}</Typography.Text>
         </Flex>
 
-        <Flex
-          justify="space-between"
-          style={{
-            marginTop: 8,
-          }}
-        >
-          <Typography.Title
-            level={5}
-            style={{
-              margin: 0,
-              color: "gray",
-            }}
-          >
-            Total
-          </Typography.Title>
+        <Flex justify="space-between" style={{ marginBottom: 6 }}>
+          <Typography.Text style={{ color: token.colorSuccess }}>
+            Total FAS deduction
+          </Typography.Text>
+          <Typography.Text strong style={{ color: token.colorSuccess }}>
+            {totalFasDeduction > 0 ? `-$${fmt(totalFasDeduction)}` : "—"}
+          </Typography.Text>
+        </Flex>
 
+        <Flex justify="space-between" style={{ marginBottom: 6 }}>
+          <Typography.Text type="secondary">Total net payable</Typography.Text>
+          <Typography.Text strong>${fmt(totalNetPayable)}</Typography.Text>
+        </Flex>
+
+        <Divider style={{ margin: "8px 0" }} />
+
+        <Flex justify="space-between">
+          <Typography.Title level={5} style={{ margin: 0 }}>
+            Total due today
+          </Typography.Title>
           <Typography.Title
             level={5}
-            style={{
-              margin: 0,
-            }}
+            style={{ margin: 0, color: token.colorPrimary }}
           >
-            ${totalAmount.toLocaleString()}
+            ${fmt(totalDueToday)}
           </Typography.Title>
         </Flex>
       </div>

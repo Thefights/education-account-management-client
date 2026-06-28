@@ -53,9 +53,10 @@ const CourseManagementFilterSection = ({ tab, setTab, counts, filters, onFilter,
     
       <Card size="small">
         <Row gutter={[16, 16]} align="bottom">
-          <Col xs={24} md={12}>
+          <Col xs={24} md={18}>
             {renderField(fields[0])}
           </Col>
+
           <Col xs={24} md={6}>
             <Flex justify="end">
               <Space>
@@ -66,7 +67,10 @@ const CourseManagementFilterSection = ({ tab, setTab, counts, filters, onFilter,
                     onReset?.()
                   }}
                 />
-                <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
+                <FilterButton
+                  loading={loading}
+                  onFilterClick={() => onFilter?.(values)}
+                />
               </Space>
             </Flex>
           </Col>

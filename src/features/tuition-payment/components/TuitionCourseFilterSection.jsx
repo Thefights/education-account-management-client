@@ -6,13 +6,14 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Card, Col, Flex, Row, Space } from 'antd'
-import { useMemo } from 'react'
+import { Button, Card, Col, Divider, Flex, Row, Space } from 'antd'
+import { useMemo, useEffect } from 'react'
 
 const TuitionCourseFilterSection = ({
   filters,
   onFilter,
   onReset,
+  setFilter,
   schoolOptions,
   schoolsLoading,
   loading = false,
@@ -31,8 +32,11 @@ const TuitionCourseFilterSection = ({
     'outlined',
     'medium'
   )
+  useEffect(() => {
+    reset(filters)
+  }, [filters])
 
-  console.log(sortStatus);
+  console.log(values);
 
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
@@ -71,43 +75,104 @@ const TuitionCourseFilterSection = ({
     onReset?.()
   }
 
+  const Divider = () => (
+      <div
+        style={{
+          width: 1,
+          height: 40,
+          background: "#d9d9d9",
+        }}
+      />
+    );
+
   return (
-    <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
-        {fields.map((field, index) => (
-          <Col
-            key={field.key}
-            flex={index === 0 ? '2' : '1'}
-          >
-            {renderField(field)}
-          </Col>
-        ))}
+    <>
+    <Space style={{ marginBottom: 16 }}>
+      <Button
+        type={(values.statuses?.length === 0 ) ? 'primary' : 'default'}
+        onClick={() => {
+            onFilter?.({
+              ...values,
+              statuses: [],
+              isInstallment: false
+            })
+          }
+        }
+      >
+        {t("text.all")}
+      </Button>
 
-        <Col flex="none">
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton
-                loading={loading}
-                onResetFilterClick={handleReset}
-              />
+      <Button
+        type={values.statuses?.includes(1) ? 'primary' : 'default'}
+        onClick={() => {
+            onFilter?.({
+              ...values,
+              statuses: [1],
+              isInstallment: false
+            })
+          }
+        }
+      >
+        {t('text.overdue')}
+      </Button>
 
-              <FilterButton
-                loading={loading}
-                onFilterClick={() => onFilter?.(values)}
-              />
+      <Button
+        type={values.statuses?.includes(2) ? 'primary' : 'default'}
+        onClick={() => {
+            onFilter?.({
+              ...values,
+              statuses: [2],
+              isInstallment: false
+            })
+          }
+        }
+      >
+        {t('text.due')}
+      </Button>
 
-              <SortButton
+      <Button
+        type={values.isInstallment ? 'primary' : 'default'}
+        onClick={() => {
+            onFilter?.({
+              ...values,
+              statuses: undefined,
+              isInstallment: true
+            })
+          }
+        }
+      >
+        {"Installment"}
+      </Button>
+
+      <Button
+        type={values.statuses?.includes(4) ? 'primary' : 'default'}
+        onClick={() => {
+            onFilter?.({
+              ...values,
+              statuses: [4]
+            })
+          }
+        }
+      >
+        {t('text.paid')}
+      </Button>
+
+      <Divider />
+
+      <SortButton
                 loading={loading}
                 ascend={sortStatus !== 'desc'}
                 onSortClick={onSort}
               />
-            </Space>
-          </Flex>
+    </Space>
+    <Row gutter={[16, 16]} align="bottom">
+        <Col
+          flex={1}
+        >
+          {renderField(fields[0])}
         </Col>
       </Row>
-
-
-    </Card>
+    </>
   )
 }
 
