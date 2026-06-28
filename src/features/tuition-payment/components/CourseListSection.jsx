@@ -19,7 +19,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
             style={{
                 padding: "0",
             }}
-            bodyStyle={{ padding: 0 }}
+            styles={{body: { padding: 0 }}}
         >
             <Flex justify="space-between" align="flex-start" gap={24}>
                 <Flex vertical gap={12} align="flex-start" justify="space-between" style={{padding: "8px 12px"}}>
@@ -113,7 +113,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                 <Flex justify="space-between">
                     <Typography.Title
                         level={5}
-                        style={{ margin: 0, color:'gray' }}s
+                        style={{ margin: 0, color:'gray' }}
                         >
                             
                         Course Fee
@@ -267,7 +267,7 @@ const CourseListSection = ( {collection, handleCheck, pay } ) => {
         <div style={{height:'500px', overflowY:'scroll'}}>
             <Flex vertical gap={5} style={{ flex: 1 }}>
                 {collection.map((entry) => (
-                <CourseEntry invoice={entry} handleCheck={handleCheck} pay={pay}/>
+                <CourseEntry key={entry.id} invoice={entry} handleCheck={handleCheck} pay={pay}/>
                 ))}
             </Flex>
         </div>
