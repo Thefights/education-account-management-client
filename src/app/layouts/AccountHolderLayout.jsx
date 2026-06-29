@@ -9,7 +9,6 @@ const AccountHolderLayout = () => {
   const { t } = useTranslation()
   return (
     <>
-    <AIPopover />
     <RoleDashboardLayout
       homeUrl={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER()}
       menuSections={[
