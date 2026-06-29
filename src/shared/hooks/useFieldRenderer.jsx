@@ -7,6 +7,7 @@ import ImageTileRenderField from '@/shared/components/fieldRenderers/ImageTileRe
 import InputNumberRenderField from '@/shared/components/fieldRenderers/InputNumberRenderField'
 import MultipleCheckDropdownField from '@/shared/components/fieldRenderers/MultipleCheckDropdownField'
 import PhoneRenderField from '@/shared/components/fieldRenderers/PhoneRenderField'
+import RangePickerRenderField from '@/shared/components/fieldRenderers/RangePickerRenderField'
 import SearchBar from '@/shared/components/generals/SearchBar'
 import DateRangeField from '@/shared/components/textFields/DateRangeField'
 import PasswordTextField from '@/shared/components/textFields/PasswordTextField'
@@ -25,7 +26,7 @@ import useTranslation from './useTranslation'
  * @typedef {Object} FieldDefinition
  * @property {string} key
  * @property {string} title
- * @property {"text" | "search" | "date" | "datetime" | "number" | "input-number" | "email" | "tel" | "password" | "select" | "select-dialog" | "multi-check-dropdown" | "radio" | "checkbox" | "checkbox-group" | "image" | "file" | "object" | "array" | "draw" | "custom" | "daterange" | "timerange"} [type='text']
+ * @property {"text" | "search" | "date" | "datetime" | "number" | "input-number" | "email" | "tel" | "password" | "select" | "select-dialog" | "multi-check-dropdown" | "radio" | "checkbox" | "checkbox-group" | "image" | "file" | "object" | "array" | "draw" | "custom" | "daterange" | "timerange" | "range-picker"} [type='text']
  * @property {boolean} [required=true]
  * @property {number} [multiple=undefined]
  * @property {Array<string|Object>} [options]
@@ -997,6 +998,16 @@ export default function useFieldRenderer(
     )
   }
 
+  const renderRangePicker = (field, context = baseRenderContext) => (
+    <RangePickerRenderField
+      key={field.key}
+      ref={context.registerRef(field.key)}
+      field={field}
+      values={context.values}
+      setField={context.setField}
+    />
+  )
+
   //#region Main Render Function
   const map = {
     text: renderStandard,
@@ -1021,6 +1032,7 @@ export default function useFieldRenderer(
     custom: renderCustom,
     daterange: renderDateRange,
     timerange: renderTimeRange,
+    'range-picker': renderRangePicker,
     _default: renderStandard,
   }
 

@@ -30,7 +30,7 @@ export function AuthBrand({ fixed = false, left = 60 }) {
         alt={appName}
         width={isMobile ? 210 : 280}
         height={isMobile ? 72 : 96}
-        style={{ objectFit: 'cover', objectPosition: 'center' }}
+        style={{ objectFit: 'contain', objectPosition: 'center' }}
       />
 
       <Typography.Text

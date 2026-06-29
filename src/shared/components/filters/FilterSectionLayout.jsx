@@ -1,27 +1,28 @@
-import { Card, Col, Flex, Row, Space } from 'antd'
+import { Card, Flex, Row, Space } from 'antd'
 
 const FilterSectionLayout = ({
   children,
   actions,
   cardProps = {},
   rowProps = {},
-  actionColProps = { xs: 24 },
   actionFlexProps = {},
   actionSpaceProps = {},
   gutter = [16, 16],
   align = 'bottom',
 }) => {
   const content = (
-    <Row gutter={gutter} align={align} {...rowProps}>
-      {children}
+    <Flex vertical gap={16}>
+      <Row gutter={gutter} align={align} {...rowProps}>
+        {children}
+      </Row>
       {actions && (
-        <Col {...actionColProps}>
-          <Flex justify="end" {...actionFlexProps}>
-            <Space {...actionSpaceProps}>{actions}</Space>
-          </Flex>
-        </Col>
+        <Flex justify="end" wrap="wrap" {...actionFlexProps}>
+          <Space wrap {...actionSpaceProps}>
+            {actions}
+          </Space>
+        </Flex>
       )}
-    </Row>
+    </Flex>
   )
 
   if (cardProps === false) return content

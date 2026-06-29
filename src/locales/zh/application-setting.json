@@ -1,0 +1,18 @@
+{
+  "application_setting": {
+    "menu_label": "设置",
+    "title": "应用设置",
+    "description": "管理平台功能、课程收费和分期计划使用的全局设置。",
+    "ai_feature_label": "启用 AI 功能",
+    "enabled": "开启",
+    "disabled": "关闭",
+    "enabled_description": "用户目前可以使用 AI 功能。",
+    "disabled_description": "用户目前无法使用 AI 功能。",
+    "tax_rate_label": "税率",
+    "tax_rate_description": "计算课程收费时使用的小数税率。",
+    "installment_due_day_label": "分期到期日",
+    "installment_due_day_description": "生成分期付款到期日时使用的每月日期。",
+    "load_error": "无法加载应用设置。",
+    "retry": "重试"
+  }
+}

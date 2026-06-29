@@ -15,7 +15,6 @@ const GenericFilterSection = ({
   onReset,
   loading = false,
   getFieldColProps,
-  actionColProps,
   cardProps,
   rowProps,
   gutter,
@@ -34,7 +33,6 @@ const GenericFilterSection = ({
       cardProps={cardProps}
       rowProps={rowProps}
       gutter={gutter}
-      actionColProps={actionColProps}
       actions={
         <>
           <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
