@@ -7,18 +7,33 @@ import {
   RobotOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import axiosClient from '@/shared/api/axiosClient'
+import { ApiUrls } from '@/shared/api/apiUrls'
+import useFetch from '@/shared/hooks/useFetch'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: 'Hello! I am the SFS e-Service Assistant. How can I help you today?',
-    },
-  ])
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('sfs_chatbot_history')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch (e) {
+        console.error('Failed to parse chatbot history:', e)
+      }
+    }
+    return [
+      {
+        role: 'assistant',
+        content: 'Hello! I am the SFS e-Service Assistant. How can I help you today?',
+      },
+    ]
+  })
+
+  useEffect(() => {
+    localStorage.setItem('sfs_chatbot_history', JSON.stringify(messages))
+  }, [messages])
   const [inputValue, setInputValue] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [isAiEnabled, setIsAiEnabled] = useState(true)
   const { token } = theme.useToken()
 
@@ -32,48 +47,11 @@ const ChatbotWidget = () => {
     scrollToBottom()
   }, [messages])
 
-  useEffect(() => {
-    if (isOpen) {
-      axiosClient
-        .get('/aichat/status')
-        .then((res) => {
-          setIsAiEnabled(res?.data?.isEnabled ?? true)
-        })
-        .catch(() => setIsAiEnabled(false))
-    }
-  }, [isOpen])
-
-  const handleSend = async () => {
-    if (!inputValue.trim()) return
-
-    const userMessage = { role: 'user', content: inputValue.trim() }
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
-    setInputValue('')
-    setIsLoading(true)
-
-    try {
-      // Prepare history payload for API (excluding the current user message)
-      const historyPayload = messages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }))
-
-      const response = await axiosClient.post(
-        '/aichat',
-        {
-          message: userMessage.content,
-          history: historyPayload,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-
-      setMessages((prev) => [...prev, { role: 'assistant', content: response.answer }])
-    } catch (error) {
+  const statusFetch = useFetch(isOpen ? ApiUrls.AI_CHAT.STATUS : '', {}, [isOpen], isOpen)
+  const chatSubmit = useAxiosSubmit({
+    url: ApiUrls.AI_CHAT.CHAT,
+    method: 'POST',
+    onError: (error) => {
       console.error('Chat API Error:', error)
 
       const status = error.response?.status || error.status
@@ -97,12 +75,47 @@ const ChatbotWidget = () => {
           },
         ])
       }
-    } finally {
-      setIsLoading(false)
+    }
+  })
+
+  useEffect(() => {
+    if (!isOpen) return
+    if (statusFetch.data) {
+      setIsAiEnabled(statusFetch.data.isEnabled ?? true)
+    } else if (statusFetch.error) {
+      setIsAiEnabled(false)
+    }
+  }, [statusFetch.data, statusFetch.error, isOpen])
+
+  const handleSend = async () => {
+    if (!inputValue.trim()) return
+
+    const userMessage = { role: 'user', content: inputValue.trim() }
+    const newMessages = [...messages, userMessage]
+    setMessages(newMessages)
+    setInputValue('')
+
+    // Prepare history payload for API (excluding the current user message)
+    const historyPayload = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }))
+
+    const response = await chatSubmit.submit({
+      overrideData: {
+        message: userMessage.content,
+        history: historyPayload,
+      }
+    })
+
+    if (response && response.answer) {
+      setMessages((prev) => [...prev, { role: 'assistant', content: response.answer }])
     }
   }
 
   const toggleChat = () => setIsOpen(!isOpen)
+  
+  const isLoading = statusFetch.loading || chatSubmit.loading
 
   return (
     <>
@@ -127,21 +140,23 @@ const ChatbotWidget = () => {
         >
           {/* Header */}
           <div
-            className="flex-shrink-0 flex justify-between items-center py-2 px-4 shadow-sm z-10"
+            className="flex-shrink-0 flex justify-between items-center py-2 px-3 shadow-sm z-10"
             style={{
               background: 'linear-gradient(135deg, var(--app-primary), var(--app-secondary))',
               color: '#fff',
             }}
           >
             <div className="flex items-center gap-2.5">
-              <RobotOutlined className="text-xl opacity-90" />
-              <div className="flex flex-col">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-sm">
+                <RobotOutlined className="text-[16px] text-white opacity-100" />
+              </div>
+              <div className="flex items-center gap-2">
                 <span className="font-medium text-[15px] tracking-wide">SFS Assistant</span>
-                <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="flex items-center gap-1.5">
                   <span
-                    className={`w-2 h-2 rounded-full ${isAiEnabled ? 'bg-green-300' : 'bg-red-400'}`}
+                    className={`w-1.5 h-1.5 rounded-full ${isAiEnabled ? 'bg-green-300' : 'bg-red-400'}`}
                   ></span>
-                  <span className="text-[11px] uppercase tracking-wider opacity-90 font-medium">
+                  <span className="text-[10px] uppercase tracking-wider opacity-90 font-medium">
                     {isAiEnabled ? 'Online' : 'Offline'}
                   </span>
                 </div>
@@ -235,22 +250,8 @@ const ChatbotWidget = () => {
               borderTopColor: token.colorBorderSecondary,
             }}
           >
-            {!isAiEnabled && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px]">
-                <span
-                  className="text-sm font-medium px-3 py-1 rounded-full shadow-sm border"
-                  style={{
-                    background: token.colorBgElevated,
-                    color: token.colorTextSecondary,
-                    borderColor: token.colorBorder,
-                  }}
-                >
-                  Assistant is currently disabled
-                </span>
-              </div>
-            )}
             <Input
-              placeholder="Ask a question..."
+              placeholder={isAiEnabled ? "Ask a question..." : "Assistant is currently disabled"}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onPressEnter={handleSend}
