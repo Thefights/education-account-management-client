@@ -115,6 +115,14 @@ const InstallmentExpandedRow = ({ record, token }) => {
             ${fmt(record.gstAmount)}
           </Typography.Text>
         </Flex>
+        <Flex gap={4}>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            Gross Amount
+          </Typography.Text>
+          <Typography.Text strong style={{ fontSize: 12 }}>
+            ${fmt(record.grossAmount)}
+          </Typography.Text>
+        </Flex>
         {Number(record.fasSubsidyAmount) > 0 && (
           <Flex gap={4}>
             <Typography.Text style={{ color: token.colorSuccess, fontSize: 12 }}>
@@ -133,7 +141,7 @@ const InstallmentExpandedRow = ({ record, token }) => {
       {/* Progress bar */}
       <Flex justify="space-between" style={{ marginBottom: 6 }}>
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          Paid so far
+          Already Paid
         </Typography.Text>
         <Typography.Text strong style={{ fontSize: 12 }}>
           ${fmt(record.paidAmount)} / ${fmt(record.netPayable)}
@@ -159,67 +167,6 @@ const InstallmentExpandedRow = ({ record, token }) => {
           }}
         />
       </div>
-
-      {/* Installment rows */}
-      <Typography.Text
-        type="secondary"
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          marginBottom: 6,
-          display: "block",
-        }}
-      >
-        Installment schedule
-      </Typography.Text>
-
-      <Flex vertical gap={6}>
-        {[...installments]
-          .sort((a, b) => a.installmentNumber - b.installmentNumber)
-          .map((inst) => (
-            <Flex
-              key={inst.id}
-              justify="space-between"
-              align="center"
-              style={{
-                padding: "8px 10px",
-                borderRadius: token.borderRadius,
-                background:
-                  inst.status === "Overdue"
-                    ? "#FFF0F2"
-                    : inst.status === "Paid"
-                    ? token.colorFillAlter
-                    : token.colorBgLayout,
-                border: `1px solid ${
-                  inst.status === "Overdue"
-                    ? "#FFC9CF"
-                    : token.colorBorder
-                }`,
-              }}
-            >
-              <Flex vertical gap={2}>
-                <Typography.Text strong style={{ fontSize: 13 }}>
-                  Installment {inst.installmentNumber} — ${fmt(inst.amount)}
-                </Typography.Text>
-                <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                  Due: {fmtDate(inst.dueDate)}
-                  {inst.status === "Overdue" && inst.becameOverdueAt
-                    ? ` · Overdue since ${fmtDate(inst.becameOverdueAt)}`
-                    : ""}
-                </Typography.Text>
-              </Flex>
-              <Tag
-                color={statusTagColor(inst.status)}
-                bordered={false}
-                style={{ borderRadius: 20, margin: 0 }}
-              >
-                {inst.status}
-              </Tag>
-            </Flex>
-          ))}
-      </Flex>
     </Flex>
   );
 };
@@ -236,6 +183,10 @@ const CourseListSection = ({
 }) => {
   const { token } = theme.useToken();
   const _enum = useEnum();
+
+  selected.forEach(e => {
+    totalGross += e.grossAmount
+  })
 
   const totalFasDeduction = selected.reduce(
     (sum, item) => sum + Number(item.fasSubsidyAmount || 0),

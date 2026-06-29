@@ -5,7 +5,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { BankOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme, Space } from 'antd'
 import TuitionCourseFilterSection from '../components/TuitionCourseFilterSection'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import { minLen } from '@/shared/utils/validateUtil'
 import CourseListSection from '../components/CourseListSection'
@@ -20,7 +20,7 @@ const defaultFilters = { search: ''}
 
 const CouresTuition = () => {
   const profile = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
-  const { nvPay, handleCheck, selected } = useOutletContext()
+  const { nvPay, handleCheck, selected, resetSelected } = useOutletContext()
   
   const data = profile.data
   console.log(profile)
@@ -65,6 +65,10 @@ const CouresTuition = () => {
       { Tab: 5, Page: 1, PageSize: 1 },
       []
     )
+
+    useEffect(() => {
+      resetSelected();
+    }, [])
   
     const counts = {
       upcoming: charges.data?.totalCount ?? 0,
@@ -130,8 +134,8 @@ const CouresTuition = () => {
                         type="secondary"
                         style={{ fontSize: '12px' }}
                         >
-                          {data?.unpaidInvoicesCount + ' '} 
-                          {data?.unpaidInvoicesCount > 1 ? t('tuition-payment.unpaid_invoices') : t('tuition-payment.unpaid_invoice')}
+                          {data?.pendingPaymentInvoicesCount + ' '} 
+                          {data?.pendingPaymentInvoicesCount > 1 ? t('tuition-payment.pending_payment_invoices') : t('tuition-payment.pending_payment_invoice')}
                         </Typography.Text>
                     </Flex>
                     
@@ -215,16 +219,25 @@ const CouresTuition = () => {
                 }}
               />
 
+              <Flex justify="space-between" align="center">
+                <Typography.Text 
+                        type="secondary"
+                        style={{ fontSize: '13px' }}>
+                          {`${selected.length} selected — or use Pay Now on each course`}
+                </Typography.Text>
+                
+                <Button 
+                  type='primary'
+                  style={{alignSelf:'flex-end', width:'8rem', fontSize: '13px', height: '2rem'}}
+                  onClick={nvPay}
+                  disabled={selected.length > 0 ? false : true}
+                >
+                  Pay Selected
+                </Button>
+              </Flex>
+
               <CourseListSection pay={nvPay} collection = {charges?.data?.collection?? []} handleCheck={handleCheck}/>
 
-              <Button 
-                type='primary'
-                style={{alignSelf:'flex-end', width:'100px'}}
-                onClick={nvPay}
-                disabled={selected.length > 0 ? false : true}
-              >
-                Pay Selected
-              </Button>
             </>
           )}
         </Flex>

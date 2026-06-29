@@ -177,6 +177,27 @@ const TuitionCourseFilterSection = ({
       >
         {t('text.paid')}
       </Button>
+<<<<<<< HEAD
+=======
+
+      {/* <Divider />
+
+      <Flex align='center' gap={5}>
+        <SortButton
+          loading={loading}
+          ascend={sortStatus !== 'desc'}
+          onSortClick={onSort}
+        />
+        <Flex vertical justify='flex-start' align='flex-start'>
+          <Typography.Text type="secondary" style={{ fontSize: '0.75rem' }}>
+            {`${sortStatus !== 'desc' ? 'accending' : 'descending' }`}
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: '0.75rem' }}>
+            {`by created date`}
+          </Typography.Text>
+        </Flex>
+      </Flex> */}
+>>>>>>> 565943470f5607cb1304f86d205b61627af5135f
     </Space>
     <Row gutter={[16, 16]} align="bottom">
         <Col

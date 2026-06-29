@@ -106,7 +106,7 @@ const InstallmentTrackerPage = () => {
             </SummaryCard>
 
             <SummaryCard token={token}>
-              <CardLabel>Paid so far</CardLabel>
+              <CardLabel>Already Paid</CardLabel>
               <CardValue color={token.colorSuccess}>${fmt(paidAmount)}</CardValue>
             </SummaryCard>
 
@@ -121,9 +121,7 @@ const InstallmentTrackerPage = () => {
               <CardLabel>Per month</CardLabel>
               <CardValue>
                 ${fmt(perMonth)}{' '}
-                <span style={{ fontSize: 13, fontWeight: 400, color: token.colorTextSecondary }}>
-                  × {totalInstallments}
-                </span>
+                <span style={{ fontSize: 13, fontWeight: 400, color: token.colorTextSecondary }}></span>
               </CardValue>
             </SummaryCard>
           </div>
@@ -154,10 +152,9 @@ const InstallmentTrackerPage = () => {
 
           <Flex gap={32} wrap="wrap">
 
-            {/* ── Left: Timeline ── */}
             <div style={{ flex: '1 1 400px' }}>
               <Typography.Title level={5} style={{ marginBottom: 20 }}>
-                Installment schedule
+                Payment timeline
               </Typography.Title>
 
               <Flex vertical gap={0}>
@@ -229,23 +226,13 @@ const InstallmentTrackerPage = () => {
                           )}
                         </Flex>
 
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                          Due: {fmtDate(item.dueDate)}
-                        </Typography.Text>
-
-                        {isOverdue && item.becameOverdueAt && (
-                          <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                            Overdue since: {fmtDate(item.becameOverdueAt)}
-                          </Typography.Text>
-                        )}
-
                         {/* Overdue action box */}
                         {isOverdue && (
                           <div
                             style={{
                               marginTop: 8,
-                              background: '#FFF0F2',
-                              border: '1px solid #FFC9CF',
+                              background: token.colorErrorBgActive,
+                              border: `1px solid ${token.colorError}`,
                               borderRadius: token.borderRadiusLG,
                               padding: '12px 16px',
                               display: 'flex',
@@ -256,15 +243,20 @@ const InstallmentTrackerPage = () => {
                             }}
                           >
                             <Flex gap={8} align="flex-start" style={{ flex: 1 }}>
-                              <WarningOutlined style={{ color: token.colorError, marginTop: 3 }} />
+                              <WarningOutlined style={{ marginTop: 3 }} />
                               <Typography.Text
-                                style={{ color: token.colorError, fontSize: 12, lineHeight: 1.5 }}
+                                style={{ fontSize: 12, lineHeight: 1.5 }}
                               >
-                                Payment missed. Please pay this installment as soon as possible to
-                                avoid account restrictions.
+                                Payment missed. Please settle this month's installment at your earliest convenience.
                               </Typography.Text>
                             </Flex>
-                            <Button color='red' danger style={{ borderRadius: 8 }}>
+                            <Button style={{ background: token.colorError, borderRadius: 8, border:'none', fontWeight:'bold' }} onClick={() => {
+                              navigate('../pay', {
+                                          state: {
+                                              selected: [wip],
+                                          },
+                                      });
+                            }}>
                               Pay Now
                             </Button>
                           </div>
@@ -286,108 +278,35 @@ const InstallmentTrackerPage = () => {
                 })}
               </Flex>
             </div>
-
-            {/* ── Right: Pay panel ── */}
-            <div style={{ flex: '1 1 300px' }}>
-
-              {/* Overdue summary strip */}
-              {overdueInstallments.length > 0 && (
-                <div
-                  style={{
-                    background: '#FFF0F2',
-                    border: '1px solid #FFC9CF',
-                    borderRadius: token.borderRadiusLG,
-                    padding: '12px 16px',
-                    marginBottom: 12,
-                  }}
-                >
-                  <Flex gap={8} align="center">
-                    <WarningOutlined style={{ color: token.colorError }} />
-                    <Typography.Text strong style={{ color: token.colorError, fontSize: 13 }}>
-                      {overdueInstallments.length} overdue installment
-                      {overdueInstallments.length > 1 ? 's' : ''}
-                    </Typography.Text>
-                  </Flex>
-                  <Typography.Text
-                    type="secondary"
-                    style={{ fontSize: 12, marginTop: 4, display: 'block' }}
-                  >
-                    Total overdue: ${fmt(overdueInstallments.reduce((s, i) => s + i.amount, 0))}
-                  </Typography.Text>
-                </div>
-              )}
-
-              {/* Pay remaining early box */}
-              <div
-                style={{
-                  background: token.colorBgLayout,
-                  border: `1px solid ${token.colorBorder}`,
-                  borderRadius: token.borderRadiusLG,
-                  padding: 24,
-                  textAlign: 'center',
-                }}
-              >
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 12, display: 'block', marginBottom: 4 }}
-                >
-                  Remaining balance
-                </Typography.Text>
-
-                <div style={{ marginBottom: 4 }}>
-                  <Typography.Text
-                    strong
-                    style={{ fontSize: 36, color: token.colorPrimary, lineHeight: 1 }}
-                  >
-                    ${fmt(remainingAmount)}
-                  </Typography.Text>
-                </div>
-
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 12, display: 'block', marginBottom: 16 }}
-                >
-                  {paidAmount > 0
-                    ? `$${fmt(paidAmount)} already paid of $${fmt(netPayable)}`
-                    : `Nothing paid yet — full amount of $${fmt(netPayable)} outstanding`}
-                </Typography.Text>
-
-                <Button
-                  type="primary"
-                  size="large"
-                  block
-                  style={{ height: 48, fontWeight: 600, fontSize: 15 }}
-                  onClick={() => {
-                    navigate('../pay', {
-                                state: {
-                                    selected: [wip],
-                                },
-                            });
-                  }}
-                >
-                  Pay Remaining Early
-                </Button>
-
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 11, display: 'block', marginTop: 10 }}
-                >
-                  Settle your full remaining balance in one payment.
-                </Typography.Text>
-              </div>
-
-              {nextInstallment && (
-                <Button block style={{ marginTop: 12, height: 44 }}>
-                  Pay Next Installment (${fmt(nextInstallment.amount)})
-                </Button>
-              )}
-
-              <Button block style={{ marginTop: 8, height: 44 }} >
-                Change Payment Plan
-              </Button>
-            </div>
-
           </Flex>
+          {wip.installments.find(e => e.status != 'Paid') != null ?
+          <>
+            <Divider style={{ margin: '8px 0' }} />
+            <Flex vertical justify='flex-start' align='flex-start' gap={12} >
+              <Typography.Text type='secondary'>
+                Want to settle everything now?
+              </Typography.Text>
+              <Flex vertical gap={7}>
+                <Button
+                    type="primary"
+                    style={{ height: '2rem', width:'auto', fontWeight: 600, fontSize: 15 }}
+                    onClick={() => {
+                      navigate('../pay', {
+                                  state: {
+                                      selected: [wip],
+                                  },
+                              });
+                    }}
+                  >
+                    {`Pay Remaining $${remainingAmount} Early`}
+                  </Button>
+                  <Typography.Text type='secondary' style={{fontWeight:'bold', fontSize:'0.75rem'}}>
+                      All remaining months will be marked as settled immediately.
+                  </Typography.Text>
+              </Flex>
+            </Flex>
+          </> : <></>
+          }
         </Flex>
       </Card>
     </Flex>

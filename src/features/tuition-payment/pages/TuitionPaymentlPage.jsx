@@ -45,9 +45,12 @@ function TuitionPaymentLayout() {
       },
     });
   }
+  function resetSelected() {
+    setSelected([]);
+  }
   return (
     <>
-      <Outlet context={{ nvPay, handleCheck, selected }} />
+      <Outlet context={{ nvPay, handleCheck, selected, resetSelected }} />
     </>
   );
 }

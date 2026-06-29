@@ -109,13 +109,6 @@ const CourseManagementTableSection = ({
       title: t('course_management.field.end_date'),
     },
     {
-      key: 'fas',
-      title: 'FAS',
-      type: 'tag',
-      color: 'green',
-      width: 180,
-    },
-    {
       key: 'id',
       title: ' ',
       width: 120,
@@ -198,115 +191,6 @@ const CourseManagementTableSection = ({
             value={prop.endDate}
           />
         </div>
-
-        <div style={{ marginTop: 32 }}>
-          <Typography.Text
-            strong
-            style={{
-              color: '#8A94A6',
-              letterSpacing: 1,
-            }}
-          >
-            FAS APPLIED BY SYSTEM
-          </Typography.Text>
-
-          <Card
-            style={{
-              marginTop: 16,
-              borderRadius: 20,
-            }}
-          >
-            <Flex justify="space-between" align="center">
-              <Typography.Title
-                level={4}
-                style={{ margin: 0 }}
-              >
-                {prop.fas}
-              </Typography.Title>
-
-              <Tag
-                color="success"
-                style={{
-                  borderRadius: 999,
-                  padding: '4px 12px',
-                }}
-              >
-                {prop.status}
-              </Tag>
-            </Flex>
-
-            <div style={{ marginTop: 20 }}>
-              <InfoRow
-                label="Tier"
-                value={mockData.tier}
-              />
-
-              <InfoRow
-                label="Subsidy"
-                value={mockData.subsidy}
-              />
-            </div>
-
-            <Divider />
-
-            <Typography.Text
-              strong
-              style={{
-                color: '#8A94A6',
-                letterSpacing: 1,
-              }}
-            >
-              FEE BREAKDOWN
-            </Typography.Text>
-
-            <Card
-              size="small"
-              style={{
-                marginTop: 16,
-                borderRadius: 16,
-              }}
-            >
-              <FeeRow
-                label="Course fee"
-                value={mockData.courseFee}
-              />
-
-              <FeeRow
-                label="Misc fee"
-                value={mockData.miscFee}
-              />
-
-              <FeeRow
-                label="Tax (×1.09)"
-                value={mockData.tax}
-              />
-
-              <Divider style={{ margin: '12px 0' }} />
-
-              <FeeRow
-                label="Gross"
-                value={mockData.grossAmount}
-              />
-
-              <FeeRow
-                label="FAS deduct"
-                value={mockData.fasDeduction}
-                valueStyle={{ color: '#3B6D11' }}
-              />
-
-              <Divider style={{ margin: '12px 0' }} />
-
-              <FeeRow
-                label="Net payable"
-                value={mockData.netPayable}
-                valueStyle={{
-                  fontWeight: 700,
-                  color: '#534AB7',
-                }}
-              />
-            </Card>
-          </Card>
-        </div>
       </div>
     )
   }
@@ -362,8 +246,7 @@ const CourseManagementTableSection = ({
       </Modal>
 
       <GenericTable
-        // data={courses}
-        data={mockData}
+        data={courses}
         fields={fields}
         rowKey="id"
         loading={loading}

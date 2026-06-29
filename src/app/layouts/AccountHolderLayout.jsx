@@ -1,4 +1,5 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
+import { AIPopover } from '@/features/slabbot-chat-ai/Popover/AIPopover'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
@@ -6,6 +7,8 @@ import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined,
 const AccountHolderLayout = () => {
   const { t } = useTranslation()
   return (
+    <>
+    <AIPopover />
     <RoleDashboardLayout
       homeUrl={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER()}
       menuSections={[
@@ -56,6 +59,7 @@ const AccountHolderLayout = () => {
         },
       ]}
     />
+    </>
   )
 }
 

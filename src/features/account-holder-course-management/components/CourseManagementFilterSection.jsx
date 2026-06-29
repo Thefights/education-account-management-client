@@ -21,6 +21,7 @@ const CourseManagementFilterSection = ({ tab, setTab, counts, filters, onFilter,
       type: 'search',
       required: false,
       reserveLabelSpace: true,
+      onEnterDown: () => onFilter?.(values)
     },
   ]
 

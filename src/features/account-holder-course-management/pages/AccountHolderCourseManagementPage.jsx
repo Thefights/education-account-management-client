@@ -35,6 +35,12 @@ const AccountHolderCourseManagementPage = () => {
 
   console.log(courses.data);
 
+  const inUpcoming = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.COURSES,
+    { Tab: 3, Page: 1, PageSize: 1 },
+    []
+  )
+
   const inProgressCount = useFetch(
     ApiUrls.ACCOUNT_HOLDER.COURSES,
     { Tab: 4, Page: 1, PageSize: 1 },
@@ -48,7 +54,7 @@ const AccountHolderCourseManagementPage = () => {
   )
 
   const counts = {
-    upcoming: courses.data?.totalCount ?? 0,
+    upcoming: inUpcoming.data?.totalCount ?? 0,
     inProgress: inProgressCount.data?.totalCount ?? 0,
     closed: closedCount.data?.totalCount ?? 0,
   }
