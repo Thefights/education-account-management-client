@@ -79,6 +79,8 @@
       "no_data": "无可用数据..."
     },
     "rows_per_page": "每页行数",
+    "reason": "原因",
+    "reason_placeholder": "输入此操作的原因",
     "search_label": "搜索",
     "select_options": "选择选项",
     "selected": "已选择",

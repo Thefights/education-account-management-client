@@ -21,7 +21,6 @@ import {
   Typography,
   theme,
 } from 'antd'
-import { useState } from 'react'
 import {
   createEmptyTopupCondition,
   createEmptyTopupConditionGroup,
@@ -37,15 +36,27 @@ const getFieldOptions = (t) => [
   },
 ]
 
-const getOperatorOptions = (isText = false) => {
+const getOperatorOptions = (t, isText = false) => {
   const options = [
-    { value: EnumConfig.TopupConditionOperator.Equals, label: '=' },
-    { value: EnumConfig.TopupConditionOperator.NotEquals, label: '!=' },
-    { value: EnumConfig.TopupConditionOperator.GreaterThan, label: '>' },
-    { value: EnumConfig.TopupConditionOperator.GreaterThanOrEqual, label: '>=' },
-    { value: EnumConfig.TopupConditionOperator.LessThan, label: '<' },
-    { value: EnumConfig.TopupConditionOperator.LessThanOrEqual, label: '<=' },
-    { value: EnumConfig.TopupConditionOperator.Between, label: '...' },
+    { value: EnumConfig.TopupConditionOperator.Equals, label: `= (${t('topup_form.is')})` },
+    { value: EnumConfig.TopupConditionOperator.NotEquals, label: `!= (${t('topup_form.is_not')})` },
+    {
+      value: EnumConfig.TopupConditionOperator.GreaterThan,
+      label: `> (${t('topup_form.greater_than')})`,
+    },
+    {
+      value: EnumConfig.TopupConditionOperator.GreaterThanOrEqual,
+      label: `>= (${t('topup_form.at_least')})`,
+    },
+    {
+      value: EnumConfig.TopupConditionOperator.LessThan,
+      label: `< (${t('topup_form.less_than')})`,
+    },
+    {
+      value: EnumConfig.TopupConditionOperator.LessThanOrEqual,
+      label: `<= (${t('topup_form.at_most')})`,
+    },
+    { value: EnumConfig.TopupConditionOperator.Between, label: `↔ (${t('topup_form.between')})` },
   ]
   return isText ? options.slice(0, 2) : options
 }
@@ -80,7 +91,7 @@ const getConditionValueText = (condition, t) => {
 const getConditionText = (condition, t) => {
   const field = getOptionLabel(getFieldOptions(t), condition.field)
   const operator = getOptionLabel(
-    getOperatorOptions(condition.field === EnumConfig.TopupConditionField.SchoolingStatus),
+    getOperatorOptions(t, condition.field === EnumConfig.TopupConditionField.SchoolingStatus),
     condition.operator
   )
   return `${field} ${operator} ${getConditionValueText(condition, t)}`
@@ -108,10 +119,25 @@ const buildEligibilityCases = (group, t) => {
   return items.reduce((cases, item) => combineCaseParts(cases, item), [[]])
 }
 
-const getEligibilityCaseText = (caseParts) => {
+const getEligibilityCaseText = (caseParts, t) => {
   if (!caseParts.length) return '—'
-  return caseParts.join(' && ')
+  return caseParts.join(` ${t('topup_form.and')} `)
 }
+
+const getLogicalOperatorOptions = (t, isRoot) => [
+  {
+    value: EnumConfig.TopupLogicalOperator.And,
+    label: t(
+      isRoot ? 'topup_form.must_match_all_requirements' : 'topup_form.must_match_all_in_scenario'
+    ),
+  },
+  {
+    value: EnumConfig.TopupLogicalOperator.Or,
+    label: t(
+      isRoot ? 'topup_form.can_match_any_requirement' : 'topup_form.can_match_any_in_scenario'
+    ),
+  },
+]
 
 export const TopupConditionSentence = ({ condition }) => {
   const { t } = useTranslation()
@@ -121,7 +147,7 @@ export const TopupConditionSentence = ({ condition }) => {
         {getOptionLabel(getFieldOptions(t), condition.field)}
       </Typography.Text>{' '}
       {getOptionLabel(
-        getOperatorOptions(condition.field === EnumConfig.TopupConditionField.SchoolingStatus),
+        getOperatorOptions(t, condition.field === EnumConfig.TopupConditionField.SchoolingStatus),
         condition.operator
       )}{' '}
       <Typography.Text strong>{getConditionValueText(condition, t)}</Typography.Text>
@@ -146,7 +172,11 @@ const buildTreeNode = (group, t, key = 'root', isRoot = true) => ({
         )}
       </Typography.Text>
       <Tag color={group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? 'purple' : 'blue'}>
-        {group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? '||' : '&&'}
+        {t(
+          group.logicalOperator === EnumConfig.TopupLogicalOperator.Or
+            ? 'topup_form.logical_or'
+            : 'topup_form.logical_and'
+        )}
       </Tag>
     </Space>
   ),
@@ -186,8 +216,8 @@ export const TopupConditionTree = ({ value }) => {
             eligibilityCases.map((caseParts, index) => (
               <Typography.Text key={`eligibility-case-${index}`}>
                 {eligibilityCases.length > 1
-                  ? `${index + 1}. ${getEligibilityCaseText(caseParts)}`
-                  : getEligibilityCaseText(caseParts)}
+                  ? `${index + 1}. ${getEligibilityCaseText(caseParts, t)}`
+                  : getEligibilityCaseText(caseParts, t)}
               </Typography.Text>
             ))
           ) : (
@@ -248,7 +278,6 @@ const SectionShell = ({ title, subtitle, accentColor, onDelete, children, t, tok
 )
 
 const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showValidationErrors }) => {
-  const [touched, setTouched] = useState({ value: false, valueTo: false })
   const isText = condition.field === EnumConfig.TopupConditionField.SchoolingStatus
   const isBetween = !isText && condition.operator === EnumConfig.TopupConditionOperator.Between
   const missingValue = isText ? !condition.valueText : condition.valueNumber == null
@@ -257,8 +286,8 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
     isBetween &&
     condition.valueNumberTo != null &&
     Number(condition.valueNumberTo) < Number(condition.valueNumber)
-  const showMissingValue = (showValidationErrors || touched.value) && missingValue
-  const showUpperValueError = (showValidationErrors || touched.valueTo) && missingUpperValue
+  const showMissingValue = showValidationErrors && missingValue
+  const showUpperValueError = showValidationErrors && missingUpperValue
 
   return (
     <div
@@ -307,7 +336,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
           <Select
             aria-label={t('topup_form.operator')}
             value={condition.operator}
-            options={getOperatorOptions(isText)}
+            options={getOperatorOptions(t, isText)}
             style={{ width: '100%', height: 32 }}
             onChange={(operator) =>
               onChange({
@@ -335,7 +364,6 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 ]}
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueText) => onChange({ ...condition, valueText })}
-                onBlur={() => setTouched((current) => ({ ...current, value: true }))}
               />
             ) : (
               <InputNumber
@@ -353,7 +381,6 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 }
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumber) => onChange({ ...condition, valueNumber })}
-                onBlur={() => setTouched((current) => ({ ...current, value: true }))}
               />
             )}
             {showMissingValue && (
@@ -381,7 +408,6 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 }
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumberTo) => onChange({ ...condition, valueNumberTo })}
-                onBlur={() => setTouched((current) => ({ ...current, valueTo: true }))}
               />
               {(showUpperValueError || invalidRange) && (
                 <Typography.Text type="danger" style={{ fontSize: 12 }}>
@@ -437,16 +463,7 @@ const GroupEditor = ({
           <Select
             value={group.logicalOperator}
             style={{ minWidth: 260, height: 32 }}
-            options={[
-              {
-                value: EnumConfig.TopupLogicalOperator.And,
-                label: '&&',
-              },
-              {
-                value: EnumConfig.TopupLogicalOperator.Or,
-                label: '||',
-              },
-            ]}
+            options={getLogicalOperatorOptions(t, isRoot)}
             onChange={(logicalOperator) => onChange({ ...group, logicalOperator })}
           />
           <Tooltip

@@ -14,6 +14,11 @@ export default function ConfirmationProvider({ children }) {
     disableBackdropClose: true,
     keyboard: false,
     width: undefined,
+    reasonRequired: false,
+    reasonLabel: undefined,
+    reasonPlaceholder: undefined,
+    reasonMinLength: 10,
+    reasonMaxLength: 500,
   })
 
   const confirm = useCallback((options = {}) => {
@@ -31,6 +36,11 @@ export default function ConfirmationProvider({ children }) {
         disableBackdropClose: options.disableBackdropClose ?? true,
         keyboard: options.keyboard ?? false,
         width: options.width,
+        reasonRequired: options.reasonRequired ?? false,
+        reasonLabel: options.reasonLabel,
+        reasonPlaceholder: options.reasonPlaceholder,
+        reasonMinLength: options.reasonMinLength ?? 10,
+        reasonMaxLength: options.reasonMaxLength ?? 500,
       })
       resolverRef.current = resolve
       setOpen(true)
@@ -64,7 +74,9 @@ export default function ConfirmationProvider({ children }) {
       <ConfirmationDialog
         open={open}
         onClose={onClose}
-        onConfirm={() => handleClose(true)}
+        onConfirm={(reason) =>
+          handleClose(opts.reasonRequired ? { confirmed: true, reason } : true)
+        }
         title={opts.title}
         description={opts.description}
         confirmButtonText={opts.confirmText}
@@ -72,6 +84,11 @@ export default function ConfirmationProvider({ children }) {
         confirmButtonLoading={opts.confirmLoading}
         dialogWidth={opts.width}
         keyboard={!opts.disableBackdropClose && opts.keyboard}
+        reasonRequired={opts.reasonRequired}
+        reasonLabel={opts.reasonLabel}
+        reasonPlaceholder={opts.reasonPlaceholder}
+        reasonMinLength={opts.reasonMinLength}
+        reasonMaxLength={opts.reasonMaxLength}
       />
     </ConfirmationContext.Provider>
   )

@@ -4,6 +4,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import {
   isDateTimeBefore,
@@ -93,6 +94,7 @@ const computeGstAmount = (courseFeeAmount, miscFeeAmount) =>
 const CourseManagementFormPage = () => {
   const { id } = useParams()
   const { t } = useTranslation()
+  const confirmReason = useReasonConfirm()
   const navigate = useNavigate()
   const { token } = theme.useToken()
   const isEdit = Boolean(id)
@@ -333,7 +335,15 @@ const CourseManagementFormPage = () => {
     if (!response) return
     const courseId = response.data?.id || id
     if (publish) {
-      const publishResponse = await publishCourse.submit({ overrideData: { ids: [courseId] } })
+      const reason = await confirmReason({
+        title: t('course_management.confirm.publish_title'),
+        description: t('course_management.confirm.publish_description', { count: 1 }),
+        confirmText: t('course_management.action.publish'),
+      })
+      if (!reason) return
+      const publishResponse = await publishCourse.submit({
+        overrideData: { ids: [courseId], reason },
+      })
       if (!publishResponse) return
     }
     navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(courseId)))

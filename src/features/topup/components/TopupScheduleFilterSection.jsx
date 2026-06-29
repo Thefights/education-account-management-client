@@ -3,6 +3,9 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
 
@@ -32,6 +35,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       cancelText: t('general.cancel'),
       okText: t('general.ok'),
       selectedText: (count) => `${count} ${t('text.items')}`,
+      colProps: { xs: 24, md: 12, xl: 6 },
     },
     {
       key: 'statuses',
@@ -45,29 +49,33 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       cancelText: t('general.cancel'),
       okText: t('general.ok'),
       selectedText: (count) => `${count} ${t('text.items')}`,
+      colProps: { xs: 24, md: 12, xl: 6 },
+    },
+    {
+      key: 'createdRange',
+      title: t('topup.created_at'),
+      type: 'range-picker',
+      valueType: 'language-datetime',
+      from: { key: 'createdFrom' },
+      to: { key: 'createdTo' },
+      showTime: DATE_HOUR_SHOW_TIME,
+      format: getDateHourFormatBasedOnCurrentLanguage(),
+      disallowFutureFrom: true,
+      colProps: { xs: 24, md: 12, xl: 6 },
     },
   ]
   return (
-    <div
-      style={{
-        padding: '12px 0',
-        borderTop: '1px solid var(--app-border-color)',
-        borderBottom: '1px solid var(--app-border-color)',
-      }}
-    >
-      <GenericFilterSection
-        fields={fields}
-        values={values}
-        renderField={renderField}
-        reset={reset}
-        resetValues={defaultFilters}
-        onReset={onReset}
-        onFilter={onFilter}
-        loading={loading}
-        cardProps={false}
-        getFieldColProps={() => ({ xs: 24, md: 8 })}
-      />
-    </div>
+    <GenericFilterSection
+      fields={fields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      resetValues={defaultFilters}
+      onReset={onReset}
+      onFilter={onFilter}
+      loading={loading}
+      getFieldColProps={() => ({ xs: 24, md: 12, xl: 6 })}
+    />
   )
 }
 
