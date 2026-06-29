@@ -1,5 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
+import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
@@ -8,6 +9,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
+import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -91,9 +93,6 @@ const AdminManagementPage = () => {
         <AdminManagementToolbarSection
           onCreate={() => setOpenCreate(true)}
           onImport={() => setOpenImport(true)}
-          selectedIds={selectedIds}
-          onChangeStatus={handleChangeStatus}
-          loading={updateStatus.loading}
         />
         <AdminManagementFilterSection
           filters={filters}
@@ -124,6 +123,26 @@ const AdminManagementPage = () => {
           pageSize={pageSize}
           setPageSize={setPageSize}
           loading={getAdmins.loading}
+        />
+        <BulkActionBar
+          selectedCount={selectedIds.length}
+          loading={updateStatus.loading}
+          onClear={() => setSelectedIds([])}
+          actions={[
+            {
+              key: 'activate',
+              label: t('button.activate'),
+              icon: <CheckCircleOutlined />,
+              onClick: () => handleChangeStatus(1),
+            },
+            {
+              key: 'deactivate',
+              label: t('button.deactivate'),
+              icon: <StopOutlined />,
+              danger: true,
+              onClick: () => handleChangeStatus(2),
+            },
+          ]}
         />
       </Flex>
       <AdminManagementFormSection

@@ -1,5 +1,4 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -30,9 +29,7 @@ const getStudentLabel = (student) => (
     onClick={(e) => e.stopPropagation()}
   >
     {student.fullName && <span>{student.fullName}</span>}
-    {student.fullName && (student.nric || student.accountNumber) && <span>&middot;</span>}
-    {student.nric && <MaskedNric value={student.nric} />}
-    {student.nric && student.accountNumber && <span>&middot;</span>}
+    {student.fullName && student.accountNumber && <span>&middot;</span>}
     {student.accountNumber && <span>{student.accountNumber}</span>}
   </div>
 )

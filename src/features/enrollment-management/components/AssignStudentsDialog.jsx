@@ -1,7 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -14,9 +13,7 @@ const getStudentLabel = (student) => (
     onClick={(e) => e.stopPropagation()}
   >
     {student.fullName && <span>{student.fullName}</span>}
-    {student.fullName && (student.nric || student.accountNumber) && <span>&middot;</span>}
-    {student.nric && <MaskedNric value={student.nric} />}
-    {student.nric && student.accountNumber && <span>&middot;</span>}
+    {student.fullName && student.accountNumber && <span>&middot;</span>}
     {student.accountNumber && <span>{student.accountNumber}</span>}
   </div>
 )

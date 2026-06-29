@@ -1,5 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
+import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
@@ -10,6 +11,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { getLocalDateFromServerDateTime } from '@/shared/utils/formatDateUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { showWarningToast } from '@/shared/utils/toastUtil'
+import { CheckCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -172,10 +174,6 @@ const CourseManagementPage = () => {
             navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.CREATE))
           }
           onImport={() => setOpenImport(true)}
-          onPublish={handlePublish}
-          onDeleteSelected={handleDeleteSelected}
-          selectedIds={selectedIds}
-          loading={mutationLoading}
         />
         <CourseManagementFilterSection
           filters={filters}
@@ -206,6 +204,26 @@ const CourseManagementPage = () => {
           pageSize={pageSize}
           setPageSize={handlePageSize}
           loading={courses.loading}
+        />
+        <BulkActionBar
+          selectedCount={selectedIds.length}
+          loading={mutationLoading}
+          onClear={clearSelection}
+          actions={[
+            {
+              key: 'publish',
+              label: t('course_management.action.publish'),
+              icon: <CheckCircleOutlined />,
+              onClick: handlePublish,
+            },
+            {
+              key: 'delete',
+              label: t('course_management.action.delete_selected'),
+              icon: <DeleteOutlined />,
+              danger: true,
+              onClick: handleDeleteSelected,
+            },
+          ]}
         />
       </Flex>
       <GenericImportSection
