@@ -260,7 +260,7 @@ export const describeTierSubsidy = (scheme, tier) => {
 }
 
 export const getApplicationDisplayStatus = (application) => {
-  if (isApprovedApplicationExpired(application)) return 'expired'
+  if (isApprovedApplicationExpired(application)) return FAS_APPLICATION_STATUS.Expired
   return application?.status
 }
 

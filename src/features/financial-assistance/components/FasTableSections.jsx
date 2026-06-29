@@ -1,6 +1,6 @@
 import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
-import { Button, Typography } from 'antd'
+import { Button, Flex, Typography } from 'antd'
 import { FAS_APPLICATION_STATUS, FAS_STATUS } from '../data/fasSeedData'
 import { formatFasDate } from '../utils/fasRules'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
@@ -153,6 +153,8 @@ export const MyFasApplicationTableSection = ({
   activeStatus,
   onWithdraw,
   onView,
+  onEditDraft,
+  onDeleteDraft,
   onApplyAgain,
 }) => {
   const baseFields = [
@@ -171,6 +173,19 @@ export const MyFasApplicationTableSection = ({
     title: '',
     width: 120,
     render: (_, row) => {
+      if (row.displayStatus === FAS_APPLICATION_STATUS.Draft) {
+        return (
+          <Flex gap={6} justify="end" wrap="wrap">
+            <Button type="link" onClick={() => onEditDraft?.(row)}>
+              Edit
+            </Button>
+            <Button danger type="link" onClick={() => onDeleteDraft?.(row)}>
+              Delete
+            </Button>
+          </Flex>
+        )
+      }
+
       if (row.displayStatus === FAS_APPLICATION_STATUS.Pending) {
         return onWithdraw ? (
           <Button danger type="link" onClick={() => onWithdraw(row)}>
@@ -179,7 +194,12 @@ export const MyFasApplicationTableSection = ({
         ) : null
       }
 
-      if (row.displayStatus === FAS_APPLICATION_STATUS.Rejected || row.displayStatus === 'expired') {
+      if (
+        row.displayStatus === FAS_APPLICATION_STATUS.Rejected ||
+        row.displayStatus === FAS_APPLICATION_STATUS.Expired
+      ) {
+        if (!row.canApplyAgain) return null
+
         return (
           <Button type="link" onClick={() => onApplyAgain?.(row)}>
             Apply again
@@ -214,6 +234,11 @@ export const MyFasApplicationTableSection = ({
       dateField('submittedAt', 'Submitted'),
       actionField,
     ],
+    [FAS_APPLICATION_STATUS.Draft]: [
+      ...baseFields,
+      dateField('submittedAt', 'Last saved'),
+      actionField,
+    ],
     [FAS_APPLICATION_STATUS.Approved]: [
       ...baseFields,
       dateField('submittedAt', 'Submitted'),
@@ -221,7 +246,7 @@ export const MyFasApplicationTableSection = ({
       dateField('endDate', 'Valid until'),
       actionField,
     ],
-    expired: [
+    [FAS_APPLICATION_STATUS.Expired]: [
       ...baseFields,
       dateField('submittedAt', 'Submitted'),
       dateField('approvedAt', 'Approved'),

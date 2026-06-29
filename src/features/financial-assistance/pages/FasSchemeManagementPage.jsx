@@ -22,6 +22,7 @@ import {
 } from '@/features/financial-assistance/data/fasMockStore'
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useConfirm from '@/shared/hooks/useConfirm'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
@@ -165,6 +166,7 @@ const mapBackendSchemeToFrontend = (dto) => {
 }
 
 const FasSchemeManagementPage = () => {
+  const confirm = useConfirm()
   const [filters, setFilters] = useState(defaultFasSchemeFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'asc' })
   const [page, setPage] = useState(1)
@@ -323,48 +325,50 @@ const FasSchemeManagementPage = () => {
     }
   }
 
-  const deleteDraft = (scheme) => {
-    Modal.confirm({
+  const deleteDraft = async (scheme) => {
+    const isConfirmed = await confirm({
       title: `Delete draft ${scheme.name}?`,
-      content: 'This removes the draft scheme only. Approved application history is preserved.',
-      okText: 'Delete',
-      okButtonProps: { danger: true },
-      onOk: async () => {
-        const response = await deleteSubmit.submit({
-          overrideUrl: ApiUrls.FAS_SCHEME_MANAGEMENT.DETAIL(scheme.id),
-        })
-        if (response) {
-          message.success(`Deleted ${scheme.name}`)
-          schemesList.fetch()
-        }
-      },
+      description: 'This removes the draft scheme only. Approved application history is preserved.',
+      confirmText: 'Delete',
+      confirmColor: 'error',
     })
+
+    if (isConfirmed) {
+      const response = await deleteSubmit.submit({
+        overrideUrl: ApiUrls.FAS_SCHEME_MANAGEMENT.DETAIL(scheme.id),
+      })
+      if (response) {
+        message.success(`Deleted ${scheme.name}`)
+        schemesList.fetch()
+      }
+    }
   }
 
-  const changeStatus = (scheme, status) => {
+  const changeStatus = async (scheme, status) => {
     const verb = status === FAS_STATUS.Active ? 'Activate' : 'Deactivate'
     const nextStatus = status === FAS_STATUS.Active ? 2 : 3
 
-    Modal.confirm({
+    const isConfirmed = await confirm({
       title: `${verb} ${scheme.name}?`,
-      content:
+      description:
         status === FAS_STATUS.Active
           ? 'The scheme will reappear in F7 Apply.'
           : 'New student applications will be blocked. Existing records remain.',
-      okText: verb,
-      onOk: async () => {
-        const response = await statusSubmit.submit({
-          overrideData: {
-            ids: [Number(scheme.id)],
-            status: nextStatus,
-          },
-        })
-        if (response) {
-          message.success(`${scheme.name} is now ${statusLabel(status)}`)
-          schemesList.fetch()
-        }
-      },
+      confirmText: verb,
     })
+
+    if (isConfirmed) {
+      const response = await statusSubmit.submit({
+        overrideData: {
+          ids: [Number(scheme.id)],
+          status: nextStatus,
+        },
+      })
+      if (response) {
+        message.success(`${scheme.name} is now ${statusLabel(status)}`)
+        schemesList.fetch()
+      }
+    }
   }
 
   const handleFilter = (values) => {
