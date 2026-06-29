@@ -1,7 +1,6 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -14,9 +13,7 @@ const getStudentLabel = (student) => (
     onClick={(e) => e.stopPropagation()}
   >
     {student.fullName && <span>{student.fullName}</span>}
-    {student.fullName && (student.nric || student.accountNumber) && <span>&middot;</span>}
-    {student.nric && <MaskedNric value={student.nric} />}
-    {student.nric && student.accountNumber && <span>&middot;</span>}
+    {student.fullName && student.accountNumber && <span>&middot;</span>}
     {student.accountNumber && <span>{student.accountNumber}</span>}
   </div>
 )
@@ -25,6 +22,7 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
   const { t } = useTranslation()
   const fixedCourseId = fixedCourse?.id || ''
   const [currentCourseId, setCurrentCourseId] = useState(fixedCourseId)
+  const [studentOptionCache, setStudentOptionCache] = useState({})
   const previousCourseIdRef = useRef(fixedCourseId)
   const courses = useFetch(fixedCourse ? '' : ApiUrls.COURSE_MANAGEMENT.GET_ALL)
   const assignFromEnrollment = useAxiosSubmit({
@@ -52,8 +50,15 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
         { params: { search, page, pageSize } }
       )
       const result = response?.data
+      const students = result?.collection || []
+      setStudentOptionCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...students.map((student) => [String(student.id), student]),
+        ])
+      )
       return {
-        options: (result?.collection || []).map((student) => ({
+        options: students.map((student) => ({
           value: student.id,
           label: getStudentLabel(student),
         })),
@@ -87,10 +92,19 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
         multiple: true,
         options: [],
         loadOptions: loadStudentOptions,
+        renderOptionValue: (value) => studentOptionCache[String(value)]?.fullName || String(value),
         props: { disabled: !currentCourseId },
       },
     ],
-    [courseOptions, courses.loading, currentCourseId, fixedCourse, loadStudentOptions, t]
+    [
+      courseOptions,
+      courses.loading,
+      currentCourseId,
+      fixedCourse,
+      loadStudentOptions,
+      studentOptionCache,
+      t,
+    ]
   )
 
   const handleClose = () => {

@@ -1,8 +1,11 @@
 import SearchBar from '@/shared/components/generals/SearchBar'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Checkbox, Empty, Modal, Pagination, Space, Spin } from 'antd'
+import { Button, Checkbox, Empty, Flex, Modal, Pagination, Space, Spin, Tag, Typography } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
+/**
+ * Shared multi-select dialog using selected chips and a compact checkbox list.
+ */
 const MultipleSelectDialog = ({
   open = false,
   onClose,
@@ -18,7 +21,6 @@ const MultipleSelectDialog = ({
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(1)
   const [asyncState, setAsyncState] = useState({ options: [], totalCount: 0, loading: false })
-  const [optionCache, setOptionCache] = useState({})
   const visibleOptions = loadOptions ? asyncState.options : options
 
   useEffect(() => {
@@ -31,12 +33,6 @@ const MultipleSelectDialog = ({
         if (!active) return
         const loaded = result?.options || []
         setAsyncState({ options: loaded, totalCount: result?.totalCount || 0, loading: false })
-        setOptionCache((current) =>
-          Object.fromEntries([
-            ...Object.entries(current),
-            ...loaded.map((option) => [String(option.value), option]),
-          ])
-        )
       } catch {
         if (!active) return
         setAsyncState({ options: [], totalCount: 0, loading: false })
@@ -53,34 +49,15 @@ const MultipleSelectDialog = ({
 
   const selectedSet = useMemo(() => new Set(selectedValues.map((v) => String(v))), [selectedValues])
 
-  const unselectedOptions = useMemo(() => {
-    return (visibleOptions || []).filter((opt) => !selectedSet.has(String(opt.value)))
-  }, [selectedSet, visibleOptions])
-
-  const selectedOptions = useMemo(() => {
-    const staticOptionMap = Object.fromEntries(
-      (options || []).map((option) => [String(option.value), option])
-    )
-
-    return selectedValues
-      .map(
-        (selectedValue) =>
-          (visibleOptions || []).find((opt) => String(opt.value) === String(selectedValue)) ||
-          staticOptionMap[String(selectedValue)] ||
-          optionCache[String(selectedValue)]
-      )
-      .filter(Boolean)
-  }, [optionCache, options, selectedValues, visibleOptions])
-
-  const filteredUnselectedOptions = useMemo(() => {
-    if (loadOptions || !searchTerm.trim()) return unselectedOptions
+  const filteredAvailableOptions = useMemo(() => {
+    if (loadOptions || !searchTerm.trim()) return visibleOptions || []
 
     const lowerSearch = searchTerm.toLowerCase()
-    return unselectedOptions.filter((opt) => {
+    return (visibleOptions || []).filter((opt) => {
       const label = String(opt.searchKey || opt.label || '').toLowerCase()
       return label.includes(lowerSearch)
     })
-  }, [loadOptions, unselectedOptions, searchTerm])
+  }, [loadOptions, searchTerm, visibleOptions])
 
   const disabledValueSet = useMemo(
     () =>
@@ -88,10 +65,53 @@ const MultipleSelectDialog = ({
     [visibleOptions]
   )
 
-  const selectableUnselectedOptions = useMemo(
-    () => filteredUnselectedOptions.filter((opt) => !opt.disabled),
-    [filteredUnselectedOptions]
+  const selectableAvailableOptions = useMemo(
+    () =>
+      filteredAvailableOptions.filter(
+        (opt) => !opt.disabled && !selectedSet.has(String(opt.value))
+      ),
+    [filteredAvailableOptions, selectedSet]
   )
+
+  const getOptionLabel = (option) => {
+    if (!option) return ''
+    return option.label ?? option.name ?? option.title ?? option.value
+  }
+
+  const getOptionDescription = (option) => {
+    if (!option) return ''
+    if (option.description) return option.description
+    if (option.meta) return option.meta
+
+    const details = [
+      option.code,
+      option.type,
+      option.mode,
+      option.duration,
+    ].filter(Boolean)
+
+    return details.join(' • ')
+  }
+
+  const getOptionStatus = (option) => option?.status || option?.statusLabel
+
+  const renderOptionContent = (option) => {
+    if (!option) return null
+    if (renderOption) return renderOption(option.value, option.label)
+
+    return (
+      <Flex vertical gap={2} style={{ minWidth: 0 }}>
+        <Typography.Text strong ellipsis>
+          {getOptionLabel(option)}
+        </Typography.Text>
+        {getOptionDescription(option) && (
+          <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+            {getOptionDescription(option)}
+          </Typography.Text>
+        )}
+      </Flex>
+    )
+  }
 
   const handleToggle = (optionValue) => {
     const strValue = String(optionValue)
@@ -113,7 +133,7 @@ const MultipleSelectDialog = ({
   const handleSelectAll = () => {
     setDraft({
       sourceValue: value,
-      selectedValues: [...selectedValues, ...selectableUnselectedOptions.map((opt) => opt.value)],
+      selectedValues: [...selectedValues, ...selectableAvailableOptions.map((opt) => opt.value)],
     })
   }
 
@@ -130,17 +150,46 @@ const MultipleSelectDialog = ({
     onClose?.()
   }
 
+  const titleContent = (
+    <Flex align="center" justify="space-between" gap={16} style={{ paddingRight: 32 }}>
+      <Space size={8}>
+        <Typography.Text strong>{title}</Typography.Text>
+        <Typography.Text type="secondary">
+          ({selectedValues.length} {t('text.selected').toLowerCase()})
+        </Typography.Text>
+      </Space>
+      <Space size={4}>
+        {selectableAvailableOptions.length > 0 && (
+          <Button type="link" size="small" onClick={handleSelectAll}>
+            {t('button.select_all')}
+          </Button>
+        )}
+        {selectedValues.length > 0 && (
+          <Button type="link" size="small" onClick={handleDeselectAll}>
+            {t('button.clear')}
+          </Button>
+        )}
+      </Space>
+    </Flex>
+  )
+
   return (
     <Modal
-      title={title}
+      title={titleContent}
       open={open}
       onCancel={handleCancel}
-      onOk={handleConfirm}
-      okText={t('button.confirm')}
-      cancelText={t('button.cancel')}
-      width={900}
+      width={760}
+      styles={{ body: { paddingTop: 16, paddingBottom: 8 } }}
+      footer={[
+        <Button key="cancel" onClick={handleCancel}>
+          {t('button.cancel')}
+        </Button>,
+        <Button key="confirm" type="primary" onClick={handleConfirm}>
+          {t('button.confirm')} ({selectedValues.length})
+        </Button>,
+      ]}
     >
-      <Space orientation="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="middle">
         <SearchBar
           value={searchTerm}
           setValue={(value) => {
@@ -149,70 +198,71 @@ const MultipleSelectDialog = ({
           }}
         />
 
-        <div style={{ display: 'flex', gap: 16 }}>
-          {/* Unselected Options */}
-          <div style={{ flex: 1 }}>
-            <h4>{t('text.available')}</h4>
-            <Spin spinning={asyncState.loading}>
-              <div role="list" style={{ minHeight: 180, maxHeight: 300, overflow: 'auto' }}>
-                {!filteredUnselectedOptions.length && !asyncState.loading && (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                )}
-                {filteredUnselectedOptions.map((opt) => (
-                  <div
+        <Flex vertical gap={8}>
+          <Flex align="center" justify="space-between" gap={12}>
+            <Typography.Text strong>{t('text.all')}</Typography.Text>
+          </Flex>
+          <Spin spinning={asyncState.loading}>
+            <Flex
+              vertical
+              gap={8}
+              role="list"
+              style={{
+                minHeight: 220,
+                maxHeight: 360,
+                overflow: 'auto',
+                paddingRight: 4,
+              }}
+            >
+              {!filteredAvailableOptions.length && !asyncState.loading && (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )}
+              {filteredAvailableOptions.map((opt) => {
+                const status = getOptionStatus(opt)
+                const isSelected = selectedSet.has(String(opt.value))
+                return (
+                  <Flex
                     key={String(opt.value)}
                     role="listitem"
-                    style={{ cursor: opt.disabled ? 'not-allowed' : 'pointer', padding: '8px 0' }}
-                    onClickCapture={() => handleToggle(opt.value)}
+                    align="flex-start"
+                    gap={12}
+                    onClick={() => handleToggle(opt.value)}
+                    style={{
+                      cursor: opt.disabled ? 'not-allowed' : 'pointer',
+                      padding: 12,
+                      border: isSelected
+                        ? '1px solid var(--ant-color-primary)'
+                        : '1px solid var(--ant-color-border-secondary)',
+                      borderRadius: 8,
+                      background: opt.disabled
+                        ? 'var(--ant-color-fill-tertiary)'
+                        : isSelected
+                          ? 'var(--ant-color-primary-bg)'
+                          : 'var(--ant-color-bg-container)',
+                    }}
                   >
-                    <Space>
-                      <Checkbox checked={false} disabled={opt.disabled} />
-                      <span>{renderOption ? renderOption(opt.value, opt.label) : opt.label}</span>
-                    </Space>
-                  </div>
-                ))}
-              </div>
-            </Spin>
-            {loadOptions && (
-              <Pagination
-                current={page}
-                pageSize={pageSize}
-                total={asyncState.totalCount}
-                showSizeChanger={false}
-                onChange={setPage}
-                size="small"
-              />
-            )}
-            <Space style={{ marginTop: 12 }}>
-              <Button type="primary" onClick={handleSelectAll} size="small">
-                {t('button.select_all')}
-              </Button>
-              <Button onClick={handleDeselectAll} size="small">
-                {t('button.deselect_all')}
-              </Button>
-            </Space>
-          </div>
-
-          {/* Selected Options */}
-          <div style={{ flex: 1 }}>
-            <h4>{t('text.selected')}</h4>
-            <div role="list" style={{ maxHeight: 300, overflow: 'auto' }}>
-              {selectedOptions.map((opt) => (
-                <div
-                  key={String(opt.value)}
-                  role="listitem"
-                  style={{ cursor: 'pointer', padding: '8px 0' }}
-                  onClickCapture={() => handleToggle(opt.value)}
-                >
-                  <Space>
-                    <Checkbox checked={true} />
-                    <span>{renderOption ? renderOption(opt.value, opt.label) : opt.label}</span>
-                  </Space>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+                    <Checkbox checked={isSelected} disabled={opt.disabled} />
+                    <Flex flex={1} vertical style={{ minWidth: 0 }}>
+                      {renderOptionContent(opt)}
+                    </Flex>
+                    {status && <Tag style={{ marginInlineEnd: 0 }}>{status}</Tag>}
+                  </Flex>
+                )
+              })}
+            </Flex>
+          </Spin>
+          {loadOptions && (
+            <Pagination
+              current={page}
+              pageSize={pageSize}
+              total={asyncState.totalCount}
+              showSizeChanger={false}
+              onChange={setPage}
+              size="small"
+              align="end"
+            />
+          )}
+        </Flex>
       </Space>
     </Modal>
   )

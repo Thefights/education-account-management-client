@@ -17,8 +17,8 @@ export const ApiUrls = {
     },
   },
 
-  AI_ASSISTANT_SETTING: {
-    INDEX: '/ai-assistant-setting-management',
+  APPLICATION_SETTING: {
+    INDEX: '/application-setting-management',
   },
 
   ADMIN_MANAGEMENT: {
@@ -61,12 +61,6 @@ export const ApiUrls = {
     INDEX: '/school-student-management',
     DETAIL: (id) => `/school-student-management/${id}`,
     IMPORT: '/school-student-management/import',
-  },
-
-  FAS_SCHEME_MANAGEMENT: {
-    INDEX: '/fas-scheme-management',
-    GET_ALL: '/fas-scheme-management/all',
-    DETAIL: (id) => `/fas-scheme-management/${id}`,
   },
 
   EDUCATION_ACCOUNT: {

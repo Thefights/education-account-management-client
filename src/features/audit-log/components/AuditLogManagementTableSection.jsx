@@ -1,27 +1,18 @@
-import GenericTable from '@/shared/components/tables/GenericTable'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
-import {
-  defaultAuditLogCategoryStyle,
-} from '@/shared/config/theme/defaultStylesConfig'
+import GenericTable from '@/shared/components/tables/GenericTable'
+import { defaultAuditLogCategoryStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { useMemo } from 'react'
 
-const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
+const AuditLogManagementTableSection = ({ auditLogs, loading, sort, setSort }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
 
   const fields = useMemo(
     () => [
-      {
-        key: 'id',
-        title: t('audit_log.field.id'),
-        width: 70,
-        sortable: true,
-        fixedColumn: true,
-      },
       {
         key: 'actorUserId',
         title: t('audit_log.field.actor_user_id'),
@@ -86,4 +77,4 @@ const AuditLogTableSection = ({ auditLogs, loading, sort, setSort }) => {
   )
 }
 
-export default AuditLogTableSection
+export default AuditLogManagementTableSection

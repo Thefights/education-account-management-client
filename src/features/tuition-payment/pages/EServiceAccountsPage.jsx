@@ -3,6 +3,7 @@ import ManualAccountResultSection from '@/features/manual-account-creation/compo
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
+import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import NricInput from '@/shared/components/textFields/NricInput'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
@@ -12,6 +13,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { minLen } from '@/shared/utils/validateUtil'
+import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -118,9 +120,6 @@ const EServiceAccountsPage = () => {
         <EServiceAccountsToolbarSection
           onCreate={() => setOpenCreate(true)}
           onImport={() => setOpenImport(true)}
-          selectedIds={selectedIds}
-          onChangeStatus={handleChangeStatus}
-          loading={updateStatus.loading}
         />
         <EServiceAccountsFilterSection
           filters={filters}
@@ -157,6 +156,26 @@ const EServiceAccountsPage = () => {
           setPage={setPage}
           pageSize={pageSize}
           setPageSize={setPageSize}
+        />
+        <BulkActionBar
+          selectedCount={selectedIds.length}
+          loading={updateStatus.loading}
+          onClear={() => setSelectedIds([])}
+          actions={[
+            {
+              key: 'activate',
+              label: t('button.activate'),
+              icon: <CheckCircleOutlined />,
+              onClick: () => handleChangeStatus(1),
+            },
+            {
+              key: 'deactivate',
+              label: t('button.deactivate'),
+              icon: <StopOutlined />,
+              danger: true,
+              onClick: () => handleChangeStatus(3),
+            },
+          ]}
         />
       </Flex>
       <GenericFormDialog

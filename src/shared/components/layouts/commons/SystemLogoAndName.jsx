@@ -23,9 +23,9 @@ const SystemLogoAndName = ({ onClick, collapsed = false }) => {
         src={logoSrc}
         alt={appName}
         style={{
-          width: collapsed ? 48 : 180,
-          height: collapsed ? 48 : 180,
-          objectFit: collapsed ? 'contain' : 'cover',
+          width: collapsed ? 48 : 220,
+          height: collapsed ? 48 : 130,
+          objectFit: 'contain',
           objectPosition: 'center',
         }}
       />
