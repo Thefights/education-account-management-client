@@ -156,6 +156,26 @@ export default function useEnum() {
       { value: EnumConfig.AuditLogCategory.AI, label: 'AI' },
     ],
 
+    managementActionEntityTypeOptions: [
+      { value: EnumConfig.ManagementActionEntityType.School, label: 'School' },
+      { value: EnumConfig.ManagementActionEntityType.Admin, label: 'Admin' },
+      { value: EnumConfig.ManagementActionEntityType.EducationAccount, label: 'Education Account' },
+      { value: EnumConfig.ManagementActionEntityType.SchoolStudent, label: 'School Student' },
+      { value: EnumConfig.ManagementActionEntityType.Course, label: 'Course' },
+      { value: EnumConfig.ManagementActionEntityType.FasScheme, label: 'FAS Scheme' },
+      { value: EnumConfig.ManagementActionEntityType.Enrollment, label: 'Enrollment' },
+      { value: EnumConfig.ManagementActionEntityType.SystemTopup, label: 'System Top-up' },
+      { value: EnumConfig.ManagementActionEntityType.ScheduleTopUp, label: 'Schedule Top-up' },
+    ],
+
+    managementActionOptions: [
+      { value: EnumConfig.ManagementAction.Activate, label: 'Activate' },
+      { value: EnumConfig.ManagementAction.Deactivate, label: 'Deactivate' },
+      { value: EnumConfig.ManagementAction.Delete, label: 'Delete' },
+      { value: EnumConfig.ManagementAction.Publish, label: 'Publish' },
+      { value: EnumConfig.ManagementAction.Close, label: 'Close' },
+    ],
+
     sweepActionOptions: [
       { value: EnumConfig.SweepAction.Create, label: t('enum.sweep_action.create') },
       { value: EnumConfig.SweepAction.Close, label: t('enum.sweep_action.close') },

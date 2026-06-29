@@ -5,6 +5,7 @@
       "management": "Quản lý quản trị viên",
       "create": "Tạo tài khoản quản trị viên",
       "update": "Cập nhật tài khoản quản trị viên",
+      "profile": "Hồ sơ quản trị viên",
       "detail": "Chi tiết tài khoản quản trị viên"
     },
     "field": {

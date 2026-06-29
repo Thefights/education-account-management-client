@@ -43,6 +43,11 @@ export const routeUrls = {
   },
   SWEEP_REPORTS: { INDEX: '/sweep-reports' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
+  LOGS: {
+    AUDIT: '/logs/audit',
+    MANAGEMENT_ACTIONS: '/logs/management-actions',
+    MANAGEMENT_ACTION_DETAIL: (id = ':id') => `/logs/management-actions/${id}`,
+  },
   COURSE_MANAGEMENT: {
     INDEX: '/course-management',
     CREATE: '/course-management/create',

@@ -6,7 +6,15 @@ import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurre
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { Space, Typography } from 'antd'
 
-const TopupRuleTableSection = ({ rules, loading, sort, setSort, onDetail }) => {
+const TopupRuleTableSection = ({
+  rules,
+  loading,
+  sort,
+  setSort,
+  selectedIds,
+  setSelectedIds,
+  onDetail,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = [
@@ -56,6 +64,9 @@ const TopupRuleTableSection = ({ rules, loading, sort, setSort, onDetail }) => {
       loading={loading}
       sort={sort}
       setSort={setSort}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
       onRowClick={onDetail}
     />
   )

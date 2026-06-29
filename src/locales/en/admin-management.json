@@ -5,6 +5,7 @@
       "management": "Admin Management",
       "create": "Create Admin Account",
       "update": "Update Admin Account",
+      "profile": "Admin Profile",
       "detail": "Admin Account Details"
     },
     "field": {

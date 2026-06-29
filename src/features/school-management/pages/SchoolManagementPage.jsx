@@ -5,11 +5,11 @@ import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
-import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import SchoolManagementFilterSection from '../components/SchoolManagementFilterSection'
@@ -21,7 +21,7 @@ const defaultFilters = { search: '', statuses: [] }
 
 const SchoolManagementPage = () => {
   const { t } = useTranslation()
-  const confirm = useConfirm()
+  const confirmReason = useReasonConfirm()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
   const [page, setPage] = useState(1)
@@ -51,6 +51,10 @@ const SchoolManagementPage = () => {
     method: 'PUT',
   })
   const deleteSchool = useAxiosSubmit({ method: 'DELETE' })
+  const deleteSelectedSchools = useAxiosSubmit({
+    url: ApiUrls.SCHOOL_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
+  })
   const submitImport = useAxiosSubmit({
     url: ApiUrls.SCHOOL_MANAGEMENT.IMPORT,
     method: 'POST',
@@ -66,24 +70,51 @@ const SchoolManagementPage = () => {
   }
 
   const handleChangeStatus = async (status) => {
-    const response = await updateStatus.submit({ overrideData: { ids: selectedIds, status } })
+    const reason = await confirmReason({
+      title: status === 1 ? t('button.activate') : t('button.deactivate'),
+      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      confirmColor: status === 1 ? 'primary' : 'error',
+      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+    })
+    if (!reason) return
+    const response = await updateStatus.submit({
+      overrideData: { ids: selectedIds, status, reason },
+    })
     if (!response) return
     setSelectedIds([])
     await schools.fetch()
   }
 
   const handleDelete = async (school) => {
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('school_management.confirm.delete_title'),
       description: t('school_management.confirm.delete_description', { name: school.schoolName }),
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
-    if (!accepted) return
+    if (!reason) return
     const response = await deleteSchool.submit({
-      overrideUrl: ApiUrls.SCHOOL_MANAGEMENT.DETAIL(school.id),
+      overrideUrl: ApiUrls.SCHOOL_MANAGEMENT.DELETE_SELECTED,
+      overrideData: { ids: [school.id], reason },
     })
     if (response) await schools.fetch()
+  }
+
+  const handleDeleteSelected = async () => {
+    if (!selectedIds.length) return
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteSelectedSchools.submit({
+      overrideData: { ids: selectedIds, reason },
+    })
+    if (!response) return
+    setSelectedIds([])
+    await schools.fetch()
   }
 
   const handleImport = async (values) => {
@@ -139,7 +170,7 @@ const SchoolManagementPage = () => {
         />
         <BulkActionBar
           selectedCount={selectedIds.length}
-          loading={updateStatus.loading}
+          loading={updateStatus.loading || deleteSelectedSchools.loading}
           onClear={() => setSelectedIds([])}
           actions={[
             {
@@ -154,6 +185,13 @@ const SchoolManagementPage = () => {
               icon: <StopOutlined />,
               danger: true,
               onClick: () => handleChangeStatus(2),
+            },
+            {
+              key: 'delete',
+              label: t('button.delete'),
+              icon: <DeleteOutlined />,
+              danger: true,
+              onClick: handleDeleteSelected,
             },
           ]}
         />

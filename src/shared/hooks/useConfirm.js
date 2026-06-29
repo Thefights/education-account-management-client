@@ -11,6 +11,11 @@ import { useContext } from 'react'
  * @property {boolean} disableBackdropClose
  * @property {boolean} keyboard
  * @property {number|string} width
+ * @property {boolean} reasonRequired
+ * @property {string} reasonLabel
+ * @property {string} reasonPlaceholder
+ * @property {number} reasonMinLength
+ * @property {number} reasonMaxLength
  */
 
 /**

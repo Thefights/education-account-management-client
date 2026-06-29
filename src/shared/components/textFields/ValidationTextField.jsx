@@ -1,6 +1,5 @@
 import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
 import SelectDialog from '@/shared/components/dialogs/commons/SelectDialog'
-import useTranslation from '@/shared/hooks/useTranslation'
 import { isEmail, isNumber, isPhone, isRequired } from '@/shared/utils/validateUtil'
 import { Form, Input, Select } from 'antd'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
@@ -34,7 +33,6 @@ const ValidationTextField = (
   const [error, setError] = useState('')
   const [openMultipleSelect, setOpenMultipleSelect] = useState(false)
   const [openSelectDialog, setOpenSelectDialog] = useState(false)
-  const { t } = useTranslation()
   const fieldLabel = label ? (
     <span style={{ whiteSpace: 'normal', lineHeight: 1.35 }}>{label}</span>
   ) : (
@@ -158,7 +156,7 @@ const ValidationTextField = (
           help={error || undefined}
         >
           <Select
-            placeholder={`-- ${t('text.select_options')} --`}
+            placeholder={props.placeholder}
             value={value ?? undefined}
             onChange={(val) => {
               if (error) runWith(val, { skipEmpty: true })

@@ -44,7 +44,11 @@ const TopupRuleFormSection = ({
   }, [detail.data, ruleId])
   const fields = useMemo(
     () => [
-      { key: 'name', title: t('topup_form.topup_name') },
+      {
+        key: 'name',
+        title: t('topup_form.topup_name'),
+        placeholder: 'e.g. Student Support Top-up 2026',
+      },
       {
         key: 'topupAmount',
         title: '',
@@ -64,6 +68,7 @@ const TopupRuleFormSection = ({
               value={value}
               onChange={onChange}
               prefix="$"
+              placeholder="e.g. 100.00"
               style={{ width: '100%' }}
             />
           </Form.Item>

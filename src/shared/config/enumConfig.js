@@ -86,6 +86,26 @@ export const EnumConfig = {
     AI: 'AI',
   },
 
+  ManagementActionEntityType: {
+    School: 'School',
+    Admin: 'Admin',
+    EducationAccount: 'EducationAccount',
+    SchoolStudent: 'SchoolStudent',
+    Course: 'Course',
+    FasScheme: 'FasScheme',
+    Enrollment: 'Enrollment',
+    SystemTopup: 'SystemTopup',
+    ScheduleTopUp: 'ScheduleTopUp',
+  },
+
+  ManagementAction: {
+    Activate: 'Activate',
+    Deactivate: 'Deactivate',
+    Delete: 'Delete',
+    Publish: 'Publish',
+    Close: 'Close',
+  },
+
   SweepAction: {
     Create: 'Create',
     Close: 'Close',

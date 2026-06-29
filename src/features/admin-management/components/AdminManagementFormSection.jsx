@@ -18,7 +18,10 @@ const initialValues = {
 
 const toPayload = (values) => ({
   ...values,
-  schoolId: values.schoolId === '' || values.schoolId == null ? null : Number(values.schoolId),
+  schoolId:
+    values.role === EnumConfig.RoleId.SchoolAdmin && values.schoolId !== '' && values.schoolId != null
+      ? Number(values.schoolId)
+      : null,
   phoneNumber: values.phoneNumber || null,
 })
 
@@ -59,34 +62,41 @@ const AdminManagementFormSection = ({
         title: t('admin_management.field.role'),
         type: 'select',
         options: adminRoleOptions,
+        placeholder: 'Select a role',
       },
       {
         key: 'azureObjectId',
         title: t('admin_management.field.azure_object_id'),
+        placeholder: 'e.g. 00000000-0000-0000-0000-000000000000',
         validate: [maxLen(256)],
       },
       {
         key: 'fullName',
         title: t('admin_management.field.full_name'),
+        placeholder: 'e.g. Tan Wei Ming',
         validate: [maxLen(150)],
       },
       {
         key: 'nric',
         title: t('admin_management.field.nric'),
         type: 'custom',
-        render: ({ value, onChange }) => <NricInput value={value} onChange={onChange} />,
+        render: ({ value, onChange }) => (
+          <NricInput value={value} onChange={onChange} placeholder="e.g. S1234567D" />
+        ),
         validate: [maxLen(9)],
       },
       {
         key: 'email',
         title: t('admin_management.field.email'),
         type: 'email',
+        placeholder: 'e.g. admin@example.com',
         validate: [isEmail(), maxLen(320)],
       },
       {
         key: 'phoneNumber',
         title: t('admin_management.field.phone_number'),
         type: 'phone',
+        placeholder: 'e.g. 91234567',
         required: false,
       },
       ...(currentRole === EnumConfig.RoleId.SchoolAdmin
@@ -96,13 +106,14 @@ const AdminManagementFormSection = ({
               title: t('admin_management.field.school'),
               type: 'select',
               options: schoolOptions,
+              placeholder: 'Select a school',
               props: {
                 loading: schoolsLoading,
                 showSearch: true,
                 allowClear: true,
                 optionFilterProp: 'label',
               },
-              required: false,
+              required: true,
             },
           ]
         : []),

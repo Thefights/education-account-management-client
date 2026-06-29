@@ -2,6 +2,7 @@
   "header": {
     "title": "欢迎 {name}",
     "user_menu": {
+      "profile": "个人资料",
       "logout": "退出"
     }
   },

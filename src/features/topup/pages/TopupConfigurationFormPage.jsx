@@ -120,6 +120,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         type: 'input-number',
         minValue: 0.01,
         validate: [numberHigherThan(0)],
+        placeholder: 'e.g. 100.00',
         props: { precision: 2, prefix: currencySymbol },
       },
     ]
@@ -129,6 +130,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         key: 'status',
         title: t('topup_form.status'),
         type: 'select',
+        placeholder: 'Select status',
         options: isSchedule ? _enum.scheduleTopupStatusOptions : _enum.systemTopupStatusOptions,
       })
     }
@@ -151,12 +153,14 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         key: 'frequency',
         title: t('topup_form.schedule_type'),
         type: 'select',
+        placeholder: 'Select schedule type',
         options: _enum.scheduleTopupFrequencyOptions,
       },
       {
         key: 'scheduleExecutionAt',
         title: t('topup_form.execution_date'),
         type: 'datetime',
+        placeholder: 'Select execution date and time',
       },
     ]
   }, [_enum.scheduleTopupFrequencyOptions, isSchedule, t])

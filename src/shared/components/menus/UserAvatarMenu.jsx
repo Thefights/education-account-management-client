@@ -5,7 +5,7 @@ import { Avatar, Button, Dropdown, Space, Typography, theme } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const UserAvatarMenu = ({ profile, onLogout }) => {
+const UserAvatarMenu = ({ profile, items = [], onLogout }) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -21,7 +21,6 @@ const UserAvatarMenu = ({ profile, onLogout }) => {
     .toUpperCase()
 
   const menuItems = [
-    // User profile section header
     {
       key: 'profile-header',
       label: (
@@ -51,7 +50,22 @@ const UserAvatarMenu = ({ profile, onLogout }) => {
     },
     { type: 'divider' },
 
-    // Logout
+    ...items.map((item) => ({
+      key: item.key || item.url || item.label,
+      label: item.label,
+      icon: item.icon,
+      onClick: () => {
+        setOpen(false)
+        if (item.onClick) {
+          item.onClick()
+          return
+        }
+        navigate(item.url)
+      },
+    })),
+
+    { type: 'divider' },
+
     {
       key: 'logout',
       label: t('header.user_menu.logout'),
@@ -77,7 +91,7 @@ const UserAvatarMenu = ({ profile, onLogout }) => {
         type="text"
         style={{
           borderRadius: '999px',
-          border: `1px solid ${token.colorBorder}`,
+          border: `2px solid ${token.colorBorder}`,
           padding: '4px 8px',
           height: 'auto',
         }}

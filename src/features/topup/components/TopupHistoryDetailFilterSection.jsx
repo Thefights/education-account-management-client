@@ -22,6 +22,7 @@ const TopupHistoryDetailFilterSection = ({ filters, loading, onFilter, onReset }
       label: t('topup.account_number'),
       type: 'search',
       required: false,
+      placeholder: 'e.g. EA-2026-0001',
       reserveLabelSpace: true,
       colProps: { xs: 24, md: 12 },
     },

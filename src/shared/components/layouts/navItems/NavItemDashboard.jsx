@@ -26,7 +26,12 @@ const NavItemDashboard = ({
   const isExpanded = !!expanded[item.key]
 
   const active =
-    item.url === location.pathname || children.some((child) => child.url === location.pathname)
+    item.url === location.pathname ||
+    children.some(
+      (child) =>
+        child.url === location.pathname ||
+        (child.matchPrefix && location.pathname.startsWith(child.matchPrefix))
+    )
 
   const Icon = renderIcon(item.icon)
 
@@ -67,7 +72,9 @@ const NavItemDashboard = ({
       </div>
 
       {children.map((child) => {
-        const childActive = child.url === location.pathname
+        const childActive =
+          child.url === location.pathname ||
+          (child.matchPrefix && location.pathname.startsWith(child.matchPrefix))
 
         return (
           <div
@@ -231,7 +238,9 @@ const NavItemDashboard = ({
           }}
         >
           {children.map((child) => {
-            const childActive = child.url === location.pathname
+            const childActive =
+              child.url === location.pathname ||
+              (child.matchPrefix && location.pathname.startsWith(child.matchPrefix))
 
             return (
               <div

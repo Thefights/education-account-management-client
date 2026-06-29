@@ -6,9 +6,12 @@ import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useAuth from '@/shared/hooks/useAuth'
 import useFetch from '@/shared/hooks/useFetch'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
+import { showErrorToast } from '@/shared/utils/toastUtil'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
@@ -23,7 +26,10 @@ const defaultSort = { key: 'id', direction: 'desc' }
 
 const AdminManagementPage = () => {
   const { t } = useTranslation()
+  const confirmReason = useReasonConfirm()
   const navigate = useNavigate()
+  const { auth } = useAuth()
+  const currentUserId = auth?.id
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState(defaultSort)
   const [page, setPage] = useState(1)
@@ -66,7 +72,22 @@ const AdminManagementPage = () => {
   }
 
   const handleChangeStatus = async (status) => {
-    const response = await updateStatus.submit({ overrideData: { ids: selectedIds, status } })
+    if (selectedIds.some((id) => String(id) === String(currentUserId))) {
+      showErrorToast('You cannot update your own status.')
+      setSelectedIds((ids) => ids.filter((id) => String(id) !== String(currentUserId)))
+      return
+    }
+
+    const reason = await confirmReason({
+      title: status === 1 ? t('button.activate') : t('button.deactivate'),
+      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      confirmColor: status === 1 ? 'primary' : 'error',
+      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+    })
+    if (!reason) return
+    const response = await updateStatus.submit({
+      overrideData: { ids: selectedIds, status, reason },
+    })
     if (!response) return
     setSelectedIds([])
     await getAdmins.fetch()
@@ -109,6 +130,7 @@ const AdminManagementPage = () => {
           setSort={setSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
+          currentUserId={currentUserId}
           onDetail={(row) => {
             navigate(
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.DETAIL(row.userId))

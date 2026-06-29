@@ -16,19 +16,31 @@ const SchoolManagementFormSection = ({
 }) => {
   const { t } = useTranslation()
   const fields = [
-    { key: 'schoolName', title: t('school_management.field.school_name'), validate: [maxLen(150)] },
+    {
+      key: 'schoolName',
+      title: t('school_management.field.school_name'),
+      placeholder: 'e.g. Northview Secondary School',
+      validate: [maxLen(150)],
+    },
     {
       key: 'address',
       title: t('school_management.field.address'),
+      placeholder: 'e.g. 123 Example Road, Singapore 123456',
       multiline: true,
       minRows: 3,
       validate: [maxLen(300)],
     },
-    { key: 'phoneNumber', title: t('school_management.field.phone_number'), type: 'phone' },
+    {
+      key: 'phoneNumber',
+      title: t('school_management.field.phone_number'),
+      type: 'phone',
+      placeholder: 'e.g. 61234567',
+    },
     {
       key: 'email',
       title: t('school_management.field.email'),
       type: 'email',
+      placeholder: 'e.g. contact@school.edu.sg',
       validate: [isEmail(), maxLen(320)],
     },
   ]

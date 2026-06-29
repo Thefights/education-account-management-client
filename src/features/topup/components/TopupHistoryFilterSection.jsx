@@ -33,6 +33,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       label: t('topup.search_execution'),
       type: 'search',
       required: false,
+      placeholder: 'e.g. EXE-2026-0001 or Student Support Top-up',
       reserveLabelSpace: true,
       colProps: { xs: 24, md: 12, xl: 6 },
     },
@@ -74,6 +75,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       showTime: DATE_HOUR_SHOW_TIME,
       format: getDateHourFormatBasedOnCurrentLanguage(),
       disallowFutureFrom: true,
+      placeholder: ['From date', 'To date'],
       colProps: { xs: 24, md: 12, xl: 6 },
     },
   ]

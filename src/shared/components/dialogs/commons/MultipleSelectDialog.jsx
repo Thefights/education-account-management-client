@@ -226,9 +226,8 @@ const MultipleSelectDialog = ({
                     role="listitem"
                     align="flex-start"
                     gap={12}
-                    onClick={() => handleToggle(opt.value)}
                     style={{
-                      cursor: opt.disabled ? 'not-allowed' : 'pointer',
+                      cursor: opt.disabled ? 'not-allowed' : 'default',
                       padding: 12,
                       border: isSelected
                         ? '1px solid var(--ant-color-primary)'
@@ -241,7 +240,11 @@ const MultipleSelectDialog = ({
                           : 'var(--ant-color-bg-container)',
                     }}
                   >
-                    <Checkbox checked={isSelected} disabled={opt.disabled} />
+                    <Checkbox
+                      checked={isSelected}
+                      disabled={opt.disabled}
+                      onChange={() => handleToggle(opt.value)}
+                    />
                     <Flex flex={1} vertical style={{ minWidth: 0 }}>
                       {renderOptionContent(opt)}
                     </Flex>

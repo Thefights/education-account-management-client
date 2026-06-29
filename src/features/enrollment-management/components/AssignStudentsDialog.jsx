@@ -76,6 +76,7 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
               key: 'courseId',
               title: t('enrollment_management.field.course'),
               type: 'select',
+              placeholder: 'Select a course',
               options: courseOptions,
               props: {
                 loading: courses.loading,
@@ -90,6 +91,7 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
         title: t('enrollment_management.field.students'),
         type: 'select',
         multiple: true,
+        placeholder: 'Select one or more students',
         options: [],
         loadOptions: loadStudentOptions,
         renderOptionValue: (value) => studentOptionCache[String(value)]?.fullName || String(value),
