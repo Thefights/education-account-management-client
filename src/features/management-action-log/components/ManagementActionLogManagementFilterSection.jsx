@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 
 const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
-const AuditLogManagementFilterSection = ({
+const ManagementActionLogManagementFilterSection = ({
   filters = {},
   defaultFilters = {},
   onFilter,
@@ -17,7 +17,6 @@ const AuditLogManagementFilterSection = ({
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
-
   const { values, handleChange, setField, registerRef, reset, validateAll, resetValidation } =
     useForm(filters)
 
@@ -35,18 +34,31 @@ const AuditLogManagementFilterSection = ({
     () => [
       {
         key: 'search',
-        title: t('audit_log.placeholder.search_text'),
+        title: t('management_action_log.placeholder.search_text'),
         type: 'search',
         required: false,
-        label: t('audit_log.placeholder.search_text'),
-        placeholder: t('audit_log.placeholder.search_text'),
+        label: t('management_action_log.placeholder.search_text'),
+        placeholder: t('management_action_log.placeholder.search_text'),
         reserveLabelSpace: true,
       },
       {
-        key: 'categories',
-        title: t('audit_log.field.category'),
+        key: 'entityTypes',
+        title: t('management_action_log.field.entity_type'),
         type: 'multi-check-dropdown',
-        options: _enum.auditLogCategoryOptions,
+        options: _enum.managementActionEntityTypeOptions,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        cancelText: t('general.cancel'),
+        okText: t('general.ok'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
+        required: false,
+      },
+      {
+        key: 'actions',
+        title: t('management_action_log.field.action'),
+        type: 'multi-check-dropdown',
+        options: _enum.managementActionOptions,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
         searchPlaceholder: t('general.input_keyword'),
@@ -57,7 +69,7 @@ const AuditLogManagementFilterSection = ({
       },
       {
         key: 'occurredRange',
-        title: t('audit_log.field.created_at'),
+        title: t('management_action_log.field.occurred_at'),
         type: 'range-picker',
         valueType: 'language-datetime',
         from: { key: 'occurredFrom' },
@@ -66,12 +78,12 @@ const AuditLogManagementFilterSection = ({
         format: getDateHourFormatBasedOnCurrentLanguage(),
         disallowFutureFrom: true,
         placeholder: [
-          t('audit_log.placeholder.created_from'),
-          t('audit_log.placeholder.created_to'),
+          t('management_action_log.placeholder.occurred_from'),
+          t('management_action_log.placeholder.occurred_to'),
         ],
       },
     ],
-    [_enum.auditLogCategoryOptions, t]
+    [_enum.managementActionEntityTypeOptions, _enum.managementActionOptions, t]
   )
 
   const handleFilter = (nextValues) => {
@@ -94,9 +106,9 @@ const AuditLogManagementFilterSection = ({
       onReset={handleReset}
       onFilter={handleFilter}
       loading={loading}
-      getFieldColProps={() => ({ xs: 24, md: 12, xl: 8 })}
+      getFieldColProps={() => ({ xs: 24, md: 12, xl: 6 })}
     />
   )
 }
 
-export default AuditLogManagementFilterSection
+export default ManagementActionLogManagementFilterSection

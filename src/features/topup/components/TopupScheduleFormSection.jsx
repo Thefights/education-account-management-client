@@ -75,24 +75,31 @@ const TopupScheduleFormSection = ({
 
   const fields = useMemo(() => {
     return [
-      { key: 'name', title: t('topup_form.topup_name') },
+      {
+        key: 'name',
+        title: t('topup_form.topup_name'),
+        placeholder: 'e.g. Student Support Top-up 2026',
+      },
       {
         key: 'topupAmount',
         title: t('topup_form.topup_amount'),
         type: 'input-number',
         minValue: 0.01,
+        placeholder: 'e.g. 100.00',
         props: { precision: 2, prefix: '$' },
       },
       {
         key: 'frequency',
         title: t('topup_form.schedule_type'),
         type: 'select',
+        placeholder: 'Select schedule type',
         options: _enum.scheduleTopupFrequencyOptions,
       },
       {
         key: 'scheduleExecutionAt',
         title: t('topup_form.execution_date'),
         type: 'datetime',
+        placeholder: 'Select execution date and time',
       },
       {
         key: 'rootConditionGroup',

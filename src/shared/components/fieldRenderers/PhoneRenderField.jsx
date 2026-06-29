@@ -53,7 +53,7 @@ const PhoneRenderField = ({ field, value, onChange, size = 'middle' }, ref) => {
       style={{ marginBottom: error ? 8 : 0 }}
     >
       <PhoneInputField
-        placeholder={field.title}
+        placeholder={field.placeholder}
         value={value || undefined}
         error={!!error}
         size={size}

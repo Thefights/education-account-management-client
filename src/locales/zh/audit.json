@@ -1,4 +1,49 @@
 {
+  "management_action_log": {
+    "button": {
+      "export": "导出"
+    },
+    "field": {
+      "action": "操作",
+      "actor": "操作者",
+      "actor_email": "操作者邮箱",
+      "actor_full_name": "操作者姓名",
+      "actor_user_id": "操作者用户ID",
+      "actor_user_role": "操作者角色",
+      "actorEmail": "操作者邮箱",
+      "actorFullName": "操作者姓名",
+      "actorUserId": "操作者用户ID",
+      "actorUserRole": "操作者角色",
+      "batch_id": "批次ID",
+      "batchId": "批次ID",
+      "entity_id": "对象ID",
+      "entity_type": "对象类型",
+      "entityId": "对象ID",
+      "entityType": "对象类型",
+      "export_fields": "导出字段",
+      "id": "ID",
+      "ip_address": "IP地址",
+      "ipAddress": "IP地址",
+      "new_status": "新状态",
+      "newStatus": "新状态",
+      "occurred_at": "发生时间",
+      "occurredAt": "发生时间",
+      "previous_status": "先前状态",
+      "previousStatus": "先前状态",
+      "reason": "原因",
+      "status_change": "状态变更"
+    },
+    "placeholder": {
+      "occurred_from": "发生开始",
+      "occurred_to": "发生结束",
+      "search_text": "按原因或IP搜索"
+    },
+    "title": {
+      "detail": "管理操作日志详情",
+      "export": "导出管理操作日志",
+      "management": "管理操作日志"
+    }
+  },
   "audit_log": {
     "action": {
       "add_favorite_product": "添加最喜欢的产品",

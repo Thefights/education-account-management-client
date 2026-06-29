@@ -1,4 +1,49 @@
 {
+  "management_action_log": {
+    "button": {
+      "export": "Xuất"
+    },
+    "field": {
+      "action": "Hành động",
+      "actor": "Người thực hiện",
+      "actor_email": "Email người thực hiện",
+      "actor_full_name": "Tên người thực hiện",
+      "actor_user_id": "ID người thực hiện",
+      "actor_user_role": "Vai trò người thực hiện",
+      "actorEmail": "Email người thực hiện",
+      "actorFullName": "Tên người thực hiện",
+      "actorUserId": "ID người thực hiện",
+      "actorUserRole": "Vai trò người thực hiện",
+      "batch_id": "ID lô",
+      "batchId": "ID lô",
+      "entity_id": "ID đối tượng",
+      "entity_type": "Loại đối tượng",
+      "entityId": "ID đối tượng",
+      "entityType": "Loại đối tượng",
+      "export_fields": "Trường xuất dữ liệu",
+      "id": "ID",
+      "ip_address": "Địa chỉ IP",
+      "ipAddress": "Địa chỉ IP",
+      "new_status": "Trạng thái mới",
+      "newStatus": "Trạng thái mới",
+      "occurred_at": "Thời gian xảy ra",
+      "occurredAt": "Thời gian xảy ra",
+      "previous_status": "Trạng thái trước",
+      "previousStatus": "Trạng thái trước",
+      "reason": "Lý do",
+      "status_change": "Thay đổi trạng thái"
+    },
+    "placeholder": {
+      "occurred_from": "Xảy ra từ",
+      "occurred_to": "Xảy ra đến",
+      "search_text": "Tìm theo lý do hoặc IP"
+    },
+    "title": {
+      "detail": "Chi tiết nhật ký thao tác quản trị",
+      "export": "Xuất nhật ký thao tác quản trị",
+      "management": "Nhật ký thao tác quản trị"
+    }
+  },
   "audit_log": {
     "action": {
       "add_favorite_product": "Thêm sản phẩm yêu thích",

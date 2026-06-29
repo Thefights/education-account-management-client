@@ -22,6 +22,15 @@ export const ApiUrls = {
     },
   },
 
+  MANAGEMENT_ACTION_LOG: {
+    MANAGEMENT: {
+      INDEX: '/management-action-log-management',
+      GET_ALL: '/management-action-log-management/all',
+      DETAIL: (id) => `/management-action-log-management/${id}`,
+      EXPORT: '/management-action-log-management/export',
+    },
+  },
+
   APPLICATION_SETTING: {
     INDEX: '/application-setting-management',
   },
@@ -32,6 +41,10 @@ export const ApiUrls = {
     DETAIL: (id) => `/admin-management/${id}`,
     UPDATE_STATUS: '/admin-management/status',
     IMPORT: '/admin-management/import',
+  },
+
+  ADMIN_PROFILE: {
+    CURRENT: '/admin-profile/current',
   },
 
   SCHOOL_MANAGEMENT: {

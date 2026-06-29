@@ -9,6 +9,7 @@ const SchoolStudentFormSection = ({ openCreate, setOpenCreate, onCreateSubmit, r
     {
       key: 'nric',
       title: t('school_student.field.nric'),
+      placeholder: 'e.g. S1234567D',
       validate: [maxLen(20)],
     },
   ]

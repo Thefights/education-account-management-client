@@ -212,6 +212,7 @@ const CourseManagementFormPage = () => {
       {
         key: 'courseName',
         title: t('course_management.field.course_name'),
+        placeholder: 'e.g. Software Foundations Cohort 01',
         validate: [maxLen(150)],
       },
       {
@@ -219,6 +220,7 @@ const CourseManagementFormPage = () => {
         title: t('course_management.field.course_fee_amount'),
         type: 'input-number',
         minValue: 0,
+        placeholder: 'e.g. 100.00',
         validate: [numberHigherThanOrEqual(0)],
         props: { ...amountProps, disabled: basicInfoOnly },
       },
@@ -227,6 +229,7 @@ const CourseManagementFormPage = () => {
         title: t('course_management.field.misc_fee_amount'),
         type: 'input-number',
         minValue: 0,
+        placeholder: 'e.g. 100.00',
         validate: [numberHigherThanOrEqual(0)],
         props: { ...amountProps, disabled: basicInfoOnly },
       },
@@ -234,12 +237,14 @@ const CourseManagementFormPage = () => {
         key: 'enrollmentDeadline',
         title: t('course_management.field.enrollment_deadline'),
         type: 'datetime-local',
+        placeholder: 'Select enrollment deadline',
         props: { disabled: basicInfoOnly },
       },
       {
         key: 'startDate',
         title: t('course_management.field.start_date'),
         type: 'datetime-local',
+        placeholder: 'Select start date',
         validate: [
           (value, currentValues) =>
             !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
@@ -251,6 +256,7 @@ const CourseManagementFormPage = () => {
         key: 'endDate',
         title: t('course_management.field.end_date'),
         type: 'datetime-local',
+        placeholder: 'Select end date',
         validate: [
           (value, currentValues) =>
             !isDateTimeBefore(value, currentValues.startDate) ||
@@ -267,6 +273,7 @@ const CourseManagementFormPage = () => {
               type: 'select',
               multiple: true,
               required: false,
+              placeholder: 'Select one or more students',
               options: Object.values(studentOptionCache).map((student) => ({
                 value: student.id,
                 label: getStudentLabel(student),
@@ -282,6 +289,7 @@ const CourseManagementFormPage = () => {
         type: 'select',
         multiple: true,
         required: false,
+        placeholder: 'Select one or more FAS schemes',
         options: fasSchemes.map((scheme) => ({
           value: scheme.id,
           label: getFasSchemeLabel(scheme),

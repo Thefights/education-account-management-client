@@ -223,6 +223,28 @@ export default function useFieldRenderer(
     const isSelectField = field.type === 'select' || field.type === 'select-dialog'
     const multilineRows =
       !isSelectField && typeof field.multiple === 'number' ? field.multiple : undefined
+    const inputLikeTypes = new Set([
+      undefined,
+      'text',
+      'email',
+      'tel',
+      'number',
+      'select',
+      'select-dialog',
+      'datetime-local',
+      'date',
+    ])
+
+    if (
+      import.meta.env.DEV &&
+      inputLikeTypes.has(field.type) &&
+      field.placeholder === undefined &&
+      field.props?.placeholder === undefined &&
+      !field.props?.readOnly &&
+      !field.props?.disabled
+    ) {
+      console.warn(`Missing placeholder for field "${field.key}"`)
+    }
 
     return (
       <ValidationTextField
@@ -244,6 +266,7 @@ export default function useFieldRenderer(
         loadOptions={field.loadOptions}
         minValue={field.minValue}
         maxValue={field.maxValue}
+        placeholder={field.placeholder}
         multiline={!isSelectField && !!field.multiple}
         multipleSelect={field.type === 'select' && field.multiple === true}
         minRows={multilineRows}
@@ -515,6 +538,16 @@ export default function useFieldRenderer(
   const renderInputNumber = (field, context = baseRenderContext) => {
     const currentValues = context.values
 
+    if (
+      import.meta.env.DEV &&
+      field.placeholder === undefined &&
+      field.props?.placeholder === undefined &&
+      !field.props?.readOnly &&
+      !field.props?.disabled
+    ) {
+      console.warn(`Missing placeholder for field "${field.key}"`)
+    }
+
     return (
       <InputNumberRenderField
         key={field.key}
@@ -528,6 +561,7 @@ export default function useFieldRenderer(
         validationContext={currentValues}
         min={field.minValue}
         max={field.maxValue}
+        placeholder={field.placeholder}
         size={textFieldSize}
         {...(field.props || {})}
       />
@@ -548,6 +582,7 @@ export default function useFieldRenderer(
         onChange={context.handleChange}
         validate={field.validate}
         validationContext={currentValues}
+        placeholder={field.placeholder}
         size={textFieldSize}
         {...(field.props || {})}
       />

@@ -90,6 +90,7 @@
     "education_accounts": "Education Accounts",
     "manual_account_creation": "Manual Account Creation",
     "batch_reports": "Account Creation Reports",
+    "logs": "Logs",
     "audit_logs": "Audit Logs"
   }
 }
