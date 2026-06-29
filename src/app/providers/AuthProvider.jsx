@@ -83,6 +83,7 @@ const AuthProvider = ({ children }) => {
       )
     } finally {
       clearAccessToken()
+      localStorage.removeItem('sfs_chatbot_history')
       setAccessTokenState(undefined)
       setAuth({})
       setError(null)
