@@ -135,7 +135,7 @@ const mapFrontendSchemeToBackend = (scheme) => {
 
 const mapBackendSchemeToFrontend = (dto) => {
   const subsidyType = String(dto.subsidyType || '').toLowerCase().includes('fixed') ? 'fixed' : 'percent'
-  
+
   return {
     id: dto.id,
     schoolId: dto.schoolId,
@@ -463,14 +463,16 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
       return
     }
 
-    // Overlapping tier check (duplicate max PCI)
-    const pciValues = scheme.tiers
-      .map(t => t.maxPci !== '' && t.maxPci != null ? Number(t.maxPci) : null)
-      .filter(v => v !== null)
-    if (new Set(pciValues).size !== pciValues.length) {
-      message.error('Some tiers have overlapping/duplicate Max PCI. Please adjust.')
-      return
-    }
+        const pciValues = scheme.tiers
+            .map((t) => (t.maxPci !== '' && t.maxPci != null ? Number(t.maxPci) : null))
+          .filter((v) => Number.isFinite(v))
+
+        for (let index = 1; index < pciValues.length; index += 1) {
+            if (pciValues[index] <= pciValues[index - 1]) {
+                message.error('Tier Max PCI must be strictly increasing to avoid overlaps.')
+                return
+              }
+          }
 
     if (status === FAS_STATUS.Active && !Number(scheme.validityMonths)) {
       message.error('Set the FAS duration before publishing')

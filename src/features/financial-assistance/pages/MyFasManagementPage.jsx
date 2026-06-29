@@ -24,7 +24,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useTranslation from '@/shared/hooks/useTranslation'
 import useConfirm from '@/shared/hooks/useConfirm'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { Button, Card, Flex, Select, Tabs, Typography, message } from 'antd'
+import { Button, Card, Flex, Modal, Select, Tabs, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -55,6 +55,9 @@ const MyFasManagementPage = () => {
   const [detailLoading, setDetailLoading] = useState(false)
   const reapplyDraftSubmit = useAxiosSubmit({
     method: 'POST',
+    onError: async (error) => {
+      message.error(getApiErrorMessage(error, t))
+    },
   })
   const withdrawSubmit = useAxiosSubmit({
     method: 'POST',

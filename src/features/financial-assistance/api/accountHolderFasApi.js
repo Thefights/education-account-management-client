@@ -25,6 +25,18 @@ const UI_STATUS_TO_API = {
   [FAS_APPLICATION_STATUS.Withdrawn]: EnumConfig.FasApplicationStatusId.Withdrawn,
 }
 
+const API_SCHEME_STATUS_TO_UI = {
+  1: FAS_STATUS.Draft,
+  2: FAS_STATUS.Active,
+  3: FAS_STATUS.Inactive,
+  [EnumConfig.FasSchemeStatus.Draft]: FAS_STATUS.Draft,
+  [EnumConfig.FasSchemeStatus.Active]: FAS_STATUS.Active,
+  [EnumConfig.FasSchemeStatus.Inactive]: FAS_STATUS.Inactive,
+  Draft: FAS_STATUS.Draft,
+  Active: FAS_STATUS.Active,
+  Inactive: FAS_STATUS.Inactive,
+}
+
 const toDateOnly = (value) => {
   if (!value) return ''
   return String(value).slice(0, 10)
@@ -73,6 +85,11 @@ export const toApiApplicationStatus = (status) => UI_STATUS_TO_API[status]
 export const fromApiApplicationStatus = (status) =>
   API_STATUS_TO_UI[status] ?? API_STATUS_TO_UI[String(status).toLowerCase()] ?? status
 
+export const fromApiSchemeStatus = (status, fallback) =>
+  API_SCHEME_STATUS_TO_UI[status] ??
+  API_SCHEME_STATUS_TO_UI[String(status).toLowerCase()] ??
+  fallback
+
 export const isApiApprovedExpired = (application) => {
   const status = fromApiApplicationStatus(application?.status)
   const endDateValue = application?.validityEndDate || application?.endDate
@@ -113,7 +130,7 @@ export const normalizeApiScheme = (scheme) => {
     code: scheme.schemeCode,
     name: scheme.schemeName,
     description: scheme.description,
-    status: FAS_STATUS.Active,
+    status: fromApiSchemeStatus(scheme.status, FAS_STATUS.Active),
     subsidyType: scheme.subsidyType,
     validityMonths: scheme.durationInMonths,
     linkedCourses: scheme.linkedCourses || [],
@@ -258,7 +275,7 @@ export const normalizeApiApplicationSummary = (application) => {
   }
 
   if (isApiApprovedExpired(normalized)) {
-    normalized.displayStatus = 'expired'
+    normalized.displayStatus = FAS_APPLICATION_STATUS.Expired
   }
 
   return normalized
@@ -327,7 +344,7 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
   }
 
   if (isApiApprovedExpired(application)) {
-    application.displayStatus = 'expired'
+    application.displayStatus = FAS_APPLICATION_STATUS.Expired
   }
 
   application.scheme = {
@@ -336,7 +353,7 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
     code: detail.scheme?.schemeCode,
     name: detail.scheme?.schemeName || summary.schemeName || '-',
     description: detail.scheme?.description || '',
-    status: 'active',
+    status: fromApiSchemeStatus(detail.scheme?.status, FAS_STATUS.Active),
     subsidyType: approvedTier?.subsidyValue != null ? 'fixed' : 'percent',
     validityMonths: summary.scheme?.validityMonths || 12,
     linkedCourses: [],
