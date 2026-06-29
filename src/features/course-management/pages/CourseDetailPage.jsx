@@ -3,6 +3,7 @@ import EnrollmentManagementFilterSection from '@/features/enrollment-management/
 import EnrollmentManagementTableSection from '@/features/enrollment-management/components/EnrollmentManagementTableSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
+import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -15,6 +16,7 @@ import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/forma
 import {
   ArrowLeftOutlined,
   CalendarOutlined,
+  DeleteOutlined,
   DollarOutlined,
   GiftOutlined,
   ReadOutlined,
@@ -380,14 +382,6 @@ const CourseDetailPage = () => {
 
             {!readOnly && (
               <Space>
-                <Button
-                  danger
-                  disabled={!selectedIds.length}
-                  loading={mutationLoading}
-                  onClick={handleDeleteSelected}
-                >
-                  {t('enrollment_management.action.delete_selected')}
-                </Button>
                 <Button type="primary" onClick={() => setOpenAssign(true)}>
                   {t('enrollment_management.title.assign_students')}
                 </Button>
@@ -427,6 +421,23 @@ const CourseDetailPage = () => {
             setPageSize={handlePageSize}
             loading={enrollments.loading}
           />
+
+          {!readOnly && (
+            <BulkActionBar
+              selectedCount={selectedIds.length}
+              loading={mutationLoading}
+              onClear={clearSelection}
+              actions={[
+                {
+                  key: 'delete',
+                  label: t('enrollment_management.action.delete_selected'),
+                  icon: <DeleteOutlined />,
+                  danger: true,
+                  onClick: handleDeleteSelected,
+                },
+              ]}
+            />
+          )}
         </Flex>
       </Card>
 

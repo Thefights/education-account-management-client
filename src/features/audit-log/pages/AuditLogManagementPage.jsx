@@ -5,10 +5,10 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsv } from '@/shared/utils/downloadFile'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
-import AuditLogExportSection from '../components/AuditLogExportSection'
-import AuditLogFilterSection from '../components/AuditLogFilterSection'
-import AuditLogTableSection from '../components/AuditLogTableSection'
-import AuditLogToolbarSection from '../components/AuditLogToolbarSection'
+import AuditLogManagementExportSection from '../components/AuditLogManagementExportSection'
+import AuditLogManagementFilterSection from '../components/AuditLogManagementFilterSection'
+import AuditLogManagementTableSection from '../components/AuditLogManagementTableSection'
+import AuditLogManagementToolbarSection from '../components/AuditLogManagementToolbarSection'
 
 const defaultFilters = {
   search: '',
@@ -25,7 +25,7 @@ const defaultSort = {
 
 const getNullableDateTime = (value) => value || null
 
-const AuditLogPage = () => {
+const AuditLogManagementPage = () => {
   const { t } = useTranslation()
 
   const [filters, setFilters] = useState(defaultFilters)
@@ -87,9 +87,9 @@ const AuditLogPage = () => {
           {t('audit_log.title.audit_log_management')}
         </Typography.Title>
 
-        <AuditLogToolbarSection onExport={() => setOpenExport(true)} />
+        <AuditLogManagementToolbarSection onExport={() => setOpenExport(true)} />
 
-        <AuditLogFilterSection
+        <AuditLogManagementFilterSection
           filters={filters}
           defaultFilters={defaultFilters}
           onFilter={handleFilter}
@@ -97,12 +97,11 @@ const AuditLogPage = () => {
           loading={getAuditLogs.loading}
         />
 
-        <AuditLogTableSection
+        <AuditLogManagementTableSection
           auditLogs={getAuditLogs.data?.collection}
           loading={getAuditLogs.loading}
           sort={sort}
           setSort={setSort}
-          onExport={() => setOpenExport(true)}
         />
 
         <GenericTablePagination
@@ -116,7 +115,7 @@ const AuditLogPage = () => {
         />
       </Flex>
 
-      <AuditLogExportSection
+      <AuditLogManagementExportSection
         open={openExport}
         onClose={() => setOpenExport(false)}
         onSubmit={handleExport}
@@ -125,4 +124,4 @@ const AuditLogPage = () => {
   )
 }
 
-export default AuditLogPage
+export default AuditLogManagementPage

@@ -27,8 +27,8 @@ export const routeUrls = {
     INDEX: '/admin-management',
     DETAIL: (id = ':id') => `/admin-management/${id}`,
   },
-  AI_ASSISTANT_SETTING: {
-    INDEX: '/ai-assistant-setting',
+  APPLICATION_SETTING: {
+    INDEX: '/application-setting',
   },
   EDUCATION_ACCOUNTS: {
     INDEX: '/education-accounts',

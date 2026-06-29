@@ -8,28 +8,15 @@ import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import {
-  toPickerValueBasedOnCurrentLanguage,
-  wallTimeBasedOnCurrentLanguageToIso,
-} from '@/shared/utils/dateTimeUtil'
-import {
   formatDatetimeStringBasedOnCurrentLanguage,
   getDateHourFormatBasedOnCurrentLanguage,
 } from '@/shared/utils/formatDateUtil'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
-import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Tag, Typography } from 'antd'
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
+import { Card, Col, Flex, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 
 const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
-
-const FieldBox = ({ title, children }) => (
-  <div>
-    <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
-      {title}
-    </Typography.Text>
-    {children}
-  </div>
-)
 
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
@@ -101,6 +88,16 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       cancelText: t('general.cancel'),
       okText: t('general.ok'),
       selectedText: (count) => `${count} ${t('text.items')}`,
+    },
+    {
+      key: 'createdRange',
+      title: t('transaction.created_at'),
+      type: 'range-picker',
+      valueType: 'language-datetime',
+      from: { key: 'createdFrom' },
+      to: { key: 'createdTo' },
+      showTime: DATE_HOUR_SHOW_TIME,
+      format: getDateHourFormatBasedOnCurrentLanguage(),
     },
   ]
   const fields = useMemo(
@@ -200,30 +197,6 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
               {renderField(field)}
             </Col>
           ))}
-          <Col xs={24} md={6}>
-            <FieldBox title={t('transaction.created_at')}>
-              <Form.Item style={{ marginBottom: 0 }}>
-                <DatePicker.RangePicker
-                  showTime={DATE_HOUR_SHOW_TIME}
-                  format={getDateHourFormatBasedOnCurrentLanguage()}
-                  value={
-                    values.createdFrom
-                      ? [
-                          toPickerValueBasedOnCurrentLanguage(values.createdFrom),
-                          toPickerValueBasedOnCurrentLanguage(values.createdTo),
-                        ]
-                      : null
-                  }
-                  onChange={(range) => {
-                    setField('createdFrom', wallTimeBasedOnCurrentLanguageToIso(range?.[0]))
-                    setField('createdTo', wallTimeBasedOnCurrentLanguageToIso(range?.[1]))
-                  }}
-                  suffixIcon={<CalendarOutlined />}
-                  style={{ width: '100%', height: 40 }}
-                />
-              </Form.Item>
-            </FieldBox>
-          </Col>
         </FilterSectionLayout>
         <GenericTable
           data={transactions.data?.collection}

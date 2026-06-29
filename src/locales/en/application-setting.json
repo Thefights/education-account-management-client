@@ -1,0 +1,18 @@
+{
+  "application_setting": {
+    "menu_label": "Settings",
+    "title": "Application Settings",
+    "description": "Manage system-wide settings used by platform features, course charges, and installment schedules.",
+    "ai_feature_label": "Enable AI features",
+    "enabled": "On",
+    "disabled": "Off",
+    "enabled_description": "AI features are available to users.",
+    "disabled_description": "AI features are unavailable to users.",
+    "tax_rate_label": "Tax rate",
+    "tax_rate_description": "Decimal tax rate applied when calculating course charges.",
+    "installment_due_day_label": "Installment due day",
+    "installment_due_day_description": "Day of month used when generating installment due dates.",
+    "load_error": "Unable to load application settings.",
+    "retry": "Retry"
+  }
+}
