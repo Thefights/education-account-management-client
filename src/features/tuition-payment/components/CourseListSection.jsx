@@ -14,7 +14,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
     const navigate = useNavigate();
     const [view, setView] = useState('0px');
     const { token } = theme.useToken();
-    const currInstallment = invoice.installments.find(e => e.status != 'Paid');
+    const currInstallment = invoice?.installments?.find(e => e.status != 'Paid');
     
     return (
         <Card
@@ -26,7 +26,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                 <Flex vertical gap={16}>
                     <Flex align="center" gap={16}>
                         <Checkbox 
-                            disabled={currInstallment == null ? true : false} 
+                            disabled={invoice.isInstallment && currInstallment == null ? true : false} 
                             style={{ transform: 'scale(1.2)' }}
                             onChange={(e) => {handleCheck(invoice, e.target.checked)}} 
                         />
@@ -83,9 +83,9 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
 
                     <Tag 
                         color={
-                            invoice.paymentStatus === 'paid' ? 'success'
-                                : invoice.paymentStatus === 'due' ? 'warning'
-                                : invoice.paymentStatus === 'overdue' ? 'error'
+                            invoice.paymentStatus === 'Paid' ? 'success'
+                                : invoice.paymentStatus === 'Due' ? 'warning'
+                                : invoice.paymentStatus === 'Overdue' ? 'error'
                                 : currInstallment != null ? 'error'
                                 : currInstallment == null ? 'success'
                                 : invoice.isInstallment ? 'geekblue'
@@ -97,7 +97,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                             margin: 0
                         }}
                     >
-                        {currInstallment != null ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : `installment • ${invoice.paymentStatus}`}
+                        {invoice.isInstallment ? (currInstallment != null ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : `installment • ${invoice.paymentStatus}`) : invoice.paymentStatus}
                     </Tag>
                 </Flex>
             </Flex>
@@ -201,7 +201,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                     {(currInstallment != null || !invoice.isInstallment) && (
                         <Button 
                             style={{ width: '8rem', borderRadius: '6px' }} 
-                            disabled={currInstallment == null ? true : false} 
+                            disabled={invoice.isInstallment && currInstallment == null ? true : false} 
                             type='primary' 
                             onClick={() => {
                                 handleCheck(invoice, true);
