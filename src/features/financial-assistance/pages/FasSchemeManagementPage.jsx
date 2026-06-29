@@ -504,7 +504,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
             <label className="fas-field-label">Scheme name</label>
             <Input
               disabled={readOnly}
-              placeholder="Enter name..."
+              placeholder="e.g. Student Support Scheme 2026"
               value={scheme.name}
               onChange={(event) => onChange((draft) => ({ ...draft, name: event.target.value }))}
             />
@@ -516,7 +516,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
               disabled={readOnly}
               rows={2}
               value={scheme.description}
-              placeholder="Describe what this FAS supports."
+              placeholder="e.g. Supports eligible students with course fees"
               onChange={(event) =>
                 onChange((draft) => ({ ...draft, description: event.target.value }))
               }
@@ -535,6 +535,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
                 min={1}
                 value={scheme.validityMonths}
                 addonAfter="months"
+                placeholder="e.g. 12"
                 style={{ width: '100%' }}
                 onChange={(value) =>
                   onChange((draft) => ({ ...draft, validityMonths: value || '' }))
@@ -557,7 +558,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
               maxTagCount="responsive"
               listHeight={272}
               value={scheme.linkedCourses || []}
-              placeholder="Select courses"
+              placeholder="Select one or more courses"
               style={{ width: '100%' }}
               options={courseOptions}
               onChange={(value) => onChange((draft) => ({ ...draft, linkedCourses: value }))}
@@ -717,6 +718,7 @@ const FasConditionRow = ({ condition, index, readOnly, onChange, onDelete }) => 
           <Select
             disabled={readOnly}
             value={field}
+            placeholder="Select field"
             options={getConditionFieldOptions()}
             style={{ width: '100%' }}
             onChange={(nextField) => {
@@ -738,6 +740,7 @@ const FasConditionRow = ({ condition, index, readOnly, onChange, onDelete }) => 
           <Select
             disabled={readOnly}
             value={condition.operator}
+            placeholder="Select operator"
             options={getConditionOperatorOptions(field)}
             style={{ width: '100%' }}
             onChange={(operator) =>
@@ -833,6 +836,7 @@ const FasConditionGroupEditor = ({ group, depth, groupNumber, readOnly, onChange
           <Select
             disabled={readOnly}
             value={group.logicalOperator}
+            placeholder="Select matching mode"
             style={{ minWidth: 280 }}
             options={[
               {
@@ -1057,13 +1061,13 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
           <div className="fas-tier-grid">
             <Input
               disabled={readOnly}
-              placeholder={`Tier ${index + 1}`}
+              placeholder={`e.g. Tier ${index + 1}`}
               value={tier.name}
               onChange={(event) => updateTier(index, { name: event.target.value })}
             />
             <Input
               disabled={readOnly}
-              placeholder="Condition: PCI ≤ 690"
+              placeholder="e.g. PCI <= 690"
               value={tier.conditionText}
               onChange={(event) => updateTier(index, { conditionText: event.target.value })}
             />
@@ -1072,7 +1076,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
               value={tier.maxPci}
               min={0}
               style={numericInputStyle}
-              placeholder="Max PCI"
+              placeholder="e.g. 690"
               onChange={(value) => updateTier(index, { maxPci: value ?? '' })}
             />
             <Button
@@ -1090,7 +1094,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                 value={tier.value}
                 min={0}
                 style={{ width: 150 }}
-                placeholder={scheme.subsidyType === 'percent' ? '50' : '500'}
+                placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
                 addonAfter={scheme.subsidyType === 'percent' ? '%' : 'S$'}
                 onChange={(value) => updateTier(index, { value: value ?? '' })}
               />
@@ -1116,6 +1120,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                   value={tier.courseValue}
                   min={0}
                   style={numericInputStyle}
+                  placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
                   onChange={(value) => updateTier(index, { courseValue: value ?? '' })}
                 />
               </div>
@@ -1128,6 +1133,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                   value={tier.miscValue}
                   min={0}
                   style={numericInputStyle}
+                  placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
                   onChange={(value) => updateTier(index, { miscValue: value ?? '' })}
                 />
               </div>
@@ -1180,7 +1186,7 @@ const DocumentsEditor = ({ scheme, readOnly, onChange }) => {
         <div className="fas-doc-row" key={document.id}>
           <Input
             disabled={readOnly}
-            placeholder="Document name"
+            placeholder="e.g. Household income statement"
             value={document.name}
             onChange={(event) => updateDocument(index, { name: event.target.value })}
           />

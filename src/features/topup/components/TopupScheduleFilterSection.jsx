@@ -21,6 +21,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       label: t('topup.search_topup'),
       type: 'search',
       required: false,
+      placeholder: 'e.g. Student Support Top-up 2026',
       reserveLabelSpace: true,
     },
     {
@@ -61,6 +62,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       showTime: DATE_HOUR_SHOW_TIME,
       format: getDateHourFormatBasedOnCurrentLanguage(),
       disallowFutureFrom: true,
+      placeholder: ['From date', 'To date'],
       colProps: { xs: 24, md: 12, xl: 6 },
     },
   ]

@@ -56,7 +56,7 @@ const PayPage = () => {
         title: t('education_account.nric'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <NricInput value={value} onChange={onChange} placeholder="S1234567D" />
+          <NricInput value={value} onChange={onChange} placeholder="e.g. S1234567D" />
         ),
       },
       {
@@ -65,7 +65,7 @@ const PayPage = () => {
         multiple: 5,
         validate: [minLen(20, t('education_account.reason_min'))],
         props: {
-          placeholder: t('education_account.reason_placeholder'),
+          placeholder: 'e.g. Newly naturalised citizen missed by the nightly batch.',
         },
       },
     ],
@@ -160,7 +160,7 @@ const PayPage = () => {
                         label="Email"
                         style={{ marginBottom: 16 }}
                       >
-                        <Input />
+                        <Input placeholder="e.g. user@example.com" />
                       </Form.Item>
                     </Form>
                   </div>
@@ -178,7 +178,7 @@ const PayPage = () => {
                     </Typography.Text>
 
                     <Input
-                      placeholder="Name"
+                      placeholder="e.g. Tan Wei Ming"
                       style={{
                         borderRadius: '6px 6px 0 0'
                       }}
@@ -186,6 +186,7 @@ const PayPage = () => {
 
                     <Select
                       defaultValue="United States"
+                      placeholder="Select country"
                       style={{
                         width: '100%'
                       }}
@@ -198,7 +199,7 @@ const PayPage = () => {
                     />
 
                     <Input
-                      placeholder="Address"
+                      placeholder="e.g. 123 Example Road"
                       style={{
                         borderRadius: '0 0 6px 6px'
                       }}
@@ -224,7 +225,7 @@ const PayPage = () => {
                     </Typography.Text>
 
                     <Input
-                      placeholder="1234 1234 1234 1234"
+                      placeholder="e.g. 1234 1234 1234 1234"
                       style={{
                         borderRadius: '6px 6px 0 0'
                       }}
@@ -232,7 +233,7 @@ const PayPage = () => {
 
                     <Input.Group compact>
                       <Input
-                        placeholder="MM / YY"
+                        placeholder="e.g. MM / YY"
                         style={{
                           width: '50%',
                           borderRadius: 0
@@ -240,7 +241,7 @@ const PayPage = () => {
                       />
 
                       <Input
-                        placeholder="CVC"
+                        placeholder="e.g. CVC"
                         style={{
                           width: '50%',
                           borderRadius: 0

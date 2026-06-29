@@ -187,6 +187,7 @@ const FasApplicationQueuePage = () => {
           <Flex justify="end">
             <Select
               value={sortChoice}
+              placeholder="Select sort order"
               style={{ width: 180 }}
               options={[
                 { value: 'oldest', label: 'Oldest first' },

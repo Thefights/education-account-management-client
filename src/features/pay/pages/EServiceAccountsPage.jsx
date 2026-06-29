@@ -62,7 +62,7 @@ const EServiceAccountsPage = () => {
         title: t('education_account.nric'),
         type: 'custom',
         render: ({ value, onChange }) => (
-          <NricInput value={value} onChange={onChange} placeholder="S1234567D" />
+          <NricInput value={value} onChange={onChange} placeholder="e.g. S1234567D" />
         ),
       },
       {
@@ -71,7 +71,7 @@ const EServiceAccountsPage = () => {
         multiple: 5,
         validate: [minLen(20, t('education_account.reason_min'))],
         props: {
-          placeholder: t('education_account.reason_placeholder'),
+          placeholder: 'e.g. Newly naturalised citizen missed by the nightly batch.',
         },
       },
     ],

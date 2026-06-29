@@ -38,6 +38,7 @@ const ManagementActionLogManagementFilterSection = ({
         type: 'search',
         required: false,
         label: t('management_action_log.placeholder.search_text'),
+        placeholder: t('management_action_log.placeholder.search_text'),
         reserveLabelSpace: true,
       },
       {

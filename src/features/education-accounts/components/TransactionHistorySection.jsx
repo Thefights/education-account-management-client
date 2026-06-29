@@ -55,6 +55,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       type: 'search',
       reserveLabelSpace: true,
       required: false,
+      placeholder: 'e.g. TXN-2026-0001 or course fee',
     },
     {
       key: 'types',
@@ -97,6 +98,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       to: { key: 'createdTo' },
       showTime: DATE_HOUR_SHOW_TIME,
       format: getDateHourFormatBasedOnCurrentLanguage(),
+      placeholder: ['From date', 'To date'],
     },
   ]
   const fields = useMemo(

@@ -51,6 +51,7 @@ export const FasSchemeFilterSection = ({ filters, loading, onFilter, onReset }) 
       label: 'Search by FAS ID or scheme name',
       type: 'search',
       required: false,
+      placeholder: 'e.g. FAS-2026-001 or Student Support Scheme',
       reserveLabelSpace: true,
       onEnterDown: () => onFilter?.(values),
     },
@@ -81,6 +82,7 @@ export const FasSchemeFilterSection = ({ filters, loading, onFilter, onReset }) 
           <FieldBox title="Status">
             <Select
               value={values.status || 'all'}
+              placeholder="Select status"
               style={{ width: '100%', height: 40 }}
               options={[{ value: 'all', label: 'All' }, ...fasSchemeStatusOptions]}
               onChange={(value) => setField('status', value)}
@@ -110,6 +112,7 @@ export const FasApplicationFilterSection = ({
       label: searchTitle,
       type: 'search',
       required: false,
+      placeholder: 'e.g. APP-2026-001 or Tan Wei Ming',
       reserveLabelSpace: true,
       onEnterDown: () => onFilter?.(values),
       colProps: { xs: 24, md: 8, xl: 7 },

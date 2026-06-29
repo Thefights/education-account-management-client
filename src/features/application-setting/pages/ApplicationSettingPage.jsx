@@ -110,6 +110,7 @@ const ApplicationSettingPage = () => {
                   max={1}
                   step={0.0001}
                   precision={4}
+                  placeholder="e.g. 0.09"
                   style={{ width: '100%' }}
                   onChange={(value) => setField('taxRate', value ?? 0)}
                   disabled={updateSetting.loading}
@@ -128,6 +129,7 @@ const ApplicationSettingPage = () => {
                   min={1}
                   max={28}
                   precision={0}
+                  placeholder="e.g. 15"
                   style={{ width: '100%' }}
                   onChange={(value) => setField('installmentDueDay', value ?? 1)}
                   disabled={updateSetting.loading}

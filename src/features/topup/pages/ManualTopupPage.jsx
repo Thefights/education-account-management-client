@@ -245,6 +245,7 @@ const ManualTopupPage = ({ embedded = false }) => {
       type: 'select',
       multiple: true,
       required: true,
+      placeholder: 'Select one or more eligible accounts',
       options: accountOptions,
       loadOptions: loadAccounts,
       renderOptionValue: (value) => {
@@ -382,7 +383,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                     invalidateSubmission()
                     setTopUpAmount(value)
                   }}
-                  placeholder="0.00"
+                  placeholder="e.g. 100.00"
                   style={{ width: '100%', maxWidth: 300 }}
                 />
               </Form.Item>
@@ -395,7 +396,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                     invalidateSubmission()
                     setDisbursementReason(event.target.value)
                   }}
-                  placeholder={t('topup.reason_placeholder', 'Enter a reason for this top-up')}
+                  placeholder="e.g. Approved after reviewing supporting documents"
                 />
               </Form.Item>
 

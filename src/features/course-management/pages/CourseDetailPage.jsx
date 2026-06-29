@@ -236,6 +236,7 @@ const CourseDetailPage = () => {
       type: 'select',
       multiple: true,
       required: false,
+      placeholder: 'Select one or more FAS schemes',
       options: selectedFasOptions,
       loadOptions: loadFasOptions,
       renderOptionValue: (value) =>

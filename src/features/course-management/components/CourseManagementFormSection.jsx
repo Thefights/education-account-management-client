@@ -53,12 +53,18 @@ const CourseManagementFormSection = ({
   const amountValidation = useMemo(() => [numberHigherThanOrEqual(0)], [])
 
   const getFields = (basicInfoOnly = false, showServerFees = false) => [
-    { key: 'courseName', title: t('course_management.field.course_name'), validate: [maxLen(150)] },
+    {
+      key: 'courseName',
+      title: t('course_management.field.course_name'),
+      placeholder: 'e.g. Software Foundations Cohort 01',
+      validate: [maxLen(150)],
+    },
     {
       key: 'courseFeeAmount',
       title: t('course_management.field.course_fee_amount'),
       type: 'number',
       minValue: 0,
+      placeholder: 'e.g. 100.00',
       validate: amountValidation,
       props: { disabled: basicInfoOnly },
     },
@@ -67,6 +73,7 @@ const CourseManagementFormSection = ({
       title: t('course_management.field.misc_fee_amount'),
       type: 'number',
       minValue: 0,
+      placeholder: 'e.g. 100.00',
       validate: amountValidation,
       props: { disabled: basicInfoOnly },
     },
@@ -92,12 +99,14 @@ const CourseManagementFormSection = ({
       key: 'enrollmentDeadline',
       title: t('course_management.field.enrollment_deadline'),
       type: 'datetime-local',
+      placeholder: 'Select enrollment deadline',
       props: { disabled: basicInfoOnly },
     },
     {
       key: 'startDate',
       title: t('course_management.field.start_date'),
       type: 'datetime-local',
+      placeholder: 'Select start date',
       validate: [
         (value, values) =>
           !isDateTimeBefore(value, values.enrollmentDeadline) ||
@@ -109,6 +118,7 @@ const CourseManagementFormSection = ({
       key: 'endDate',
       title: t('course_management.field.end_date'),
       type: 'datetime-local',
+      placeholder: 'Select end date',
       validate: [
         (value, values) =>
           !isDateTimeBefore(value, values.startDate) ||

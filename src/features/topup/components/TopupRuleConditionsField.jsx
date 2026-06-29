@@ -317,6 +317,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
         <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
             aria-label={t('topup_form.field')}
+            placeholder="Select field"
             value={condition.field}
             options={getFieldOptions(t)}
             style={{ width: '100%', height: 32 }}
@@ -335,6 +336,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
         <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
             aria-label={t('topup_form.operator')}
+            placeholder="Select operator"
             value={condition.operator}
             options={getOperatorOptions(t, isText)}
             style={{ width: '100%', height: 32 }}
@@ -357,7 +359,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 aria-label={t('topup_form.value')}
                 status={showMissingValue ? 'error' : undefined}
                 value={condition.valueText}
-                placeholder={t('topup_form.select_value')}
+                placeholder="Select value"
                 options={[
                   { value: 'Enrolled', label: t('topup_form.enrolled') },
                   { value: 'Not Enrolled', label: t('topup_form.not_enrolled') },
@@ -370,7 +372,13 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 aria-label={t('topup_form.value')}
                 status={showMissingValue ? 'error' : undefined}
                 value={condition.valueNumber}
-                placeholder={isBetween ? t('topup_form.from_value') : t('topup_form.value')}
+                placeholder={
+                  isBetween
+                    ? 'e.g. 100.00'
+                    : condition.field === EnumConfig.TopupConditionField.Age
+                      ? 'e.g. 12'
+                      : 'e.g. 100.00'
+                }
                 min={0}
                 precision={condition.field === EnumConfig.TopupConditionField.Age ? 0 : 2}
                 prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
@@ -397,7 +405,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 aria-label={t('topup_form.to_value')}
                 status={showUpperValueError || invalidRange ? 'error' : undefined}
                 value={condition.valueNumberTo}
-                placeholder={t('topup_form.to_value')}
+                placeholder="e.g. 500.00"
                 min={0}
                 precision={condition.field === EnumConfig.TopupConditionField.Age ? 0 : 2}
                 prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
@@ -461,6 +469,7 @@ const GroupEditor = ({
         <Flex align="center" gap={8} wrap="wrap">
           <Typography.Text>{t('topup_form.matching_mode')}</Typography.Text>
           <Select
+            placeholder="Select matching mode"
             value={group.logicalOperator}
             style={{ minWidth: 260, height: 32 }}
             options={getLogicalOperatorOptions(t, isRoot)}

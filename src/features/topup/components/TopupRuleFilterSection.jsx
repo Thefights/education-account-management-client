@@ -18,6 +18,7 @@ const TopupRuleFilterSection = ({ filters, loading, onFilter, onReset }) => {
       label: t('topup.search_topup'),
       type: 'search',
       required: false,
+      placeholder: 'e.g. Student Support Top-up 2026',
       reserveLabelSpace: true,
     },
     {
