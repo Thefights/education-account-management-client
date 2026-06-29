@@ -45,6 +45,14 @@ const CourseManagementTableSection = ({
       color: defaultManagementStatusStyle,
     },
     {
+      key: 'enrollmentCount',
+      title: t('course_management.field.enrollment_count'),
+      width: 140,
+      sortable: true,
+      isNumeric: true,
+      render: (value) => Number(value ?? 0).toLocaleString(),
+    },
+    {
       key: 'startDate',
       title: t('course_management.field.start_date'),
       width: 180,
@@ -59,12 +67,11 @@ const CourseManagementTableSection = ({
       render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
     },
     {
-      key: 'enrollmentCount',
-      title: t('course_management.field.enrollment_count'),
-      width: 140,
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
       sortable: true,
-      isNumeric: true,
-      render: (value) => Number(value ?? 0).toLocaleString(),
+      render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
     },
     {
       key: 'actions',

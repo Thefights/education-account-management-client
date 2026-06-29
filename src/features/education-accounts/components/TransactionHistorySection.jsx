@@ -1,15 +1,23 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
-import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import {
+  toPickerValueBasedOnCurrentLanguage,
+  wallTimeBasedOnCurrentLanguageToIso,
+} from '@/shared/utils/dateTimeUtil'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import {
+  formatDatetimeStringBasedOnCurrentLanguage,
+  getDateHourFormatBasedOnCurrentLanguage,
+} from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined, CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Row, Space, Tag, Typography } from 'antd'
+import { Card, Col, DatePicker, Flex, Form, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 
 const FieldBox = ({ title, children }) => (
@@ -21,6 +29,7 @@ const FieldBox = ({ title, children }) => (
   </div>
 )
 
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
 const TransactionHistorySection = ({ url, pageMode = false }) => {
@@ -95,7 +104,8 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   ]
   const fields = useMemo(
     () => [
-      { key: 'transactionCode', title: t('transaction.code'), width: 250 },
+      { key: 'transactionCode', title: t('transaction.code'), width: 250, sortable: true },
+      { key: 'description', title: t('transaction.description'), width: 240, sortable: true },
       {
         key: 'type',
         title: t('transaction.type'),
@@ -103,7 +113,17 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         sortable: true,
         render: (value) => <Tag>{typeLabels[value] || value}</Tag>,
       },
-      { key: 'description', title: t('transaction.description'), width: 240 },
+      {
+        key: 'direction',
+        title: t('transaction.direction'),
+        width: 110,
+        sortable: true,
+        render: (value) => (
+          <Tag color={value === 'Credit' ? 'success' : 'error'}>
+            {directionLabels[value] || value}
+          </Tag>
+        ),
+      },
       {
         key: 'amount',
         title: t('transaction.amount'),
@@ -113,30 +133,34 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
           const isCredit = row.direction === 'Credit'
           return (
             <Typography.Text strong type={isCredit ? 'success' : 'danger'}>
-              {isCredit ? <ArrowUpOutlined /> : <ArrowDownOutlined />} {isCredit ? '+' : '-'}
-              {Number(amount).toFixed(2)}
+              {isCredit ? <ArrowUpOutlined /> : <ArrowDownOutlined />}{' '}
+              {formatCurrencyBasedOnCurrentLanguage(amount, {
+                sign: isCredit ? 'credit' : 'debit',
+              })}
             </Typography.Text>
           )
         },
       },
-      { key: 'balanceBefore', title: t('transaction.balance_before'), width: 140 },
-      { key: 'balanceAfter', title: t('transaction.balance_after'), width: 140 },
       {
-        key: 'direction',
-        title: t('transaction.direction'),
-        width: 110,
-        render: (value) => (
-          <Tag color={value === 'Credit' ? 'success' : 'error'}>
-            {directionLabels[value] || value}
-          </Tag>
-        ),
+        key: 'balanceBefore',
+        title: t('transaction.balance_before'),
+        width: 150,
+        sortable: true,
+        render: formatCurrencyBasedOnCurrentLanguage,
+      },
+      {
+        key: 'balanceAfter',
+        title: t('transaction.balance_after'),
+        width: 150,
+        sortable: true,
+        render: formatCurrencyBasedOnCurrentLanguage,
       },
       {
         key: 'createdAt',
         title: t('transaction.created_at'),
         width: 190,
         sortable: true,
-        render: formatDateBasedOnCurrentLanguage,
+        render: formatDatetimeStringBasedOnCurrentLanguage,
       },
     ],
     [t, typeLabels, directionLabels]
@@ -157,53 +181,49 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}
     >
       <Flex vertical gap={16}>
-        <Card
-          size="small"
-          style={{ boxShadow: 'none', background: 'var(--app-filter-bg)' }}
-          styles={{ body: { padding: 16 } }}
+        <FilterSectionLayout
+          gutter={[12, 12]}
+          cardProps={{
+            style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
+            styles: { body: { padding: 16 } },
+          }}
+          actions={
+            <>
+              <ResetFilterButton loading={transactions.loading} onResetFilterClick={resetFilters} />
+              <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
+            </>
+          }
         >
-          <Row gutter={[12, 12]} align="bottom">
-            {filterFields.map((field) => (
-              <Col key={field.key} xs={24} md={6}>
-                {renderField(field)}
-              </Col>
-            ))}
-            <Col xs={24} md={6}>
-              <FieldBox title={`${t('transaction.created_at')} (${t('text.singapore_time')})`}>
-                <Form.Item style={{ marginBottom: 0 }}>
-                  <DatePicker.RangePicker
-                    showTime
-                    value={
-                      values.createdFrom
-                        ? [
-                            toSingaporePickerValue(values.createdFrom),
-                            toSingaporePickerValue(values.createdTo),
-                          ]
-                        : null
-                    }
-                    onChange={(range) => {
-                      setField('createdFrom', singaporeWallTimeToIso(range?.[0]))
-                      setField('createdTo', singaporeWallTimeToIso(range?.[1]))
-                    }}
-                    suffixIcon={<CalendarOutlined />}
-                    style={{ width: '100%', height: 40 }}
-                  />
-                </Form.Item>
-              </FieldBox>
+          {filterFields.map((field) => (
+            <Col key={field.key} xs={24} md={6}>
+              {renderField(field)}
             </Col>
-            <Col xs={24}>
-              <Flex justify="end">
-                <Space>
-                  <ResetFilterButton
-                    loading={transactions.loading}
-                    onResetFilterClick={resetFilters}
-                  />
-                  <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
-                </Space>
-              </Flex>
-            </Col>
-          </Row>
-        </Card>
+          ))}
+          <Col xs={24} md={6}>
+            <FieldBox title={t('transaction.created_at')}>
+              <Form.Item style={{ marginBottom: 0 }}>
+                <DatePicker.RangePicker
+                  showTime={DATE_HOUR_SHOW_TIME}
+                  format={getDateHourFormatBasedOnCurrentLanguage()}
+                  value={
+                    values.createdFrom
+                      ? [
+                          toPickerValueBasedOnCurrentLanguage(values.createdFrom),
+                          toPickerValueBasedOnCurrentLanguage(values.createdTo),
+                        ]
+                      : null
+                  }
+                  onChange={(range) => {
+                    setField('createdFrom', wallTimeBasedOnCurrentLanguageToIso(range?.[0]))
+                    setField('createdTo', wallTimeBasedOnCurrentLanguageToIso(range?.[1]))
+                  }}
+                  suffixIcon={<CalendarOutlined />}
+                  style={{ width: '100%', height: 40 }}
+                />
+              </Form.Item>
+            </FieldBox>
+          </Col>
+        </FilterSectionLayout>
         <GenericTable
           data={transactions.data?.collection}
           fields={fields}

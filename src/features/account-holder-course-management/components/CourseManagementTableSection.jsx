@@ -2,19 +2,11 @@ import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { Button, Typography } from 'antd'
 import { useState } from 'react'
-import { Button, Flex, Typography } from 'antd'
-import { data } from 'react-router'
 
-const formatAmount = (value) => (value == null ? null : Number(value).toLocaleString())
-
-const CourseManagementTableSection = ({
-  courses,
-  loading,
-  sort,
-  setSort,
-}) => {
-  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+const CourseManagementTableSection = ({ courses, loading, sort, setSort }) => {
+  const [expandedRowKeys, setExpandedRowKeys] = useState([])
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = [
@@ -27,12 +19,12 @@ const CourseManagementTableSection = ({
     {
       key: 'courseName',
       title: t('course_management.field.course_name'),
-      width: 220
+      width: 220,
     },
-    { 
-      key: 'schoolName', 
-      title: t('course_management.field.school'), 
-      width: 200
+    {
+      key: 'schoolName',
+      title: t('course_management.field.school'),
+      width: 200,
     },
     {
       key: 'status',
@@ -55,32 +47,27 @@ const CourseManagementTableSection = ({
       key: 'id',
       title: t('FAS'),
       render: (_, record) => (
-      <>
-        <Button
-          onClick={() => handleExpand(record.key)}
-          style={{ width:'100px' }}
-        >
-          Select FAS
-        </Button>
-        {record.name}
-      </>
-    ),
-    }
+        <>
+          <Button onClick={() => handleExpand(record.key)} style={{ width: '100px' }}>
+            Select FAS
+          </Button>
+          {record.name}
+        </>
+      ),
+    },
   ]
 
-  const handleExpand = key => {
-    setExpandedRowKeys(keys =>
-      keys.includes(key)
-        ? keys.filter(k => k !== key)
-        : [...keys, key]
-    );
-  };
+  const handleExpand = (key) => {
+    setExpandedRowKeys((keys) =>
+      keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]
+    )
+  }
 
   const FAS = ({ prop }) => {
     return (
       <div>
-        <Typography.Title level={4} style={{ margin: 0, lineHeight: 1.2, color:'#2962cc' }}>
-          Select FAS for {courses.find(a => a.id === prop.key).courseName}
+        <Typography.Title level={4} style={{ margin: 0, lineHeight: 1.2, color: '#2962cc' }}>
+          Select FAS for {courses.find((a) => a.id === prop.key).courseName}
         </Typography.Title>
         <p>{prop.key}</p>
       </div>

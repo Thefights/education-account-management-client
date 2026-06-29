@@ -27,14 +27,10 @@ const MultipleCheckDropdownField = ({
   )
 
   const allValues = useMemo(() => options.map((item) => item.value), [options])
-  const checkedAll = draftValue.length > 0 && draftValue.length === allValues.length
-
   const displayText =
-    value.length === 0
+    value.length === 0 || value.length === allValues.length
       ? placeholder
-      : value.length === allValues.length
-        ? selectAllText
-        : selectedText(value.length)
+      : selectedText(value.length)
 
   const handleOpenChange = (nextOpen) => {
     setOpen(nextOpen)
@@ -51,7 +47,7 @@ const MultipleCheckDropdownField = ({
   }
 
   const handleOk = () => {
-    onApply(draftValue)
+    onApply(draftValue.length === allValues.length ? [] : draftValue)
     setOpen(false)
   }
 
@@ -79,14 +75,6 @@ const MultipleCheckDropdownField = ({
 
       <div style={{ maxHeight: 320, overflowY: 'auto', padding: '0 16px 12px' }}>
         <Space orientation="vertical" size={12}>
-          <Checkbox
-            checked={checkedAll}
-            indeterminate={draftValue.length > 0 && draftValue.length < allValues.length}
-            onChange={(event) => setDraftValue(event.target.checked ? allValues : [])}
-          >
-            {selectAllText}
-          </Checkbox>
-
           <Checkbox.Group value={draftValue} onChange={setDraftValue}>
             <Space orientation="vertical" size={12}>
               {filteredOptions.map((item) => (

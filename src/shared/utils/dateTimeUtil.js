@@ -6,15 +6,37 @@ import { getLocalDateFromServerDateTime } from './formatDateUtil'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-export const SINGAPORE_TIME_ZONE = 'Asia/Singapore'
+const SINGAPORE_TIME_ZONE = 'Asia/Singapore'
 
-export const getCurrentSingaporeDate = () => dayjs().tz(SINGAPORE_TIME_ZONE).format('YYYY-MM-DD')
+const LANGUAGE_TIME_ZONES = {
+  en: SINGAPORE_TIME_ZONE,
+  vi: 'Asia/Ho_Chi_Minh',
+  zh: 'Asia/Shanghai',
+}
 
-const getSingaporeWallTime = (value) => {
+const getCurrentLanguage = () => {
+  let language = localStorage.getItem('language') || 'en'
+  try {
+    language = JSON.parse(language)
+  } catch {
+    /* empty */
+  }
+
+  return language
+}
+
+const getTimeZoneBasedOnCurrentLanguage = () =>
+  LANGUAGE_TIME_ZONES[getCurrentLanguage()] || SINGAPORE_TIME_ZONE
+
+export const getCurrentDateBasedOnCurrentLanguage = () =>
+  dayjs().tz(getTimeZoneBasedOnCurrentLanguage()).format('YYYY-MM-DD')
+
+const getWallTimeBasedOnCurrentLanguage = (value) => {
   if (!value) return null
   const date = dayjs(value)
   if (!date.isValid()) return null
-  return dayjs.tz(date.format('YYYY-MM-DDTHH:mm:ss.SSS'), SINGAPORE_TIME_ZONE)
+  const dateHour = date.minute(0).second(0).millisecond(0)
+  return dayjs.tz(dateHour.format('YYYY-MM-DDTHH:mm:ss.SSS'), getTimeZoneBasedOnCurrentLanguage())
 }
 
 export const toLocalDateTimeInput = (value) => {
@@ -36,8 +58,6 @@ export const toLocalPickerValue = (value) => {
   return date.isValid() ? date : null
 }
 
-export const toLocalTimePickerValue = (value = '00:00:00') => dayjs(`2000-01-01T${value}`)
-
 export const isDateTimeBefore = (earlier, later) => {
   if (!earlier || !later) return false
   const earlierDate = dayjs(earlier)
@@ -45,16 +65,14 @@ export const isDateTimeBefore = (earlier, later) => {
   return earlierDate.isValid() && laterDate.isValid() && earlierDate.isBefore(laterDate)
 }
 
-/** Treats the supplied date/time components as Singapore wall time and returns an ISO instant. */
-export const singaporeWallTimeToIso = (value) => getSingaporeWallTime(value)?.toISOString() || ''
+/** Treats the supplied date/hour components as the current language's wall time. */
+export const wallTimeBasedOnCurrentLanguageToIso = (value) =>
+  getWallTimeBasedOnCurrentLanguage(value)?.toISOString() || ''
 
-/** Converts a backend instant to a Day.js value displayed in Singapore time. */
-export const toSingaporePickerValue = (value) => {
+/** Converts a backend instant to a Day.js value displayed in the current language's timezone. */
+export const toPickerValueBasedOnCurrentLanguage = (value) => {
   if (!value) return null
   const date = dayjs(value)
-  return date.isValid() ? date.tz(SINGAPORE_TIME_ZONE) : null
+  return date.isValid() ? date.tz(getTimeZoneBasedOnCurrentLanguage()) : null
 }
 
-/** Creates a time-only picker value whose business timezone is Singapore. */
-export const toSingaporeTimePickerValue = (value = '00:00:00') =>
-  dayjs.tz(`2000-01-01T${value}`, SINGAPORE_TIME_ZONE)

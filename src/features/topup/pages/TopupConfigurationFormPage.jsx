@@ -23,10 +23,6 @@ import {
   serializeTopupConditionGroup,
 } from '../utils/topupRuleFormUtil'
 
-const frequencyValues = { OneTime: 1, Monthly: 2, Yearly: 3 }
-const systemStatusValues = { Active: 1, Inactive: 2 }
-const scheduleStatusValues = { Active: 1, Inactive: 2, Completed: 3 }
-
 const getScheduleExecutionAt = (data = {}) => {
   if (data.oneTimeExecutionAt) return toLocalPickerValue(data.oneTimeExecutionAt)
 
@@ -133,14 +129,14 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         key: 'status',
         title: t('topup_form.status'),
         type: 'select',
-        options: isSchedule ? _enum.scheduleTopupStatusIdOptions : _enum.systemTopupStatusIdOptions,
+        options: isSchedule ? _enum.scheduleTopupStatusOptions : _enum.systemTopupStatusOptions,
       })
     }
 
     return fields
   }, [
-    _enum.scheduleTopupStatusIdOptions,
-    _enum.systemTopupStatusIdOptions,
+    _enum.scheduleTopupStatusOptions,
+    _enum.systemTopupStatusOptions,
     currencySymbol,
     isEdit,
     isSchedule,
@@ -155,7 +151,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         key: 'frequency',
         title: t('topup_form.schedule_type'),
         type: 'select',
-        options: _enum.scheduleTopupFrequencyIdOptions,
+        options: _enum.scheduleTopupFrequencyOptions,
       },
       {
         key: 'scheduleExecutionAt',
@@ -163,7 +159,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
         type: 'datetime',
       },
     ]
-  }, [_enum.scheduleTopupFrequencyIdOptions, isSchedule, t])
+  }, [_enum.scheduleTopupFrequencyOptions, isSchedule, t])
 
   const inputFields = useMemo(
     () => [...basicFields, ...scheduleFields],
@@ -177,7 +173,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
       reset({
         name: '',
         topupAmount: null,
-        frequency: EnumConfig.ScheduleTopupFrequencyId.OneTime,
+        frequency: EnumConfig.ScheduleTopupFrequency.OneTime,
         scheduleExecutionAt: null,
       })
       resetValidation()
@@ -185,13 +181,12 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
       return
     }
     if (!detail.data) return
-    const statusValues = isSchedule ? scheduleStatusValues : systemStatusValues
     const rootConditionGroup = normalizeTopupConditionGroup(detail.data.rootConditionGroup)
     queueMicrotask(() => setConditionGroup(rootConditionGroup))
     reset({
       ...detail.data,
-      status: statusValues[detail.data.status] ?? detail.data.status ?? 1,
-      frequency: frequencyValues[detail.data.frequency] ?? detail.data.frequency ?? 1,
+      status: detail.data.status ?? EnumConfig.SystemTopupStatus.Active,
+      frequency: detail.data.frequency ?? EnumConfig.ScheduleTopupFrequency.OneTime,
       scheduleExecutionAt: getScheduleExecutionAt(detail.data),
     })
     resetValidation()

@@ -1,5 +1,5 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Form, DatePicker } from 'antd'
+import { DatePicker, Form } from 'antd'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
 
 const DateTimeRenderField = (
@@ -85,7 +85,6 @@ const DateTimeRenderField = (
           if (error) runWith(nextValue, { skipEmpty: true })
           onChange?.({ target: { name, value: nextValue } })
         }}
-        onBlur={run}
         style={{ width: '100%', height: 40, ...style }}
         {...props}
       />

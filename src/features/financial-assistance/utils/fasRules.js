@@ -85,9 +85,7 @@ export const describeCondition = (condition) => {
     )
   }
 
-  const value = isFasTextField(normalized.field)
-    ? normalized.valueText
-    : normalized.valueNumber
+  const value = isFasTextField(normalized.field) ? normalized.valueText : normalized.valueNumber
 
   return label + ' ' + operatorText(normalized.operator) + ' ' + formatConditionValue(value)
 }
@@ -107,7 +105,11 @@ export const buildEligibilityPreviewParts = (value = [], connectors = []) => {
   const group = resolveConditionGroup(value, connectors)
   if (!group || !(group.conditions?.length || group.groups?.length)) return []
 
-  if (group.logicalOperator === FAS_LOGICAL_OPERATOR.Any && group.groups?.length && !group.conditions?.length) {
+  if (
+    group.logicalOperator === FAS_LOGICAL_OPERATOR.Any &&
+    group.groups?.length &&
+    !group.conditions?.length
+  ) {
     return group.groups.map(describeGroup)
   }
 
@@ -135,12 +137,15 @@ const evaluateCondition = (condition, profile) => {
   const profileValue = profileValueForField(normalized.field, profile)
 
   if (isFasTextField(normalized.field)) {
-    if (normalized.valueText === 'Any') return normalized.operator !== FAS_CONDITION_OPERATOR.NotEquals
+    if (normalized.valueText === 'Any')
+      return normalized.operator !== FAS_CONDITION_OPERATOR.NotEquals
 
     const left = String(profileValue || '').toLowerCase()
     const right = String(normalized.valueText || '').toLowerCase()
 
-    return normalized.operator === FAS_CONDITION_OPERATOR.NotEquals ? left !== right : left === right
+    return normalized.operator === FAS_CONDITION_OPERATOR.NotEquals
+      ? left !== right
+      : left === right
   }
 
   const left = Number(profileValue)
@@ -183,7 +188,9 @@ export const evaluateSchemeEligibility = (scheme, profile) => {
 }
 
 export const collectConditionFields = (schemeOrGroup) => {
-  const group = resolveConditionGroup(schemeOrGroup?.rootConditionGroup ? schemeOrGroup : schemeOrGroup)
+  const group = resolveConditionGroup(
+    schemeOrGroup?.rootConditionGroup ? schemeOrGroup : schemeOrGroup
+  )
   const fields = new Set()
 
   const walk = (currentGroup) => {
@@ -198,11 +205,6 @@ export const collectConditionFields = (schemeOrGroup) => {
 
   walk(group)
   return fields
-}
-
-export const isCitizenOnlyScheme = (scheme) => {
-  const fields = collectConditionFields(scheme)
-  return fields.size > 0 && fields.size === 1 && fields.has('nationality')
 }
 
 export const formatTierConditionText = (tier) => {
@@ -245,7 +247,9 @@ export const describeTierSubsidy = (scheme, tier) => {
   if (!scheme || !tier) return '-'
 
   if (tier.perComponent) {
-    return 'Course ' + Number(tier.courseValue || 0) + '% | Misc ' + Number(tier.miscValue || 0) + '%'
+    return (
+      'Course ' + Number(tier.courseValue || 0) + '% | Misc ' + Number(tier.miscValue || 0) + '%'
+    )
   }
 
   if (scheme.subsidyType === 'fixed') {
@@ -253,36 +257,6 @@ export const describeTierSubsidy = (scheme, tier) => {
   }
 
   return Number(tier.value || 0) + '% of (Course + Misc)'
-}
-
-export const calculateSampleFunding = (scheme, tier) => {
-  const course = 100
-  const misc = 20
-  const total = (course + misc) * 1.09
-  let funded
-
-  if (tier?.perComponent) {
-    if (scheme?.subsidyType === 'fixed') {
-      funded = Number(tier.courseValue || 0) + Number(tier.miscValue || 0)
-    } else {
-      funded =
-        (course * Number(tier.courseValue || 0)) / 100 +
-        (misc * Number(tier.miscValue || 0)) / 100
-      funded *= 1.09
-    }
-  } else if (scheme?.subsidyType === 'fixed') {
-    funded = Number(tier?.value || 0)
-  } else {
-    funded = ((course + misc) * Number(tier?.value || 0) * 1.09) / 100
-  }
-
-  const cappedFunded = Math.min(funded, total)
-
-  return {
-    total,
-    funded: cappedFunded,
-    net: total - cappedFunded,
-  }
 }
 
 export const getApplicationDisplayStatus = (application) => {

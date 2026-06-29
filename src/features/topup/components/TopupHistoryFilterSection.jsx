@@ -1,16 +1,21 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { localDateTimeToIso, toLocalPickerValue } from '@/shared/utils/dateTimeUtil'
+import {
+  toPickerValueBasedOnCurrentLanguage,
+  wallTimeBasedOnCurrentLanguageToIso,
+} from '@/shared/utils/dateTimeUtil'
+import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
+import { Col, DatePicker, Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 
-const DATE_TIME_FORMAT = 'D/M/YYYY HH:mm'
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -51,7 +56,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       key: 'sourceTypes',
       title: t('topup.source'),
       type: 'multi-check-dropdown',
-      options: _enum.topupExecutionSourceTypeIdOptions,
+      options: _enum.topupExecutionSourceTypeOptions,
       required: false,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
@@ -65,7 +70,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       key: 'statuses',
       title: t('topup.status'),
       type: 'multi-check-dropdown',
-      options: _enum.topupExecutionStatusIdOptions,
+      options: _enum.topupExecutionStatusOptions,
       required: false,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
@@ -96,8 +101,8 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
   }
 
   const handleDateRangeChange = (range) => {
-    const createdFrom = localDateTimeToIso(range?.[0])
-    const createdTo = localDateTimeToIso(range?.[1])
+    const createdFrom = wallTimeBasedOnCurrentLanguageToIso(range?.[0])
+    const createdTo = wallTimeBasedOnCurrentLanguageToIso(range?.[1])
 
     setField('createdFrom', createdFrom)
     setField('createdTo', createdTo)
@@ -117,16 +122,25 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
 
   const dateRangeValue =
     values.createdFrom || values.createdTo
-      ? [toLocalPickerValue(values.createdFrom), toLocalPickerValue(values.createdTo)]
+      ? [
+          toPickerValueBasedOnCurrentLanguage(values.createdFrom),
+          toPickerValueBasedOnCurrentLanguage(values.createdTo),
+        ]
       : null
 
   return (
-    <Card
-      size="small"
-      style={{ boxShadow: 'none', background: 'var(--app-filter-bg)' }}
-      styles={{ body: { padding: 16 } }}
+    <FilterSectionLayout
+      cardProps={{
+        style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
+        styles: { body: { padding: 16 } },
+      }}
+      actions={
+        <>
+          <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
+          <FilterButton loading={loading} onFilterClick={handleFilter} />
+        </>
+      }
     >
-      <Row gutter={[16, 16]} align="bottom">
         {fields.map((field) => (
           <Col key={field.key} {...field.colProps}>
             {renderField(field)}
@@ -141,9 +155,9 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
               style={{ marginBottom: 0 }}
             >
               <DatePicker.RangePicker
-                showTime
+                showTime={DATE_HOUR_SHOW_TIME}
                 allowClear
-                format={DATE_TIME_FORMAT}
+                format={getDateHourFormatBasedOnCurrentLanguage()}
                 suffixIcon={<CalendarOutlined />}
                 value={dateRangeValue}
                 onChange={handleDateRangeChange}
@@ -152,17 +166,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
             </Form.Item>
           </FieldBox>
         </Col>
-
-        <Col flex="auto">
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-              <FilterButton loading={loading} onFilterClick={handleFilter} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    </FilterSectionLayout>
   )
 }
 

@@ -19,9 +19,13 @@ export const platformLightTheme = {
     colorBgLayout: lightPalette.background.default,
     colorBgContainer: lightPalette.background.paper,
     colorBgElevated: '#FFFFFF',
+    colorFillSecondary: '#EEF2F7',
+    colorFillTertiary: '#F6F8FB',
+    colorLink: lightPalette.primary.main,
+    colorLinkHover: lightPalette.secondary.dark,
 
-    borderRadius: 10,
-    borderRadiusLG: 16,
+    borderRadius: 8,
+    borderRadiusLG: 12,
     borderRadiusSM: 8,
     borderRadiusXS: 6,
 
@@ -38,24 +42,30 @@ export const platformLightTheme = {
 
     Card: {
       colorBorderSecondary: lightPalette.divider,
-      boxShadowTertiary: '0 10px 30px rgba(39, 88, 130, 0.08)',
+      boxShadowTertiary: '0 14px 36px rgba(51, 65, 85, 0.09)',
       paddingLG: 20,
     },
 
     Button: {
-      borderRadius: 10,
+      borderRadius: 8,
       controlHeight: 40,
-      primaryShadow: '0 6px 16px rgba(40, 120, 227, 0.22)',
+      primaryShadow: '0 10px 22px rgba(37, 99, 235, 0.24)',
+      defaultHoverBorderColor: lightPalette.primary.light,
+      defaultHoverColor: lightPalette.primary.dark,
     },
 
     Input: {
-      borderRadius: 10,
+      borderRadius: 8,
       controlHeight: 40,
+      activeBorderColor: lightPalette.primary.main,
+      activeShadow: '0 0 0 3px rgba(37, 99, 235, 0.13)',
     },
 
     Select: {
-      borderRadius: 10,
+      borderRadius: 8,
       controlHeight: 40,
+      activeBorderColor: lightPalette.primary.main,
+      activeOutlineColor: 'rgba(37, 99, 235, 0.13)',
     },
 
     Pagination: {
@@ -66,9 +76,14 @@ export const platformLightTheme = {
 
     Table: {
       borderColor: lightPalette.divider,
-      headerBg: '#F7FAFD',
+      headerBg: '#EEF2F7',
+      headerColor: '#263B5E',
       headerSplitColor: 'transparent',
-      rowHoverBg: lightPalette.primary.softBg,
+      rowHoverBg: '#F6F8FB',
+    },
+
+    Tag: {
+      borderRadiusSM: 6,
     },
   },
 }

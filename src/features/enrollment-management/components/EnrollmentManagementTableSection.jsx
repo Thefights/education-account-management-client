@@ -60,6 +60,7 @@ const EnrollmentManagementTableSection = ({
             key: 'courseStatus',
             title: t('enrollment_management.field.course_status'),
             width: 130,
+            sortable: true,
             type: 'tag',
             options: _enum.courseStatusOptions,
             color: defaultManagementStatusStyle,
@@ -90,13 +91,6 @@ const EnrollmentManagementTableSection = ({
       title: t('enrollment_management.field.phone'),
       width: 150,
       sortable: true,
-    },
-    {
-      key: 'enrolledAt',
-      title: t('enrollment_management.field.enrolled_at'),
-      width: 180,
-      sortable: true,
-      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'status',
@@ -135,6 +129,20 @@ const EnrollmentManagementTableSection = ({
       sortable: true,
       isNumeric: true,
       render: formatCurrencyBasedOnCurrentLanguage,
+    },
+    {
+      key: 'enrolledAt',
+      title: t('enrollment_management.field.enrolled_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
+      sortable: true,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'paidAmount',

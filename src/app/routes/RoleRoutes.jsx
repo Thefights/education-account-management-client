@@ -6,6 +6,7 @@ import ProtectedRoute from '@/app/routes/ProtectedRoute'
 import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
 import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePage'
 import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
+import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
 import AuditLogPage from '@/features/audit-log/pages/AuditLogPage'
@@ -47,6 +48,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.ADMIN_MANAGEMENT.INDEX,
         element: <AdminManagementPage />,
+      },
+      {
+        path: routeUrls.ADMIN_MANAGEMENT.DETAIL(),
+        element: <AdminManagementDetailPage />,
       },
       {
         path: routeUrls.AI_ASSISTANT_SETTING.INDEX,

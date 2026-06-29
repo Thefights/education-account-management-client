@@ -5,6 +5,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { Popover, Space, Tag } from 'antd'
 import { Link } from 'react-router-dom'
 
@@ -51,6 +52,27 @@ const SchoolStudentTableSection = ({
       sortable: true,
     },
     {
+      key: 'email',
+      title: t('school_student.field.email'),
+      width: 240,
+      sortable: true,
+    },
+    {
+      key: 'phoneNumber',
+      title: t('school_student.field.phone_number'),
+      width: 160,
+      sortable: true,
+    },
+    {
+      key: 'status',
+      title: t('school_student.field.status'),
+      width: 120,
+      sortable: true,
+      type: 'tag',
+      options: _enum.schoolStudentStatusOptions,
+      color: defaultManagementStatusStyle,
+    },
+    {
       key: 'courses',
       title: t('school_student.field.courses'),
       width: 320,
@@ -75,25 +97,11 @@ const SchoolStudentTableSection = ({
       },
     },
     {
-      key: 'email',
-      title: t('school_student.field.email'),
-      width: 240,
+      key: 'createdAt',
+      title: t('audit_log.field.created_at'),
+      width: 180,
       sortable: true,
-    },
-    {
-      key: 'phoneNumber',
-      title: t('school_student.field.phone_number'),
-      width: 160,
-      sortable: true,
-    },
-    {
-      key: 'status',
-      title: t('school_student.field.status'),
-      width: 120,
-      sortable: true,
-      type: 'tag',
-      options: _enum.schoolStudentStatusOptions,
-      color: defaultManagementStatusStyle,
+      render: formatDatetimeStringBasedOnCurrentLanguage,
     },
     {
       key: 'actions',

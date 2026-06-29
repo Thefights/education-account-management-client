@@ -6,10 +6,11 @@ import {
 } from '@/features/financial-assistance/utils/fasTableConfig'
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import { CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Row, Select, Space, Typography } from 'antd'
+import { Col, DatePicker, Form, Select, Typography } from 'antd'
 import dayjs from 'dayjs'
 
 const filterCardStyles = {
@@ -56,14 +57,27 @@ export const FasSchemeFilterSection = ({ filters, loading, onFilter, onReset }) 
   ]
 
   return (
-    <Card size="small" style={filterCardStyles} styles={{ body: { padding: 16 } }}>
-      <Row gutter={[16, 16]} align="bottom">
+    <FilterSectionLayout
+      cardProps={{ style: filterCardStyles, styles: { body: { padding: 16 } } }}
+      actions={
+        <>
+          <ResetFilterButton
+            loading={loading}
+            onResetFilterClick={() => {
+              reset(defaultFasSchemeFilters)
+              onReset?.()
+            }}
+          />
+          <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
+        </>
+      }
+    >
         {fields.map((field) => (
           <Col key={field.key} xs={24} md={8}>
             {renderField(field)}
           </Col>
         ))}
-        <Col xs={24} md={8}>
+        <Col xs={24} md={12}>
           <FieldBox title="Status">
             <Select
               value={values.status || 'all'}
@@ -73,22 +87,7 @@ export const FasSchemeFilterSection = ({ filters, loading, onFilter, onReset }) 
             />
           </FieldBox>
         </Col>
-        <Col xs={24} md={8}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton
-                loading={loading}
-                onResetFilterClick={() => {
-                  reset(defaultFasSchemeFilters)
-                  onReset?.()
-                }}
-              />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    </FilterSectionLayout>
   )
 }
 
@@ -138,8 +137,15 @@ export const FasApplicationFilterSection = ({
   }
 
   return (
-    <Card size="small" style={filterCardStyles} styles={{ body: { padding: 16 } }}>
-      <Row gutter={[16, 16]} align="bottom">
+    <FilterSectionLayout
+      cardProps={{ style: filterCardStyles, styles: { body: { padding: 16 } } }}
+      actions={
+        <>
+          <ResetFilterButton loading={loading} onResetFilterClick={resetValues} />
+          <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
+        </>
+      }
+    >
         {fields.map((field) => (
           <Col key={field.key} {...field.colProps}>
             {renderField(field)}
@@ -163,15 +169,6 @@ export const FasApplicationFilterSection = ({
             </FieldBox>
           </Col>
         )}
-        <Col flex="auto">
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton loading={loading} onResetFilterClick={resetValues} />
-              <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    </FilterSectionLayout>
   )
 }

@@ -1,16 +1,21 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
+import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { singaporeWallTimeToIso, toSingaporePickerValue } from '@/shared/utils/dateTimeUtil'
+import {
+  toPickerValueBasedOnCurrentLanguage,
+  wallTimeBasedOnCurrentLanguageToIso,
+} from '@/shared/utils/dateTimeUtil'
+import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { CalendarOutlined } from '@ant-design/icons'
-import { Card, Col, DatePicker, Flex, Form, Row, Space, Typography } from 'antd'
+import { Col, DatePicker, Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 
-const DATE_TIME_FORMAT = 'D/M/YYYY HH:mm'
+const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const FieldBox = ({ title, children }) => (
   <div>
@@ -97,8 +102,8 @@ const AuditLogFilterSection = ({
   }
 
   const handleDateRangeChange = (range) => {
-    const occurredFrom = singaporeWallTimeToIso(range?.[0])
-    const occurredTo = singaporeWallTimeToIso(range?.[1])
+    const occurredFrom = wallTimeBasedOnCurrentLanguageToIso(range?.[0])
+    const occurredTo = wallTimeBasedOnCurrentLanguageToIso(range?.[1])
 
     setField('occurredFrom', occurredFrom)
     setField('occurredTo', occurredTo)
@@ -118,35 +123,44 @@ const AuditLogFilterSection = ({
 
   const dateRangeValue =
     values.occurredFrom || values.occurredTo
-      ? [toSingaporePickerValue(values.occurredFrom), toSingaporePickerValue(values.occurredTo)]
+      ? [
+          toPickerValueBasedOnCurrentLanguage(values.occurredFrom),
+          toPickerValueBasedOnCurrentLanguage(values.occurredTo),
+        ]
       : null
 
   return (
-    <Card size="small">
-      <Row gutter={[16, 16]} align="bottom">
-        <Col xs={24} md={8}>
+    <FilterSectionLayout
+      actions={
+        <>
+          <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
+          <FilterButton loading={loading} onFilterClick={handleFilter} />
+        </>
+      }
+    >
+        <Col xs={24} md={12} xl={8}>
           {renderField(filterFields[0])}
         </Col>
 
-        <Col xs={24} md={5}>
+        <Col xs={24} md={12} xl={5}>
           {renderField(filterFields[1])}
         </Col>
 
-        <Col xs={24} md={5}>
+        <Col xs={24} md={12} xl={5}>
           {renderField(filterFields[2])}
         </Col>
 
-        <Col xs={24} md={6}>
-          <FieldBox title={`${t('audit_log.field.created_at')} (${t('text.singapore_time')})`}>
+        <Col xs={24} md={12} xl={6}>
+          <FieldBox title={t('audit_log.field.created_at')}>
             <Form.Item
               validateStatus={dateRangeError ? 'error' : undefined}
               help={dateRangeError || undefined}
               style={{ marginBottom: 0 }}
             >
               <DatePicker.RangePicker
-                showTime
+                showTime={DATE_HOUR_SHOW_TIME}
                 allowClear
-                format={DATE_TIME_FORMAT}
+                format={getDateHourFormatBasedOnCurrentLanguage()}
                 suffixIcon={<CalendarOutlined />}
                 value={dateRangeValue}
                 placeholder={[
@@ -159,17 +173,7 @@ const AuditLogFilterSection = ({
             </Form.Item>
           </FieldBox>
         </Col>
-
-        <Col xs={24}>
-          <Flex justify="end">
-            <Space>
-              <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-              <FilterButton loading={loading} onFilterClick={handleFilter} />
-            </Space>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
+    </FilterSectionLayout>
   )
 }
 
