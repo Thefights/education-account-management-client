@@ -1,3 +1,5 @@
+import { EnumConfig } from '@/shared/config/enumConfig'
+
 export const FAS_CONDITION_FIELD = {
   StudentAge: 1,
   Nationality: 2,
@@ -111,6 +113,27 @@ const numberOrNull = (value) => {
   return Number.isFinite(numberValue) ? numberValue : null
 }
 
+const toFasCountryId = (value) => {
+  const normalized = String(value || '').trim().toLowerCase()
+  if (!normalized || normalized === 'any') return null
+  if (normalized.includes('singapore')) return 1
+  return 2
+}
+
+const toFasCountryText = (value) => {
+  const normalized = String(value || '').trim().toLowerCase()
+  if (!normalized || normalized === 'any') return null
+  if (normalized.includes('singapore')) return 'Singapore'
+  return 'Other'
+}
+
+const fromFasCountryId = (value) => {
+  const countryId = Number(value)
+  if (countryId === 1) return 'Singapore Citizen'
+  if (countryId > 0) return 'Other'
+  return null
+}
+
 export const normalizeFasCondition = (condition = {}, index = 0) => {
   const field = normalizeFasConditionField(condition.field)
   const textField = isFasTextField(field)
@@ -124,7 +147,9 @@ export const normalizeFasCondition = (condition = {}, index = 0) => {
     id: condition.id || localId('fas-cond'),
     field,
     operator,
-    valueText: textField ? condition.valueText ?? condition.value ?? 'Singapore Citizen' : null,
+    valueText: textField
+      ? condition.valueText ?? condition.value ?? fromFasCountryId(condition.countryId) ?? 'Singapore Citizen'
+      : null,
     valueNumber: textField ? null : numberOrNull(condition.valueNumber ?? condition.value),
     valueNumberTo:
       !textField && operator === FAS_CONDITION_OPERATOR.Between
@@ -197,23 +222,33 @@ export const serializeFasConditionGroup = (group, displayOrder = 1) => {
   const normalizedGroup = normalizeFasConditionGroup(group)
   const conditions = normalizedGroup.conditions || []
 
+  const serializedConditions = conditions
+    .map((condition) => {
+      const textField = isFasTextField(condition.field)
+      const countryId = textField ? toFasCountryId(condition.valueText) : null
+      if (textField && !countryId) return null
+
+      return {
+        field: condition.field,
+        operator: condition.operator,
+        countryId,
+        valueText: textField ? toFasCountryText(condition.valueText) : null,
+        valueNumber: textField ? null : condition.valueNumber,
+        valueNumberTo:
+          !textField && condition.operator === FAS_CONDITION_OPERATOR.Between
+            ? condition.valueNumberTo
+            : null,
+      }
+    })
+    .filter(Boolean)
+    .map((condition, index) => ({ ...condition, displayOrder: index + 1 }))
+
   return {
     logicalOperator: normalizedGroup.logicalOperator,
     displayOrder,
-    conditions: conditions.map((condition, index) => ({
-      field: condition.field,
-      operator: condition.operator,
-      valueText: isFasTextField(condition.field) ? condition.valueText : null,
-      valueNumber: isFasTextField(condition.field) ? null : condition.valueNumber,
-      valueNumberTo:
-        !isFasTextField(condition.field) &&
-        condition.operator === FAS_CONDITION_OPERATOR.Between
-          ? condition.valueNumberTo
-          : null,
-      displayOrder: index + 1,
-    })),
+    conditions: serializedConditions,
     groups: (normalizedGroup.groups || []).map((child, index) =>
-      serializeFasConditionGroup(child, conditions.length + index + 1)
+      serializeFasConditionGroup(child, serializedConditions.length + index + 1)
     ),
   }
 }
@@ -284,18 +319,9 @@ export const rekeyFasConditionGroup = (group, prefix = 'FAS') => {
   return walk(group)
 }
 
-export const FAS_STATUS = {
-  Active: 'active',
-  Inactive: 'inactive',
-  Draft: 'draft',
-}
+export const FAS_STATUS = EnumConfig.FasSchemeStatus
 
-export const FAS_APPLICATION_STATUS = {
-  Pending: 'pending',
-  Approved: 'approved',
-  Rejected: 'rejected',
-  Withdrawn: 'withdrawn',
-}
+export const FAS_APPLICATION_STATUS = EnumConfig.FasApplicationStatus
 
 export const MOCK_ACCOUNT_HOLDER = {
   accountNumber: 'ACC-1007',

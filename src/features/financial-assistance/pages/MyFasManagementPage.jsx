@@ -23,7 +23,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { Button, Card, Flex, Modal, Select, Tabs, Typography, message } from 'antd'
+import { Button, Card, Flex, Select, Tabs, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -38,7 +38,7 @@ const getApiErrorMessage = (error, t) => {
   return payload.message || t('financial_assistance.message.reapply_failed')
 }
 
-const getResponseData = (response) => response?.data?.data ?? response?.data
+const getResponseData = (response) => response?.data
 
 const MyFasManagementPage = () => {
   const navigate = useNavigate()
@@ -51,7 +51,6 @@ const MyFasManagementPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [apiViewApplication, setApiViewApplication] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
-  const [withdrawnApplicationIds, setWithdrawnApplicationIds] = useState(() => new Set())
   const reapplyDraftSubmit = useAxiosSubmit({
     method: 'POST',
     onError: async (error) => {
@@ -88,13 +87,7 @@ const MyFasManagementPage = () => {
     () => normalizeApiApplicationPage(apiAllApplicationsQuery.data),
     [apiAllApplicationsQuery.data]
   )
-  const statusSourceRows = useMemo(
-    () =>
-      apiAllApplicationPage.collection.filter(
-        (application) => !withdrawnApplicationIds.has(String(application.apiId))
-      ),
-    [apiAllApplicationPage.collection, withdrawnApplicationIds]
-  )
+  const statusSourceRows = apiAllApplicationPage.collection
   const statusCounts = useMemo(
     () =>
       statusSourceRows.reduce((acc, application) => {
@@ -112,8 +105,6 @@ const MyFasManagementPage = () => {
         : apiApplicationPage.collection
 
     return sourceRows.filter((application) => {
-      if (withdrawnApplicationIds.has(String(application.apiId))) return false
-
       const matchesQuery =
         !query ||
         application.id.toLowerCase().includes(query) ||
@@ -126,7 +117,6 @@ const MyFasManagementPage = () => {
     apiAllApplicationPage.collection,
     apiApplicationPage.collection,
     filters.search,
-    withdrawnApplicationIds,
   ])
 
   const apiTableData = {
@@ -143,32 +133,6 @@ const MyFasManagementPage = () => {
   const resolvedTableData = apiTableData
   const viewApplication = apiViewApplication
   const viewScheme = viewApplication?.scheme
-
-  const withdraw = (application) => {
-    const apiId = application?.apiId
-    if (apiId == null) {
-      message.error('Unable to withdraw this application because its API id is missing.')
-      return
-    }
-
-    Modal.confirm({
-      title: `Withdraw ${application.schemeName || application.id}?`,
-      content: 'The pending application will be withdrawn and the scheme will reappear in Apply if it is still available.',
-      okText: 'Withdraw',
-      okButtonProps: { danger: true },
-      onOk: async () => {
-        try {
-          await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(apiId))
-          setWithdrawnApplicationIds((current) => new Set([...current, String(apiId)]))
-          message.success('Application withdrawn')
-          navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY))
-        } catch (error) {
-          message.error(getApiErrorMessage(error, t))
-          throw error
-        }
-      },
-    })
-  }
 
   const handleFilter = (values) => {
     setFilters(values)
@@ -271,7 +235,6 @@ const MyFasManagementPage = () => {
             sort={sort}
             setSort={setSort}
             activeStatus={activeStatus}
-            onWithdraw={withdraw}
             onView={viewApplicationDetail}
             onApplyAgain={applyAgain}
           />

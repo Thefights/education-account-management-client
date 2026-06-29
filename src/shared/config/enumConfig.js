@@ -131,4 +131,14 @@ export const EnumConfig = {
   },
   ScheduleTopupFrequencyId: { OneTime: 1, Monthly: 2, Yearly: 3 },
   ScheduleTopupStatusId: { Active: 1, Inactive: 2, Completed: 3 },
+  FasSchemeStatus: { Active: 'active', Inactive: 'inactive', Draft: 'draft' },
+  FasApplicationStatusId: { Pending: 1, Approved: 2, Rejected: 3, Withdrawn: 4, Draft: 5 },
+  FasApplicationStatus: {
+    Pending: 'pending',
+    Approved: 'approved',
+    Rejected: 'rejected',
+    Withdrawn: 'withdrawn',
+    Draft: 'draft',
+  },
+  FasGuardianNationalityId: { SingaporeCitizen: 1, Other: 2 },
 }

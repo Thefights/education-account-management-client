@@ -163,11 +163,11 @@ export const MyFasApplicationTableSection = ({
     width: 120,
     render: (_, row) => {
       if (row.displayStatus === FAS_APPLICATION_STATUS.Pending) {
-        return (
-          <Button danger type="link" onClick={() => onWithdraw?.(row)}>
+        return onWithdraw ? (
+          <Button danger type="link" onClick={() => onWithdraw(row)}>
             Withdraw
           </Button>
-        )
+        ) : null
       }
 
       if (row.displayStatus === FAS_APPLICATION_STATUS.Rejected || row.displayStatus === 'expired') {

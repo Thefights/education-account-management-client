@@ -153,7 +153,7 @@ const MyFasApplyPage = () => {
   const [initialSchemeId] = useState(() =>
     location.state?.schemeId != null ? String(location.state.schemeId) : null
   )
-  const [stateScheme] = useState(() => normalizeApiScheme(location.state?.scheme))
+  const [stateScheme] = useState(() => location.state?.scheme || null)
   const [draftApplicationId] = useState(() =>
     location.state?.draftApplicationId != null ? String(location.state.draftApplicationId) : null
   )
