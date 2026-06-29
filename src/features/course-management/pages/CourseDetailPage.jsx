@@ -10,6 +10,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
@@ -55,6 +56,7 @@ const CourseDetailPage = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const confirm = useConfirm()
+  const confirmReason = useReasonConfirm()
   const _enum = useEnum()
 
   const [filters, setFilters] = useState(defaultFilters)
@@ -67,7 +69,6 @@ const CourseDetailPage = () => {
 
   const courseData = useFetch(ApiUrls.COURSE_MANAGEMENT.DETAIL(id))
   const course = courseData.data
-  const removeEnrollment = useAxiosSubmit({ method: 'DELETE' })
   const removeSelectedEnrollments = useAxiosSubmit({
     url: ApiUrls.ENROLLMENT_MANAGEMENT.DELETE_SELECTED,
     method: 'DELETE',
@@ -86,7 +87,6 @@ const CourseDetailPage = () => {
   const allowWithdraw = course?.status === 'Upcoming' || course?.status === 'InProgress'
   const readOnly = !canManageEnrollments
   const mutationLoading =
-    removeEnrollment.loading ||
     removeSelectedEnrollments.loading ||
     withdrawEnrollment.loading ||
     assignFasSchemes.loading
@@ -133,7 +133,7 @@ const CourseDetailPage = () => {
   }
 
   const handleDelete = async (enrollment) => {
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('enrollment_management.confirm.delete_title'),
       description: t('enrollment_management.confirm.delete_description', {
         name: enrollment.citizenFullName,
@@ -141,10 +141,10 @@ const CourseDetailPage = () => {
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
-    if (!accepted) return
+    if (!reason) return
 
-    const response = await removeEnrollment.submit({
-      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id),
+    const response = await removeSelectedEnrollments.submit({
+      overrideData: { ids: [enrollment.id], reason },
     })
     if (!response) return
 
@@ -155,7 +155,7 @@ const CourseDetailPage = () => {
 
   const handleDeleteSelected = async () => {
     if (!selectedIds.length) return
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('enrollment_management.confirm.delete_selected_title'),
       description: t('enrollment_management.confirm.delete_selected_description', {
         count: selectedIds.length,
@@ -163,10 +163,10 @@ const CourseDetailPage = () => {
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
-    if (!accepted) return
+    if (!reason) return
 
     const response = await removeSelectedEnrollments.submit({
-      overrideData: { ids: selectedIds },
+      overrideData: { ids: selectedIds, reason },
     })
     if (!response) return
 

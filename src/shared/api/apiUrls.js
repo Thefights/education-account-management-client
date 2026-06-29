@@ -39,6 +39,7 @@ export const ApiUrls = {
     GET_ALL: '/school-management/all',
     DETAIL: (id) => `/school-management/${id}`,
     UPDATE_STATUS: '/school-management/status',
+    DELETE_SELECTED: '/school-management/selected',
     IMPORT: '/school-management/import',
   },
 
@@ -65,6 +66,7 @@ export const ApiUrls = {
   SCHOOL_STUDENT_MANAGEMENT: {
     INDEX: '/school-student-management',
     DETAIL: (id) => `/school-student-management/${id}`,
+    DELETE_SELECTED: '/school-student-management/selected',
     IMPORT: '/school-student-management/import',
   },
 
@@ -93,12 +95,14 @@ export const ApiUrls = {
     GET_ALL: '/system-topup-management/all',
     DETAIL: (id) => `/system-topup-management/${id}`,
     UPDATE_STATUS: '/system-topup-management/status',
+    DELETE_SELECTED: '/system-topup-management/selected',
   },
   SCHEDULE_TOPUP: {
     INDEX: '/schedule-top-up-management',
     GET_ALL: '/schedule-top-up-management/all',
     DETAIL: (id) => `/schedule-top-up-management/${id}`,
     UPDATE_STATUS: '/schedule-top-up-management/status',
+    DELETE_SELECTED: '/schedule-top-up-management/selected',
   },
   FAS_SCHEME_MANAGEMENT: {
     INDEX: '/fas-scheme-management',

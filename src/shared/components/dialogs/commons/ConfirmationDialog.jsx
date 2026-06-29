@@ -1,5 +1,6 @@
 import useTranslation from '@/shared/hooks/useTranslation.js'
-import { Button, Modal, Space, theme } from 'antd'
+import { Button, Input, Modal, Space, Typography, theme } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
 
 const getToneButtonStyle = (tone, token) => {
   const toneTokens = {
@@ -59,6 +60,14 @@ const getConfirmationDialogStyles = (token, hasCustomWidth, confirmButtonColor) 
     marginTop: 30,
     width: '100%',
   },
+  reasonBlock: {
+    marginTop: 18,
+  },
+  reasonLabel: {
+    display: 'block',
+    fontWeight: 600,
+    marginBottom: 8,
+  },
   cancelButton: {
     borderColor: token.colorBorder,
     borderRadius: token.borderRadiusSM,
@@ -87,6 +96,7 @@ const getConfirmationDialogStyles = (token, hasCustomWidth, confirmButtonColor) 
  * @param {'primary'|'error'|'warning'|'info'|'success'|'default'} [props.confirmButtonColor='primary']
  * @param {boolean} [props.confirmButtonLoading=false]
  * @param {number|string} [props.dialogWidth]
+ * @param {boolean} [props.reasonRequired=false]
  */
 const ConfirmationDialog = ({
   open,
@@ -99,15 +109,51 @@ const ConfirmationDialog = ({
   confirmButtonLoading = false,
   dialogWidth,
   keyboard = false,
+  reasonRequired = false,
+  reasonLabel,
+  reasonPlaceholder,
+  reasonMinLength = 10,
+  reasonMaxLength = 500,
   ...props
 }) => {
   const { t } = useTranslation()
   const { token } = theme.useToken()
+  const [reason, setReason] = useState('')
+  const [confirmAttempted, setConfirmAttempted] = useState(false)
   const modalProps = props
   const width = dialogWidth ?? 'fit-content'
   const isErrorConfirm = confirmButtonColor === 'error'
   const isFilledConfirm = confirmButtonColor === 'primary' || isErrorConfirm
   const dialogStyles = getConfirmationDialogStyles(token, Boolean(dialogWidth), confirmButtonColor)
+  const trimmedReason = reason.trim()
+  const reasonError = useMemo(() => {
+    if (!reasonRequired) return ''
+    if (!trimmedReason) return t('error.required')
+    if (trimmedReason.length < reasonMinLength) {
+      return t('error.min_length', { min: reasonMinLength, current: trimmedReason.length })
+    }
+    if (trimmedReason.length > reasonMaxLength) {
+      return t('error.max_length', { max: reasonMaxLength, current: trimmedReason.length })
+    }
+    return ''
+  }, [reasonMaxLength, reasonMinLength, reasonRequired, t, trimmedReason])
+  const visibleReasonError = confirmAttempted ? reasonError : ''
+
+  const handleConfirm = () => {
+    if (reasonRequired) {
+      setConfirmAttempted(true)
+      if (reasonError) return
+    }
+
+    onConfirm(trimmedReason)
+  }
+
+  useEffect(() => {
+    if (open) {
+      setReason('')
+      setConfirmAttempted(false)
+    }
+  }, [open])
 
   return (
     <Modal
@@ -129,6 +175,29 @@ const ConfirmationDialog = ({
         description
       )}
 
+      {reasonRequired && (
+        <div style={dialogStyles.reasonBlock}>
+          <Typography.Text style={dialogStyles.reasonLabel}>
+            {reasonLabel || t('text.reason')}
+          </Typography.Text>
+          <Input.TextArea
+            autoFocus
+            value={reason}
+            maxLength={reasonMaxLength}
+            placeholder={reasonPlaceholder || t('text.reason_placeholder')}
+            rows={4}
+            showCount
+            status={visibleReasonError ? 'error' : undefined}
+            onChange={(event) => setReason(event.target.value)}
+          />
+          {visibleReasonError && (
+            <Typography.Text type="danger" style={{ display: 'block', marginTop: 6 }}>
+              {visibleReasonError}
+            </Typography.Text>
+          )}
+        </div>
+      )}
+
       <Space style={dialogStyles.footer}>
         <Button onClick={onClose} style={dialogStyles.cancelButton}>
           {t('button.cancel')}
@@ -137,7 +206,7 @@ const ConfirmationDialog = ({
           type={isFilledConfirm ? 'primary' : 'default'}
           danger={isErrorConfirm}
           loading={confirmButtonLoading}
-          onClick={onConfirm}
+          onClick={handleConfirm}
           style={dialogStyles.confirmButton}
         >
           {confirmButtonText || t('button.confirm')}
