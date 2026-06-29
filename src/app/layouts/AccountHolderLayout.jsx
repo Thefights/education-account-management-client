@@ -1,7 +1,12 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
+import {
+  BookOutlined,
+  CreditCardOutlined,
+  FileProtectOutlined,
+  HistoryOutlined,
+} from '@ant-design/icons'
 
 const AccountHolderLayout = () => {
   const { t } = useTranslation()
@@ -11,12 +16,6 @@ const AccountHolderLayout = () => {
       menuSections={[
         {
           items: [
-            {
-              key: 'profile',
-              label: t('account_profile.title'),
-              icon: UserOutlined,
-              url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.PROFILE.INDEX),
-            },
             {
               key: 'transactions',
               label: t('transaction.title'),

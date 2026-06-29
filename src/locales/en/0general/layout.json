@@ -2,6 +2,7 @@
   "header": {
     "title": "Welcome {name}",
     "user_menu": {
+      "profile": "Profile",
       "logout": "Logout"
     }
   },

@@ -8,6 +8,7 @@ import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePa
 import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
 import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
+import AdminProfilePage from '@/features/admin-profile/pages/AdminProfilePage'
 import ApplicationSettingPage from '@/features/application-setting/pages/ApplicationSettingPage'
 import AuditLogManagementPage from '@/features/audit-log/pages/AuditLogManagementPage'
 import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
@@ -56,6 +57,10 @@ const roleRouteGroups = [
         element: <AdminManagementDetailPage />,
       },
       {
+        path: routeUrls.PROFILE.INDEX,
+        element: <AdminProfilePage />,
+      },
+      {
         path: routeUrls.APPLICATION_SETTING.INDEX,
         element: <ApplicationSettingPage />,
       },
@@ -99,6 +104,7 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.FinanceAdmin,
     Layout: FinanceAdminLayout,
     routes: [
+      { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
       { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_CREATE,
@@ -160,6 +166,7 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.SchoolAdmin,
     Layout: SchoolAdminLayout,
     routes: [
+      { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
       { path: routeUrls.FAS_ADMIN.SCHEMES, element: <FasSchemeManagementPage /> },
       { path: routeUrls.FAS_ADMIN.APPLICATIONS, element: <FasApplicationQueuePage /> },
       {

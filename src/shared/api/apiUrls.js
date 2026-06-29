@@ -38,6 +38,10 @@ export const ApiUrls = {
     IMPORT: '/admin-management/import',
   },
 
+  ADMIN_PROFILE: {
+    CURRENT: '/admin-profile/current',
+  },
+
   SCHOOL_MANAGEMENT: {
     INDEX: '/school-management',
     GET_ALL: '/school-management/all',
