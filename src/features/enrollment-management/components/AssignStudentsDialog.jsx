@@ -25,6 +25,7 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
   const { t } = useTranslation()
   const fixedCourseId = fixedCourse?.id || ''
   const [currentCourseId, setCurrentCourseId] = useState(fixedCourseId)
+  const [studentOptionCache, setStudentOptionCache] = useState({})
   const previousCourseIdRef = useRef(fixedCourseId)
   const courses = useFetch(fixedCourse ? '' : ApiUrls.COURSE_MANAGEMENT.GET_ALL)
   const assignFromEnrollment = useAxiosSubmit({
@@ -52,8 +53,15 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
         { params: { search, page, pageSize } }
       )
       const result = response?.data
+      const students = result?.collection || []
+      setStudentOptionCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...students.map((student) => [String(student.id), student]),
+        ])
+      )
       return {
-        options: (result?.collection || []).map((student) => ({
+        options: students.map((student) => ({
           value: student.id,
           label: getStudentLabel(student),
         })),
@@ -87,10 +95,19 @@ const AssignStudentsDialog = ({ open, onClose, fixedCourse, onAssigned }) => {
         multiple: true,
         options: [],
         loadOptions: loadStudentOptions,
+        renderOptionValue: (value) => studentOptionCache[String(value)]?.fullName || String(value),
         props: { disabled: !currentCourseId },
       },
     ],
-    [courseOptions, courses.loading, currentCourseId, fixedCourse, loadStudentOptions, t]
+    [
+      courseOptions,
+      courses.loading,
+      currentCourseId,
+      fixedCourse,
+      loadStudentOptions,
+      studentOptionCache,
+      t,
+    ]
   )
 
   const handleClose = () => {

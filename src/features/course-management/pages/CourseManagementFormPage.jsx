@@ -1,6 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
-import GenericTable from '@/shared/components/tables/GenericTable'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -81,6 +80,7 @@ const FormSectionCard = ({ titleKey, title, icon, children, t }) => (
     }
     size="small"
     variant="outlined"
+    style={{ height: '100%' }}
   >
     {children}
   </Card>
@@ -274,6 +274,7 @@ const CourseManagementFormPage = () => {
                 searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
               })),
               loadOptions: loadStudentOptions,
+              renderOptionValue: (value) => studentOptionCache[String(value)]?.fullName || String(value),
             },
           ]),
       {
@@ -367,44 +368,6 @@ const CourseManagementFormPage = () => {
   )
   const studentFields = fields.filter((f) => ['schoolStudentIds'].includes(f.key))
   const fasFields = fields.filter((f) => ['fasSchemeIds'].includes(f.key))
-  const selectedStudents = useMemo(
-    () =>
-      (values.schoolStudentIds || [])
-        .map((studentId) => studentOptionCache[String(studentId)])
-        .filter(Boolean),
-    [studentOptionCache, values.schoolStudentIds]
-  )
-  const selectedStudentFields = useMemo(
-    () => [
-      {
-        key: 'accountNumber',
-        title: t('enrollment_management.field.account_number'),
-        width: 170,
-      },
-      {
-        key: 'nric',
-        title: t('enrollment_management.field.nric'),
-        width: 140,
-        render: (value) => <MaskedNric value={value} />,
-      },
-      {
-        key: 'fullName',
-        title: t('enrollment_management.field.full_name'),
-        width: 200,
-      },
-      {
-        key: 'email',
-        title: t('enrollment_management.field.email'),
-        width: 220,
-      },
-      {
-        key: 'phoneNumber',
-        title: t('enrollment_management.field.phone'),
-        width: 150,
-      },
-    ],
-    [t]
-  )
   const showPublishButton = !isEdit || course.data?.status === 'Draft'
   const submitLoading = save.loading || publishCourse.loading
 
@@ -447,7 +410,7 @@ const CourseManagementFormPage = () => {
             </Flex>
           </Flex>
 
-          <Row gutter={[24, 24]}>
+          <Row gutter={[24, 24]} align="stretch">
             <Col xs={24} lg={12}>
               <FormSectionCard
                 title={t('course_management.field.total_fee_amount')}
@@ -503,17 +466,9 @@ const CourseManagementFormPage = () => {
               icon={<TeamOutlined style={{ color: '#722ed1' }} />}
               t={t}
             >
-              <Flex vertical gap={16}>
-                {studentFields.map((field) => (
-                  <div key={field.key}>{renderSectionField(field, -1)}</div>
-                ))}
-                <GenericTable
-                  data={selectedStudents}
-                  fields={selectedStudentFields}
-                  rowKey="id"
-                  loading={false}
-                />
-              </Flex>
+              {studentFields.map((field) => (
+                <div key={field.key}>{renderSectionField(field, -1)}</div>
+              ))}
             </FormSectionCard>
           )}
 
