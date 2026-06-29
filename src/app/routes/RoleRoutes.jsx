@@ -17,6 +17,8 @@ import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAc
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
 import FasSchemeManagementPage from '@/features/financial-assistance/pages/FasSchemeManagementPage'
+import ManagementActionLogDetailPage from '@/features/management-action-log/pages/ManagementActionLogDetailPage'
+import ManagementActionLogManagementPage from '@/features/management-action-log/pages/ManagementActionLogManagementPage'
 import MyFasApplyPage from '@/features/financial-assistance/pages/MyFasApplyPage'
 import MyFasManagementPage from '@/features/financial-assistance/pages/MyFasManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
@@ -71,7 +73,24 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.AUDIT_LOGS.INDEX,
+        element: (
+          <Navigate
+            replace
+            to={routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.LOGS.AUDIT)}
+          />
+        ),
+      },
+      {
+        path: routeUrls.LOGS.AUDIT,
         element: <AuditLogManagementPage />,
+      },
+      {
+        path: routeUrls.LOGS.MANAGEMENT_ACTIONS,
+        element: <ManagementActionLogManagementPage />,
+      },
+      {
+        path: routeUrls.LOGS.MANAGEMENT_ACTION_DETAIL(),
+        element: <ManagementActionLogDetailPage />,
       },
     ],
   },
