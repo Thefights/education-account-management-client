@@ -198,8 +198,6 @@ export const MyFasApplicationTableSection = ({
         row.displayStatus === FAS_APPLICATION_STATUS.Rejected ||
         row.displayStatus === FAS_APPLICATION_STATUS.Expired
       ) {
-        if (!row.canApplyAgain) return null
-
         return (
           <Button type="link" onClick={() => onApplyAgain?.(row)}>
             Apply again

@@ -9,11 +9,13 @@ const API_STATUS_TO_UI = {
   [EnumConfig.FasApplicationStatusId.Rejected]: FAS_APPLICATION_STATUS.Rejected,
   [EnumConfig.FasApplicationStatusId.Withdrawn]: FAS_APPLICATION_STATUS.Withdrawn,
   [EnumConfig.FasApplicationStatusId.Draft]: FAS_APPLICATION_STATUS.Draft,
+  [EnumConfig.FasApplicationStatusId.Expired]: FAS_APPLICATION_STATUS.Expired,
   [EnumConfig.FasApplicationStatus.Pending]: FAS_APPLICATION_STATUS.Pending,
   [EnumConfig.FasApplicationStatus.Approved]: FAS_APPLICATION_STATUS.Approved,
   [EnumConfig.FasApplicationStatus.Rejected]: FAS_APPLICATION_STATUS.Rejected,
   [EnumConfig.FasApplicationStatus.Withdrawn]: FAS_APPLICATION_STATUS.Withdrawn,
   [EnumConfig.FasApplicationStatus.Draft]: FAS_APPLICATION_STATUS.Draft,
+  [EnumConfig.FasApplicationStatus.Expired]: FAS_APPLICATION_STATUS.Expired,
 }
 
 const UI_STATUS_TO_API = {

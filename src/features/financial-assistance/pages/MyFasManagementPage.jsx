@@ -22,6 +22,7 @@ import { GenericTablePagination } from '@/shared/components/generals/GenericPagi
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useTranslation from '@/shared/hooks/useTranslation'
+import useConfirm from '@/shared/hooks/useConfirm'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Button, Card, Flex, Select, Tabs, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
@@ -43,6 +44,7 @@ const getResponseData = (response) => response?.data
 const MyFasManagementPage = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const [filters, setFilters] = useState(defaultFasApplicationFilters)
   const [activeStatus, setActiveStatus] = useState(myFasApplicationStatusOptions[0].value)
   const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
@@ -53,9 +55,9 @@ const MyFasManagementPage = () => {
   const [detailLoading, setDetailLoading] = useState(false)
   const reapplyDraftSubmit = useAxiosSubmit({
     method: 'POST',
-    onError: async (error) => {
-      message.error(getApiErrorMessage(error, t))
-    },
+  })
+  const withdrawSubmit = useAxiosSubmit({
+    method: 'POST',
   })
 
   const apiStatus = activeStatus === 'expired' ? FAS_APPLICATION_STATUS.Approved : activeStatus
@@ -163,14 +165,39 @@ const MyFasManagementPage = () => {
       overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_REAPPLY_DRAFT(application.apiId),
     })
     const draftId = getResponseData(response)?.id
-    if (!draftId) {
-      message.error(t('financial_assistance.message.reapply_failed'))
+    if (draftId) {
+      navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
+        state: { draftApplicationId: draftId },
+      })
+    }
+  }
+
+  const withdraw = async (application) => {
+    const apiId = application?.apiId
+    if (apiId == null) {
+      message.error('Unable to withdraw this application because its API id is missing.')
       return
     }
 
-    navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
-      state: { draftApplicationId: draftId },
+    const isConfirmed = await confirm({
+      title: `Withdraw ${application.schemeName || application.id}?`,
+      description: 'The pending application will be withdrawn and the scheme will reappear in Apply if it is still available.',
+      confirmText: 'Withdraw',
+      confirmColor: 'error',
     })
+
+    if (isConfirmed) {
+      try {
+        await withdrawSubmit.submit({
+          overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(apiId),
+        })
+        setPage(1)
+        apiApplicationsQuery.reload()
+        apiAllApplicationsQuery.reload()
+      } catch (error) {
+        // Errors handled globally by axios interceptor
+      }
+    }
   }
 
   const viewApplicationDetail = async (application) => {
@@ -231,10 +258,11 @@ const MyFasManagementPage = () => {
           </Flex>
           <MyFasApplicationTableSection
             applications={resolvedTableData.collection}
-            loading={apiApplicationsQuery.loading || apiAllApplicationsQuery.loading || reapplyDraftSubmit.loading}
+            loading={apiApplicationsQuery.loading || apiAllApplicationsQuery.loading || reapplyDraftSubmit.loading || withdrawSubmit.loading}
             sort={sort}
             setSort={setSort}
             activeStatus={activeStatus}
+            onWithdraw={withdraw}
             onView={viewApplicationDetail}
             onApplyAgain={applyAgain}
           />
