@@ -8,7 +8,7 @@ import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePa
 import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
 import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
-import AiAssistantSettingPage from '@/features/ai-assistant-setting/pages/AiAssistantSettingPage'
+import ApplicationSettingPage from '@/features/application-setting/pages/ApplicationSettingPage'
 import AuditLogManagementPage from '@/features/audit-log/pages/AuditLogManagementPage'
 import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
 import CourseManagementFormPage from '@/features/course-management/pages/CourseManagementFormPage'
@@ -54,8 +54,8 @@ const roleRouteGroups = [
         element: <AdminManagementDetailPage />,
       },
       {
-        path: routeUrls.AI_ASSISTANT_SETTING.INDEX,
-        element: <AiAssistantSettingPage />,
+        path: routeUrls.APPLICATION_SETTING.INDEX,
+        element: <ApplicationSettingPage />,
       },
       {
         path: routeUrls.EDUCATION_ACCOUNTS.INDEX,

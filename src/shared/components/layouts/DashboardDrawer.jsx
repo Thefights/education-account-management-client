@@ -22,6 +22,8 @@ const DashboardDrawer = ({
   const [expanded, setExpanded] = useState({})
 
   const drawerWidth = collapsed ? collapsedDrawerWidth : expandedDrawerWidth
+  const topSections = sections.filter((section) => section.placement !== 'bottom')
+  const bottomSections = sections.filter((section) => section.placement === 'bottom')
 
   const handleToggleExpand = useCallback((key) => {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -74,7 +76,7 @@ const DashboardDrawer = ({
             padding: '10px 8px',
           }}
         >
-          {sections.map((section, idx) => (
+          {topSections.map((section, idx) => (
             <div
               key={`sec-${idx}`}
               style={{
@@ -123,6 +125,31 @@ const DashboardDrawer = ({
             </div>
           ))}
         </nav>
+
+        {bottomSections.length > 0 && (
+          <div
+            style={{
+              flexShrink: 0,
+              borderTop: '1px solid var(--app-sider-border)',
+              padding: '10px 8px',
+            }}
+          >
+            {bottomSections.map((section, idx) => (
+              <div key={`bottom-sec-${idx}`}>
+                {section.items.map((item) => (
+                  <NavItemDashboard
+                    key={item.key}
+                    item={item}
+                    collapsed={actualCollapsed}
+                    expanded={expanded}
+                    onToggleExpand={handleToggleExpand}
+                    onNavigate={handleNavigate}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
 
         {!isMobile && (
           <div

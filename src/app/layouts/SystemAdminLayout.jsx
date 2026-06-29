@@ -5,8 +5,8 @@ import {
   AuditOutlined,
   BankOutlined,
   IdcardOutlined,
-  RobotOutlined,
   ScheduleOutlined,
+  SettingOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
 
@@ -45,11 +45,16 @@ const SystemAdminLayout = () => {
           icon: AuditOutlined,
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.AUDIT_LOGS.INDEX),
         },
+      ],
+    },
+    {
+      placement: 'bottom',
+      items: [
         {
-          key: 'ai-assistant-setting',
-          label: t('ai_assistant_setting.menu_label'),
-          icon: RobotOutlined,
-          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.AI_ASSISTANT_SETTING.INDEX),
+          key: 'application-setting',
+          label: t('application_setting.menu_label'),
+          icon: SettingOutlined,
+          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.APPLICATION_SETTING.INDEX),
         },
       ],
     },

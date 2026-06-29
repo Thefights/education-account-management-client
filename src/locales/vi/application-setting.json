@@ -1,0 +1,18 @@
+{
+  "application_setting": {
+    "menu_label": "Cài đặt",
+    "title": "Cài đặt hệ thống",
+    "description": "Quản lý các cài đặt dùng chung cho tính năng nền tảng, học phí khóa học và lịch trả góp.",
+    "ai_feature_label": "Bật tính năng AI",
+    "enabled": "Bật",
+    "disabled": "Tắt",
+    "enabled_description": "Người dùng hiện có thể sử dụng các tính năng AI.",
+    "disabled_description": "Người dùng hiện không thể sử dụng các tính năng AI.",
+    "tax_rate_label": "Thuế suất",
+    "tax_rate_description": "Thuế suất dạng số thập phân dùng khi tính học phí khóa học.",
+    "installment_due_day_label": "Ngày đến hạn trả góp",
+    "installment_due_day_description": "Ngày trong tháng dùng để tạo hạn thanh toán trả góp.",
+    "load_error": "Không thể tải cài đặt hệ thống.",
+    "retry": "Thử lại"
+  }
+}
