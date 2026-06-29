@@ -8,6 +8,11 @@ export const ApiUrls = {
     REFRESH_TOKEN: '/auth/refresh-token',
   },
 
+  AI_CHAT: {
+    STATUS: '/ai-chat/status',
+    CHAT: '/ai-chat',
+  },
+
   AUDIT_LOG: {
     MANAGEMENT: {
       INDEX: '/audit-log-management',
