@@ -2,7 +2,6 @@ import AssignStudentsDialog from '@/features/enrollment-management/components/As
 import EnrollmentManagementFilterSection from '@/features/enrollment-management/components/EnrollmentManagementFilterSection'
 import EnrollmentManagementTableSection from '@/features/enrollment-management/components/EnrollmentManagementTableSection'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
 import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
@@ -10,6 +9,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
+import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
@@ -65,7 +65,7 @@ const CourseDetailPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [selectedIds, setSelectedIds] = useState([])
   const [openAssign, setOpenAssign] = useState(false)
-  const [openFasAssign, setOpenFasAssign] = useState(false)
+  const [fasOptionCache, setFasOptionCache] = useState({})
 
   const courseData = useFetch(ApiUrls.COURSE_MANAGEMENT.DETAIL(id))
   const course = courseData.data
@@ -102,13 +102,21 @@ const CourseDetailPage = () => {
     [course?.applicableFasSchemes]
   )
   const selectedFasOptions = useMemo(
-    () =>
-      (course?.applicableFasSchemes || []).map((scheme) => ({
+    () => {
+      const schemesById = {
+        ...(course?.applicableFasSchemes || []).reduce(
+          (map, scheme) => ({ ...map, [String(scheme.id)]: scheme }),
+          {}
+        ),
+        ...fasOptionCache,
+      }
+      return Object.values(schemesById).map((scheme) => ({
         value: scheme.id,
         label: getFasSchemeOptionLabel(scheme),
         searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
-      })),
-    [course?.applicableFasSchemes]
+      }))
+    },
+    [course?.applicableFasSchemes, fasOptionCache]
   )
 
   const clearSelection = () => setSelectedIds([])
@@ -186,8 +194,15 @@ const CourseDetailPage = () => {
         overrideParam: { search, page, pageSize },
       })
       const result = response?.data
+      const schemes = result?.collection || []
+      setFasOptionCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...schemes.map((scheme) => [String(scheme.id), scheme]),
+        ])
+      )
       return {
-        options: (result?.collection || []).map((scheme) => ({
+        options: schemes.map((scheme) => ({
           value: scheme.id,
           label: getFasSchemeOptionLabel(scheme),
           searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
@@ -203,6 +218,34 @@ const CourseDetailPage = () => {
     if (!response) return
     await courseData.fetch()
   }
+
+  const { renderField: renderFasField } = useFieldRenderer(
+    { fasSchemeIds: selectedFasIds },
+    (key, value) => {
+      if (key === 'fasSchemeIds') handleFasAssigned(value || [])
+    },
+    (event) => {
+      if (event?.target?.name === 'fasSchemeIds') handleFasAssigned(event.target.value || [])
+    }
+  )
+
+  const fasField = useMemo(
+    () => ({
+      key: 'fasSchemeIds',
+      title: t('course_management.title.applicable_fas'),
+      type: 'select',
+      multiple: true,
+      required: false,
+      options: selectedFasOptions,
+      loadOptions: loadFasOptions,
+      renderOptionValue: (value) =>
+        fasOptionCache[String(value)]?.schemeName ||
+        (course?.applicableFasSchemes || []).find((scheme) => String(scheme.id) === String(value))
+          ?.schemeName ||
+        String(value),
+    }),
+    [course?.applicableFasSchemes, fasOptionCache, loadFasOptions, selectedFasOptions, t]
+  )
 
   const handleWithdraw = async (enrollment) => {
     const accepted = await confirm({
@@ -330,16 +373,6 @@ const CourseDetailPage = () => {
                     <GiftOutlined style={{ color: '#722ed1' }} />
                     <span>{t('course_management.title.applicable_fas')}</span>
                   </Space>
-                  {!readOnly && (
-                    <Button
-                      size="small"
-                      type="primary"
-                      loading={assignFasSchemes.loading}
-                      onClick={() => setOpenFasAssign(true)}
-                    >
-                      {t('course_management.action.manage_fas')}
-                    </Button>
-                  )}
                 </Flex>
               }
               size="small"
@@ -357,6 +390,14 @@ const CourseDetailPage = () => {
                 <Typography.Text type="secondary">
                   {t('course_management.message.no_applicable_fas')}
                 </Typography.Text>
+              )}
+              {!readOnly && (
+                <div style={{ maxWidth: 520, marginTop: 16 }}>
+                  {renderFasField({
+                    ...fasField,
+                    props: { disabled: assignFasSchemes.loading },
+                  })}
+                </div>
               )}
             </Card>
           </Flex>
@@ -446,15 +487,6 @@ const CourseDetailPage = () => {
         onClose={() => setOpenAssign(false)}
         fixedCourse={course}
         onAssigned={handleAssigned}
-      />
-      <MultipleSelectDialog
-        open={openFasAssign}
-        onClose={() => setOpenFasAssign(false)}
-        options={selectedFasOptions}
-        value={selectedFasIds}
-        loadOptions={loadFasOptions}
-        title={t('course_management.title.applicable_fas')}
-        onChange={handleFasAssigned}
       />
     </Flex>
   )
