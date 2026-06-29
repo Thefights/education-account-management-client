@@ -21,7 +21,7 @@ const AccountHolderLayout = () => {
               url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.PROFILE.INDEX),
             },
             {
-              key: 'transactions',
+              key: 'transaction',
               label: t('transaction.title'),
               icon: HistoryOutlined,
               url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TRANSACTION.INDEX),
