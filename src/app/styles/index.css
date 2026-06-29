@@ -122,6 +122,21 @@ a {
   font-weight: 700 !important;
 }
 
+.ant-form-item .ant-form-item-label > label {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.ant-input::placeholder,
+.ant-input-number-input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+.ant-picker-input > input::placeholder,
+.ant-select-selection-placeholder {
+  font-size: 14px;
+  color: var(--app-text-disabled);
+}
+
 .ant-input,
 .ant-input-affix-wrapper,
 .ant-select-selector,

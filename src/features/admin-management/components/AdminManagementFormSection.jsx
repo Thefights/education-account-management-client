@@ -18,7 +18,10 @@ const initialValues = {
 
 const toPayload = (values) => ({
   ...values,
-  schoolId: values.schoolId === '' || values.schoolId == null ? null : Number(values.schoolId),
+  schoolId:
+    values.role === EnumConfig.RoleId.SchoolAdmin && values.schoolId !== '' && values.schoolId != null
+      ? Number(values.schoolId)
+      : null,
   phoneNumber: values.phoneNumber || null,
 })
 
@@ -102,7 +105,7 @@ const AdminManagementFormSection = ({
                 allowClear: true,
                 optionFilterProp: 'label',
               },
-              required: false,
+              required: true,
             },
           ]
         : []),
