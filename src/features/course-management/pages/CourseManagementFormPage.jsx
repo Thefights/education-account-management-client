@@ -21,7 +21,7 @@ import {
   GiftOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
-import { Button, Card, Col, Flex, Form, InputNumber, Row, Space, Tag, Typography, message, theme } from 'antd'
+import { Button, Card, Col, Flex, Row, Space, Tag, Typography, message, theme } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -93,26 +93,6 @@ const getAmount = (value) => Number(value || 0)
 const computeGstAmount = (courseFeeAmount, miscFeeAmount) =>
   Math.round((getAmount(courseFeeAmount) + getAmount(miscFeeAmount)) * TAX_RATE * 100) / 100
 
-const ReadOnlyAmountField = ({ label, value, prefix }) => (
-  <Form.Item
-    label={label}
-    labelCol={{ span: 24 }}
-    wrapperCol={{ span: 24 }}
-    labelAlign="left"
-    colon={false}
-    style={{ marginBottom: 0 }}
-  >
-    <InputNumber
-      value={value}
-      prefix={prefix}
-      precision={2}
-      readOnly
-      disabled
-      style={{ width: '100%' }}
-    />
-  </Form.Item>
-)
-
 const CourseManagementFormPage = () => {
   const { id } = useParams()
   const { t } = useTranslation()
@@ -142,8 +122,19 @@ const CourseManagementFormPage = () => {
     url: ApiUrls.COURSE_MANAGEMENT.PUBLISH,
     method: 'POST',
   })
+  const gstAmount = computeGstAmount(values.courseFeeAmount, values.miscFeeAmount)
+  const totalFeeAmount =
+    getAmount(values.courseFeeAmount) + getAmount(values.miscFeeAmount) + gstAmount
+  const displayValues = useMemo(
+    () => ({
+      ...values,
+      gstAmount,
+      totalFeeAmount,
+    }),
+    [gstAmount, totalFeeAmount, values]
+  )
   const { renderField, hasRequiredMissing } = useFieldRenderer(
-    values,
+    displayValues,
     setField,
     handleChange,
     registerRef,
@@ -173,10 +164,10 @@ const CourseManagementFormPage = () => {
       )
       return {
         options: students.map((student) => ({
-            value: student.id,
-            label: getStudentLabel(student),
-            searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
-          })),
+          value: student.id,
+          label: getStudentLabel(student),
+          searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
+        })),
         totalCount: result?.totalCount || 0,
       }
     },
@@ -352,13 +343,30 @@ const CourseManagementFormPage = () => {
 
   const basicFields = fields.filter((f) => ['courseName'].includes(f.key))
   const feeFields = fields.filter((f) => ['courseFeeAmount', 'miscFeeAmount'].includes(f.key))
+  const calculatedFeeFields = useMemo(
+    () => [
+      {
+        key: 'gstAmount',
+        title: t('course_management.field.gst_amount'),
+        type: 'input-number',
+        required: false,
+        props: { disabled: true, readOnly: true, precision: 2, prefix: currencySymbol },
+      },
+      {
+        key: 'totalFeeAmount',
+        title: t('course_management.field.total_fee_amount'),
+        type: 'input-number',
+        required: false,
+        props: { disabled: true, readOnly: true, precision: 2, prefix: currencySymbol },
+      },
+    ],
+    [currencySymbol, t]
+  )
   const scheduleFields = fields.filter((f) =>
     ['enrollmentDeadline', 'startDate', 'endDate'].includes(f.key)
   )
   const studentFields = fields.filter((f) => ['schoolStudentIds'].includes(f.key))
   const fasFields = fields.filter((f) => ['fasSchemeIds'].includes(f.key))
-  const gstAmount = computeGstAmount(values.courseFeeAmount, values.miscFeeAmount)
-  const totalFeeAmount = getAmount(values.courseFeeAmount) + getAmount(values.miscFeeAmount) + gstAmount
   const selectedStudents = useMemo(
     () =>
       (values.schoolStudentIds || [])
@@ -452,20 +460,11 @@ const CourseManagementFormPage = () => {
                       {renderSectionField(field, -1)}
                     </Col>
                   ))}
-                  <Col xs={24} sm={12}>
-                    <ReadOnlyAmountField
-                      label={t('course_management.field.gst_amount')}
-                      value={gstAmount}
-                      prefix={currencySymbol}
-                    />
-                  </Col>
-                  <Col xs={24} sm={12}>
-                    <ReadOnlyAmountField
-                      label={t('course_management.field.total_fee_amount')}
-                      value={totalFeeAmount}
-                      prefix={currencySymbol}
-                    />
-                  </Col>
+                  {calculatedFeeFields.map((field) => (
+                    <Col xs={24} sm={12} key={field.key}>
+                      {renderSectionField(field, -1)}
+                    </Col>
+                  ))}
                 </Row>
               </FormSectionCard>
             </Col>
