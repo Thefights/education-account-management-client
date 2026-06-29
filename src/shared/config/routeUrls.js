@@ -71,7 +71,7 @@ export const routeUrls = {
     SCHEDULES: '/topup-schedules',
   },
   PROFILE: { INDEX: '/profile' },
-  TRANSACTIONS: { INDEX: '/transactions' },
+  TRANSACTION: { INDEX: '/transaction' },
   MY_FAS: {
     APPLY: '/fas/apply',
     MANAGEMENT: '/fas/management',

@@ -1,5 +1,7 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
+import {
+  SwapOutlined
+} from '@ant-design/icons';
 import { Button } from 'antd'
 
 /**
@@ -19,7 +21,7 @@ const SortButton = ({ onSortClick, loading = false, ascend =  false, ...props })
     <Button
       onClick={onSortClick}
       type="primary"
-      icon={ascend ? <SortAscendingOutlined /> : <SortDescendingOutlined /> }
+      icon={ascend ? <SwapOutlined rotate={90} style={{ transform: 'scaleX(-1)' }} /> : <SwapOutlined rotate={90} /> }
       loading={loading}
       {...props}
     >

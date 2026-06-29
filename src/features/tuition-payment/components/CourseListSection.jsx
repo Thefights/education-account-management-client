@@ -1,4 +1,4 @@
-import { Flex, Typography, Card, Tag, Button } from "antd"
+import { Flex, Typography, Card, Tag, Button, Checkbox, Divider as AntDivider } from "antd"
 import {
   CheckSquareOutlined,
   DownOutlined,
@@ -8,245 +8,211 @@ import {
 import { useState } from "react";
 import { theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
+import "./CourseListSection.css";
 
 const CourseEntry = ({ invoice, handleCheck, pay }) => {
     const navigate = useNavigate();
     const [view, setView] = useState('0px');
     const { token } = theme.useToken();
+    const currInstallment = invoice.installments.find(e => e.status != 'Paid');
+    
     return (
         <Card
-            style={{
-                padding: "0",
-            }}
-            styles={{body: { padding: 0 }}}
+            style={{ padding: "0", borderRadius: '12px', overflow: 'hidden' }}
+            styles={{ body: { padding: 0 } }}
+            className="course-entry-card"
         >
-            <Flex justify="space-between" align="flex-start" gap={24}>
-                <Flex vertical gap={12} align="flex-start" justify="space-between" style={{padding: "8px 12px"}}>
-                    <Flex gap={12} align="center" gap={12}>
-                
-                        <input type="checkbox" style={{ fontSize: 50 }} onChange={(e) => {handleCheck(invoice, e.target.checked)}}></input>
+            <Flex justify="space-between" align="center" wrap="wrap" gap={24} style={{ padding: "20px 24px" }}>
+                <Flex vertical gap={16}>
+                    <Flex align="center" gap={16}>
+                        <Checkbox 
+                            disabled={currInstallment == null ? true : false} 
+                            style={{ transform: 'scale(1.2)' }}
+                            onChange={(e) => {handleCheck(invoice, e.target.checked)}} 
+                        />
 
                         <div>
-                            <Typography.Title
-                                level={4}
-                                style={{
-                                    margin: 0,
-                                    lineHeight: 1.2,
-                                }}
-                            >
-                            {invoice.courseName}
+                            <Typography.Title level={5} style={{ margin: 0, lineHeight: 1.2 }}>
+                                {invoice.courseName}
                             </Typography.Title>
-
                             <Typography.Text type="secondary">
                                 {invoice.courseCode}
                             </Typography.Text>
                         </div>
                     </Flex>
 
-                    <Flex wrap="wrap"
-                        gap={24}>
-                    <InfoBlock
-                        
-                        label="Net payable"
-                        value={`$${invoice.netPayable.toLocaleString()}`}
-                    />
-
-                    <Divider />
-
-                    <InfoBlock
-                        label="FAS"
-                        value={invoice.fas}
-                    />
-
-                    <Divider />
-
-                    <InfoBlock
-                        label="Paid"
-                        value={`$${invoice.paidAmount.toLocaleString()}`}
-                    />
-
-                    <Divider />
-
-                    <InfoBlock
-                        label="Due Date"
-                        value={invoice.paymentDueDate?.split('T')[0]}
-                    />
+                    <Flex gap={80} justify="space-around" align="center" style={{ minWidth: '350px' }}>
+                        <InfoBlock
+                            label="Gross fee"
+                            value={`$${invoice.grossAmount.toLocaleString()}`}
+                        />
+                        <AntDivider type="vertical" style={{ height: '40px', background: 'var(--app-border-color, #e2eaf3)' }} />
+                        <InfoBlock
+                            label="Net payable"
+                            value={`$${invoice.netPayable.toLocaleString()}`}
+                        />
+                        <AntDivider type="vertical" style={{ height: '40px', background: 'var(--app-border-color, #e2eaf3)' }} />
+                        <InfoBlock
+                            label="FAS"
+                            value={invoice.hasFasApplication ? invoice.appliedFasSchemeName : "N/A"}
+                        />
+                        <AntDivider type="vertical" style={{ height: '40px', background: 'var(--app-border-color, #e2eaf3)' }} />
+                        <InfoBlock
+                            label="Due Date"
+                            value={invoice.paymentDueDate?.split('T')[0]}
+                        />
                     </Flex>
                 </Flex>
-                <Flex vertical align="flex-end" gap={4} style={{padding: "8px 12px"}}>
+
+                <Flex vertical align="flex-end" gap={4}>
                     <Typography.Title
-                        level={3}
+                        level={5}
                         style={{
                             margin: 0,
                             color:
-                                invoice.isInstallment && invoice.installments[0].status != 'Overdue' ? 'geekblue' 
+                                invoice.isInstallment && currInstallment?.status == 'Overdue' ? '#cf1322'
+                                : invoice.isInstallment && currInstallment?.status == 'Paid' ? '#52c41a'
+                                : invoice.isInstallment && currInstallment?.status == 'PendingPayment' ? 'var(--app-primary, geekblue)'
                                 : invoice.remainingAmount > 0
                                     ? '#cf1322'
                                     : '#52c41a',
                         }}
                     >
-                    ${invoice.isInstallment ? invoice.installments[0].amount : invoice.remainingAmount.toLocaleString()}
+                    ${currInstallment?.amount ?? invoice.remainingAmount.toLocaleString()}
                     </Typography.Title>
 
                     <Tag 
                         color={
-                            invoice.paymentStatus === 'paid'
-                                ? 'success'
-                                : invoice.paymentStatus === 'due'
-                                ? 'warning'
-                                : invoice.paymentStatus === 'overdue'
-                                ? 'error'
-                                : invoice.installments[0].status === 'Overdue'
-                                ? 'error'
-                                : invoice.isInstallment
-                                ? 'geekblue'
+                            invoice.paymentStatus === 'paid' ? 'success'
+                                : invoice.paymentStatus === 'due' ? 'warning'
+                                : invoice.paymentStatus === 'overdue' ? 'error'
+                                : currInstallment != null ? 'error'
+                                : currInstallment == null ? 'success'
+                                : invoice.isInstallment ? 'geekblue'
                                 : 'default'
                         }
                         style={{
                             borderRadius: 20,
                             padding: '2px 10px',
+                            margin: 0
                         }}
-                    >{invoice.isInstallment ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : invoice.paymentStatus}</Tag>
+                    >
+                        {currInstallment != null ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : `installment • ${invoice.paymentStatus}`}
+                    </Tag>
                 </Flex>
             </Flex>
 
-            <Flex align="center" onClick={() => {setView(view === '0px' ? 'auto' : '0px')}} style={{padding: "8px 12px", borderTop:'1px solid lightgray',borderBottom:'1px solid lightgray',outline:'none', flex:'1', height:'2rem'}}>
-                {view !== '0px' ? <DownOutlined /> : <RightOutlined />}
+            <Flex align="center" justify="flex-start" className="expandable-bar" onClick={() => {setView(view === '0px' ? 'auto' : '0px')}}>
+                <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
+                    Fee breakdown
+                </Typography.Text>
             </Flex>
             
             <Flex
                 vertical
-                gap={view ? 14 : 0}
+                gap={view ? 5 : 0}
                 style={{
                     height: view,
                     overflow: 'hidden',
-                    padding: view === 'auto' ? "8px 12px" : 0,
+                    padding: view === 'auto' ? "10px 12px" : "0 24px",
+                    transition: 'all 0.3s ease'
                 }}
             >
                 <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                            
+                    <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
                         Course Fee
-                    </Typography.Title>
-
-
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
+                    </Typography.Text>
+                    <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
                         ${invoice.courseFee}
-                    </Typography.Title>
+                    </Typography.Text>
                 </Flex>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
+
+                <Flex justify="space-between" style={{ fontSize: '13px' }}>
+                    <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
                         MISC Fee
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
+                    </Typography.Text>
+                    <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
                         ${invoice.miscFee}
-                    </Typography.Title>
+                    </Typography.Text>
                 </Flex>
+
                 <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        {`${invoice.appliedFasSchemeName} (${invoice.appliedFasTierName})`}
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'green'}}
-                        >
-                            {invoice.fasSubsidyAmount > 0
+                    {invoice.hasFasApplication ? (
+                        <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
+                            {`${invoice.appliedFasSchemeName} (${invoice.appliedFasTierName})`}
+                        </Typography.Text> 
+                    ) : (
+                        <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
+                            No FAS
+                        </Typography.Text>
+                    )}
+                    <Typography.Text type="secondary" style={{ fontSize: '13px', color: '#52c41a' }}>
+                        {invoice.fasSubsidyAmount > 0
                             ? `-$${invoice.fasSubsidyAmount}`
                             : `$${invoice.fasSubsidyAmount}`}
-                    </Typography.Title>
+                    </Typography.Text>
                 </Flex>
+
                 <Flex justify="space-between" align="center">
                     <Flex vertical>
-                        <Typography.Title
-                            level={5}
-                            style={{ margin: 0, color:'gray' }}
-                            >
+                        <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
                             GST 9%
-                        </Typography.Title>
-                        <Typography.Title
-                            type="secondary"
-                            level={5}
-                            style={{
-                                margin: 0,
-                                fontSize: '12px',
-                            }}
-                            >
+                        </Typography.Text>
+                        <Typography.Text type="secondary" style={{ fontSize: '10px' }}>
                             {"= (CourseFee + MiscFee) x 9%"}
-                        </Typography.Title>
+                        </Typography.Text>
                     </Flex>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
+                    <Typography.Text type="secondary">
                         ${invoice.gstAmount}
-                    </Typography.Title>
+                    </Typography.Text>
                 </Flex>
 
-                <div style={{borderTop:'1px solid lightgray'}}></div>
-
+                <AntDivider style={{ margin: '8px 0', borderColor: 'var(--app-border-color, #e2eaf3)' }} />
 
                 <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'green' }}
-                        >
+                    <Typography.Text style={{ margin: 0, color: '#52c41a', fontWeight: 'bold', fontSize: '16px' }}>
                         Net Payable
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
+                    </Typography.Text>
+                    <Typography.Text style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
                         ${invoice.netPayable}
-                    </Typography.Title>
+                    </Typography.Text>
                 </Flex>
             </Flex>
-            <Flex align="center" justify="space-between" style={{padding: "8px 12px"}}>
-                <Flex gap={3}>
-                    <Typography.Text type="secondary">
-                        FAS:
-                    </Typography.Text>
 
+            <Flex align="center" justify="space-between" style={{ padding: "16px 24px", background: 'var(--app-bg, #f3f8fd)' }}>
+                <Flex gap={4}>
+                    <Typography.Text type="secondary">
+                        {invoice.hasFasApplication ? "FAS:" : " "}
+                    </Typography.Text>
                     <Typography.Text strong>
                         {invoice.appliedFasSchemeName}
                     </Typography.Text>
                 </Flex>
 
-                <Flex align="center" gap={12}>
+                <Flex align="center" gap={16}>
                     {invoice.isInstallment && (
                         <Typography.Link 
-                            onClick={() => navigate('../installment', {
-                                state: {
-                                    invoice,
-                                },
-                            })}
+                            onClick={() => navigate('../installment', { state: { invoice } })}
                             style={{ whiteSpace: 'nowrap', fontWeight: 600 }}
                         >
                             View plan &rarr;
                         </Typography.Link>
                     )}
-                    <Button style={{width:'8rem'}} type='primary' onClick={() => {
-                        handleCheck(invoice, true);
-                        navigate('./pay', {
-                            state: {
-                                selected: [invoice],
-                            },
-                        });}}>Pay</Button>
+                    {(currInstallment != null || !invoice.isInstallment) && (
+                        <Button 
+                            style={{ width: '8rem', borderRadius: '6px' }} 
+                            disabled={currInstallment == null ? true : false} 
+                            type='primary' 
+                            onClick={() => {
+                                handleCheck(invoice, true);
+                                navigate('./pay', {
+                                    state: { selected: [invoice] },
+                                });
+                            }}
+                        >
+                            Pay
+                        </Button>
+                    )}
                 </Flex>
             </Flex>
         </Card>
@@ -254,38 +220,26 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
 };
 
 const InfoBlock = ({ label, value }) => (
-  <Flex vertical align="center" style={{ padding: "0 32px" }}>
-    <Typography.Text type="secondary">
+  <Flex vertical align="center">
+    <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
       {label}
     </Typography.Text>
-
-    <Typography.Text strong>
+    <Typography.Text strong style={{ fontSize: '15px' }}>
       {value}
     </Typography.Text>
   </Flex>
 );
 
-const Divider = () => (
-  <div
-    style={{
-      width: 1,
-      height: 40,
-      background: "#d9d9d9",
-    }}
-  />
-);
-
-const CourseListSection = ( {collection, handleCheck, pay } ) => {
+const CourseListSection = ({ collection, handleCheck, pay }) => {
     return (
-
-        <div style={{height:'500px', overflowY:'scroll'}}>
-            <Flex vertical gap={5} style={{ flex: 1 }}>
+        <div style={{ height: '500px', overflowY: 'auto', paddingRight: '12px' }}>
+            <Flex vertical gap={16} style={{ flex: 1 }}>
                 {collection.map((entry) => (
-                <CourseEntry key={entry.id} invoice={entry} handleCheck={handleCheck} pay={pay}/>
+                    <CourseEntry key={entry.id} invoice={entry} handleCheck={handleCheck} pay={pay}/>
                 ))}
             </Flex>
         </div>
     )
 }
 
-export default CourseListSection
+export default CourseListSection;

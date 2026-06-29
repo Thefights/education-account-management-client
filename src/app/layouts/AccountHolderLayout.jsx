@@ -1,4 +1,5 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
+import { AIPopover } from '@/features/slabbot-chat-ai/Popover/AIPopover'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
@@ -6,6 +7,8 @@ import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined,
 const AccountHolderLayout = () => {
   const { t } = useTranslation()
   return (
+    <>
+    <AIPopover />
     <RoleDashboardLayout
       homeUrl={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER()}
       menuSections={[
@@ -21,7 +24,7 @@ const AccountHolderLayout = () => {
               key: 'transactions',
               label: t('transaction.title'),
               icon: HistoryOutlined,
-              url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TRANSACTIONS.INDEX),
+              url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TRANSACTION.INDEX),
             },
             {
               key: 'cousre-management',
@@ -37,17 +40,17 @@ const AccountHolderLayout = () => {
             },
             {
               key: 'my-fas',
-              label: t('my_fas.title'),
+              label: 'My FAS',
               icon: FileProtectOutlined,
               of: [
                 {
                   key: 'my-fas-apply',
-                  label: t('my_fas.apply'),
+                  label: 'Apply',
                   url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
                 },
                 {
                   key: 'my-fas-management',
-                  label: t('my_fas.management'),
+                  label: 'Management',
                   url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT),
                 },
               ],
@@ -56,6 +59,7 @@ const AccountHolderLayout = () => {
         },
       ]}
     />
+    </>
   )
 }
 

@@ -7,7 +7,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Card, Col, Divider, Flex, Row, Space } from 'antd'
+import { Button, Card, Col, Divider, Flex, Row, Space, Typography } from 'antd'
 import { useMemo, useEffect } from 'react'
 
 const TuitionCourseFilterSection = ({
@@ -53,6 +53,7 @@ const TuitionCourseFilterSection = ({
         type: 'search',
         required: false,
         reserveLabelSpace: true,
+        onEnterDown: () => onFilter?.(values)
       },
       {
         key: 'statuses',
@@ -90,81 +91,110 @@ const TuitionCourseFilterSection = ({
     <>
     <Space style={{ marginBottom: 16 }}>
       <Button
-        type={(values.statuses?.length === 0 ) ? 'primary' : 'default'}
-        onClick={() => {
-            onFilter?.({
-              ...values,
-              statuses: []
-            })
-          }
+        type={
+          (!values.statuses || values.statuses.length === 0) &&
+          values.isInstallment !== true
+            ? 'primary'
+            : 'default'
         }
+        onClick={() => {
+          onFilter?.({
+            ...values,
+            statuses: [],
+            isInstallment: undefined
+          });
+        }}
       >
         {t("text.all")}
       </Button>
 
       <Button
-        type={values.statuses?.includes(EnumConfig.StudentTuitionFilterStatus.Overdue) ? 'primary' : 'default'}
-        onClick={() => {
-            onFilter?.({
-              ...values,
-              statuses: [EnumConfig.StudentTuitionFilterStatus.Overdue],
-              isInstallment: false
-            })
-          }
+        type={
+          values.statuses?.includes(
+            EnumConfig.StudentTuitionFilterStatus.Overdue
+          )
+            ? 'primary'
+            : 'default'
         }
+        onClick={() => {
+          onFilter?.({
+            ...values,
+            statuses: [EnumConfig.StudentTuitionFilterStatus.Overdue],
+            isInstallment: false
+          });
+        }}
       >
         {t('text.overdue')}
       </Button>
 
       <Button
-        type={values.statuses?.includes(EnumConfig.StudentTuitionFilterStatus.Due) ? 'primary' : 'default'}
-        onClick={() => {
-            onFilter?.({
-              ...values,
-              statuses: [EnumConfig.StudentTuitionFilterStatus.Due],
-              isInstallment: false
-            })
-          }
+        type={
+          values.statuses?.includes(
+            EnumConfig.StudentTuitionFilterStatus.Due
+          )
+            ? 'primary'
+            : 'default'
         }
+        onClick={() => {
+          onFilter?.({
+            ...values,
+            statuses: [EnumConfig.StudentTuitionFilterStatus.Due],
+            isInstallment: false
+          });
+        }}
       >
         {t('text.due')}
       </Button>
 
       <Button
-        type={values.isInstallment ? 'primary' : 'default'}
+        type={values.isInstallment === true ? 'primary' : 'default'}
         onClick={() => {
-            onFilter?.({
-              ...values,
-              statuses: undefined,
-              isInstallment: true
-            })
-          }
-        }
+          onFilter?.({
+            ...values,
+            statuses: undefined,
+            isInstallment: true
+          });
+        }}
       >
-        {"Installment"}
+        Installment
       </Button>
 
       <Button
-        type={values.statuses?.includes(EnumConfig.StudentTuitionFilterStatus.Paid) ? 'primary' : 'default'}
-        onClick={() => {
-            onFilter?.({
-              ...values,
-              statuses: [EnumConfig.StudentTuitionFilterStatus.Paid],
-              isInstallment: false
-            })
-          }
+        type={
+          values.statuses?.includes(
+            EnumConfig.StudentTuitionFilterStatus.Paid
+          )
+            ? 'primary'
+            : 'default'
         }
+        onClick={() => {
+          onFilter?.({
+            ...values,
+            statuses: [EnumConfig.StudentTuitionFilterStatus.Paid],
+            isInstallment: false
+          });
+        }}
       >
         {t('text.paid')}
       </Button>
 
-      <Divider />
+      {/* <Divider />
 
-      <SortButton
-                loading={loading}
-                ascend={sortStatus !== 'desc'}
-                onSortClick={onSort}
-              />
+      <Flex align='center' gap={5}>
+        <SortButton
+          loading={loading}
+          ascend={sortStatus !== 'desc'}
+          onSortClick={onSort}
+        />
+        <Flex vertical justify='flex-start' align='flex-start'>
+          <Typography.Text type="secondary" style={{ fontSize: '0.75rem' }}>
+            {`${sortStatus !== 'desc' ? 'accending' : 'descending' }`}
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: '0.75rem' }}>
+            {`by created date`}
+          </Typography.Text>
+        </Flex>
+      </Flex> */}
     </Space>
     <Row gutter={[16, 16]} align="bottom">
         <Col

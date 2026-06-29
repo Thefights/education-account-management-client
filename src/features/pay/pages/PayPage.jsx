@@ -190,7 +190,7 @@ const PayPage = () => {
               fontWeight: 600,
             }}
           >
-            Confirm & pay ${fmt(totalDueToday)}
+            Confirm & Pay
           </Button>
         </Flex>
       </Card>
