@@ -27,7 +27,7 @@ import {
   createEmptyTopupCondition,
   createEmptyTopupConditionGroup,
   createEmptyTopupScenarioRoot,
-  getTopupConditionGroupWarnings,
+  getTopupConditionGroupDiagnostics,
   getTopupConditionValidationErrors,
   isTopupConditionGroupValid,
 } from '../utils/topupRuleFormUtil'
@@ -429,6 +429,7 @@ const GroupEditor = ({
   groupNumber,
   t,
   token,
+  errors = [],
   showValidationErrors = false,
   canDelete = true,
 }) => {
@@ -495,6 +496,22 @@ const GroupEditor = ({
         {!conditions.length && (
           <Typography.Text type="danger">{t('topup_form.condition_required')}</Typography.Text>
         )}
+        {!!errors.length && (
+          <Alert
+            type="error"
+            showIcon
+            message={t('topup_form.scenario_conflict_title')}
+            description={
+              <Flex vertical gap={2}>
+                {errors.map((error) => (
+                  <Typography.Text key={error} type="danger">
+                    {error}
+                  </Typography.Text>
+                ))}
+              </Flex>
+            }
+          />
+        )}
       </Flex>
     </SectionShell>
   )
@@ -505,7 +522,8 @@ const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = fals
   const { token } = theme.useToken()
   const group = value || createEmptyTopupScenarioRoot()
   const scenarios = group.groups?.length ? group.groups : [createEmptyTopupConditionGroup()]
-  const warnings = getTopupConditionGroupWarnings(group, t)
+  const diagnostics = getTopupConditionGroupDiagnostics(group, t)
+  const warnings = diagnostics.warnings
   const emitScenarioRoot = (groups) =>
     onChange({
       ...group,
@@ -551,6 +569,7 @@ const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = fals
             t={t}
             token={token}
             canDelete={scenarios.length > 1}
+            errors={diagnostics.scenarioDiagnostics[index]?.errors || []}
             showValidationErrors={showValidationErrors}
             onChange={(nextScenario) => updateScenario(index, nextScenario)}
             onDelete={() =>
@@ -560,8 +579,7 @@ const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = fals
         </Flex>
       ))}
       <Button
-        color="cyan"
-        variant="filled"
+        className="topup-add-alternative-button"
         block
         icon={<PlusOutlined />}
         style={{ height: 40 }}
