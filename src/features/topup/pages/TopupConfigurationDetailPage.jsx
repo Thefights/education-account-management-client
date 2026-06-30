@@ -6,6 +6,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { localDateTimeToIso } from '@/shared/utils/dateTimeUtil'
 import {
   formatCurrencyBasedOnCurrentLanguage,
   getCurrencySymbolBasedOnCurrentLanguage,
@@ -13,12 +14,8 @@ import {
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { maxLen, numberHigherThan } from '@/shared/utils/validateUtil'
-import {
-  ArrowLeftOutlined,
-  CalendarOutlined,
-  SafetyCertificateOutlined,
-} from '@ant-design/icons'
-import { Button, Card, Descriptions, Flex, Result, Skeleton, Space, Tag, Typography } from 'antd'
+import { SafetyCertificateOutlined } from '@ant-design/icons'
+import { Button, Card, Flex, Result, Skeleton, Space, Tag, Typography } from 'antd'
 import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import TopupRuleConditionsField, {
@@ -29,6 +26,21 @@ import {
   normalizeTopupConditionGroup,
   serializeTopupConditionGroup,
 } from '../utils/topupRuleFormUtil'
+import { getScheduleExecutionAt } from '../utils/topupScheduleUtil'
+
+const getScheduleExecutionText = (data, t) => {
+  if (data.oneTimeExecutionAt) {
+    return formatDatetimeStringBasedOnCurrentLanguage(data.oneTimeExecutionAt)
+  }
+
+  return [
+    data.executeAtMonth != null ? `${t('topup_form.month')}: ${data.executeAtMonth}` : null,
+    data.executeAtDay != null ? `${t('topup_form.day_of_month')}: ${data.executeAtDay}` : null,
+    data.executionTime ? `${t('topup_form.execution_time')}: ${data.executionTime}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+}
 
 const TopupConfigurationDetailPage = ({ type }) => {
   const { id } = useParams()
@@ -39,27 +51,33 @@ const TopupConfigurationDetailPage = ({ type }) => {
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const detailUrl = isSchedule ? ApiUrls.SCHEDULE_TOPUP.DETAIL(id) : ApiUrls.SYSTEM_TOPUP.DETAIL(id)
   const detail = useFetch(detailUrl, {}, [id])
-  const updateSystemTopup = useAxiosSubmit({
-    url: ApiUrls.SYSTEM_TOPUP.DETAIL(id),
+  const updateTopup = useAxiosSubmit({
+    url: detailUrl,
     method: 'PUT',
   })
   const data = detail.data
   const listUrl = routeUrls.BASE_ROUTE.FINANCE_ADMIN(
     `${routeUrls.TOPUP_MANAGEMENT.INDEX}?tab=${isSchedule ? 'schedules' : 'system'}`
   )
-  const systemInitialValues = useMemo(
+  const initialValues = useMemo(
     () =>
-      !isSchedule && data
+      data
         ? {
             name: data.name,
             topupAmount: data.topupAmount,
             status: data.status,
             rootConditionGroup: normalizeTopupConditionGroup(data.rootConditionGroup),
+            ...(isSchedule
+              ? {
+                  frequency: data.frequency,
+                  scheduleExecutionAt: getScheduleExecutionAt(data),
+                }
+              : {}),
           }
         : {},
     [data, isSchedule]
   )
-  const systemFields = useMemo(
+  const fields = useMemo(
     () => [
       {
         key: 'name',
@@ -81,11 +99,34 @@ const TopupConfigurationDetailPage = ({ type }) => {
             renderEmptyFallback(null)
           ),
       },
+      ...(isSchedule
+        ? [
+            {
+              key: 'frequency',
+              label: t('topup_form.schedule_type'),
+            },
+            {
+              key: 'scheduleExecutionAt',
+              label: t('topup_form.execution_date'),
+              render: (_, item) => getScheduleExecutionText(item, t) || renderEmptyFallback(null),
+            },
+          ]
+        : []),
       {
         key: 'id',
         label: 'ID',
         render: (value) => (value == null ? renderEmptyFallback(null) : `#${value}`),
       },
+      ...(isSchedule
+        ? [
+            {
+              key: 'nextExecutionAt',
+              label: t('topup.next_execution'),
+              render: (value) =>
+                formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
+            },
+          ]
+        : []),
       {
         key: 'createdAt',
         label: t('audit_log.field.created_at'),
@@ -93,9 +134,9 @@ const TopupConfigurationDetailPage = ({ type }) => {
           formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
       },
     ],
-    [t]
+    [isSchedule, t]
   )
-  const systemEditableFields = useMemo(
+  const editableFields = useMemo(
     () => [
       {
         key: 'name',
@@ -117,19 +158,51 @@ const TopupConfigurationDetailPage = ({ type }) => {
         title: t('topup_form.status'),
         type: 'select',
         placeholder: 'Select status',
-        options: _enum.systemTopupStatusOptions,
+        options: isSchedule
+          ? _enum.scheduleTopupStatusOptions
+          : _enum.systemTopupStatusOptions,
       },
+      ...(isSchedule
+        ? [
+            {
+              key: 'frequency',
+              title: t('topup_form.schedule_type'),
+              type: 'select',
+              placeholder: 'Select schedule type',
+              options: _enum.scheduleTopupFrequencyOptions,
+            },
+            {
+              key: 'scheduleExecutionAt',
+              title: t('topup_form.execution_date'),
+              type: 'datetime',
+              placeholder: 'Select execution date and time',
+            },
+          ]
+        : []),
     ],
-    [_enum.systemTopupStatusOptions, currencySymbol, t]
+    [
+      _enum.scheduleTopupFrequencyOptions,
+      _enum.scheduleTopupStatusOptions,
+      _enum.systemTopupStatusOptions,
+      currencySymbol,
+      isSchedule,
+      t,
+    ]
   )
 
-  const handleSystemSave = async ({ values }) => {
-    const response = await updateSystemTopup.submit({
+  const handleSave = async ({ values }) => {
+    const response = await updateTopup.submit({
       overrideData: {
         name: values.name.trim(),
         topupAmount: values.topupAmount,
         status: values.status,
         rootConditionGroup: serializeTopupConditionGroup(values.rootConditionGroup),
+        ...(isSchedule
+          ? {
+              frequency: values.frequency,
+              scheduleExecutionAt: localDateTimeToIso(values.scheduleExecutionAt),
+            }
+          : {}),
       },
     })
     if (!response) return false
@@ -138,12 +211,13 @@ const TopupConfigurationDetailPage = ({ type }) => {
     return true
   }
 
-  if (detail.loading && !data)
+  if (detail.loading && !data) {
     return (
       <Card>
         <Skeleton active />
       </Card>
     )
+  }
   if (!data) {
     return (
       <Card>
@@ -157,146 +231,58 @@ const TopupConfigurationDetailPage = ({ type }) => {
     )
   }
 
-  if (!isSchedule) {
-    return (
-      <GenericDetail
-        title={data.name}
-        data={data}
-        fields={systemFields}
-        onBack={() => navigate(listUrl)}
-        edit={{
-          initialValues: systemInitialValues,
-          fields: systemEditableFields,
-          loading: updateSystemTopup.loading,
-          validate: ({ values }) => isTopupConditionGroupValid(values.rootConditionGroup),
-          onSubmit: handleSystemSave,
-        }}
-        renderAfter={({ editing, values, setField, submitted }) => {
-          const conditionGroup = editing
-            ? values.rootConditionGroup
-            : normalizeTopupConditionGroup(data.rootConditionGroup)
-          const conditionValid = isTopupConditionGroupValid(conditionGroup)
-
-          return (
-            <section
-              style={{
-                paddingTop: 16,
-                borderTop: '1px solid var(--app-border-color)',
-              }}
-            >
-              <Space style={{ marginBottom: 16 }}>
-                <SafetyCertificateOutlined />
-                <Typography.Text strong>{t('topup_form.who_receives')}</Typography.Text>
-              </Space>
-              {editing ? (
-                <Flex vertical gap={8}>
-                  <TopupRuleConditionsField
-                    value={conditionGroup}
-                    showValidationErrors={submitted}
-                    onChange={(nextConditionGroup) =>
-                      setField('rootConditionGroup', nextConditionGroup)
-                    }
-                  />
-                  {submitted && !conditionValid && (
-                    <Typography.Text type="danger">
-                      {t('topup_form.fix_conditions')}
-                    </Typography.Text>
-                  )}
-                </Flex>
-              ) : (
-                <TopupConditionTree value={conditionGroup} />
-              )}
-            </section>
-          )
-        }}
-      />
-    )
-  }
-
   return (
-    <Flex vertical gap={16}>
-      <Card>
-        <Flex align="center" gap={12}>
-          <Button
-            aria-label={t('button.back')}
-            icon={<ArrowLeftOutlined />}
-            onClick={() => navigate(listUrl)}
-          />
-          <div>
-            <Flex align="center" gap={8} wrap="wrap">
-              <Typography.Title level={4} style={{ margin: 0 }}>
-                {data.name}
-              </Typography.Title>
-              <Tag color={defaultTopupStatusStyle(data.status)}>{data.status}</Tag>
-            </Flex>
-            <Typography.Text type="secondary">
-              {t(isSchedule ? 'topup_form.schedule_detail' : 'topup_form.system_detail')} · #
-              {data.id}
-            </Typography.Text>
-          </div>
-        </Flex>
-      </Card>
+    <GenericDetail
+      title={data.name}
+      data={data}
+      fields={fields}
+      onBack={() => navigate(listUrl)}
+      edit={{
+        initialValues,
+        fields: editableFields,
+        loading: updateTopup.loading,
+        validate: ({ values }) => isTopupConditionGroupValid(values.rootConditionGroup),
+        onSubmit: handleSave,
+      }}
+      renderAfter={({ editing, values, setField, submitted }) => {
+        const conditionGroup = editing
+          ? values.rootConditionGroup
+          : normalizeTopupConditionGroup(data.rootConditionGroup)
+        const conditionValid = isTopupConditionGroupValid(conditionGroup)
 
-      <Card title={t('topup_form.overview')}>
-        <Descriptions bordered column={{ xs: 1, md: 3 }}>
-          <Descriptions.Item label="ID">#{data.id}</Descriptions.Item>
-          <Descriptions.Item label={t('topup_form.topup_amount')}>
-            <Typography.Text strong>
-              {formatCurrencyBasedOnCurrentLanguage(data.topupAmount)}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('topup_form.status')}>
-            <Tag color={defaultTopupStatusStyle(data.status)}>{data.status}</Tag>
-          </Descriptions.Item>
-        </Descriptions>
-      </Card>
-
-      {isSchedule && (
-        <Card
-          title={
-            <Space>
-              <CalendarOutlined />
-              {t('topup.schedule_configuration')}
+        return (
+          <section
+            style={{
+              paddingTop: 16,
+              borderTop: '1px solid var(--app-border-color)',
+            }}
+          >
+            <Space style={{ marginBottom: 16 }}>
+              <SafetyCertificateOutlined />
+              <Typography.Text strong>{t('topup_form.who_receives')}</Typography.Text>
             </Space>
-          }
-        >
-          <Descriptions bordered column={{ xs: 1, md: 2, lg: 3 }}>
-            <Descriptions.Item label={t('topup_form.schedule_type')}>
-              {data.frequency}
-            </Descriptions.Item>
-            {data.oneTimeExecutionAt && (
-              <Descriptions.Item label={t('topup_form.execution_date')}>
-                {formatDatetimeStringBasedOnCurrentLanguage(data.oneTimeExecutionAt)}
-              </Descriptions.Item>
+            {editing ? (
+              <Flex vertical gap={8}>
+                <TopupRuleConditionsField
+                  value={conditionGroup}
+                  showValidationErrors={submitted}
+                  onChange={(nextConditionGroup) =>
+                    setField('rootConditionGroup', nextConditionGroup)
+                  }
+                />
+                {submitted && !conditionValid && (
+                  <Typography.Text type="danger">
+                    {t('topup_form.fix_conditions')}
+                  </Typography.Text>
+                )}
+              </Flex>
+            ) : (
+              <TopupConditionTree value={conditionGroup} />
             )}
-            {data.executeAtDay != null && (
-              <Descriptions.Item label={t('topup_form.day_of_month')}>
-                {data.executeAtDay}
-              </Descriptions.Item>
-            )}
-            {data.executeAtMonth != null && (
-              <Descriptions.Item label={t('topup_form.month')}>
-                {data.executeAtMonth}
-              </Descriptions.Item>
-            )}
-            <Descriptions.Item label={t('topup.next_execution')}>
-              {formatDatetimeStringBasedOnCurrentLanguage(data.nextExecutionAt) || '—'}
-            </Descriptions.Item>
-          </Descriptions>
-        </Card>
-      )}
-
-      <Card
-        title={
-          <Space>
-            <SafetyCertificateOutlined />
-            {t('topup_form.who_receives')}
-          </Space>
-        }
-      >
-        <TopupConditionTree value={normalizeTopupConditionGroup(data.rootConditionGroup)} />
-      </Card>
-    </Flex>
+          </section>
+        )
+      }}
+    />
   )
 }
 

@@ -122,7 +122,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_EDIT(),
-        element: <TopupConfigurationFormPage type="schedule" mode="edit" />,
+        element: <TopupConfigurationDetailPage type="schedule" />,
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_DETAIL(),
