@@ -38,6 +38,13 @@ export const createEmptyTopupConditionGroup = () => ({
   groups: [],
 })
 
+export const createEmptyTopupScenarioRoot = () => ({
+  logicalOperator: EnumConfig.TopupLogicalOperator.Or,
+  displayOrder: 0,
+  conditions: [],
+  groups: [createEmptyTopupConditionGroup()],
+})
+
 const normalizeTopupCondition = (condition = {}) => ({
   ...condition,
   field:
@@ -50,7 +57,7 @@ const normalizeTopupCondition = (condition = {}) => ({
       : condition.operator || EnumConfig.TopupConditionOperator.Equals,
 })
 
-export const normalizeTopupConditionGroup = (group) => {
+const normalizeRawTopupConditionGroup = (group) => {
   if (!group) return createEmptyTopupConditionGroup()
   return {
     ...group,
@@ -59,29 +66,78 @@ export const normalizeTopupConditionGroup = (group) => {
         ? logicalOperatorValues[group.logicalOperator] || EnumConfig.TopupLogicalOperator.And
         : group.logicalOperator || EnumConfig.TopupLogicalOperator.And,
     conditions: (group.conditions || []).map(normalizeTopupCondition),
-    groups: (group.groups || []).map(normalizeTopupConditionGroup),
+    groups: (group.groups || []).map(normalizeRawTopupConditionGroup),
   }
 }
 
-export const serializeTopupConditionGroup = (group, displayOrder = 0) => {
-  const conditions = group.conditions || []
+const cloneCondition = (condition, displayOrder) => ({
+  ...condition,
+  displayOrder,
+})
+
+const combineScenarioCases = (leftCases, rightCases) => {
+  if (!leftCases.length) return rightCases
+  if (!rightCases.length) return leftCases
+  return leftCases.flatMap((left) => rightCases.map((right) => [...left, ...right]))
+}
+
+const buildScenarioCases = (group) => {
+  const conditionCases = (group.conditions || []).map((condition) => [[condition]])
+  const childCases = (group.groups || []).map(buildScenarioCases)
+  const items = [...conditionCases, ...childCases].filter((item) => item.length)
+
+  if (!items.length) return []
+  if (group.logicalOperator === EnumConfig.TopupLogicalOperator.Or) return items.flat()
+  return items.reduce((cases, item) => combineScenarioCases(cases, item), [[]])
+}
+
+const createScenarioGroup = (conditions, displayOrder) => ({
+  logicalOperator: EnumConfig.TopupLogicalOperator.And,
+  displayOrder,
+  conditions: conditions.map((condition, index) => cloneCondition(condition, index)),
+  groups: [],
+})
+
+export const normalizeTopupConditionGroup = (group) => {
+  if (!group) return createEmptyTopupScenarioRoot()
+  const normalized = normalizeRawTopupConditionGroup(group)
+  const scenarioCases = buildScenarioCases(normalized)
   return {
-    logicalOperator: group.logicalOperator,
+    logicalOperator: EnumConfig.TopupLogicalOperator.Or,
+    displayOrder: 0,
+    conditions: [],
+    groups: scenarioCases.length
+      ? scenarioCases.map((conditions, index) => createScenarioGroup(conditions, index))
+      : [createEmptyTopupConditionGroup()],
+  }
+}
+
+const serializeTopupCondition = (condition, displayOrder) => ({
+  field: condition.field,
+  operator: condition.operator,
+  valueText: condition.field === textField ? condition.valueText : null,
+  valueNumber: condition.field === textField ? null : condition.valueNumber,
+  valueNumberTo:
+    condition.field !== textField && condition.operator === betweenOperator
+      ? condition.valueNumberTo
+      : null,
+  displayOrder,
+})
+
+export const serializeTopupConditionGroup = (group, displayOrder = 0) => {
+  const scenarios = (group?.groups?.length ? group.groups : [group]).filter(Boolean)
+  return {
+    logicalOperator: EnumConfig.TopupLogicalOperator.Or,
     displayOrder,
-    conditions: conditions.map((condition, index) => ({
-      field: condition.field,
-      operator: condition.operator,
-      valueText: condition.field === textField ? condition.valueText : null,
-      valueNumber: condition.field === textField ? null : condition.valueNumber,
-      valueNumberTo:
-        condition.field !== textField && condition.operator === betweenOperator
-          ? condition.valueNumberTo
-          : null,
+    conditions: [],
+    groups: scenarios.map((scenario, index) => ({
+      logicalOperator: EnumConfig.TopupLogicalOperator.And,
       displayOrder: index,
+      conditions: (scenario.conditions || []).map((condition, conditionIndex) =>
+        serializeTopupCondition(condition, conditionIndex)
+      ),
+      groups: [],
     })),
-    groups: (group.groups || []).map((child, index) =>
-      serializeTopupConditionGroup(child, conditions.length + index)
-    ),
   }
 }
 

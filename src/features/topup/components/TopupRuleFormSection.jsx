@@ -6,7 +6,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { Form, InputNumber, Skeleton } from 'antd'
 import { useMemo } from 'react'
 import {
-  createEmptyTopupConditionGroup,
+  createEmptyTopupScenarioRoot,
   isTopupConditionGroupValid,
   normalizeTopupConditionGroup,
   serializeTopupConditionGroup,
@@ -33,7 +33,7 @@ const TopupRuleFormSection = ({
       return {
         name: '',
         topupAmount: null,
-        rootConditionGroup: createEmptyTopupConditionGroup(),
+        rootConditionGroup: createEmptyTopupScenarioRoot(),
       }
     }
     return {
