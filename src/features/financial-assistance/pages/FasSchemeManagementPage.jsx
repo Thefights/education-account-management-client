@@ -17,13 +17,11 @@ import {
   normalizeFasConditionGroup,
   serializeFasConditionGroup,
 } from '@/features/financial-assistance/data/fasSeedData'
-import {
-  fasMockStore,
-} from '@/features/financial-assistance/data/fasMockStore'
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
   buildEligibilityPreviewParts,
@@ -89,6 +87,34 @@ const rowId = (prefix) => prefix + '-' + Date.now() + '-' + Math.random().toStri
 
 const numericInputStyle = { width: '100%' }
 
+const FAS_SCHEME_STATUS_ID = EnumConfig.FasSchemeStatusId
+const FAS_SUBSIDY_TYPE_ID = EnumConfig.FasSubsidyTypeId
+const FAS_SUBSIDY_TYPE = EnumConfig.FasSubsidyType
+
+const schemeStatusByApiValue = {
+  [FAS_SCHEME_STATUS_ID.Draft]: FAS_STATUS.Draft,
+  [FAS_SCHEME_STATUS_ID.Active]: FAS_STATUS.Active,
+  [FAS_SCHEME_STATUS_ID.Inactive]: FAS_STATUS.Inactive,
+  draft: FAS_STATUS.Draft,
+  active: FAS_STATUS.Active,
+  inactive: FAS_STATUS.Inactive,
+  Draft: FAS_STATUS.Draft,
+  Active: FAS_STATUS.Active,
+  Inactive: FAS_STATUS.Inactive,
+}
+
+const normalizeSchemeStatus = (status) =>
+  schemeStatusByApiValue[status] ??
+  schemeStatusByApiValue[String(status || '').toLowerCase()] ??
+  FAS_STATUS.Draft
+
+const normalizeSubsidyType = (subsidyType) => {
+  if (Number(subsidyType) === FAS_SUBSIDY_TYPE_ID.FixedAmount) return FAS_SUBSIDY_TYPE.Fixed
+  return String(subsidyType || '').toLowerCase().includes('fixed')
+    ? FAS_SUBSIDY_TYPE.Fixed
+    : FAS_SUBSIDY_TYPE.Percent
+}
+
 const normalizeScheme = (scheme) => {
   const draft = clone(scheme)
   const rootConditionGroup = normalizeFasConditionGroup(
@@ -104,8 +130,69 @@ const normalizeScheme = (scheme) => {
   }
 }
 
+const createDraftScheme = () => {
+  const localId = rowId('fas-draft')
+
+  return normalizeScheme({
+    id: localId,
+    isNew: true,
+    schoolId: null,
+    createdAt: null,
+    name: '',
+    description: '',
+    status: FAS_STATUS.Draft,
+    subsidyType: FAS_SUBSIDY_TYPE.Percent,
+    validityMonths: 12,
+    linkedCourses: [],
+    rootConditionGroup: createFasConditionGroupFromFlat(
+      [
+        {
+          id: rowId('cond'),
+          field: FAS_CONDITION_FIELD.Nationality,
+          valueText: 'Singapore Citizen',
+        },
+        {
+          id: rowId('cond'),
+          field: FAS_CONDITION_FIELD.PerCapitaIncome,
+          valueNumber: '',
+        },
+      ],
+      ['AND']
+    ),
+    tiers: [
+      {
+        id: rowId('tier'),
+        name: 'Tier 1',
+        conditionText: '',
+        maxPci: '',
+        perComponent: false,
+        value: '',
+        courseValue: '',
+        miscValue: '',
+      },
+    ],
+    documents: [
+      {
+        id: rowId('doc'),
+        name: 'Household Income Declaration Form',
+        templateName: 'income_declaration_template.docx',
+        templateUrl: '/templates/fas/income_declaration_template.docx',
+      },
+      {
+        id: rowId('doc'),
+        name: 'Identity Document (NRIC / Birth Cert)',
+        templateName: 'identity_proof_guide.docx',
+        templateUrl: '/templates/fas/identity_proof_guide.docx',
+      },
+    ],
+  })
+}
+
 const mapFrontendSchemeToBackend = (scheme) => {
-  const subsidyType = scheme.subsidyType === 'fixed' ? 2 : 1
+  const subsidyType =
+    scheme.subsidyType === FAS_SUBSIDY_TYPE.Fixed
+      ? FAS_SUBSIDY_TYPE_ID.FixedAmount
+      : FAS_SUBSIDY_TYPE_ID.Percent
   return {
     schemeName: scheme.name,
     description: scheme.description || '',
@@ -133,16 +220,14 @@ const mapFrontendSchemeToBackend = (scheme) => {
 }
 
 const mapBackendSchemeToFrontend = (dto) => {
-  const subsidyType = String(dto.subsidyType || '').toLowerCase().includes('fixed') ? 'fixed' : 'percent'
-
   return {
     id: dto.id,
     schoolId: dto.schoolId,
     createdAt: dto.createdAt,
     name: dto.schemeName || '',
     description: dto.description || '',
-    status: (dto.status || 'Draft').toLowerCase(),
-    subsidyType,
+    status: normalizeSchemeStatus(dto.status),
+    subsidyType: normalizeSubsidyType(dto.subsidyType),
     validityMonths: dto.durationInMonths || 12,
     linkedCourses: (dto.schemeCourses || []).map(sc => sc.courseId),
     rootConditionGroup: normalizeFasConditionGroup(dto.rootConditionGroup),
@@ -185,7 +270,13 @@ const FasSchemeManagementPage = () => {
     pageSize,
     search: filters.search ? filters.search.trim() : undefined,
     statuses: filters.status && filters.status !== 'all'
-      ? [filters.status === 'draft' ? 1 : filters.status === 'active' ? 2 : 3]
+      ? [
+          filters.status === FAS_STATUS.Draft
+            ? FAS_SCHEME_STATUS_ID.Draft
+            : filters.status === FAS_STATUS.Active
+              ? FAS_SCHEME_STATUS_ID.Active
+              : FAS_SCHEME_STATUS_ID.Inactive,
+        ]
       : undefined,
     sort: getBackendSort(sort),
   }), [page, pageSize, filters, sort])
@@ -245,10 +336,7 @@ const FasSchemeManagementPage = () => {
   })
 
   const openCreate = () => {
-    const draft = fasMockStore.createDraftScheme()
-    draft.id = `FAS-${Date.now()}`
-    draft.isNew = true
-    setEditingScheme(draft)
+    setEditingScheme(createDraftScheme())
     setReadOnly(false)
   }
 
@@ -300,7 +388,7 @@ const FasSchemeManagementPage = () => {
         const statusResponse = await statusSubmit.submit({
           overrideData: {
             ids: [Number(savedSchemeId)],
-            status: 2, // Active = 2
+            status: FAS_SCHEME_STATUS_ID.Active,
             reason,
           },
         })
@@ -351,7 +439,8 @@ const FasSchemeManagementPage = () => {
 
   const changeStatus = async (scheme, status) => {
     const verb = status === FAS_STATUS.Active ? 'Activate' : 'Deactivate'
-    const nextStatus = status === FAS_STATUS.Active ? 2 : 3
+    const nextStatus =
+      status === FAS_STATUS.Active ? FAS_SCHEME_STATUS_ID.Active : FAS_SCHEME_STATUS_ID.Inactive
 
     const reason = await confirmReason({
       title: `${verb} ${scheme.name}?`,
@@ -484,14 +573,8 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
       return
     }
 
-    if (onSave) {
-      const success = await onSave({ ...scheme, name }, status)
-      if (success) {
-        onBack()
-      }
-    } else {
-      fasMockStore.saveScheme({ ...scheme, name }, status)
-      message.success(`${status === FAS_STATUS.Active ? 'Published' : 'Saved draft'} ${scheme.id}`)
+    const success = await onSave?.({ ...scheme, name }, status)
+    if (success) {
       onBack()
     }
   }
@@ -537,7 +620,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
           <div className="fas-form-grid" style={{ marginBottom: 12 }}>
             <div>
               <label className="fas-field-label">FAS ID (auto)</label>
-              <Input disabled value={scheme.id} />
+              <Input disabled value={scheme.isNew ? 'Auto-generated' : scheme.id} />
             </div>
             <div>
               <label className="fas-field-label">FAS duration after student applies</label>

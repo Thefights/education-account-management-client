@@ -1,27 +1,10 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
 
-export const FAS_CONDITION_FIELD = {
-  StudentAge: 1,
-  Nationality: 2,
-  ParentNationality: 3,
-  GrossHouseholdIncome: 5,
-  PerCapitaIncome: 6,
-}
+export const FAS_CONDITION_FIELD = EnumConfig.FasConditionField
 
-export const FAS_CONDITION_OPERATOR = {
-  Equals: 1,
-  NotEquals: 2,
-  LessThan: 3,
-  LessThanOrEqual: 4,
-  GreaterThan: 5,
-  GreaterThanOrEqual: 6,
-  Between: 7,
-}
+export const FAS_CONDITION_OPERATOR = EnumConfig.FasConditionOperator
 
-export const FAS_LOGICAL_OPERATOR = {
-  All: 1,
-  Any: 2,
-}
+export const FAS_LOGICAL_OPERATOR = EnumConfig.FasLogicalOperator
 
 export const FAS_FIELD_OPTIONS = [
   { value: FAS_CONDITION_FIELD.StudentAge, legacyValue: 'studentAge', label: 'Student age' },
@@ -75,6 +58,8 @@ export const normalizeFasConditionOperator = (operator) => {
   if (typeof operator === 'number') return operator
 
   const operatorValues = {
+    Equal: FAS_CONDITION_OPERATOR.Equal,
+    NotEqual: FAS_CONDITION_OPERATOR.NotEqual,
     Equals: FAS_CONDITION_OPERATOR.Equals,
     NotEquals: FAS_CONDITION_OPERATOR.NotEquals,
     GreaterThan: FAS_CONDITION_OPERATOR.GreaterThan,
@@ -116,8 +101,8 @@ const numberOrNull = (value) => {
 const toFasCountryId = (value) => {
   const normalized = String(value || '').trim().toLowerCase()
   if (!normalized || normalized === 'any') return null
-  if (normalized.includes('singapore')) return 1
-  return 2
+  if (normalized.includes('singapore')) return EnumConfig.FasGuardianNationalityId.SingaporeCitizen
+  return EnumConfig.FasGuardianNationalityId.Other
 }
 
 const toFasCountryText = (value) => {
@@ -129,7 +114,7 @@ const toFasCountryText = (value) => {
 
 const fromFasCountryId = (value) => {
   const countryId = Number(value)
-  if (countryId === 1) return 'Singapore Citizen'
+  if (countryId === EnumConfig.FasGuardianNationalityId.SingaporeCitizen) return 'Singapore Citizen'
   if (countryId > 0) return 'Other'
   return null
 }

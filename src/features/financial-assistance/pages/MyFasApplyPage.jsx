@@ -8,7 +8,6 @@ import {
   normalizeApiApplicationDetail,
   normalizeApiApplicationPage,
   normalizeApiAvailableSchemesResponse,
-  normalizeApiScheme,
   normalizeFasProfileFromApi,
   normalizeFasSnapshotProfile,
 } from '@/features/financial-assistance/api/accountHolderFasApi'
@@ -149,7 +148,6 @@ const buildAttachedDocsFromApplication = (application) =>
 const MyFasApplyPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { t } = useTranslation()
   const [initialSchemeId] = useState(() =>
     location.state?.schemeId != null ? String(location.state.schemeId) : null
   )
@@ -237,11 +235,13 @@ const MyFasApplyPage = () => {
   useEffect(() => {
     if (!draftApplication) return
     const nextProfile = normalizeFasSnapshotProfile(draftApplication.profileSnapshot, initialProfile)
-    setProfile(nextProfile)
-    setFormProfile(nextProfile)
-    setShown(true)
-    setFormSchemeId(draftApplication.schemeId)
-    setAttachedDocs(buildAttachedDocsFromApplication(draftApplication))
+    queueMicrotask(() => {
+      setProfile(nextProfile)
+      setFormProfile(nextProfile)
+      setShown(true)
+      setFormSchemeId(draftApplication.schemeId)
+      setAttachedDocs(buildAttachedDocsFromApplication(draftApplication))
+    })
   }, [draftApplication])
 
   const activeAvailableSchemes = schemes
@@ -261,6 +261,7 @@ const MyFasApplyPage = () => {
       if (!matchesQuery) return false
       if (!draftApplicationId && findActiveApplicationForScheme(activeApplications, scheme)) return false
       if (!shown) return true
+      if (usingApiSchemes && scheme.apiId != null && !scheme.reapplyFallback) return true
       if (scheme.reapplyFallback || !scheme.tiers?.length) return true
       return !!getSuggestedTier(scheme, { data: eligibleProfile })
     })
@@ -436,7 +437,9 @@ const MyFasApplyPage = () => {
                   })
                 ) : (
                   <div className="fas-empty">
-                    {shown
+                    {availableSchemesQuery.error
+                      ? 'Unable to load FAS schemes from the API right now.'
+                      : shown
                       ? 'No scheme matches the household details and tier limits entered.'
                       : 'No schemes available right now.'}
                   </div>

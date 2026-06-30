@@ -102,6 +102,10 @@ const describeGroup = (group) => {
 }
 
 export const buildEligibilityPreviewParts = (value = [], connectors = []) => {
+  if (Array.isArray(value?.conditionsSummary)) {
+    return value.conditionsSummary.filter(Boolean)
+  }
+
   const group = resolveConditionGroup(value, connectors)
   if (!group || !(group.conditions?.length || group.groups?.length)) return []
 
