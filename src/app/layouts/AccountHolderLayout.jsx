@@ -8,10 +8,13 @@ import {
   HistoryOutlined,
 } from '@ant-design/icons'
 
+import ChatbotWidget from '@/shared/components/ChatbotWidget/ChatbotWidget'
+
 const AccountHolderLayout = () => {
   const { t } = useTranslation()
   return (
-    <RoleDashboardLayout
+    <>
+      <RoleDashboardLayout
       homeUrl={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER()}
       menuSections={[
         {
@@ -55,6 +58,8 @@ const AccountHolderLayout = () => {
         },
       ]}
     />
+      <ChatbotWidget />
+    </>
   )
 }
 
