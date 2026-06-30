@@ -3,6 +3,7 @@ import {
   toPickerValueBasedOnCurrentLanguage,
   wallTimeBasedOnCurrentLanguageToIso,
 } from '@/shared/utils/dateTimeUtil'
+import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { getObjectValueFromStringPath } from '@/shared/utils/handleObjectUtil'
 import { CalendarOutlined } from '@ant-design/icons'
 import { DatePicker, Form, Typography } from 'antd'
@@ -19,6 +20,7 @@ const defaultDateSerializer = (value) => value?.format('YYYY-MM-DD') || ''
 
 const languageDateTimeParser = (value) => toPickerValueBasedOnCurrentLanguage(value)
 const languageDateTimeSerializer = (value) => wallTimeBasedOnCurrentLanguageToIso(value)
+const defaultDateHourShowTime = { format: 'HH', showMinute: false, showSecond: false }
 
 const resolveRangeValue = ({ fromValue, toValue, parseValue }) => {
   if (!fromValue && !toValue) return null
@@ -42,6 +44,18 @@ const RangePickerRenderField = ({ field, values, setField }, ref) => {
   const serializeValue =
     field.serializeValue ||
     (valueType === 'language-datetime' ? languageDateTimeSerializer : defaultDateSerializer)
+  const showTime =
+    field.showTime !== undefined
+      ? field.showTime
+      : valueType === 'language-datetime'
+        ? defaultDateHourShowTime
+        : undefined
+  const format =
+    field.format !== undefined
+      ? field.format
+      : valueType === 'language-datetime'
+        ? getDateHourFormatBasedOnCurrentLanguage()
+        : undefined
 
   const validate = (nextFrom = fromValue, nextTo = toValue) => {
     const fromDate = nextFrom && dayjs(nextFrom)
@@ -89,8 +103,8 @@ const RangePickerRenderField = ({ field, values, setField }, ref) => {
       >
         <DatePicker.RangePicker
           allowClear={field.allowClear ?? true}
-          showTime={field.showTime}
-          format={field.format}
+          showTime={showTime}
+          format={format}
           suffixIcon={field.suffixIcon || <CalendarOutlined />}
           value={resolveRangeValue({ fromValue, toValue, parseValue })}
           placeholder={field.placeholder}

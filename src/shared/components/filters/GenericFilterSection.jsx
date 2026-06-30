@@ -24,6 +24,7 @@ const GenericFilterSection = ({
     if (resetValues !== undefined) reset(resetValues)
     onReset?.()
   }
+  const handleFilter = () => onFilter?.(values)
 
   const resolveFieldColProps = (field, index) =>
     field.colProps || getFieldColProps?.(field, index) || defaultFieldColProps
@@ -33,10 +34,11 @@ const GenericFilterSection = ({
       cardProps={cardProps}
       rowProps={rowProps}
       gutter={gutter}
+      onEnterFilter={handleFilter}
       actions={
         <>
           <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-          <FilterButton loading={loading} onFilterClick={() => onFilter?.(values)} />
+          <FilterButton loading={loading} onFilterClick={handleFilter} />
           {extraActions}
         </>
       }

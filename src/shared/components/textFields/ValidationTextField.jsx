@@ -1,6 +1,6 @@
 import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
 import SelectDialog from '@/shared/components/dialogs/commons/SelectDialog'
-import { isEmail, isNumber, isPhone, isRequired } from '@/shared/utils/validateUtil'
+import { isEmail, isNumber, isRequired } from '@/shared/utils/validateUtil'
 import { Form, Input, Select } from 'antd'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
 
@@ -65,7 +65,6 @@ const ValidationTextField = (
     if (required) rs.push(isRequired())
     if (type === 'email') rs.push(isEmail())
     if (type === 'number') rs.push(isNumber())
-    if (type === 'tel') rs.push(isPhone())
     return rs
   }, [required, type])
 

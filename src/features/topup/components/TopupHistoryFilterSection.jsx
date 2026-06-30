@@ -1,14 +1,9 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
-import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { Col } from 'antd'
 
-const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const defaultFilters = {
   search: '',
@@ -72,8 +67,6 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       valueType: 'language-datetime',
       from: { key: 'createdFrom' },
       to: { key: 'createdTo' },
-      showTime: DATE_HOUR_SHOW_TIME,
-      format: getDateHourFormatBasedOnCurrentLanguage(),
       disallowFutureFrom: true,
       placeholder: ['From date', 'To date'],
       colProps: { xs: 24, md: 12, xl: 6 },
@@ -92,24 +85,19 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
   }
 
   return (
-    <FilterSectionLayout
+    <GenericFilterSection
+      fields={fields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      onFilter={handleFilter}
+      onReset={handleReset}
+      loading={loading}
       cardProps={{
         style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
         styles: { body: { padding: 16 } },
       }}
-      actions={
-        <>
-          <ResetFilterButton loading={loading} onResetFilterClick={handleReset} />
-          <FilterButton loading={loading} onFilterClick={handleFilter} />
-        </>
-      }
-    >
-        {fields.map((field) => (
-          <Col key={field.key} {...field.colProps}>
-            {renderField(field)}
-          </Col>
-        ))}
-    </FilterSectionLayout>
+    />
   )
 }
 

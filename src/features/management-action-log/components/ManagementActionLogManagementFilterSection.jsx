@@ -3,10 +3,8 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { useMemo } from 'react'
 
-const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const ManagementActionLogManagementFilterSection = ({
   filters = {},
@@ -74,8 +72,6 @@ const ManagementActionLogManagementFilterSection = ({
         valueType: 'language-datetime',
         from: { key: 'occurredFrom' },
         to: { key: 'occurredTo' },
-        showTime: DATE_HOUR_SHOW_TIME,
-        format: getDateHourFormatBasedOnCurrentLanguage(),
         disallowFutureFrom: true,
         placeholder: [
           t('management_action_log.placeholder.occurred_from'),

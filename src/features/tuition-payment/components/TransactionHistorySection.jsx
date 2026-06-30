@@ -1,6 +1,4 @@
-import FilterButton from '@/shared/components/buttons/FilterButton'
-import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
-import FilterSectionLayout from '@/shared/components/filters/FilterSectionLayout'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useFetch from '@/shared/hooks/useFetch'
@@ -8,15 +6,11 @@ import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
-import {
-  formatDatetimeStringBasedOnCurrentLanguage,
-  getDateHourFormatBasedOnCurrentLanguage,
-} from '@/shared/utils/formatDateUtil'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
-import { Card, Col, Flex, Tag, Typography } from 'antd'
+import { Card, Flex, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 
-const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
@@ -97,8 +91,6 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       valueType: 'language-datetime',
       from: { key: 'createdFrom' },
       to: { key: 'createdTo' },
-      showTime: DATE_HOUR_SHOW_TIME,
-      format: getDateHourFormatBasedOnCurrentLanguage(),
       placeholder: ['From date', 'To date'],
     },
   ]
@@ -181,25 +173,21 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}
     >
       <Flex vertical gap={16}>
-        <FilterSectionLayout
+        <GenericFilterSection
+          fields={filterFields}
+          values={values}
+          renderField={renderField}
+          reset={reset}
+          onFilter={applyFilters}
+          onReset={resetFilters}
+          loading={transactions.loading}
+          getFieldColProps={() => ({ xs: 24, md: 6 })}
           gutter={[12, 12]}
           cardProps={{
             style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
             styles: { body: { padding: 16 } },
           }}
-          actions={
-            <>
-              <ResetFilterButton loading={transactions.loading} onResetFilterClick={resetFilters} />
-              <FilterButton loading={transactions.loading} onFilterClick={applyFilters} />
-            </>
-          }
-        >
-          {filterFields.map((field) => (
-            <Col key={field.key} xs={24} md={6}>
-              {renderField(field)}
-            </Col>
-          ))}
-        </FilterSectionLayout>
+        />
         <GenericTable
           data={transactions.data?.collection}
           fields={fields}
