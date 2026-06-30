@@ -8,7 +8,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
-import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import SchoolStudentFilterSection from '../components/SchoolStudentFilterSection'
@@ -68,23 +68,6 @@ const SchoolStudentManagementPage = () => {
     setSelectedIds([])
   }
 
-  const handleDelete = async (row) => {
-    const reason = await confirmReason({
-      title: t('school_student.confirm.delete_title'),
-      description: t('school_student.confirm.delete_description', { name: row.nric }),
-      confirmColor: 'error',
-      confirmText: t('button.delete'),
-    })
-    if (!reason) return
-    const response = await deleteStudent.submit({
-      overrideData: { ids: [row.id], reason },
-    })
-    if (response) {
-      setSelectedIds([])
-      await getStudents.fetch()
-    }
-  }
-
   const handleChangeStatus = async (status) => {
     const reason = await confirmReason({
       title: status === 1 ? t('button.activate') : t('button.deactivate'),
@@ -100,6 +83,25 @@ const SchoolStudentManagementPage = () => {
     setSelectedIds([])
     await getStudents.fetch()
   }
+
+  const handleDeleteSelected = async () => {
+    if (!selectedIds.length) return
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteStudent.submit({
+      overrideData: { ids: selectedIds, reason },
+    })
+    if (!response) return
+    setSelectedIds([])
+    await getStudents.fetch()
+  }
+
+  const mutationLoading = updateStatus.loading || deleteStudent.loading
 
   const handleImport = async (values) => {
     if (!values.file?.name?.toLowerCase().endsWith('.csv')) return
@@ -136,7 +138,7 @@ const SchoolStudentManagementPage = () => {
           setSort={setSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onDelete={handleDelete}
+
         />
         <GenericTablePagination
           totalCount={getStudents.data?.totalCount}
@@ -149,7 +151,7 @@ const SchoolStudentManagementPage = () => {
         />
         <BulkActionBar
           selectedCount={selectedIds.length}
-          loading={updateStatus.loading}
+          loading={mutationLoading}
           onClear={() => setSelectedIds([])}
           actions={[
             {
@@ -164,6 +166,13 @@ const SchoolStudentManagementPage = () => {
               icon: <StopOutlined />,
               danger: true,
               onClick: () => handleChangeStatus(2),
+            },
+            {
+              key: 'delete',
+              label: t('button.delete'),
+              icon: <DeleteOutlined />,
+              danger: true,
+              onClick: handleDeleteSelected,
             },
           ]}
         />

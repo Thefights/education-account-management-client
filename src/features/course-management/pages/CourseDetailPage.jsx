@@ -140,27 +140,6 @@ const CourseDetailPage = () => {
     clearSelection()
   }
 
-  const handleDelete = async (enrollment) => {
-    const reason = await confirmReason({
-      title: t('enrollment_management.confirm.delete_title'),
-      description: t('enrollment_management.confirm.delete_description', {
-        name: enrollment.citizenFullName,
-      }),
-      confirmColor: 'error',
-      confirmText: t('button.delete'),
-    })
-    if (!reason) return
-
-    const response = await removeSelectedEnrollments.submit({
-      overrideData: { ids: [enrollment.id], reason },
-    })
-    if (!response) return
-
-    clearSelection()
-    await enrollments.fetch()
-    await courseData.fetch()
-  }
-
   const handleDeleteSelected = async () => {
     if (!selectedIds.length) return
     const reason = await confirmReason({
@@ -446,7 +425,7 @@ const CourseDetailPage = () => {
             setSort={handleSort}
             selectedIds={selectedIds}
             setSelectedIds={setSelectedIds}
-            onDelete={handleDelete}
+
             onWithdraw={handleWithdraw}
             showCourse={false}
             showGrossAmount={false}

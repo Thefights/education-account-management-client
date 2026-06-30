@@ -95,7 +95,12 @@
     "preview_all_requirement": "Must match all required conditions",
     "preview_any_requirement": "Can match any required condition",
     "preview_all_scenario": "Scenario requires every condition",
-    "preview_any_scenario": "Scenario accepts any condition"
+    "preview_any_scenario": "Scenario accepts any condition",
+    "age_range_error": "Age must be between {min} and {max}.",
+    "age_whole_number_error": "Age must be a whole number.",
+    "condition_warnings": "Condition warnings",
+    "warning_duplicate_condition": "Rule {number} duplicates another condition in the same group.",
+    "warning_broad_age_rule": "Rule {number} covers the full eligible age range. Consider adding another condition if this is too broad."
   },
   "button": {
     "back": "Back"

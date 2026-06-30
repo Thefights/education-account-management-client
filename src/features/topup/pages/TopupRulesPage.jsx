@@ -7,7 +7,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, StopOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Flex } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -82,12 +82,6 @@ const TopupRulesPage = () => {
     clearSelection()
     await rules.fetch()
   }
-  const handleEditSelected = () => {
-    if (selectedIds.length !== 1) return
-    navigate(
-      routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.SYSTEM_EDIT(selectedIds[0]))
-    )
-  }
   const handleDeleteSelected = async () => {
     if (!selectedIds.length) return
     const reason = await confirmReason({
@@ -159,15 +153,7 @@ const TopupRulesPage = () => {
             key: 'deactivate',
             label: t('button.deactivate'),
             icon: <StopOutlined />,
-            danger: true,
             onClick: () => handleChangeStatus(EnumConfig.SystemTopupStatus.Inactive),
-          },
-          {
-            key: 'edit',
-            label: t('button.edit'),
-            icon: <EditOutlined />,
-            disabled: selectedIds.length !== 1,
-            onClick: handleEditSelected,
           },
           {
             key: 'delete',

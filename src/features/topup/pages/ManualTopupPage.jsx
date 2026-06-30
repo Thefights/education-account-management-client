@@ -1,6 +1,5 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
-import GenericTable from '@/shared/components/tables/GenericTable'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
@@ -9,15 +8,19 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import {
+  CheckCircleOutlined,
   DollarOutlined,
   DownloadOutlined,
   FileTextOutlined,
   UploadOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import {
   Alert,
+  Avatar,
   Button,
   Card,
+  Collapse,
   Descriptions,
   Divider,
   Flex,
@@ -26,7 +29,7 @@ import {
   InputNumber,
   Space,
   Tabs,
-  Tag,
+  Tooltip,
   Typography,
   Upload,
   theme,
@@ -34,117 +37,190 @@ import {
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const ResultStatCard = ({ value, label, valueColor }) => {
+  return (
+    <Card size="small" style={{ flex: '1 1 160px', minWidth: 150 }}>
+      <Flex vertical gap={4}>
+        <Typography.Text strong style={{ color: valueColor, fontSize: 22, lineHeight: 1.2 }}>
+          {value}
+        </Typography.Text>
+        <Typography.Text type="secondary">{label}</Typography.Text>
+      </Flex>
+    </Card>
+  )
+}
+
+const ResultAccountRow = ({ account, amount, reason, failed = false }) => {
+  const { token } = theme.useToken()
+
+  return (
+    <Flex
+      align="center"
+      justify="space-between"
+      gap={16}
+      wrap
+      style={{
+        padding: '12px 0',
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
+      }}
+    >
+      <Flex align="center" gap={12} style={{ minWidth: 240, flex: 1 }}>
+        <Avatar
+          icon={<UserOutlined />}
+          style={{ background: token.colorFillSecondary, color: token.colorText }}
+        />
+        <Flex vertical>
+          <Typography.Text strong>{account.accountName || '-'}</Typography.Text>
+          <Typography.Text type="secondary">{account.accountNumber || '-'}</Typography.Text>
+          {failed && reason && (
+            <Tooltip title={reason}>
+              <Typography.Text type="danger" ellipsis style={{ maxWidth: 360 }}>
+                {reason}
+              </Typography.Text>
+            </Tooltip>
+          )}
+        </Flex>
+      </Flex>
+      {!failed && (
+        <Typography.Text strong style={{ color: token.colorSuccess, marginLeft: 'auto' }}>
+          {formatCurrencyBasedOnCurrentLanguage(amount)}
+        </Typography.Text>
+      )}
+    </Flex>
+  )
+}
+
 const ManualTopupResult = ({ result, submittedTopup, onViewExecution, t }) => {
   const { token } = theme.useToken()
   const hasFailures = Boolean(result.totalFailed)
+  const creditedAmount = formatCurrencyBasedOnCurrentLanguage(result.totalAmountCredited)
+  const targetText = submittedTopup
+    ? submittedTopup.mode === 'selection'
+      ? `${submittedTopup.accountCount} ${t('topup.accounts')}`
+      : submittedTopup.fileName
+    : '-'
+
+  const successItems = [
+    {
+      key: 'success',
+      label: `${t('topup.succeeded')} (${result.successList?.length || 0})`,
+      children: (
+        <div>
+          {(result.successList || []).map((account) => (
+            <ResultAccountRow
+              key={account.topUpTransactionId || account.accountNumber}
+              account={account}
+              amount={account.topUpAmount}
+            />
+          ))}
+          <Flex justify="space-between" align="center" style={{ paddingTop: 12 }}>
+            <Typography.Text strong>{t('topup.total_credited')}</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorSuccess, fontSize: 16 }}>
+              {creditedAmount}
+            </Typography.Text>
+          </Flex>
+        </div>
+      ),
+    },
+  ]
+
+  const failedItems = hasFailures
+    ? [
+        {
+          key: 'failed',
+          label: `${t('topup.failed')} (${result.failList?.length || 0})`,
+          children: (result.failList || []).map((account) => (
+            <ResultAccountRow
+              key={account.accountId || account.accountNumber}
+              account={account}
+              reason={account.reason}
+              failed
+            />
+          )),
+        },
+      ]
+    : []
 
   return (
-    <div
-      style={{
-        border: `1px solid ${hasFailures ? token.colorWarningBorder : token.colorSuccessBorder}`,
-        borderRadius: token.borderRadiusLG,
-        background: hasFailures ? token.colorWarningBg : token.colorSuccessBg,
-        padding: 16,
-      }}
-    >
-      <Flex vertical gap={16}>
-        <Alert
-          type={hasFailures ? 'warning' : 'success'}
-          showIcon
-          message={t('topup.execution_completed')}
-          style={{ background: 'transparent', border: 0, padding: 0 }}
-        />
+    <Card style={{ borderColor: token.colorBorderSecondary }}>
+      <Flex vertical gap={20}>
+        <Flex align="flex-start" justify="space-between" gap={16} wrap>
+          <Flex gap={12} align="flex-start">
+            <CheckCircleOutlined style={{ color: token.colorSuccess, fontSize: 28, marginTop: 2 }} />
+            <Flex vertical gap={4}>
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                {t('topup.manual_completed')}
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                {t('topup.execution_summary', {
+                  amount: creditedAmount,
+                  count: result.totalSuccess,
+                })}
+              </Typography.Text>
+            </Flex>
+          </Flex>
+          <Button onClick={onViewExecution}>{t('topup.view_history')}</Button>
+        </Flex>
 
-        <Flex gap={24} wrap>
-          <Typography.Text>
-            <Typography.Text type="secondary">{t('topup.processed')}: </Typography.Text>
-            <Typography.Text strong>{result.totalProcessed}</Typography.Text>
-          </Typography.Text>
-          <Typography.Text>
-            <Typography.Text type="secondary">{t('topup.succeeded')}: </Typography.Text>
-            <Typography.Text type="success" strong>
-              {result.totalSuccess}
-            </Typography.Text>
-          </Typography.Text>
-          <Typography.Text>
-            <Typography.Text type="secondary">{t('topup.failed')}: </Typography.Text>
-            <Typography.Text type={hasFailures ? 'danger' : undefined} strong>
-              {result.totalFailed}
-            </Typography.Text>
-          </Typography.Text>
-          <Typography.Text>
-            <Typography.Text type="secondary">{t('topup.amount_credited')}: </Typography.Text>
-            <Typography.Text strong>
-              {formatCurrencyBasedOnCurrentLanguage(result.totalAmountCredited)}
-            </Typography.Text>
-          </Typography.Text>
+        <Flex gap={12} wrap>
+          <ResultStatCard
+            value={creditedAmount}
+            label={t('topup.credited')}
+            valueColor={token.colorSuccess}
+          />
+          <ResultStatCard value={result.totalProcessed} label={t('topup.processed')} />
+          <ResultStatCard
+            value={result.totalSuccess}
+            label={t('topup.succeeded')}
+            valueColor={token.colorSuccess}
+          />
+          <ResultStatCard
+            value={result.totalFailed}
+            label={t('topup.failed')}
+            valueColor={hasFailures ? token.colorError : token.colorText}
+          />
         </Flex>
 
         {submittedTopup && (
-          <Descriptions
-            size="small"
-            column={{ xs: 1, sm: 2, md: 3 }}
-            bordered
-            style={{ background: token.colorBgContainer }}
-          >
-            <Descriptions.Item label={t('topup.amount')}>
-              {formatCurrencyBasedOnCurrentLanguage(submittedTopup.topUpAmount)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('topup.reason')}>
-              {submittedTopup.disbursementReason}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('topup.target_selection')}>
-              {submittedTopup.mode === 'selection' ? (
-                <Tag color="blue">
-                  {t('topup.selected_count', { count: submittedTopup.accountCount })}
-                </Tag>
-              ) : (
-                submittedTopup.fileName
-              )}
-            </Descriptions.Item>
-          </Descriptions>
+          <Card size="small" title={t('topup.execution_details')}>
+            <Descriptions size="small" column={{ xs: 1, sm: 3 }}>
+              <Descriptions.Item label={t('topup.amount')}>
+                <Typography.Text strong>
+                  {formatCurrencyBasedOnCurrentLanguage(submittedTopup.topUpAmount)}
+                </Typography.Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={t('topup.reason')}>
+                <Tooltip title={submittedTopup.disbursementReason}>
+                  <Typography.Text ellipsis style={{ maxWidth: 260 }}>
+                    {submittedTopup.disbursementReason}
+                  </Typography.Text>
+                </Tooltip>
+              </Descriptions.Item>
+              <Descriptions.Item label={t('topup.recipients')}>
+                <Typography.Text strong>{targetText}</Typography.Text>
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
         )}
-
-        <Space>
-          <Button onClick={onViewExecution}>{t('topup.view_execution')}</Button>
-        </Space>
 
         {!!result.successList?.length && (
-          <Flex vertical gap={8}>
-            <Typography.Text strong>{t('topup.succeeded')}</Typography.Text>
-            <GenericTable
-              data={result.successList}
-              rowKey="topUpTransactionId"
-              fields={[
-                { key: 'accountNumber', title: t('topup.account_number') },
-                { key: 'accountName', title: t('topup.account_name') },
-                {
-                  key: 'topUpAmount',
-                  title: t('topup.amount'),
-                  isNumeric: true,
-                  render: formatCurrencyBasedOnCurrentLanguage,
-                },
-              ]}
-            />
-          </Flex>
+          <Card size="small" title={t('topup.successful_accounts')}>
+            <Collapse ghost defaultActiveKey={[successItems[0].key]} items={successItems} />
+          </Card>
         )}
 
-        {!!result.failList?.length && (
-          <Flex vertical gap={8}>
-            <Typography.Text strong>{t('topup.failed')}</Typography.Text>
-            <GenericTable
-              data={result.failList}
-              rowKey="accountId"
-              fields={[
-                { key: 'accountNumber', title: t('topup.account_number') },
-                { key: 'accountName', title: t('topup.account_name') },
-                { key: 'reason', title: t('topup.failure_reason') },
-              ]}
-            />
-          </Flex>
+        {hasFailures && (
+          <Alert
+            type="warning"
+            showIcon
+            message={`${result.totalFailed} ${t('topup.failed').toLowerCase()}`}
+            description={t('topup.review_failed_accounts')}
+          />
         )}
+
+        {!!failedItems.length && <Collapse items={failedItems} />}
       </Flex>
-    </div>
+    </Card>
   )
 }
 

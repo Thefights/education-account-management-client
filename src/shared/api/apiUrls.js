@@ -40,6 +40,7 @@ export const ApiUrls = {
     GET_ALL: '/admin-management/all',
     DETAIL: (id) => `/admin-management/${id}`,
     UPDATE_STATUS: '/admin-management/status',
+    DELETE_SELECTED: '/admin-management/selected',
     IMPORT: '/admin-management/import',
   },
 
