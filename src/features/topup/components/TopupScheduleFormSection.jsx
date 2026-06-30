@@ -12,7 +12,7 @@ import { Skeleton } from 'antd'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import {
-  createEmptyTopupConditionGroup,
+  createEmptyTopupScenarioRoot,
   isTopupConditionGroupValid,
   normalizeTopupConditionGroup,
   serializeTopupConditionGroup,
@@ -60,7 +60,7 @@ const TopupScheduleFormSection = ({
         topupAmount: null,
         frequency: EnumConfig.ScheduleTopupFrequency.OneTime,
         scheduleExecutionAt: null,
-        rootConditionGroup: createEmptyTopupConditionGroup(),
+        rootConditionGroup: createEmptyTopupScenarioRoot(),
       }
     }
 

@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import TopupRuleConditionsField from '../components/TopupRuleConditionsField'
 import {
-  createEmptyTopupConditionGroup,
+  createEmptyTopupScenarioRoot,
   isTopupConditionGroupValid,
   normalizeTopupConditionGroup,
   serializeTopupConditionGroup,
@@ -79,7 +79,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
   const { values, handleChange, setField, reset, registerRef, validateAll, resetValidation } =
     useForm()
   const [submitted, setSubmitted] = useState(false)
-  const [conditionGroup, setConditionGroup] = useState(createEmptyTopupConditionGroup())
+  const [conditionGroup, setConditionGroup] = useState(createEmptyTopupScenarioRoot())
   const [showConditionErrors, setShowConditionErrors] = useState(false)
   const { renderField, hasRequiredMissing } = useFieldRenderer(
     values,
@@ -172,7 +172,7 @@ const TopupConfigurationFormPage = ({ type, mode }) => {
 
   useEffect(() => {
     if (!isEdit) {
-      const rootConditionGroup = createEmptyTopupConditionGroup()
+      const rootConditionGroup = createEmptyTopupScenarioRoot()
       queueMicrotask(() => setConditionGroup(rootConditionGroup))
       reset({
         name: '',

@@ -60,6 +60,7 @@ export const FasSchemeFilterSection = ({ filters, loading, onFilter, onReset }) 
   return (
     <FilterSectionLayout
       cardProps={{ style: filterCardStyles, styles: { body: { padding: 16 } } }}
+      onEnterFilter={() => onFilter?.(values)}
       actions={
         <>
           <ResetFilterButton
@@ -142,6 +143,7 @@ export const FasApplicationFilterSection = ({
   return (
     <FilterSectionLayout
       cardProps={{ style: filterCardStyles, styles: { body: { padding: 16 } } }}
+      onEnterFilter={() => onFilter?.(values)}
       actions={
         <>
           <ResetFilterButton loading={loading} onResetFilterClick={resetValues} />

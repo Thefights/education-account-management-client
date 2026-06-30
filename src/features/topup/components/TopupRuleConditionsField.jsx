@@ -5,7 +5,6 @@ import {
   ApartmentOutlined,
   DeleteOutlined,
   PlusOutlined,
-  QuestionCircleOutlined,
 } from '@ant-design/icons'
 import {
   Alert,
@@ -27,7 +26,8 @@ import {
   TOPUP_ELIGIBLE_AGE_MIN,
   createEmptyTopupCondition,
   createEmptyTopupConditionGroup,
-  getTopupConditionGroupWarnings,
+  createEmptyTopupScenarioRoot,
+  getTopupConditionGroupDiagnostics,
   getTopupConditionValidationErrors,
   isTopupConditionGroupValid,
 } from '../utils/topupRuleFormUtil'
@@ -141,21 +141,6 @@ const getConditionValidationErrorMessage = (error, t) => {
   return t('topup_form.enter_value')
 }
 
-const getLogicalOperatorOptions = (t, isRoot) => [
-  {
-    value: EnumConfig.TopupLogicalOperator.And,
-    label: t(
-      isRoot ? 'topup_form.must_match_all_requirements' : 'topup_form.must_match_all_in_scenario'
-    ),
-  },
-  {
-    value: EnumConfig.TopupLogicalOperator.Or,
-    label: t(
-      isRoot ? 'topup_form.can_match_any_requirement' : 'topup_form.can_match_any_in_scenario'
-    ),
-  },
-]
-
 export const TopupConditionSentence = ({ condition }) => {
   const { t } = useTranslation()
   return (
@@ -172,47 +157,30 @@ export const TopupConditionSentence = ({ condition }) => {
   )
 }
 
-const buildTreeNode = (group, t, key = 'root', isRoot = true) => ({
-  key,
+const buildScenarioTreeNode = (scenario, t, index) => ({
+  key: `scenario-${index}`,
   icon: <ApartmentOutlined />,
   title: (
     <Space size={8} wrap>
       <Typography.Text strong>
-        {t(
-          isRoot
-            ? group.logicalOperator === EnumConfig.TopupLogicalOperator.Or
-              ? 'topup_form.preview_any_requirement'
-              : 'topup_form.preview_all_requirement'
-            : group.logicalOperator === EnumConfig.TopupLogicalOperator.Or
-              ? 'topup_form.preview_any_scenario'
-              : 'topup_form.preview_all_scenario'
-        )}
+        {t('topup_form.scenario_number', { number: index + 1 })}
       </Typography.Text>
-      <Tag color={group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? 'purple' : 'blue'}>
-        {t(
-          group.logicalOperator === EnumConfig.TopupLogicalOperator.Or
-            ? 'topup_form.logical_or'
-            : 'topup_form.logical_and'
-        )}
-      </Tag>
+      <Tag color="blue">{t('topup_form.logical_and')}</Tag>
+      <Typography.Text type="secondary">{t('topup_form.preview_all_scenario')}</Typography.Text>
     </Space>
   ),
-  children: [
-    ...(group.conditions || []).map((condition, index) => ({
-      key: `${key}-condition-${condition.id ?? index}`,
-      title: <TopupConditionSentence condition={condition} />,
-    })),
-    ...(group.groups || []).map((child, index) =>
-      buildTreeNode(child, t, `${key}-group-${child.id ?? index}`, false)
-    ),
-  ],
+  children: (scenario.conditions || []).map((condition, conditionIndex) => ({
+    key: `scenario-${index}-condition-${condition.id ?? conditionIndex}`,
+    title: <TopupConditionSentence condition={condition} />,
+  })),
 })
 
 export const TopupConditionTree = ({ value }) => {
   const { t } = useTranslation()
   const { token } = theme.useToken()
   if (!value) return null
-  const eligibilityCases = buildEligibilityCases(value, t)
+  const scenarios = value.groups?.length ? value.groups : [value]
+  const eligibilityCases = scenarios.map((scenario) => buildEligibilityCases(scenario, t)[0] || [])
 
   return (
     <Flex vertical gap={12}>
@@ -232,9 +200,10 @@ export const TopupConditionTree = ({ value }) => {
           {eligibilityCases.length ? (
             eligibilityCases.map((caseParts, index) => (
               <Typography.Text key={`eligibility-case-${index}`}>
-                {eligibilityCases.length > 1
-                  ? `${index + 1}. ${getEligibilityCaseText(caseParts, t)}`
-                  : getEligibilityCaseText(caseParts, t)}
+                {t('topup_form.scenario_summary', {
+                  number: index + 1,
+                  conditions: getEligibilityCaseText(caseParts, t),
+                })}
               </Typography.Text>
             ))
           ) : (
@@ -247,7 +216,7 @@ export const TopupConditionTree = ({ value }) => {
         showLine
         selectable={false}
         defaultExpandAll
-        treeData={[buildTreeNode(value, t)]}
+        treeData={scenarios.map((scenario, index) => buildScenarioTreeNode(scenario, t, index))}
         style={{
           padding: 12,
           borderRadius: token.borderRadiusLG,
@@ -320,15 +289,17 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
         <Tag>{index + 1}</Tag>
         <Typography.Text type="secondary">{t('topup_form.rule')}</Typography.Text>
       </Flex>
-      <Tooltip title={t('topup_form.delete_condition')}>
-        <Button
-          danger
-          type="text"
-          icon={<DeleteOutlined />}
-          onClick={onDelete}
-          style={{ position: 'absolute', top: 10, right: 8 }}
-        />
-      </Tooltip>
+      {onDelete ? (
+        <Tooltip title={t('topup_form.delete_condition')}>
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            onClick={onDelete}
+            style={{ position: 'absolute', top: 10, right: 8 }}
+          />
+        </Tooltip>
+      ) : null}
       <Row gutter={[8, 8]} align="top">
         <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
@@ -455,19 +426,19 @@ const GroupEditor = ({
   group,
   onChange,
   onDelete,
-  depth,
   groupNumber,
   t,
   token,
+  errors = [],
   showValidationErrors = false,
+  canDelete = true,
 }) => {
-  const mode = group.logicalOperator === EnumConfig.TopupLogicalOperator.Or ? 'ANY' : 'ALL'
-  const isRoot = depth === 1
   const conditions = group.conditions || []
-  const groups = group.groups || []
   const updateCondition = (index, nextCondition) =>
     onChange({
       ...group,
+      logicalOperator: EnumConfig.TopupLogicalOperator.And,
+      groups: [],
       conditions: conditions.map((condition, itemIndex) =>
         itemIndex === index ? nextCondition : condition
       ),
@@ -475,34 +446,14 @@ const GroupEditor = ({
 
   return (
     <SectionShell
-      title={
-        isRoot
-          ? t('topup_form.required_conditions')
-          : t('topup_form.scenario_number', { number: groupNumber })
-      }
-      subtitle={isRoot ? t('topup_form.required_conditions_hint') : t('topup_form.scenario_hint')}
-      accentColor={isRoot ? token.colorPrimary : token.colorInfo}
-      onDelete={onDelete}
+      title={t('topup_form.scenario_number', { number: groupNumber })}
+      subtitle={t('topup_form.scenario_hint')}
+      accentColor={token.colorInfo}
+      onDelete={canDelete ? onDelete : null}
       t={t}
       token={token}
     >
       <Flex vertical gap={12}>
-        <Flex align="center" gap={8} wrap="wrap">
-          <Typography.Text>{t('topup_form.matching_mode')}</Typography.Text>
-          <Select
-            placeholder="Select matching mode"
-            value={group.logicalOperator}
-            style={{ minWidth: 260, height: 32 }}
-            options={getLogicalOperatorOptions(t, isRoot)}
-            onChange={(logicalOperator) => onChange({ ...group, logicalOperator })}
-          />
-          <Tooltip
-            title={t(mode === 'ALL' ? 'topup_form.match_all_help' : 'topup_form.match_any_help')}
-          >
-            <QuestionCircleOutlined style={{ color: token.colorTextSecondary }} />
-          </Tooltip>
-        </Flex>
-
         {conditions.map((condition, index) => (
           <ConditionRow
             key={condition.id ?? `condition-${index}`}
@@ -512,35 +463,16 @@ const GroupEditor = ({
             token={token}
             showValidationErrors={showValidationErrors}
             onChange={(nextCondition) => updateCondition(index, nextCondition)}
-            onDelete={() =>
-              onChange({
-                ...group,
-                conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
-              })
-            }
-          />
-        ))}
-
-        {groups.map((child, index) => (
-          <GroupEditor
-            key={child.id ?? `group-${index}`}
-            group={child}
-            depth={depth + 1}
-            groupNumber={index + 1}
-            t={t}
-            token={token}
-            showValidationErrors={showValidationErrors}
-            onChange={(nextChild) =>
-              onChange({
-                ...group,
-                groups: groups.map((item, itemIndex) => (itemIndex === index ? nextChild : item)),
-              })
-            }
-            onDelete={() =>
-              onChange({
-                ...group,
-                groups: groups.filter((_, itemIndex) => itemIndex !== index),
-              })
+            onDelete={
+              conditions.length > 1
+                ? () =>
+                    onChange({
+                      ...group,
+                      logicalOperator: EnumConfig.TopupLogicalOperator.And,
+                      groups: [],
+                      conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
+                    })
+                : null
             }
           />
         ))}
@@ -552,28 +484,33 @@ const GroupEditor = ({
             onClick={() =>
               onChange({
                 ...group,
+                logicalOperator: EnumConfig.TopupLogicalOperator.And,
+                groups: [],
                 conditions: [...conditions, createEmptyTopupCondition()],
               })
             }
           >
-            {isRoot
-              ? t('topup_form.add_required_condition')
-              : t('topup_form.add_scenario_condition')}
+            {t('topup_form.add_scenario_condition')}
           </Button>
-          {depth === 1 && (
-            <Button
-              type="dashed"
-              icon={<PlusOutlined />}
-              onClick={() =>
-                onChange({ ...group, groups: [...groups, createEmptyTopupConditionGroup()] })
-              }
-            >
-              {t('topup_form.add_scenario')}
-            </Button>
-          )}
         </Space>
-        {!conditions.length && !groups.length && (
+        {!conditions.length && (
           <Typography.Text type="danger">{t('topup_form.condition_required')}</Typography.Text>
+        )}
+        {!!errors.length && (
+          <Alert
+            type="error"
+            showIcon
+            message={t('topup_form.scenario_conflict_title')}
+            description={
+              <Flex vertical gap={2}>
+                {errors.map((error) => (
+                  <Typography.Text key={error} type="danger">
+                    {error}
+                  </Typography.Text>
+                ))}
+              </Flex>
+            }
+          />
         )}
       </Flex>
     </SectionShell>
@@ -583,20 +520,73 @@ const GroupEditor = ({
 const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = false }) => {
   const { t } = useTranslation()
   const { token } = theme.useToken()
-  const group = value || createEmptyTopupConditionGroup()
-  const warnings = getTopupConditionGroupWarnings(group, t)
+  const group = value || createEmptyTopupScenarioRoot()
+  const scenarios = group.groups?.length ? group.groups : [createEmptyTopupConditionGroup()]
+  const diagnostics = getTopupConditionGroupDiagnostics(group, t)
+  const warnings = diagnostics.warnings
+  const emitScenarioRoot = (groups) =>
+    onChange({
+      ...group,
+      logicalOperator: EnumConfig.TopupLogicalOperator.Or,
+      conditions: [],
+      groups,
+    })
+  const updateScenario = (index, nextScenario) =>
+    emitScenarioRoot(
+      scenarios.map((scenario, itemIndex) =>
+        itemIndex === index
+          ? { ...nextScenario, logicalOperator: EnumConfig.TopupLogicalOperator.And, groups: [] }
+          : scenario
+      )
+    )
 
   return (
     <Flex vertical gap={12}>
-      <GroupEditor
-        group={group}
-        onChange={onChange}
-        depth={1}
-        groupNumber={1}
-        t={t}
-        token={token}
-        showValidationErrors={showValidationErrors}
-      />
+      {scenarios.map((scenario, index) => (
+        <Flex key={scenario.id ?? `scenario-${index}`} vertical gap={12}>
+          {index > 0 && (
+            <Flex align="center" gap={12} role="separator">
+              <div
+                style={{
+                  flex: 1,
+                  borderTop: `1px solid ${token.colorBorderSecondary}`,
+                }}
+              />
+              <Tag color="blue" style={{ margin: 0, fontWeight: token.fontWeightStrong }}>
+                {t('topup_form.or_condition_group')}
+              </Tag>
+              <div
+                style={{
+                  flex: 1,
+                  borderTop: `1px solid ${token.colorBorderSecondary}`,
+                }}
+              />
+            </Flex>
+          )}
+          <GroupEditor
+            group={scenario}
+            groupNumber={index + 1}
+            t={t}
+            token={token}
+            canDelete={scenarios.length > 1}
+            errors={diagnostics.scenarioDiagnostics[index]?.errors || []}
+            showValidationErrors={showValidationErrors}
+            onChange={(nextScenario) => updateScenario(index, nextScenario)}
+            onDelete={() =>
+              emitScenarioRoot(scenarios.filter((_, itemIndex) => itemIndex !== index))
+            }
+          />
+        </Flex>
+      ))}
+      <Button
+        className="topup-add-alternative-button"
+        block
+        icon={<PlusOutlined />}
+        style={{ height: 40 }}
+        onClick={() => emitScenarioRoot([...scenarios, createEmptyTopupConditionGroup()])}
+      >
+        {t('topup_form.add_scenario')}
+      </Button>
       {!!warnings.length && (
         <Alert
           type="warning"

@@ -28,6 +28,7 @@ const SearchBar = ({
         onChange={(newValue) => setValue(newValue)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
+            if (e.defaultPrevented) return
             e.preventDefault()
             onEnterDown?.()
           }
@@ -48,6 +49,7 @@ const SearchBar = ({
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
+          if (e.defaultPrevented) return
           e.preventDefault()
           onEnterDown?.()
         }
