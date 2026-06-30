@@ -7,11 +7,15 @@ import { QrcodeOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import CourseListSection from '../components/CourseListSection'
 import { useLocation } from 'react-router-dom'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import { useSearchParams } from 'react-router-dom';
+
 
 const PayPage = () => {
+  const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const selected = state?.selected ?? [];
-  const [singleinstallment, setSingleInstallment] = useState(state?.installment);
+  const [singleinstallment, setSingleInstallment] = useState(null);
 
   const { t } = useTranslation()
   const { token } = theme.useToken()
@@ -30,20 +34,9 @@ const PayPage = () => {
 
   const getPayToday = (record) => {
     const net = Number(record.netPayable || 0);
+    const months = record.isInstallment ? record.totalInstallments :  Number(plans[record.courseCode]);
     if (!record.isInstallment) return net;
-    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
-  };
-
-  const getOustandingToday = (record) => {
-    const net = Number(record.netPayable || 0);
-    if (!record.isInstallment) return net;
-    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
-  };
-
-  const getRemainingToday = (record) => {
-    const net = Number(record.netPayable || 0);
-    if (!record.isInstallment) return net;
-    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+    return Math.ceil((net / months) * 100) / 100;
   };
 
   const totalDueToday = selected.reduce(
@@ -69,6 +62,65 @@ const PayPage = () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
+
+
+  
+  class BillItem {
+    constructor( chargeId,intent,paymentPlanMonths) {
+      this.chargeId = chargeId;
+      this.intent = intent;
+      this.paymentPlanMonths = paymentPlanMonths;
+    }
+  } 
+  
+  
+  const pay = useAxiosSubmit({
+     url: ApiUrls.PAYMENT.HANDLE,
+     method: 'POST',
+  })
+
+  
+  const handlePay = async () => {
+    var bill = [];
+    const formData = new FormData()
+    selected.forEach((e, index) => {
+        formData.append(
+          `chargePaymentRequestInfors[${index}].chargeId`,
+          e.chargeId
+        );
+
+        formData.append(
+          `chargePaymentRequestInfors[${index}].intent`,
+          e.isInstallment ? 3 : plans[e.courseCode] == 1 ? 1 : 2
+        );
+
+        if(plans[e.courseCode] > 1) {
+          formData.append(
+            `chargePaymentRequestInfors[${index}].paymentPlanMonths`,
+            plans[e.courseCode]
+          );
+        };
+    });
+    formData.append(
+          `CreditBalanceApplied`,
+          balanceInput?? 0
+        );
+    const response = await pay.submit({
+      overrideData: formData,
+    })
+
+
+    const stripeUrl = response?.data?.link;
+
+    if (stripeUrl) {
+      window.location.href = stripeUrl;
+    }
+  }
+
+
+
+
+
 
   return (
     <Flex vertical gap={24}>
@@ -202,6 +254,7 @@ const PayPage = () => {
               height: 48,
               fontWeight: 600,
             }}
+            onClick={handlePay}
           >
             Confirm & Pay
           </Button>
