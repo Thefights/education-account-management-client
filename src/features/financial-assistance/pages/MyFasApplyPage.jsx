@@ -38,9 +38,10 @@ import {
   UpOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { Button, Input, InputNumber, Select, Upload, message } from 'antd'
+import { Button, Input, InputNumber, Select, Upload, message, Tabs, Checkbox } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import FasFormAiChat from '@/features/financial-assistance/components/FasFormAiChat'
 
 const nationalityOptions = ['Singapore Citizen', 'Permanent Resident', 'Other'].map((value) => ({
   value,
@@ -236,7 +237,10 @@ const MyFasApplyPage = () => {
 
   useEffect(() => {
     if (!draftApplication) return
-    const nextProfile = normalizeFasSnapshotProfile(draftApplication.profileSnapshot, initialProfile)
+    const nextProfile = normalizeFasSnapshotProfile(
+      draftApplication.profileSnapshot,
+      initialProfile
+    )
     queueMicrotask(() => {
       setProfile(nextProfile)
       setFormProfile(nextProfile)
@@ -457,8 +461,8 @@ const MyFasApplyPage = () => {
                     {availableSchemesQuery.error
                       ? 'Unable to load FAS schemes from the API right now.'
                       : shown
-                      ? 'No scheme matches the household details and tier limits entered.'
-                      : 'No schemes available right now.'}
+                        ? 'No scheme matches the household details and tier limits entered.'
+                        : 'No schemes available right now.'}
                   </div>
                 )}
               </div>
@@ -558,6 +562,7 @@ const ApplyForm = ({
   onSubmitted,
 }) => {
   const [submitting, setSubmitting] = useState(false)
+  const [isDeclared, setIsDeclared] = useState(false)
   const { t } = useTranslation()
   const submitApplication = useAxiosSubmit({
     method: 'POST',
@@ -695,22 +700,19 @@ const ApplyForm = ({
         </div>
 
         <div className="fas-body fas-apply-detail-body">
-          <div className="fas-apply-hero">
-            <div>
-              <div className="fas-section-label">Financial assistance application</div>
-              <h2>{scheme.name}</h2>
-              <div className="fas-apply-hero-meta">
-                <CalendarOutlined />
-                FAS duration <strong>{scheme.validityMonths || 12} months</strong> from submission
-              </div>
-            </div>
-            <div className="fas-apply-progress-pill">
-              {attachedCount}/{totalDocuments} documents attached
-            </div>
-          </div>
-
           <div className="fas-apply-detail-layout">
             <div className="fas-apply-workflow">
+              <div className="fas-apply-hero">
+                <div>
+                  <div className="fas-section-label">Financial assistance application</div>
+                  <h2>{scheme.name}</h2>
+                  <div className="fas-apply-hero-meta">
+                    <CalendarOutlined />
+                    FAS duration <strong>{scheme.validityMonths || 12} months</strong> from submission
+                  </div>
+                </div>
+              </div>
+
               <section className="fas-apply-step-card">
                 <div className="fas-apply-step-head">
                   <span className="fas-block-number">1</span>
@@ -838,93 +840,134 @@ const ApplyForm = ({
                   })}
                 </div>
               </section>
-            </div>
 
-            <aside className="fas-apply-summary">
-              <div className="fas-summary-card">
-                <div className="fas-section-label">Application summary</div>
-                <div className="fas-summary-title">{scheme.name}</div>
-                <ApplicationSummaryRows profile={profile} pci={pci} />
-                <div className="fas-summary-row">
-                  <span>Estimated tier</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <strong>
-                      {matchingTier?.name ||
-                        (scheme.tiers?.length ? 'No matching tier' : 'To be confirmed')}
-                    </strong>
-                    {matchingTier && (
-                      <div style={{ fontSize: '12px', color: 'var(--fas-gray-dark)', marginTop: '2px' }}>
-                        ({describeTierSubsidy(scheme, matchingTier)})
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="fas-summary-row">
-                  <span>FAS duration</span>
-                  <strong>{scheme.validityMonths || 12} months</strong>
-                </div>
-                {scheme.additionalQuestions?.length > 0 && (
-                  <div className="fas-summary-row">
-                    <span>Questions answered</span>
-                    <strong>
-                      {
-                        scheme.additionalQuestions.filter(
-                          (q) => additionalAnswers[q.id] && additionalAnswers[q.id].trim()
-                        ).length
-                      }
-                      /{scheme.additionalQuestions.length}
-                    </strong>
-                  </div>
-                )}
-                <div className="fas-summary-row">
-                  <span>Documents</span>
-                  <strong>
-                    {attachedCount}/{totalDocuments}
-                  </strong>
-                </div>
+              <section
+                className="fas-apply-step-card"
+                style={{
+                  marginTop: '24px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  padding: 0,
+                  boxShadow: 'none',
+                }}
+              >
                 {blockingApplication && (
                   <p style={{ color: 'var(--fas-red)', marginTop: 0 }}>
                     You already have a pending or approved application for this scheme
                     {blockingApplication.id ? ` (${blockingApplication.id})` : ''}.
                   </p>
                 )}
-                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+
+                <div
+                  style={{
+                    marginBottom: '20px',
+                    padding: '16px 20px',
+                    backgroundColor: 'rgba(var(--app-warning-rgb), 0.05)',
+                    borderRadius: '12px',
+                    border: '1px solid var(--app-warning-soft-border)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <Checkbox checked={isDeclared} onChange={(e) => setIsDeclared(e.target.checked)}>
+                    <span
+                      style={{
+                        fontWeight: 600,
+                        color: 'var(--fas-amber)',
+                        fontSize: '13.5px',
+                        display: 'block',
+                        lineHeight: 1.5,
+                        marginLeft: '4px',
+                      }}
+                    >
+                      I declare that all information provided in this application is true and
+                      correct. I understand that any false information may result in the rejection
+                      of this application.
+                    </span>
+                  </Checkbox>
+                </div>
+
+                {!isReadyToSubmit && !blockingApplication && (
+                  <div style={{ fontSize: '13px', color: 'var(--fas-red)', marginBottom: '8px' }}>
+                    {!hasProfileDetails
+                      ? '* Please fill in all required profile fields.'
+                      : needsTierMatch && !matchingTier
+                        ? '* Household details do not meet any tier.'
+                        : attachedCount < totalDocuments
+                          ? `* Please attach all required documents (${attachedCount}/${totalDocuments}).`
+                          : !areRequiredQuestionsAnswered
+                            ? '* Please answer all required additional questions.'
+                            : '* Please complete all required fields.'}
+                  </div>
+                )}
+                <p style={{ margin: '0 0 24px 0', color: 'var(--fas-grey)', fontSize: '13px' }}>
+                  The school admin reviews your documents and confirms the final assistance tier.
+                </p>
+
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'flex-end' }}>
                   <Button
-                    type="primary"
-                    block
-                    size="large"
-                    disabled={!isReadyToSubmit}
-                    loading={submitting || submitApplication.loading}
-                    onClick={() => submit(false)}
-                  >
-                    Submit application
-                  </Button>
-                  {!isReadyToSubmit && !blockingApplication && (
-                    <div style={{ fontSize: '12px', color: 'var(--fas-red)', textAlign: 'center', lineHeight: '1.2' }}>
-                      {!hasProfileDetails
-                        ? '* Please fill in all required profile fields.'
-                        : needsTierMatch && !matchingTier
-                          ? '* Household details do not meet any tier.'
-                          : attachedCount < totalDocuments
-                            ? `* Please attach all required documents (${attachedCount}/${totalDocuments}).`
-                            : !areRequiredQuestionsAnswered
-                              ? '* Please answer all required additional questions.'
-                              : '* Please complete all required fields.'}
-                    </div>
-                  )}
-                  <Button
-                    block
                     size="large"
                     loading={submitting || submitApplication.loading}
                     disabled={Boolean(blockingApplication)}
                     onClick={() => submit(true)}
+                    style={{ minWidth: 160, borderRadius: '8px', fontWeight: 600 }}
                   >
                     Save as draft
                   </Button>
+                  <Button
+                    type="primary"
+                    size="large"
+                    disabled={!isReadyToSubmit || !isDeclared}
+                    loading={submitting || submitApplication.loading}
+                    onClick={() => submit(false)}
+                    style={{ minWidth: 160, borderRadius: '8px', fontWeight: 600 }}
+                  >
+                    Submit application
+                  </Button>
                 </div>
-                <p>
-                  The school admin reviews your documents and confirms the final assistance tier.
-                </p>
+              </section>
+            </div>
+
+            <aside className="fas-apply-summary">
+              <div
+                className="fas-summary-card"
+                style={{
+                  padding: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '20px 24px',
+                    borderBottom: '1px solid #E5EAF3',
+                    backgroundColor: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '16px',
+                  }}
+                >
+                  Ask AI ✨
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <FasFormAiChat
+                    scheme={scheme}
+                    additionalAnswers={additionalAnswers}
+                    onApplySuggestion={(qId, value) => {
+                      onAdditionalAnswersChange((current) => ({
+                        ...current,
+                        [qId]: value,
+                      }))
+                    }}
+                    onApplyAllSuggestions={(newAnswers) => {
+                      onAdditionalAnswersChange((current) => ({
+                        ...current,
+                        ...newAnswers,
+                      }))
+                    }}
+                  />
+                </div>
               </div>
             </aside>
           </div>
@@ -1015,41 +1058,6 @@ const HouseholdInfoFields = ({ fieldSet, profile, pci, onProfileChange }) => {
           <small>Income ÷ household members</small>
         </div>
       )}
-    </>
-  )
-}
-
-const ApplicationSummaryRows = ({ profile, pci }) => {
-  return (
-    <>
-      <div className="fas-summary-row">
-        <span>Account holder</span>
-        <strong>{profile.name || '-'}</strong>
-      </div>
-      <div className="fas-summary-row">
-        <span>Student age</span>
-        <strong>{profile.age || '-'}</strong>
-      </div>
-      <div className="fas-summary-row">
-        <span>Student nationality</span>
-        <strong>{profile.nationality || '-'}</strong>
-      </div>
-      <div className="fas-summary-row">
-        <span>Parent nationality</span>
-        <strong>{profile.parentNationality || '-'}</strong>
-      </div>
-      <div className="fas-summary-row">
-        <span>Monthly income</span>
-        <strong>S${Number(profile.income || 0).toLocaleString()}</strong>
-      </div>
-      <div className="fas-summary-row">
-        <span>Household size</span>
-        <strong>{profile.members || '-'}</strong>
-      </div>
-      <div className="fas-summary-highlight">
-        <span>Calculated PCI</span>
-        <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
-      </div>
     </>
   )
 }
