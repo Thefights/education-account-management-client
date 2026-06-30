@@ -20,6 +20,7 @@ const TuitionCourseFilterSection = ({
   loading = false,
   onSort,
   sortStatus,
+  resetSelected,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -37,7 +38,6 @@ const TuitionCourseFilterSection = ({
     reset(filters)
   }, [filters])
 
-  console.log(values);
 
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),

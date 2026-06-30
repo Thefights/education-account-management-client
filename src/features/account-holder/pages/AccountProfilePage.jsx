@@ -4,6 +4,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BankOutlined, UserOutlined } from '@ant-design/icons'
 import { Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme } from 'antd'
+import AccountTransactionHistoryPage from './AccountTransactionHistoryPage'
 
 const AccountProfilePage = () => {
   const { t } = useTranslation()
@@ -110,6 +111,7 @@ const AccountProfilePage = () => {
               contentStyle={{ color: token.colorText, fontWeight: 600 }}
             />
           </Card>
+          <AccountTransactionHistoryPage />
         </>
       )}
     </Flex>

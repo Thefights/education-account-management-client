@@ -126,7 +126,6 @@ const CourseManagementTableSection = ({
   ]
 ;
   const handleExpand = key => {
-    console.log(key)
     setFas(mockData.find(e => e.id === key));
     setOpen(true);
   };
