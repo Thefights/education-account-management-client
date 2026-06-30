@@ -252,6 +252,8 @@ const normalizeApplicationDetail = (detail, summary = {}) => {
       answerText: answer.answerText || '',
       isRequired: Boolean(answer.isRequired),
     })),
+    externalRejectionReason: detail.externalRejectionReason || detail.rejectionReason || '',
+    internalRejectionReason: detail.internalRejectionReason || '',
     scheme: {
       id: String(scheme.id || ''),
       apiId: scheme.id,
@@ -408,10 +410,10 @@ const FasApplicationQueuePage = () => {
             await refreshApplications()
           }
         }}
-        onRejected={async (application, reason) => {
+        onRejected={async (application, rejectionReasons) => {
           const response = await rejectSubmit.submit({
             overrideUrl: ApiUrls.FAS_APPLICATION_MANAGEMENT.REJECT(application.apiId),
-            overrideData: { RejectionReason: reason },
+            overrideData: rejectionReasons,
           })
           if (response) {
             message.success(`Rejected ${application.id}`)
@@ -426,7 +428,8 @@ const FasApplicationQueuePage = () => {
 
 const ApplicationReviewModal = ({ application, open, loading, onClose, onApproved, onRejected }) => {
   const [rejectOpen, setRejectOpen] = useState(false)
-  const [reason, setReason] = useState('')
+  const [externalRejectionReason, setExternalRejectionReason] = useState('')
+  const [internalRejectionReason, setInternalRejectionReason] = useState('')
   const [selectedTierId, setSelectedTierId] = useState(
     application?.approvedTier?.id ||
       application?.systemSuggestedTier?.id ||
@@ -436,18 +439,24 @@ const ApplicationReviewModal = ({ application, open, loading, onClose, onApprove
 
   const close = () => {
     setRejectOpen(false)
-    setReason('')
+    setExternalRejectionReason('')
+    setInternalRejectionReason('')
     setOverrideReason('')
     onClose()
   }
 
   const reject = async () => {
-    if (!reason.trim()) {
-      message.error('Enter a rejection reason')
+    const externalReason = externalRejectionReason.trim()
+    const internalReason = internalRejectionReason.trim()
+    if (!externalReason || !internalReason) {
+      message.error('Enter both rejection reasons')
       return
     }
 
-    await onRejected?.(application, reason.trim())
+    await onRejected?.(application, {
+      externalRejectionReason: externalReason,
+      internalRejectionReason: internalReason,
+    })
   }
 
   if (!application) return null
@@ -545,6 +554,10 @@ const ApplicationReviewModal = ({ application, open, loading, onClose, onApprove
           <TierOverrideHistory histories={application.tierOverrideHistories} />
           <AdditionalAnswers answers={application.additionalAnswers} />
           <RequiredDocuments documents={scheme.documents} application={application} />
+          {!isPending &&
+            (application.externalRejectionReason || application.internalRejectionReason) && (
+              <RejectionReasons application={application} />
+            )}
 
           {isPending && (
             <>
@@ -570,20 +583,44 @@ const ApplicationReviewModal = ({ application, open, loading, onClose, onApprove
               </Flex>
 
               {rejectOpen && (
-                <div>
-                  <Input.TextArea
-                    value={reason}
-                    rows={3}
-                    placeholder="Reason, e.g. Income documents incomplete"
-                    onChange={(event) => setReason(event.target.value)}
-                  />
-                  <Flex gap={8} style={{ marginTop: 8 }}>
+                <Flex vertical gap={8}>
+                  <div>
+                    <label className="fas-field-label">Reason shown to student</label>
+                    <Input.TextArea
+                      value={externalRejectionReason}
+                      rows={3}
+                      maxLength={1000}
+                      showCount
+                      placeholder="Example: Income documents are incomplete. Please upload the missing file and reapply."
+                      onChange={(event) => setExternalRejectionReason(event.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="fas-field-label">Internal reason</label>
+                    <Input.TextArea
+                      value={internalRejectionReason}
+                      rows={3}
+                      maxLength={1000}
+                      showCount
+                      placeholder="Admin-only note, e.g. Unable to verify household income from the submitted document."
+                      onChange={(event) => setInternalRejectionReason(event.target.value)}
+                    />
+                  </div>
+                  <Flex gap={8}>
                     <Button danger type="primary" loading={loading} onClick={reject}>
                       Confirm reject
                     </Button>
-                    <Button onClick={() => setRejectOpen(false)}>Cancel</Button>
+                    <Button
+                      onClick={() => {
+                        setRejectOpen(false)
+                        setExternalRejectionReason('')
+                        setInternalRejectionReason('')
+                      }}
+                    >
+                      Cancel
+                    </Button>
                   </Flex>
-                </div>
+                </Flex>
               )}
             </>
           )}
@@ -592,6 +629,24 @@ const ApplicationReviewModal = ({ application, open, loading, onClose, onApprove
     </Modal>
   )
 }
+
+const RejectionReasons = ({ application }) => (
+  <div>
+    <div className="fas-section-label" style={{ marginBottom: 7 }}>
+      Rejection reasons
+    </div>
+    <div className="fas-kv">
+      <div className="fas-kv-row">
+        <span>Student-facing reason</span>
+        <strong>{application.externalRejectionReason || '-'}</strong>
+      </div>
+      <div className="fas-kv-row">
+        <span>Internal reason</span>
+        <strong>{application.internalRejectionReason || '-'}</strong>
+      </div>
+    </div>
+  </div>
+)
 
 const StudentDataBlock = ({ application }) => (
   <div className="fas-kv">

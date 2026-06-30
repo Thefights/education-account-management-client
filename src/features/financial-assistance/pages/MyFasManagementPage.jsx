@@ -10,6 +10,7 @@ import {
   describeTierSubsidy,
   formatFasDate,
   isApprovedApplicationExpired,
+  statusLabel,
 } from '@/features/financial-assistance/utils/fasRules'
 import {
   defaultFasApplicationFilters,
@@ -107,11 +108,9 @@ const MyFasManagementPage = () => {
     }),
     [filters.search, sort.direction, sort.key]
   )
-  const apiApplicationsQuery = useFetch(
-    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+  const apiApplicationsQuery = useFetch(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, apiQueryParams, [
     apiQueryParams,
-    [apiQueryParams]
-  )
+  ])
   const apiApplicationPage = useMemo(
     () => normalizeApiApplicationPage(apiApplicationsQuery.data),
     [apiApplicationsQuery.data]
@@ -139,8 +138,7 @@ const MyFasManagementPage = () => {
         application.id.toLowerCase().includes(query) ||
         application.schemeName.toLowerCase().includes(query)
       const matchesTab = isApplicationInActivityTab(application, activeTab)
-      const matchesStatus =
-        selectedStatus === 'all' || application.displayStatus === selectedStatus
+      const matchesStatus = selectedStatus === 'all' || application.displayStatus === selectedStatus
       return matchesQuery && matchesTab && matchesStatus
     })
   }, [activeTab, apiApplicationPage.collection, filters.search, filters.status])
@@ -240,7 +238,8 @@ const MyFasManagementPage = () => {
 
     const isConfirmed = await confirm({
       title: `Withdraw ${application.schemeName || application.id}?`,
-      description: 'The pending application will be withdrawn and the scheme will reappear in Apply if it is still available.',
+      description:
+        'The pending application will be withdrawn and the scheme will reappear in Apply if it is still available.',
       confirmText: 'Withdraw',
       confirmColor: 'error',
     })
@@ -297,7 +296,7 @@ const MyFasManagementPage = () => {
             key={activeTab}
             filters={filters}
             loading={apiApplicationsQuery.loading}
-            searchTitle="Search by FAS or app no."
+            searchTitle="Search by Scheme or App No."
             dateTitle="Submitted date"
             showStatus={activeTab === FAS_APPLICATION_ACTIVITY_TAB.Inactive}
             statusMode="single"
@@ -347,7 +346,7 @@ const MyFasManagementPage = () => {
         </Flex>
       </Card>
 
-      <ApprovedFasModal
+      <FasApplicationDetailModal
         application={viewApplication}
         scheme={viewScheme}
         open={!!viewApplication && !!viewScheme}
@@ -364,74 +363,207 @@ const MyFasManagementPage = () => {
   )
 }
 
-const ApprovedFasModal = ({ application, scheme, open, loading, onClose, onApplyAgain }) => {
+const formatCurrency = (value) =>
+  value == null || value === ''
+    ? '-'
+    : `S$${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+
+const FasApplicationDetailModal = ({
+  application,
+  scheme,
+  open,
+  loading,
+  onClose,
+  onApplyAgain,
+}) => {
   if (!application || !scheme) return null
 
   const tier = scheme.tiers.find((item) => item.id === application.tierId)
   const expired = isApprovedApplicationExpired(application)
   const validFrom = application.validFrom || application.submittedAt || application.approvedAt
+  const isRejected = application.displayStatus === FAS_APPLICATION_STATUS.Rejected
+  const isApprovedResult =
+    application.status === FAS_APPLICATION_STATUS.Approved ||
+    application.displayStatus === FAS_APPLICATION_STATUS.Expired
+  const profile = application.profileSnapshot || application.data || {}
 
   return (
-    <Modal title={scheme.name} open={open} footer={null} onCancel={onClose} width={560} confirmLoading={loading}>
+    <Modal
+      title="FAS application detail"
+      open={open}
+      footer={null}
+      onCancel={onClose}
+      width={720}
+      wrapClassName="fas-application-detail-modal"
+      confirmLoading={loading}
+    >
+      <div className="fas-section-label" style={{ marginBottom: 7 }}>
+        Application summary
+      </div>
       <div className="fas-kv">
         <div className="fas-kv-row">
           <span>Application No.</span>
           <strong>{application.id}</strong>
         </div>
         <div className="fas-kv-row">
-          <span>Tier</span>
-          <strong>{tier?.name || '-'}</strong>
+          <span>Status</span>
+          <strong>{statusLabel(application.displayStatus || application.status)}</strong>
         </div>
         <div className="fas-kv-row">
-          <span>Valid from</span>
-          <strong>{formatFasDate(validFrom)}</strong>
+          <span>Submitted</span>
+          <strong>{formatFasDate(application.submittedAt)}</strong>
         </div>
-        <div className="fas-kv-row">
-          <span>Duration</span>
-          <strong>{scheme.validityMonths || 12} months</strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Valid until</span>
-          <strong style={{ color: expired ? 'var(--fas-red)' : undefined }}>
-            {formatFasDate(application.endDate)}
-            {expired ? ' · Expired' : ''}
-          </strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Validity status</span>
-          <strong style={{ color: expired ? 'var(--fas-red)' : 'var(--fas-green)' }}>
-            {expired ? 'Invalid' : 'Valid'}
-          </strong>
-        </div>
+        {application.withdrawnAt && (
+          <div className="fas-kv-row">
+            <span>Withdrawn</span>
+            <strong>{formatFasDate(application.withdrawnAt)}</strong>
+          </div>
+        )}
       </div>
 
       <div className="fas-section-label" style={{ marginBottom: 7 }}>
-        Tier subsidy
+        Scheme information
       </div>
       <div className="fas-kv">
         <div className="fas-kv-row">
-          <span>Subsidy</span>
-          <strong>{tier ? describeTierSubsidy(scheme, tier) : '-'}</strong>
+          <span>Scheme</span>
+          <strong>{scheme.name || '-'}</strong>
         </div>
+        {scheme.code && (
+          <div className="fas-kv-row">
+            <span>Scheme code</span>
+            <strong>{scheme.code}</strong>
+          </div>
+        )}
+        {scheme.description && (
+          <div className="fas-kv-row">
+            <span>Description</span>
+            <strong>{scheme.description}</strong>
+          </div>
+        )}
       </div>
 
       <div className="fas-section-label" style={{ marginBottom: 7 }}>
-        Applied to courses
+        Application snapshot
       </div>
-      {application.courses?.length ? (
-        <ul className="fas-course-list">
-          {application.courses.map((course) => (
-            <li key={course}>{course}</li>
+      <div className="fas-kv">
+        <div className="fas-kv-row">
+          <span>Student age</span>
+          <strong>{profile.age ?? '-'}</strong>
+        </div>
+        <div className="fas-kv-row">
+          <span>Student nationality</span>
+          <strong>{profile.nationality || '-'}</strong>
+        </div>
+        <div className="fas-kv-row">
+          <span>Guardian nationality</span>
+          <strong>{profile.parentNationality || '-'}</strong>
+        </div>
+        <div className="fas-kv-row">
+          <span>Gross household income</span>
+          <strong>{formatCurrency(profile.income)}</strong>
+        </div>
+        <div className="fas-kv-row">
+          <span>Household members</span>
+          <strong>{profile.members ?? '-'}</strong>
+        </div>
+        <div className="fas-kv-row">
+          <span>Per-capita income</span>
+          <strong>{formatCurrency(profile.pci)}</strong>
+        </div>
+      </div>
+
+      {isApprovedResult && (
+        <>
+          <div className="fas-section-label" style={{ marginBottom: 7 }}>
+            Approved result
+          </div>
+          <div className="fas-kv">
+            <div className="fas-kv-row">
+              <span>Tier</span>
+              <strong>{tier?.name || '-'}</strong>
+            </div>
+            <div className="fas-kv-row">
+              <span>Subsidy</span>
+              <strong>{tier ? describeTierSubsidy(scheme, tier) : '-'}</strong>
+            </div>
+            <div className="fas-kv-row">
+              <span>Approved</span>
+              <strong>{formatFasDate(application.approvedAt)}</strong>
+            </div>
+            <div className="fas-kv-row">
+              <span>Valid from</span>
+              <strong>{formatFasDate(validFrom)}</strong>
+            </div>
+            <div className="fas-kv-row">
+              <span>Valid until</span>
+              <strong style={{ color: expired ? 'var(--fas-red)' : undefined }}>
+                {formatFasDate(application.endDate)}
+                {expired ? ' · Expired' : ''}
+              </strong>
+            </div>
+          </div>
+        </>
+      )}
+
+      {isRejected && (
+        <>
+          <div className="fas-section-label" style={{ marginBottom: 7 }}>
+            Rejection
+          </div>
+          <div className="fas-kv">
+            <div className="fas-kv-row">
+              <span>Reason</span>
+              <strong>{application.reason || '-'}</strong>
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="fas-section-label" style={{ marginBottom: 7 }}>
+        Documents submitted
+      </div>
+      {scheme.documents?.length ? (
+        <div className="fas-kv">
+          {scheme.documents.map((document) => (
+            <div className="fas-kv-row" key={document.id || document.fileKey || document.name}>
+              <span>{document.name || '-'}</span>
+              <strong>{document.fileName || '-'}</strong>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
         <div className="fas-muted" style={{ fontSize: 12.5 }}>
-          Not applied to any course yet.
+          No documents submitted.
+        </div>
+      )}
+
+      <div className="fas-section-label" style={{ marginBottom: 7 }}>
+        Additional answers
+      </div>
+      {application.additionalAnswers?.length ? (
+        <div className="fas-kv">
+          {application.additionalAnswers.map((answer) => (
+            <div
+              className="fas-kv-row"
+              key={answer.fasSchemeAdditionalQuestionId || answer.questionText}
+            >
+              <span>
+                {answer.questionText || 'Additional question'}
+                {answer.isRequired ? ' · Required' : ''}
+              </span>
+              <strong>{answer.answerText || '-'}</strong>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="fas-muted" style={{ fontSize: 12.5 }}>
+          No additional answers submitted.
         </div>
       )}
 
       <Flex justify="end" gap={8} style={{ marginTop: 16 }}>
-        {expired && (
+        {(isRejected || expired) && (
           <Button type="primary" onClick={() => onApplyAgain?.(application)}>
             Apply again
           </Button>
