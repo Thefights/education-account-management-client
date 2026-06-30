@@ -177,7 +177,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.COURSE_MANAGEMENT.EDIT(),
-        element: <CourseManagementFormPage />,
+        element: <CourseDetailPage />,
       },
       {
         path: routeUrls.COURSE_MANAGEMENT.DETAIL(),

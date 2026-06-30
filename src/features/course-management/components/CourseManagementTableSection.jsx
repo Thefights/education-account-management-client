@@ -4,10 +4,9 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { CopyOutlined, EditOutlined } from '@ant-design/icons'
+import { CopyOutlined } from '@ant-design/icons'
 
 const isDraft = (course) => course.status === 'Draft'
-const canEdit = (course) => course.status === 'Draft' || course.status === 'Enrolling'
 
 const CourseManagementTableSection = ({
   courses,
@@ -17,7 +16,6 @@ const CourseManagementTableSection = ({
   selectedIds,
   setSelectedIds,
   onDetail,
-  onEdit,
   onDuplicate,
 }) => {
   const { t } = useTranslation()
@@ -80,12 +78,6 @@ const CourseManagementTableSection = ({
       render: (_, row) => (
         <ActionMenu
           actions={[
-            {
-              title: t('button.update'),
-              icon: <EditOutlined />,
-              disabled: !canEdit(row),
-              onClick: () => onEdit(row),
-            },
             {
               title: t('button.duplicate', 'Duplicate'),
               icon: <CopyOutlined />,
