@@ -1,35 +1,18 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
 
-export const FAS_CONDITION_FIELD = {
-  StudentAge: 1,
-  Nationality: 2,
-  ParentNationality: 3,
-  GrossHouseholdIncome: 5,
-  PerCapitaIncome: 6,
-}
+export const FAS_CONDITION_FIELD = EnumConfig.FasConditionField
 
-export const FAS_CONDITION_OPERATOR = {
-  Equals: 1,
-  NotEquals: 2,
-  LessThan: 3,
-  LessThanOrEqual: 4,
-  GreaterThan: 5,
-  GreaterThanOrEqual: 6,
-  Between: 7,
-}
+export const FAS_CONDITION_OPERATOR = EnumConfig.FasConditionOperator
 
-export const FAS_LOGICAL_OPERATOR = {
-  All: 1,
-  Any: 2,
-}
+export const FAS_LOGICAL_OPERATOR = EnumConfig.FasLogicalOperator
 
 export const FAS_FIELD_OPTIONS = [
   { value: FAS_CONDITION_FIELD.StudentAge, legacyValue: 'studentAge', label: 'Student age' },
   { value: FAS_CONDITION_FIELD.Nationality, legacyValue: 'nationality', label: 'Nationality' },
   {
-    value: FAS_CONDITION_FIELD.ParentNationality,
+    value: FAS_CONDITION_FIELD.GuardianNationality,
     legacyValue: 'parentNationality',
-    label: "Parent's Nationality",
+    label: "Guardian's Nationality",
   },
   { value: FAS_CONDITION_FIELD.PerCapitaIncome, legacyValue: 'pci', label: 'Per-Capita Income' },
   {
@@ -53,28 +36,44 @@ export const FAS_FIELD_KEY_BY_VALUE = FAS_FIELD_OPTIONS.reduce(
   {}
 )
 
-export const FAS_FIELD_VALUE_BY_KEY = FAS_FIELD_OPTIONS.reduce(
-  (acc, item) => ({ ...acc, [item.legacyValue]: item.value }),
-  {}
-)
+export const FAS_FIELD_VALUE_BY_KEY = {
+  ...FAS_FIELD_OPTIONS.reduce((acc, item) => ({ ...acc, [item.legacyValue]: item.value }), {}),
+  StudentAge: FAS_CONDITION_FIELD.StudentAge,
+  StudentNationality: FAS_CONDITION_FIELD.StudentNationality,
+  Nationality: FAS_CONDITION_FIELD.StudentNationality,
+  GuardianNationality: FAS_CONDITION_FIELD.GuardianNationality,
+  ParentNationality: FAS_CONDITION_FIELD.GuardianNationality,
+  GrossHouseholdIncome: FAS_CONDITION_FIELD.GrossHouseholdIncome,
+  PerCapitaIncome: FAS_CONDITION_FIELD.PerCapitaIncome,
+  guardianNationality: FAS_CONDITION_FIELD.GuardianNationality,
+}
 
 export const FAS_TEXT_FIELD_VALUES = new Set([
-  FAS_CONDITION_FIELD.Nationality,
-  FAS_CONDITION_FIELD.ParentNationality,
+  FAS_CONDITION_FIELD.StudentNationality,
+  FAS_CONDITION_FIELD.GuardianNationality,
 ])
 
 const localId = (prefix) =>
   prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
 
-export const normalizeFasConditionField = (field) =>
-  typeof field === 'number'
-    ? field
-    : FAS_FIELD_VALUE_BY_KEY[field] || FAS_CONDITION_FIELD.PerCapitaIncome
+export const normalizeFasConditionField = (field) => {
+  if (typeof field === 'number') return field
+
+  const numericField = Number(field)
+  if (Number.isFinite(numericField) && numericField > 0) return numericField
+
+  return FAS_FIELD_VALUE_BY_KEY[field] || FAS_CONDITION_FIELD.PerCapitaIncome
+}
 
 export const normalizeFasConditionOperator = (operator) => {
   if (typeof operator === 'number') return operator
 
+  const numericOperator = Number(operator)
+  if (Number.isFinite(numericOperator) && numericOperator > 0) return numericOperator
+
   const operatorValues = {
+    Equal: FAS_CONDITION_OPERATOR.Equal,
+    NotEqual: FAS_CONDITION_OPERATOR.NotEqual,
     Equals: FAS_CONDITION_OPERATOR.Equals,
     NotEquals: FAS_CONDITION_OPERATOR.NotEquals,
     GreaterThan: FAS_CONDITION_OPERATOR.GreaterThan,
@@ -116,8 +115,8 @@ const numberOrNull = (value) => {
 const toFasCountryId = (value) => {
   const normalized = String(value || '').trim().toLowerCase()
   if (!normalized || normalized === 'any') return null
-  if (normalized.includes('singapore')) return 1
-  return 2
+  if (normalized.includes('singapore')) return EnumConfig.FasGuardianNationalityId.SingaporeCitizen
+  return EnumConfig.FasGuardianNationalityId.Other
 }
 
 const toFasCountryText = (value) => {
@@ -129,7 +128,7 @@ const toFasCountryText = (value) => {
 
 const fromFasCountryId = (value) => {
   const countryId = Number(value)
-  if (countryId === 1) return 'Singapore Citizen'
+  if (countryId === EnumConfig.FasGuardianNationalityId.SingaporeCitizen) return 'Singapore Citizen'
   if (countryId > 0) return 'Other'
   return null
 }

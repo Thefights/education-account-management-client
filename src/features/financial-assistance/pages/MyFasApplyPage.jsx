@@ -8,7 +8,6 @@ import {
   normalizeApiApplicationDetail,
   normalizeApiApplicationPage,
   normalizeApiAvailableSchemesResponse,
-  normalizeApiScheme,
   normalizeFasProfileFromApi,
   normalizeFasSnapshotProfile,
 } from '@/features/financial-assistance/api/accountHolderFasApi'
@@ -150,7 +149,6 @@ const buildAttachedDocsFromApplication = (application) =>
 const MyFasApplyPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { t } = useTranslation()
   const [initialSchemeId] = useState(() =>
     location.state?.schemeId != null ? String(location.state.schemeId) : null
   )
@@ -238,23 +236,22 @@ const MyFasApplyPage = () => {
 
   useEffect(() => {
     if (!draftApplication) return
-    const nextProfile = normalizeFasSnapshotProfile(
-      draftApplication.profileSnapshot,
-      initialProfile
-    )
-    setProfile(nextProfile)
-    setFormProfile(nextProfile)
-    setShown(true)
-    setFormSchemeId(draftApplication.schemeId)
-    setAttachedDocs(buildAttachedDocsFromApplication(draftApplication))
+    const nextProfile = normalizeFasSnapshotProfile(draftApplication.profileSnapshot, initialProfile)
+    queueMicrotask(() => {
+      setProfile(nextProfile)
+      setFormProfile(nextProfile)
+      setShown(true)
+      setFormSchemeId(draftApplication.schemeId)
+      setAttachedDocs(buildAttachedDocsFromApplication(draftApplication))
 
-    const initialAnswers = {}
-    ;(draftApplication.additionalAnswers || []).forEach((ans) => {
-      if (ans.fasSchemeAdditionalQuestionId) {
-        initialAnswers[ans.fasSchemeAdditionalQuestionId] = ans.answerText || ''
-      }
+      const initialAnswers = {}
+      ;(draftApplication.additionalAnswers || []).forEach((answer) => {
+        if (answer.fasSchemeAdditionalQuestionId) {
+          initialAnswers[answer.fasSchemeAdditionalQuestionId] = answer.answerText || ''
+        }
+      })
+      setAdditionalAnswers(initialAnswers)
     })
-    setAdditionalAnswers(initialAnswers)
   }, [draftApplication])
 
   const activeAvailableSchemes = schemes
@@ -275,6 +272,7 @@ const MyFasApplyPage = () => {
       if (!draftApplicationId && findActiveApplicationForScheme(activeApplications, scheme))
         return false
       if (!shown) return true
+      if (usingApiSchemes && scheme.apiId != null && !scheme.reapplyFallback) return true
       if (scheme.reapplyFallback || !scheme.tiers?.length) return true
       return !!getSuggestedTier(scheme, { data: eligibleProfile })
     })
@@ -456,7 +454,9 @@ const MyFasApplyPage = () => {
                   })
                 ) : (
                   <div className="fas-empty">
-                    {shown
+                    {availableSchemesQuery.error
+                      ? 'Unable to load FAS schemes from the API right now.'
+                      : shown
                       ? 'No scheme matches the household details and tier limits entered.'
                       : 'No schemes available right now.'}
                   </div>
@@ -646,7 +646,7 @@ const ApplyForm = ({
     setSubmitting(true)
     try {
       const answersList = Object.entries(additionalAnswers)
-        .filter(([_, answerText]) => answerText)
+        .filter(([, answerText]) => answerText)
         .map(([questionId, answerText]) => ({
           fasSchemeAdditionalQuestionId: Number(questionId),
           answerText,
@@ -844,7 +844,7 @@ const ApplyForm = ({
               <div className="fas-summary-card">
                 <div className="fas-section-label">Application summary</div>
                 <div className="fas-summary-title">{scheme.name}</div>
-                <ApplicationSummaryRows fieldSet={schemeFieldSet} profile={profile} pci={pci} />
+                <ApplicationSummaryRows profile={profile} pci={pci} />
                 <div className="fas-summary-row">
                   <span>Estimated tier</span>
                   <div style={{ textAlign: 'right' }}>
@@ -1019,7 +1019,7 @@ const HouseholdInfoFields = ({ fieldSet, profile, pci, onProfileChange }) => {
   )
 }
 
-const ApplicationSummaryRows = ({ fieldSet, profile, pci }) => {
+const ApplicationSummaryRows = ({ profile, pci }) => {
   return (
     <>
       <div className="fas-summary-row">

@@ -102,6 +102,7 @@ export const FasApplicationFilterSection = ({
   searchTitle = 'Search by FAS, account, or app no.',
   dateTitle = 'Submitted date',
   showStatus = true,
+  statusMode = 'multi',
   showDateRange = true,
 }) => {
   const { values, handleChange, reset, setField, registerRef } = useForm(filters)
@@ -119,14 +120,24 @@ export const FasApplicationFilterSection = ({
       colProps: { xs: 24, md: 8, xl: 7 },
     },
     showStatus
-      ? {
-          ...makeMultiCheckField({
-            key: 'statuses',
+      ? statusMode === 'single'
+        ? {
+            key: 'status',
             title: 'Status',
-            options: fasApplicationStatusOptions,
-          }),
-          colProps: { xs: 24, sm: 12, md: 8, xl: 5 },
-        }
+            type: 'select',
+            options: [{ value: 'all', label: 'All' }, ...fasApplicationStatusOptions],
+            required: false,
+            placeholder: 'All',
+            colProps: { xs: 24, sm: 12, md: 8, xl: 5 },
+          }
+        : {
+            ...makeMultiCheckField({
+              key: 'statuses',
+              title: 'Status',
+              options: fasApplicationStatusOptions,
+            }),
+            colProps: { xs: 24, sm: 12, md: 8, xl: 5 },
+          }
       : null,
   ].filter(Boolean)
 

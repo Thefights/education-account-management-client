@@ -33,6 +33,7 @@ export const defaultFasSchemeFilters = { search: '', status: 'all' }
 
 export const defaultFasApplicationFilters = {
   search: '',
+  status: 'all',
   statuses: [],
   dateFrom: '',
   dateTo: '',
