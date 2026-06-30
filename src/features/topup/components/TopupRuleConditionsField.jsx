@@ -8,6 +8,7 @@ import {
   QuestionCircleOutlined,
 } from '@ant-design/icons'
 import {
+  Alert,
   Button,
   Col,
   Flex,
@@ -22,8 +23,12 @@ import {
   theme,
 } from 'antd'
 import {
+  TOPUP_ELIGIBLE_AGE_MAX,
+  TOPUP_ELIGIBLE_AGE_MIN,
   createEmptyTopupCondition,
   createEmptyTopupConditionGroup,
+  getTopupConditionGroupWarnings,
+  getTopupConditionValidationErrors,
   isTopupConditionGroupValid,
 } from '../utils/topupRuleFormUtil'
 
@@ -39,14 +44,14 @@ const getFieldOptions = (t) => [
 const getOperatorOptions = (t, isText = false) => {
   const options = [
     { value: EnumConfig.TopupConditionOperator.Equals, label: `= (${t('topup_form.is')})` },
-    { value: EnumConfig.TopupConditionOperator.NotEquals, label: `!= (${t('topup_form.is_not')})` },
+    { value: EnumConfig.TopupConditionOperator.NotEquals, label: `≠ (${t('topup_form.is_not')})` },
     {
       value: EnumConfig.TopupConditionOperator.GreaterThan,
       label: `> (${t('topup_form.greater_than')})`,
     },
     {
       value: EnumConfig.TopupConditionOperator.GreaterThanOrEqual,
-      label: `>= (${t('topup_form.at_least')})`,
+      label: `≥ (${t('topup_form.at_least')})`,
     },
     {
       value: EnumConfig.TopupConditionOperator.LessThan,
@@ -54,7 +59,7 @@ const getOperatorOptions = (t, isText = false) => {
     },
     {
       value: EnumConfig.TopupConditionOperator.LessThanOrEqual,
-      label: `<= (${t('topup_form.at_most')})`,
+      label: `≤ (${t('topup_form.at_most')})`,
     },
     { value: EnumConfig.TopupConditionOperator.Between, label: `↔ (${t('topup_form.between')})` },
   ]
@@ -122,6 +127,18 @@ const buildEligibilityCases = (group, t) => {
 const getEligibilityCaseText = (caseParts, t) => {
   if (!caseParts.length) return '—'
   return caseParts.join(` ${t('topup_form.and')} `)
+}
+
+const getConditionValidationErrorMessage = (error, t) => {
+  if (error === 'age_range') {
+    return t('topup_form.age_range_error', {
+      min: TOPUP_ELIGIBLE_AGE_MIN,
+      max: TOPUP_ELIGIBLE_AGE_MAX,
+    })
+  }
+  if (error === 'whole_age') return t('topup_form.age_whole_number_error')
+  if (error === 'invalid_range') return t('topup_form.invalid_range')
+  return t('topup_form.enter_value')
 }
 
 const getLogicalOperatorOptions = (t, isRoot) => [
@@ -280,14 +297,13 @@ const SectionShell = ({ title, subtitle, accentColor, onDelete, children, t, tok
 const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showValidationErrors }) => {
   const isText = condition.field === EnumConfig.TopupConditionField.SchoolingStatus
   const isBetween = !isText && condition.operator === EnumConfig.TopupConditionOperator.Between
-  const missingValue = isText ? !condition.valueText : condition.valueNumber == null
-  const missingUpperValue = isBetween && condition.valueNumberTo == null
-  const invalidRange =
-    isBetween &&
-    condition.valueNumberTo != null &&
-    Number(condition.valueNumberTo) < Number(condition.valueNumber)
-  const showMissingValue = showValidationErrors && missingValue
-  const showUpperValueError = showValidationErrors && missingUpperValue
+  const validationErrors = getTopupConditionValidationErrors(condition)
+  const valueError = showValidationErrors
+    ? validationErrors.valueText || validationErrors.valueNumber
+    : null
+  const upperValueError = showValidationErrors ? validationErrors.valueNumberTo : null
+  const operatorError = showValidationErrors ? validationErrors.operator : null
+  const isAge = condition.field === EnumConfig.TopupConditionField.Age
 
   return (
     <div
@@ -339,6 +355,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
             placeholder="Select operator"
             value={condition.operator}
             options={getOperatorOptions(t, isText)}
+            status={operatorError ? 'error' : undefined}
             style={{ width: '100%', height: 32 }}
             onChange={(operator) =>
               onChange({
@@ -357,7 +374,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
             {isText ? (
               <Select
                 aria-label={t('topup_form.value')}
-                status={showMissingValue ? 'error' : undefined}
+                status={valueError ? 'error' : undefined}
                 value={condition.valueText}
                 placeholder="Select value"
                 options={[
@@ -370,17 +387,20 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
             ) : (
               <InputNumber
                 aria-label={t('topup_form.value')}
-                status={showMissingValue ? 'error' : undefined}
+                status={valueError ? 'error' : undefined}
                 value={condition.valueNumber}
                 placeholder={
                   isBetween
-                    ? 'e.g. 100.00'
-                    : condition.field === EnumConfig.TopupConditionField.Age
-                      ? 'e.g. 12'
+                    ? isAge
+                      ? `e.g. ${TOPUP_ELIGIBLE_AGE_MIN}`
+                      : 'e.g. 100.00'
+                    : isAge
+                      ? `e.g. ${TOPUP_ELIGIBLE_AGE_MIN}`
                       : 'e.g. 100.00'
                 }
-                min={0}
-                precision={condition.field === EnumConfig.TopupConditionField.Age ? 0 : 2}
+                min={isAge ? TOPUP_ELIGIBLE_AGE_MIN : 0}
+                max={isAge ? TOPUP_ELIGIBLE_AGE_MAX : undefined}
+                precision={isAge ? 0 : 2}
                 prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
                 suffix={
                   condition.field === EnumConfig.TopupConditionField.Age
@@ -391,9 +411,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 onChange={(valueNumber) => onChange({ ...condition, valueNumber })}
               />
             )}
-            {showMissingValue && (
+            {valueError && (
               <Typography.Text type="danger" style={{ fontSize: 12 }}>
-                {t('topup_form.enter_value')}
+                {getConditionValidationErrorMessage(valueError, t)}
               </Typography.Text>
             )}
           </Flex>
@@ -403,11 +423,12 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
             <Flex vertical gap={4}>
               <InputNumber
                 aria-label={t('topup_form.to_value')}
-                status={showUpperValueError || invalidRange ? 'error' : undefined}
+                status={upperValueError ? 'error' : undefined}
                 value={condition.valueNumberTo}
-                placeholder="e.g. 500.00"
-                min={0}
-                precision={condition.field === EnumConfig.TopupConditionField.Age ? 0 : 2}
+                placeholder={isAge ? `e.g. ${TOPUP_ELIGIBLE_AGE_MAX}` : 'e.g. 500.00'}
+                min={isAge ? TOPUP_ELIGIBLE_AGE_MIN : 0}
+                max={isAge ? TOPUP_ELIGIBLE_AGE_MAX : undefined}
+                precision={isAge ? 0 : 2}
                 prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
                 suffix={
                   condition.field === EnumConfig.TopupConditionField.Age
@@ -417,9 +438,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 style={{ width: '100%', height: 32 }}
                 onChange={(valueNumberTo) => onChange({ ...condition, valueNumberTo })}
               />
-              {(showUpperValueError || invalidRange) && (
+              {upperValueError && (
                 <Typography.Text type="danger" style={{ fontSize: 12 }}>
-                  {invalidRange ? t('topup_form.invalid_range') : t('topup_form.enter_value')}
+                  {getConditionValidationErrorMessage(upperValueError, t)}
                 </Typography.Text>
               )}
             </Flex>
@@ -563,6 +584,7 @@ const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = fals
   const { t } = useTranslation()
   const { token } = theme.useToken()
   const group = value || createEmptyTopupConditionGroup()
+  const warnings = getTopupConditionGroupWarnings(group, t)
 
   return (
     <Flex vertical gap={12}>
@@ -575,6 +597,20 @@ const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = fals
         token={token}
         showValidationErrors={showValidationErrors}
       />
+      {!!warnings.length && (
+        <Alert
+          type="warning"
+          showIcon
+          message={t('topup_form.condition_warnings')}
+          description={
+            <Flex vertical gap={2}>
+              {warnings.map((warning) => (
+                <Typography.Text key={warning}>{warning}</Typography.Text>
+              ))}
+            </Flex>
+          }
+        />
+      )}
       {isTopupConditionGroupValid(group) && (
         <div
           style={{

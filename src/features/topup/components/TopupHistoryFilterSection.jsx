@@ -33,7 +33,7 @@ const TopupHistoryFilterSection = ({ filters, loading, onFilter, onReset }) => {
       label: t('topup.search_execution'),
       type: 'search',
       required: false,
-      placeholder: 'e.g. EXE-2026-0001 or Student Support Top-up',
+      placeholder: 'Search...',
       reserveLabelSpace: true,
       colProps: { xs: 24, md: 12, xl: 6 },
     },
