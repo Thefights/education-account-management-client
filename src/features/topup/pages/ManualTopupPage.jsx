@@ -1,11 +1,10 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
 import axiosConfig from '@/shared/api/axiosClient'
-import MultipleSelectDialog from '@/shared/components/dialogs/commons/MultipleSelectDialog'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
@@ -32,7 +31,7 @@ import {
   Upload,
   theme,
 } from 'antd'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const ManualTopupResult = ({ result, submittedTopup, onViewExecution, t }) => {
@@ -153,8 +152,8 @@ const ManualTopupPage = ({ embedded = false }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [mode, setMode] = useState('selection')
-  const [pickerOpen, setPickerOpen] = useState(false)
   const [accountIds, setAccountIds] = useState([])
+  const [accountOptionCache, setAccountOptionCache] = useState({})
   const [file, setFile] = useState(null)
   const [topUpAmount, setTopUpAmount] = useState(null)
   const [disbursementReason, setDisbursementReason] = useState('')
@@ -175,9 +174,16 @@ const ManualTopupPage = ({ embedded = false }) => {
         params: { search, page, pageSize },
       })
       const data = response.data
+      const accounts = data?.collection || []
+      setAccountOptionCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...accounts.map((account) => [String(account.id), account]),
+        ])
+      )
       return {
         totalCount: data?.totalCount || 0,
-        options: (data?.collection || []).map((account) => ({
+        options: accounts.map((account) => ({
           value: account.id,
           label: (
             <Flex vertical>
@@ -185,16 +191,69 @@ const ManualTopupPage = ({ embedded = false }) => {
                 {account.accountNumber} - {account.name}
               </Typography.Text>
               <Typography.Text type="secondary">
-                <MaskedNric value={account.nric} /> | {t('topup.balance')}:{' '}
+                {t('topup.balance')}:{' '}
                 {formatCurrencyBasedOnCurrentLanguage(account.balance)}
               </Typography.Text>
             </Flex>
           ),
-          searchKey: `${account.accountNumber} ${account.nric} ${account.name}`,
+          searchKey: `${account.accountNumber} ${account.name}`,
         })),
       }
     },
     [t]
+  )
+
+  const accountOptions = useMemo(
+    () =>
+      Object.values(accountOptionCache).map((account) => ({
+        value: account.id,
+        label: (
+          <Flex vertical>
+            <Typography.Text strong>
+              {account.accountNumber} - {account.name}
+            </Typography.Text>
+            <Typography.Text type="secondary">
+              {t('topup.balance')}:{' '}
+              {formatCurrencyBasedOnCurrentLanguage(account.balance)}
+            </Typography.Text>
+          </Flex>
+        ),
+        searchKey: `${account.accountNumber} ${account.name}`,
+      })),
+    [accountOptionCache, t]
+  )
+
+  const handleAccountIdsChange = useCallback((selectedValues) => {
+    invalidateSubmission()
+    setAccountIds(selectedValues || [])
+  }, [])
+
+  const { renderField: renderTopupField } = useFieldRenderer(
+    { accountIds },
+    (key, value) => {
+      if (key === 'accountIds') handleAccountIdsChange(value)
+    },
+    (event) => {
+      if (event?.target?.name === 'accountIds') handleAccountIdsChange(event.target.value)
+    }
+  )
+
+  const accountField = useMemo(
+    () => ({
+      key: 'accountIds',
+      title: t('topup.select_accounts'),
+      type: 'select',
+      multiple: true,
+      required: true,
+      placeholder: 'Select one or more eligible accounts',
+      options: accountOptions,
+      loadOptions: loadAccounts,
+      renderOptionValue: (value) => {
+        const account = accountOptionCache[String(value)]
+        return account ? `${account.accountNumber} - ${account.name}` : String(value)
+      },
+    }),
+    [accountOptionCache, accountOptions, loadAccounts, t]
   )
 
   const submit = async () => {
@@ -230,22 +289,16 @@ const ManualTopupPage = ({ embedded = false }) => {
       key: 'selection',
       label: t('topup.multiple_select'),
       children: (
-        <Form.Item label={t('topup.select_accounts')} required>
-          <Space>
-            <Button onClick={() => setPickerOpen(true)}>{t('topup.select_accounts')}</Button>
-            {accountIds.length > 0 ? (
-              <Typography.Text type="success" strong>
-                {t(
-                  'topup.selected_count',
-                  { count: accountIds.length },
-                  `${accountIds.length} selected`
-                )}
-              </Typography.Text>
-            ) : (
-              <Typography.Text type="secondary">No accounts selected</Typography.Text>
-            )}
-          </Space>
-        </Form.Item>
+        <Flex vertical gap={8}>
+          {renderTopupField(accountField)}
+          {accountIds.length > 0 ? (
+            <Typography.Text type="success" strong>
+              {t('topup.selected_count', { count: accountIds.length }, `${accountIds.length} selected`)}
+            </Typography.Text>
+          ) : (
+            <Typography.Text type="secondary">No accounts selected</Typography.Text>
+          )}
+        </Flex>
       ),
     },
     {
@@ -330,7 +383,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                     invalidateSubmission()
                     setTopUpAmount(value)
                   }}
-                  placeholder="0.00"
+                  placeholder="e.g. 100.00"
                   style={{ width: '100%', maxWidth: 300 }}
                 />
               </Form.Item>
@@ -343,7 +396,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                     invalidateSubmission()
                     setDisbursementReason(event.target.value)
                   }}
-                  placeholder={t('topup.reason_placeholder', 'Enter a reason for this top-up')}
+                  placeholder="e.g. Approved after reviewing supporting documents"
                 />
               </Form.Item>
 
@@ -377,18 +430,6 @@ const ManualTopupPage = ({ embedded = false }) => {
           </Flex>
         </Card>
       </div>
-
-      <MultipleSelectDialog
-        open={pickerOpen}
-        onClose={() => setPickerOpen(false)}
-        value={accountIds}
-        onChange={(values) => {
-          invalidateSubmission()
-          setAccountIds(values)
-        }}
-        loadOptions={loadAccounts}
-        title={t('topup.select_accounts')}
-      />
     </>
   )
 

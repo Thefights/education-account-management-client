@@ -337,6 +337,7 @@ const MyFasApplyPage = () => {
                   min={0}
                   value={profile.income}
                   prefix="S$"
+                  placeholder="e.g. 4000.00"
                   style={{ width: '100%' }}
                   onChange={(value) => setProfile((current) => ({ ...current, income: value || '' }))}
                 />
@@ -352,6 +353,7 @@ const MyFasApplyPage = () => {
                     <InputNumber
                       min={0}
                       value={profile.members}
+                      placeholder="e.g. 4"
                       style={{ width: 86 }}
                       onChange={(value) =>
                         setProfile((current) => ({ ...current, members: value || '' }))
@@ -365,6 +367,7 @@ const MyFasApplyPage = () => {
               <ProfileQuestion icon={<IdcardOutlined />} label="Parent's nationality">
                 <Select
                   value={profile.parentNationality}
+                  placeholder="Select nationality"
                   options={parentNationalityOptions}
                   style={{ width: '100%' }}
                   onChange={(value) =>
@@ -824,11 +827,12 @@ const SchemeApplicationFields = ({ fieldSet, profile, pci, onProfileChange }) =>
         {requiresIncome && (
           <div>
             <label className="fas-field-label">Gross household income (S$/month)</label>
-            <InputNumber
-              min={0}
-              value={profile.income}
-              prefix="S$"
-              style={{ width: '100%' }}
+                <InputNumber
+                  min={0}
+                  value={profile.income}
+                  prefix="S$"
+                  placeholder="e.g. 4000.00"
+                  style={{ width: '100%' }}
               onChange={(value) =>
                 onProfileChange((current) => ({ ...current, income: value || '' }))
               }
@@ -839,10 +843,11 @@ const SchemeApplicationFields = ({ fieldSet, profile, pci, onProfileChange }) =>
         {requiresMembers && (
           <div>
             <label className="fas-field-label">Household members</label>
-            <InputNumber
-              min={0}
-              value={profile.members}
-              style={{ width: '100%' }}
+              <InputNumber
+                min={0}
+                value={profile.members}
+                placeholder="e.g. 4"
+                style={{ width: '100%' }}
               onChange={(value) =>
                 onProfileChange((current) => ({ ...current, members: value || '' }))
               }

@@ -15,6 +15,7 @@ const AdminManagementTableSection = ({
   selectedIds,
   setSelectedIds,
   onDetail,
+  currentUserId,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -71,6 +72,7 @@ const AdminManagementTableSection = ({
       canSelectRows
       selectedRows={selectedIds}
       setSelectedRows={setSelectedIds}
+      isRowSelectable={(row) => String(row.userId) !== String(currentUserId)}
       onRowClick={onDetail}
     />
   )

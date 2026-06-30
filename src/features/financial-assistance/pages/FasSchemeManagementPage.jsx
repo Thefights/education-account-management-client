@@ -22,7 +22,7 @@ import {
 } from '@/features/financial-assistance/data/fasMockStore'
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useConfirm from '@/shared/hooks/useConfirm'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
@@ -47,7 +47,6 @@ import {
   Flex,
   Input,
   InputNumber,
-  Modal,
   Radio,
   Row,
   Select,
@@ -61,7 +60,7 @@ import {
   message,
   theme,
 } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 const nationalityOptions = ['Singapore Citizen', 'Permanent Resident', 'Other', 'Any'].map(
   (value) => ({
@@ -166,7 +165,7 @@ const mapBackendSchemeToFrontend = (dto) => {
 }
 
 const FasSchemeManagementPage = () => {
-  const confirm = useConfirm()
+  const confirmReason = useReasonConfirm()
   const [filters, setFilters] = useState(defaultFasSchemeFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'asc' })
   const [page, setPage] = useState(1)
@@ -292,10 +291,17 @@ const FasSchemeManagementPage = () => {
       const savedSchemeId = savedScheme.id
 
       if (status === FAS_STATUS.Active) {
+        const reason = await confirmReason({
+          title: `Publish ${scheme.name}?`,
+          description: 'The scheme will be available for student applications.',
+          confirmText: 'Publish',
+        })
+        if (!reason) return false
         const statusResponse = await statusSubmit.submit({
           overrideData: {
             ids: [Number(savedSchemeId)],
             status: 2, // Active = 2
+            reason,
           },
         })
         if (statusResponse) {
@@ -326,21 +332,20 @@ const FasSchemeManagementPage = () => {
   }
 
   const deleteDraft = async (scheme) => {
-    const isConfirmed = await confirm({
+    const reason = await confirmReason({
       title: `Delete draft ${scheme.name}?`,
       description: 'This removes the draft scheme only. Approved application history is preserved.',
-      confirmText: 'Delete',
       confirmColor: 'error',
+      confirmText: 'Delete',
     })
-
-    if (isConfirmed) {
-      const response = await deleteSubmit.submit({
-        overrideUrl: ApiUrls.FAS_SCHEME_MANAGEMENT.DETAIL(scheme.id),
-      })
-      if (response) {
-        message.success(`Deleted ${scheme.name}`)
-        schemesList.fetch()
-      }
+    if (!reason) return
+    const response = await deleteSubmit.submit({
+      overrideUrl: ApiUrls.FAS_SCHEME_MANAGEMENT.DELETE_SELECTED,
+      overrideData: { ids: [Number(scheme.id)], reason },
+    })
+    if (response) {
+      message.success(`Deleted ${scheme.name}`)
+      schemesList.fetch()
     }
   }
 
@@ -348,26 +353,26 @@ const FasSchemeManagementPage = () => {
     const verb = status === FAS_STATUS.Active ? 'Activate' : 'Deactivate'
     const nextStatus = status === FAS_STATUS.Active ? 2 : 3
 
-    const isConfirmed = await confirm({
+    const reason = await confirmReason({
       title: `${verb} ${scheme.name}?`,
       description:
         status === FAS_STATUS.Active
           ? 'The scheme will reappear in F7 Apply.'
           : 'New student applications will be blocked. Existing records remain.',
+      confirmColor: status === FAS_STATUS.Active ? 'primary' : 'error',
       confirmText: verb,
     })
-
-    if (isConfirmed) {
-      const response = await statusSubmit.submit({
-        overrideData: {
-          ids: [Number(scheme.id)],
-          status: nextStatus,
-        },
-      })
-      if (response) {
-        message.success(`${scheme.name} is now ${statusLabel(status)}`)
-        schemesList.fetch()
-      }
+    if (!reason) return
+    const response = await statusSubmit.submit({
+      overrideData: {
+        ids: [Number(scheme.id)],
+        status: nextStatus,
+        reason,
+      },
+    })
+    if (response) {
+      message.success(`${scheme.name} is now ${statusLabel(status)}`)
+      schemesList.fetch()
     }
   }
 
@@ -510,7 +515,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
             <label className="fas-field-label">Scheme name</label>
             <Input
               disabled={readOnly}
-              placeholder="Enter name..."
+              placeholder="e.g. Student Support Scheme 2026"
               value={scheme.name}
               onChange={(event) => onChange((draft) => ({ ...draft, name: event.target.value }))}
             />
@@ -522,7 +527,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
               disabled={readOnly}
               rows={2}
               value={scheme.description}
-              placeholder="Describe what this FAS supports."
+              placeholder="e.g. Supports eligible students with course fees"
               onChange={(event) =>
                 onChange((draft) => ({ ...draft, description: event.target.value }))
               }
@@ -541,6 +546,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
                 min={1}
                 value={scheme.validityMonths}
                 addonAfter="months"
+                placeholder="e.g. 12"
                 style={{ width: '100%' }}
                 onChange={(value) =>
                   onChange((draft) => ({ ...draft, validityMonths: value || '' }))
@@ -563,7 +569,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
               maxTagCount="responsive"
               listHeight={272}
               value={scheme.linkedCourses || []}
-              placeholder="Select courses"
+              placeholder="Select one or more courses"
               style={{ width: '100%' }}
               options={courseOptions}
               onChange={(value) => onChange((draft) => ({ ...draft, linkedCourses: value }))}
@@ -723,6 +729,7 @@ const FasConditionRow = ({ condition, index, readOnly, onChange, onDelete }) => 
           <Select
             disabled={readOnly}
             value={field}
+            placeholder="Select field"
             options={getConditionFieldOptions()}
             style={{ width: '100%' }}
             onChange={(nextField) => {
@@ -744,6 +751,7 @@ const FasConditionRow = ({ condition, index, readOnly, onChange, onDelete }) => 
           <Select
             disabled={readOnly}
             value={condition.operator}
+            placeholder="Select operator"
             options={getConditionOperatorOptions(field)}
             style={{ width: '100%' }}
             onChange={(operator) =>
@@ -839,6 +847,7 @@ const FasConditionGroupEditor = ({ group, depth, groupNumber, readOnly, onChange
           <Select
             disabled={readOnly}
             value={group.logicalOperator}
+            placeholder="Select matching mode"
             style={{ minWidth: 280 }}
             options={[
               {
@@ -1063,13 +1072,13 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
           <div className="fas-tier-grid">
             <Input
               disabled={readOnly}
-              placeholder={`Tier ${index + 1}`}
+              placeholder={`e.g. Tier ${index + 1}`}
               value={tier.name}
               onChange={(event) => updateTier(index, { name: event.target.value })}
             />
             <Input
               disabled={readOnly}
-              placeholder="Condition: PCI ≤ 690"
+              placeholder="e.g. PCI <= 690"
               value={tier.conditionText}
               onChange={(event) => updateTier(index, { conditionText: event.target.value })}
             />
@@ -1078,7 +1087,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
               value={tier.maxPci}
               min={0}
               style={numericInputStyle}
-              placeholder="Max PCI"
+              placeholder="e.g. 690"
               onChange={(value) => updateTier(index, { maxPci: value ?? '' })}
             />
             <Button
@@ -1096,7 +1105,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                 value={tier.value}
                 min={0}
                 style={{ width: 150 }}
-                placeholder={scheme.subsidyType === 'percent' ? '50' : '500'}
+                placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
                 addonAfter={scheme.subsidyType === 'percent' ? '%' : 'S$'}
                 onChange={(value) => updateTier(index, { value: value ?? '' })}
               />
@@ -1122,6 +1131,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                   value={tier.courseValue}
                   min={0}
                   style={numericInputStyle}
+                  placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
                   onChange={(value) => updateTier(index, { courseValue: value ?? '' })}
                 />
               </div>
@@ -1134,6 +1144,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                   value={tier.miscValue}
                   min={0}
                   style={numericInputStyle}
+                  placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
                   onChange={(value) => updateTier(index, { miscValue: value ?? '' })}
                 />
               </div>
@@ -1186,7 +1197,7 @@ const DocumentsEditor = ({ scheme, readOnly, onChange }) => {
         <div className="fas-doc-row" key={document.id}>
           <Input
             disabled={readOnly}
-            placeholder="Document name"
+            placeholder="e.g. Household income statement"
             value={document.name}
             onChange={(event) => updateDocument(index, { name: event.target.value })}
           />

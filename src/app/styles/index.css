@@ -96,6 +96,11 @@ a {
   box-shadow: 10px 0 30px rgba(35, 66, 120, 0.05);
 }
 
+.ant-modal-mask {
+  backdrop-filter: blur(6px) saturate(0.92);
+  -webkit-backdrop-filter: blur(6px) saturate(0.92);
+}
+
 .ant-menu-light {
   background: transparent;
 }
@@ -115,6 +120,21 @@ a {
 
 .ant-table-thead > tr > th {
   font-weight: 700 !important;
+}
+
+.ant-form-item .ant-form-item-label > label {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.ant-input::placeholder,
+.ant-input-number-input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+.ant-picker-input > input::placeholder,
+.ant-select-selection-placeholder {
+  font-size: 14px;
+  color: var(--app-text-disabled);
 }
 
 .ant-input,

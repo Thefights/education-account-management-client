@@ -4,8 +4,8 @@ import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
@@ -20,7 +20,7 @@ const defaultFilters = { search: '', statuses: [] }
 
 const SchoolStudentManagementPage = () => {
   const { t } = useTranslation()
-  const confirm = useConfirm()
+  const confirmReason = useReasonConfirm()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
   const [page, setPage] = useState(1)
@@ -49,7 +49,10 @@ const SchoolStudentManagementPage = () => {
     successMessage: 'general.update_success',
   })
 
-  const deleteStudent = useAxiosSubmit({ method: 'DELETE' })
+  const deleteStudent = useAxiosSubmit({
+    url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
+  })
 
   const submitImport = useAxiosSubmit({
     url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.IMPORT,
@@ -66,15 +69,15 @@ const SchoolStudentManagementPage = () => {
   }
 
   const handleDelete = async (row) => {
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('school_student.confirm.delete_title'),
       description: t('school_student.confirm.delete_description', { name: row.nric }),
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
-    if (!accepted) return
+    if (!reason) return
     const response = await deleteStudent.submit({
-      overrideUrl: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.DETAIL(row.id),
+      overrideData: { ids: [row.id], reason },
     })
     if (response) {
       setSelectedIds([])
@@ -83,8 +86,15 @@ const SchoolStudentManagementPage = () => {
   }
 
   const handleChangeStatus = async (status) => {
+    const reason = await confirmReason({
+      title: status === 1 ? t('button.activate') : t('button.deactivate'),
+      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      confirmColor: status === 1 ? 'primary' : 'error',
+      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+    })
+    if (!reason) return
     const response = await updateStatus.submit({
-      overrideData: { listIds: selectedIds, status },
+      overrideData: { listIds: selectedIds, status, reason },
     })
     if (!response) return
     setSelectedIds([])

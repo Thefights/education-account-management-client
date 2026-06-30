@@ -9,7 +9,15 @@ import {
 } from '@/shared/utils/formatDateUtil'
 import { Space, Typography } from 'antd'
 
-const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail }) => {
+const TopupScheduleTableSection = ({
+  schedules,
+  loading,
+  sort,
+  setSort,
+  selectedIds,
+  setSelectedIds,
+  onDetail,
+}) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const fields = [
@@ -74,6 +82,9 @@ const TopupScheduleTableSection = ({ schedules, loading, sort, setSort, onDetail
       loading={loading}
       sort={sort}
       setSort={setSort}
+      canSelectRows
+      selectedRows={selectedIds}
+      setSelectedRows={setSelectedIds}
       onRowClick={onDetail}
     />
   )

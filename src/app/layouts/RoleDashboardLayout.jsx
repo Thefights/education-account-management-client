@@ -1,13 +1,28 @@
 import AuthContext from '@/app/providers/AuthContext'
 import DashboardDrawer from '@/shared/components/layouts/DashboardDrawer'
 import DashboardHeader from '@/shared/components/layouts/DashboardHeader'
+import { routeUrls } from '@/shared/config/routeUrls'
+import useTranslation from '@/shared/hooks/useTranslation'
+import { UserOutlined } from '@ant-design/icons'
 import { Layout } from 'antd'
-import { useContext, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
 const RoleDashboardLayout = ({ homeUrl = '/', menuSections = [] }) => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const authContext = useContext(AuthContext)
+  const { t } = useTranslation()
+  const userMenuItems = useMemo(
+    () => [
+      {
+        key: 'profile',
+        label: t('header.user_menu.profile'),
+        icon: <UserOutlined />,
+        url: `${homeUrl}${routeUrls.PROFILE.INDEX}`,
+      },
+    ],
+    [homeUrl, t]
+  )
 
   return (
     <Layout
@@ -39,6 +54,7 @@ const RoleDashboardLayout = ({ homeUrl = '/', menuSections = [] }) => {
       >
         <DashboardHeader
           profile={authContext?.auth}
+          userMenuItems={userMenuItems}
           onLogout={authContext?.logout}
           onOpenDrawer={() => setMobileOpen(true)}
         />

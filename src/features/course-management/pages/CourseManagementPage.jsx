@@ -5,8 +5,8 @@ import { GenericTablePagination } from '@/shared/components/generals/GenericPagi
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useConfirm from '@/shared/hooks/useConfirm'
 import useFetch from '@/shared/hooks/useFetch'
+import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getLocalDateFromServerDateTime } from '@/shared/utils/formatDateUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -23,7 +23,7 @@ const defaultFilters = { search: '', statuses: [] }
 
 const CourseManagementPage = () => {
   const { t } = useTranslation()
-  const confirm = useConfirm()
+  const confirmReason = useReasonConfirm()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
   const [page, setPage] = useState(1)
@@ -83,7 +83,7 @@ const CourseManagementPage = () => {
 
   const handleDeleteSelected = async () => {
     if (!selectedCourses.length) return
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('course_management.confirm.delete_selected_title'),
       description: t('course_management.confirm.delete_selected_description', {
         count: selectedCourses.length,
@@ -91,13 +91,14 @@ const CourseManagementPage = () => {
       confirmColor: 'error',
       confirmText: t('button.delete'),
     })
-    if (!accepted) return
+    if (!reason) return
 
     const formData = new FormData()
     selectedCourses.forEach((course, index) => {
       formData.append(`items[${index}].id`, course.id)
       formData.append(`items[${index}].rowVersion`, course.rowVersion)
     })
+    formData.append('reason', reason)
 
     const response = await deleteSelectedCourses.submit({ overrideData: formData })
     if (!response) return
@@ -116,16 +117,16 @@ const CourseManagementPage = () => {
       return
     }
 
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('course_management.confirm.publish_title'),
       description: t('course_management.confirm.publish_description', {
         count: selectedCourses.length,
       }),
       confirmText: t('course_management.action.publish'),
     })
-    if (!accepted) return
+    if (!reason) return
 
-    const response = await publishCourses.submit({ overrideData: { ids: selectedIds } })
+    const response = await publishCourses.submit({ overrideData: { ids: selectedIds, reason } })
     if (!response) return
     clearSelection()
     await courses.fetch()

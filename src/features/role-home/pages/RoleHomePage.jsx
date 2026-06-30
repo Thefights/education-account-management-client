@@ -1,45 +1,24 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { Typography, theme } from 'antd'
 import { Navigate } from 'react-router-dom'
 
+const defaultRouteByRole = {
+  [EnumConfig.RoleEnum.SystemAdmin]: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(
+    routeUrls.SCHOOL_MANAGEMENT.INDEX
+  ),
+  [EnumConfig.RoleEnum.FinanceAdmin]: routeUrls.BASE_ROUTE.FINANCE_ADMIN(
+    routeUrls.TOPUP_MANAGEMENT.INDEX
+  ),
+  [EnumConfig.RoleEnum.SchoolAdmin]: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(
+    routeUrls.FAS_ADMIN.SCHEMES
+  ),
+  [EnumConfig.RoleEnum.AccountHolder]: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
+}
+
 const RoleHomePage = ({ role }) => {
-  const { token } = theme.useToken()
+  const defaultRoute = defaultRouteByRole[role]
 
-  if (role === EnumConfig.RoleEnum.FinanceAdmin) {
-    return (
-      <Navigate
-        replace
-        to={routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.INDEX)}
-      />
-    )
-  }
-
-  if (role === EnumConfig.RoleEnum.SchoolAdmin) {
-    return <Navigate replace to={routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.FAS_ADMIN.SCHEMES)} />
-  }
-
-  if (role === EnumConfig.RoleEnum.AccountHolder) {
-    return <Navigate replace to={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY)} />
-  }
-
-  return (
-    <main
-      style={{
-        flex: 1,
-        minHeight: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-        background: token.colorBgLayout,
-      }}
-    >
-      <Typography.Title level={1} style={{ margin: 0, textAlign: 'center' }}>
-        {role}
-      </Typography.Title>
-    </main>
-  )
+  return <Navigate replace to={defaultRoute || routeUrls.BASE_ROUTE.AUTH(routeUrls.AUTH.LOGIN)} />
 }
 
 export default RoleHomePage

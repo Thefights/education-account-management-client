@@ -11,7 +11,7 @@ const acronymLabels = {
   fas: 'FAS',
 }
 
-const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
+const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout = () => {} }) => {
   const screens = Grid.useBreakpoint()
   const isDownMd = !screens.md
   const isDownSm = !screens.sm
@@ -204,7 +204,7 @@ const DashboardHeader = ({ onOpenDrawer, profile, onLogout = () => {} }) => {
       >
         <SwitchThemeButton />
         <SwitchLanguageButton />
-        <UserAvatarMenu profile={profile} onLogout={onLogout} />
+        <UserAvatarMenu profile={profile} items={userMenuItems} onLogout={onLogout} />
       </Space>
     </Layout.Header>
   )

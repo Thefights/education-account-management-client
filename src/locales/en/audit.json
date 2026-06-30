@@ -1,4 +1,49 @@
 {
+  "management_action_log": {
+    "button": {
+      "export": "Export"
+    },
+    "field": {
+      "action": "Action",
+      "actor": "Actor",
+      "actor_email": "Actor Email",
+      "actor_full_name": "Actor Full Name",
+      "actor_user_id": "Actor User Id",
+      "actor_user_role": "Actor User Role",
+      "actorEmail": "Actor Email",
+      "actorFullName": "Actor Full Name",
+      "actorUserId": "Actor User Id",
+      "actorUserRole": "Actor User Role",
+      "batch_id": "Batch Id",
+      "batchId": "Batch Id",
+      "entity_id": "Entity Id",
+      "entity_type": "Entity Type",
+      "entityId": "Entity Id",
+      "entityType": "Entity Type",
+      "export_fields": "Export Fields",
+      "id": "ID",
+      "ip_address": "IP Address",
+      "ipAddress": "IP Address",
+      "new_status": "New Status",
+      "newStatus": "New Status",
+      "occurred_at": "Occurred At",
+      "occurredAt": "Occurred At",
+      "previous_status": "Previous Status",
+      "previousStatus": "Previous Status",
+      "reason": "Reason",
+      "status_change": "Status Change"
+    },
+    "placeholder": {
+      "occurred_from": "Occurred from",
+      "occurred_to": "Occurred to",
+      "search_text": "Search by reason or IP"
+    },
+    "title": {
+      "detail": "Management Action Log Detail",
+      "export": "Export Management Action Logs",
+      "management": "Management Action Logs"
+    }
+  },
   "audit_log": {
     "action": {
       "add_favorite_product": "Add favorite product",

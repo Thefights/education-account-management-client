@@ -2,6 +2,7 @@
   "header": {
     "title": "Chào mừng {name}",
     "user_menu": {
+      "profile": "Hồ sơ",
       "logout": "Đăng xuất"
     }
   },

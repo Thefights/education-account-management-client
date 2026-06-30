@@ -250,6 +250,7 @@ const MyFasManagementPage = () => {
           <Flex justify="end">
             <Select
               value={sortChoice}
+              placeholder="Select sort order"
               style={{ width: 180 }}
               options={[
                 { value: 'newest', label: 'Newest' },
