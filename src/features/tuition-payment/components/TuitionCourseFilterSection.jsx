@@ -143,7 +143,7 @@ const TuitionCourseFilterSection = ({
           });
         }}
       >
-        {t('text.due')}
+        {t('text.unpaid')}
       </Button>
 
       <Button

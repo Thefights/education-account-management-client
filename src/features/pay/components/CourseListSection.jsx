@@ -180,6 +180,7 @@ const CourseListSection = ({
   getPayToday,
   totalDueToday = 0,
   totalGross = 0,
+  singleinstallment
 }) => {
   const { token } = theme.useToken();
   const _enum = useEnum();
@@ -235,14 +236,14 @@ const CourseListSection = ({
           return (
             <Flex vertical align="center" gap={4}>
               <Typography.Text strong style={{ fontSize: 13 }}>
-                {record.currentInstallmentNumber} of {record.totalInstallments}
+                {singleinstallment?.installmentNumber?? record.currentInstallmentNumber} of {record.totalInstallments}
               </Typography.Text>
               <Tag
-                color={statusTagColor(record.paymentStatus)}
+                color={statusTagColor(singleinstallment?.status?? record.installments.find(e => e.installmentNumber == record.currentInstallmentNumber)?.status)}
                 bordered={false}
                 style={{ borderRadius: 20, margin: 0 }}
               >
-                {record.paymentStatus}
+                {singleinstallment?.status?? record.installments.find(e => e.installmentNumber == record.currentInstallmentNumber)?.status}
               </Tag>
             </Flex>
           );
@@ -273,7 +274,7 @@ const CourseListSection = ({
       render: (_, record) => {
         if (record.isInstallment) {
           // For installments: show remaining amount
-          const remaining = Number(record.remainingAmount ?? 0);
+          const remaining = record.isInstallment ? Number(singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0)) : Number(record.remainingAmount ?? 0);
           const isOverdue = record.paymentStatus === "Overdue";
           return (
             <Flex vertical align="flex-end">

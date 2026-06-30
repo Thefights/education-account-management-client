@@ -41,14 +41,13 @@ const CouresTuition = () => {
         Tab: tab,
         Sort: `${sort.key} ${sort.direction}`,
         Status: filters.statuses,
-        isInstallation: filters.isInstallment,
+        IsInstallment: filters.isInstallment,
         Search: filters.search,
         PageSize: pageSize,
       }),
       [tab, sort, filters, page, pageSize]
     )
-  
-  
+    
     const charges = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_CHARGES, queryParams, [queryParams])
   
     const charges_data = charges.data

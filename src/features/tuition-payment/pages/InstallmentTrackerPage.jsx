@@ -254,6 +254,7 @@ const InstallmentTrackerPage = () => {
                               navigate('../pay', {
                                           state: {
                                               selected: [wip],
+                                              installment: item,
                                           },
                                       });
                             }}>

@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom'
 const PayPage = () => {
   const { state } = useLocation();
   const selected = state?.selected ?? [];
+  const [singleinstallment, setSingleInstallment] = useState(state?.installment);
 
   const { t } = useTranslation()
   const { token } = theme.useToken()
@@ -19,7 +20,7 @@ const PayPage = () => {
   const tuitionSummary = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
   const availableBalance = tuitionSummary.data?.educationAccountBalance ?? 0
 
-  const [plans, setPlans] = useState(() => {
+    const [plans, setPlans] = useState(() => {
     const initial = {};
     selected.forEach((item) => {
       initial[item.courseCode] = 1;
@@ -29,9 +30,20 @@ const PayPage = () => {
 
   const getPayToday = (record) => {
     const net = Number(record.netPayable || 0);
-    const months = plans[record.courseCode] || 1;
-    if (months === 1) return net;
-    return Math.ceil((net / months) * 100) / 100;
+    if (!record.isInstallment) return net;
+    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+  };
+
+  const getOustandingToday = (record) => {
+    const net = Number(record.netPayable || 0);
+    if (!record.isInstallment) return net;
+    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+  };
+
+  const getRemainingToday = (record) => {
+    const net = Number(record.netPayable || 0);
+    if (!record.isInstallment) return net;
+    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
   };
 
   const totalDueToday = selected.reduce(
@@ -67,6 +79,7 @@ const PayPage = () => {
           onPlanChange={handlePlanChange}
           getPayToday={getPayToday}
           totalDueToday={totalDueToday}
+          singleinstallment={singleinstallment}
         />
       </Card>
 

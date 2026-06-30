@@ -14,7 +14,10 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
     const navigate = useNavigate();
     const [view, setView] = useState('0px');
     const { token } = theme.useToken();
-    const currInstallment = invoice?.installments?.find(e => e.status != 'Paid');
+    const currInstallment = invoice?.installments.find(e => e.installmentNumber == invoice?.currentInstallmentNumber);
+    console.log(currInstallment);
+    const unpaid = invoice?.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == invoice?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+    console.log(unpaid);
     
     return (
         <Card
@@ -78,7 +81,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                                     : '#52c41a',
                         }}
                     >
-                    ${currInstallment?.amount ?? invoice.remainingAmount.toLocaleString()}
+                    ${unpaid > 0 ? unpaid : invoice.remainingAmount.toLocaleString()}
                     </Typography.Title>
 
                     <Tag 
@@ -97,7 +100,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                             margin: 0
                         }}
                     >
-                        {invoice.isInstallment ? (currInstallment != null ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : `installment • ${invoice.paymentStatus}`) : invoice.paymentStatus}
+                        {invoice.isInstallment ? (currInstallment != null ? `installment • ${invoice.currentInstallmentNumber}/${invoice.totalInstallments}` : `installment • ${invoice.paymentStatus}`) : invoice.paymentStatus == 'Due' ? 'Unpaid' : invoice.paymentStatus}
                     </Tag>
                 </Flex>
             </Flex>
