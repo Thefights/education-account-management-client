@@ -35,8 +35,8 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   const typeLabels = useMemo(
     () => ({
       Topup: t('transaction.topup'),
-      CourseFee: t('transaction.course_fee'),
-      Adjustment: t('transaction.adjustment'),
+      CourseFeePayment: t('transaction.course_fee'),
+      ExpiredBalance: t('transaction.expiredbalance'),
     }),
     [t]
   )
@@ -62,7 +62,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       title: t('transaction.type'),
       type: 'multi-check-dropdown',
       required: false,
-      options: ['Topup', 'CourseFee', 'Adjustment'].map((value) => ({
+      options: ['Topup', 'CourseFeePayment', 'ExpiredBalance'].map((value) => ({
         value,
         label: typeLabels[value],
       })),

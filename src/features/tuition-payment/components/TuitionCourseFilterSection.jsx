@@ -20,6 +20,7 @@ const TuitionCourseFilterSection = ({
   loading = false,
   onSort,
   sortStatus,
+  resetSelected,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()

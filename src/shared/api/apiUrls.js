@@ -136,4 +136,8 @@ export const ApiUrls = {
     FAS_APPLICATION_DETAIL: (id) => `/account-holder/fas-applications/${id}`,
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
   },
+  PAYMENT: {
+    INDEX: 'Payment/',
+    HANDLE: 'Payment/handle', 
+  },
 }

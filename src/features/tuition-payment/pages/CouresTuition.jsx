@@ -3,24 +3,61 @@ import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BankOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme, Space } from 'antd'
+import { Button, Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme, Space, notification  } from 'antd'
 import TuitionCourseFilterSection from '../components/TuitionCourseFilterSection'
 import { useState, useMemo, useEffect } from 'react'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import { minLen } from '@/shared/utils/validateUtil'
 import CourseListSection from '../components/CourseListSection'
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import { useNavigate } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom'
-
+import { useSearchParams } from 'react-router-dom';
+import { useWatch } from 'antd/es/form/Form'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 
 
 const defaultFilters = { search: ''}
 
 
 const CouresTuition = () => {
+  const [searchParams] = useSearchParams();
+  const statusCheck = searchParams.get('status_check');
+  const sessionId = searchParams.get('session_id');
   const profile = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
   const { nvPay, handleCheck, selected, resetSelected } = useOutletContext()
+
+  console.log(ApiUrls.PAYMENT.INDEX);
+
+  const openNotification = (message, succeeded) => {
+    notification[succeeded ? 'success' : 'error']({
+      message,
+      description: succeeded
+        ? 'Your payment has been processed successfully.'
+        : 'Your payment could not be processed.',
+      placement: 'topRight',
+    });
+  };
+
+  const pay = useAxiosSubmit({
+       url: `${ApiUrls.PAYMENT.INDEX}${statusCheck}?session_id=${sessionId}`,
+       method: 'POST',
+    })
+
+  useEffect(() => {
+    async function name() {
+      if(statusCheck != null){
+      const response = await pay.submit();
+      if(response?.data?.status === "Succeeded") {
+        openNotification("Payment Success", true)
+      } else if (response?.data?.status === "Canceled") {
+        openNotification("Payment Canceled", false)
+      } else {
+        openNotification("Payment Failed", false)
+      }
+    }
+    }
+    name()
+  }, [])
   
   const data = profile.data
   console.log(profile)
@@ -201,6 +238,7 @@ const CouresTuition = () => {
                 onFilter={(values) => {
                   setFilters({...values})
                   setPage(1)
+                  resetSelected()
                 }}
                 onSort={() => {
                     setSort((sort) => ({
@@ -209,6 +247,7 @@ const CouresTuition = () => {
                     }))
                   }
                 }
+                resetSelected={resetSelected}
                 setFilter={setFilters}
                 sortStatus={sort.direction}
                 onReset={() => {
