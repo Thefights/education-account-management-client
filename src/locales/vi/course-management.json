@@ -5,6 +5,7 @@
       "management": "Quản lý khóa học",
       "create": "Tạo khóa học",
       "update": "Cập nhật khóa học",
+      "list_of_course": "Danh sách khóa học",
       "important_dates": "Các ngày quan trọng",
       "applicable_fas": "FAS áp dụng",
       "fas_deduction": "FAS áp dụng"
@@ -62,6 +63,11 @@
       "update_conflict": "Khóa học đã được người khác thay đổi. Dữ liệu mới nhất đã được tải lại; vui lòng sửa lại.",
       "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn chốt enrollment trong tương lai.",
       "no_applicable_fas": "Chưa có chương trình FAS nào được liên kết với khóa học này."
+    },
+    "tab": {
+      "upcoming": "Sắp diễn ra",
+      "in_progress": "Đang diễn ra",
+      "closed": "Đã kết thúc"
     }
   }
 }

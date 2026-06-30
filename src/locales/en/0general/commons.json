@@ -71,6 +71,7 @@
     "all": "All",
     "overdue": "Overdue",
     "due": "Due",
+    "unpaid": "Unpaid",
     "paid": "Paid",
     "available": "Available",
     "items": "items",

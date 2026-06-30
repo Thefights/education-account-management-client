@@ -70,6 +70,7 @@
     "all": "全部",
     "overdue": "已逾期",
     "due": "待支付",
+    "unpaid": "未支付",
     "paid": "已支付",
     "available": "可用的",
     "items": "项目",

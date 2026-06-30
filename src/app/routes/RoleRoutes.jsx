@@ -36,6 +36,7 @@ import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
+import InstallmentTrackerPage from '@/features/tuition-payment/pages/InstallmentTrackerPage'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 const roleRouteGroups = [
@@ -200,7 +201,7 @@ const roleRouteGroups = [
       { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
       {
-        path: routeUrls.TRANSACTIONS.INDEX,
+        path: routeUrls.TRANSACTION.INDEX,
         element: <AccountTransactionHistoryPage />,
       },
       {
@@ -208,12 +209,8 @@ const roleRouteGroups = [
         element: <AccountHolderCourseManagementPage />,
       },
       {
-        path: routeUrls.TUITION_PAYMENT.INDEX,
+        path: routeUrls.TUITION_PAYMENT.INDEX + '/*',
         element: <TuitionPaymentlPage />,
-      },
-      {
-        path: routeUrls.PAY.INDEX,
-        element: <PayPage />,
       },
     ],
   },
