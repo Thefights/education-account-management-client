@@ -78,7 +78,8 @@ const findActiveApplicationForScheme = (applications, scheme) => {
   return (
     (applications || []).find(
       (application) =>
-        schemeIds.includes(getApplicationSchemeId(application)) && isBlockingApplication(application)
+        schemeIds.includes(getApplicationSchemeId(application)) &&
+        isBlockingApplication(application)
     ) || null
   )
 }
@@ -167,6 +168,23 @@ const getApiErrorMessage = (error, t) => {
   }
   return payload.message || t('financial_assistance.message.submit_failed')
 }
+
+const buildFasAutoFillRequest = (payload) => ({
+  SessionId: payload.session_id,
+  FasSchemeId: payload.fas_scheme_id,
+  Message: payload.message,
+  Questions: (payload.questions || []).map((question) => ({
+    QuestionId: question.question_id,
+    QuestionText: question.question_text,
+    IsRequired: question.is_required,
+    Description: question.description,
+    Type: question.type,
+    Options: question.options || [],
+  })),
+  CurrentAnswers: Object.entries(payload.current_answers || {})
+    .filter(([, value]) => typeof value === 'string' && value.trim())
+    .map(([Key, Value]) => ({ Key, Value })),
+})
 
 const buildAttachedDocsFromApplication = (application) =>
   Object.fromEntries(
@@ -423,7 +441,7 @@ const MyFasApplyPage = () => {
                 </div>
               </div>
 
-              <ProfileQuestion icon={<IdcardOutlined />} label="Parent's nationality">
+              <ProfileQuestion icon={<IdcardOutlined />} label="Guardian's nationality">
                 <Select
                   value={profile.parentNationality}
                   placeholder="Select nationality"
@@ -446,7 +464,7 @@ const MyFasApplyPage = () => {
                 size="large"
                 onClick={() => {
                   if (!profile.parentNationality || !profile.income || !profile.members) {
-                    message.error('Enter parent nationality, income, and household size')
+                    message.error('Enter guardian nationality, income, and household size')
                     return
                   }
                   setShown(true)
@@ -605,6 +623,7 @@ const ApplyForm = ({
 }) => {
   const [submitting, setSubmitting] = useState(false)
   const [isDeclared, setIsDeclared] = useState(false)
+  const [isAiBlockedByRequest, setIsAiBlockedByRequest] = useState(false)
   const { t } = useTranslation()
   const submitApplication = useAxiosSubmit({
     method: 'POST',
@@ -612,6 +631,27 @@ const ApplyForm = ({
       message.error(getApiErrorMessage(error, t))
     },
   })
+  const aiStatusQuery = useFetch(ApiUrls.AI_CHAT.STATUS)
+  const handleAiRequestError = (error) => {
+    const statusCode = error.response?.status || error.status
+    if (statusCode === 403) {
+      setIsAiBlockedByRequest(true)
+    }
+  }
+  const fasAutoFillSubmit = useAxiosSubmit({
+    url: ApiUrls.AI_CHAT.FAS_AUTO_FILL,
+    method: 'POST',
+    onError: handleAiRequestError,
+  })
+  const fasAutoFillResetSubmit = useAxiosSubmit({
+    url: ApiUrls.AI_CHAT.FAS_AUTO_FILL_RESET_SESSION,
+    method: 'POST',
+    onError: handleAiRequestError,
+  })
+  const isAiEnabled =
+    !isAiBlockedByRequest &&
+    !aiStatusQuery.error &&
+    (aiStatusQuery.data?.isEnabled ?? true)
   const pci = getPci(profile.income, profile.members)
   const schemeFieldSet = useMemo(() => getSchemeFieldSet(scheme), [scheme])
   const requiresIncome = schemeRequiresIncome(schemeFieldSet)
@@ -750,7 +790,8 @@ const ApplyForm = ({
                   <h2>{scheme.name}</h2>
                   <div className="fas-apply-hero-meta">
                     <CalendarOutlined />
-                    FAS duration <strong>{scheme.validityMonths || 12} months</strong> from submission
+                    FAS duration <strong>{scheme.validityMonths || 12} months</strong> from
+                    submission
                   </div>
                 </div>
               </div>
@@ -981,7 +1022,14 @@ const ApplyForm = ({
                   The school admin reviews your documents and confirms the final assistance tier.
                 </p>
 
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '16px',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                  }}
+                >
                   <Button
                     size="large"
                     loading={submitting || submitApplication.loading}
@@ -1008,9 +1056,23 @@ const ApplyForm = ({
             <aside className="fas-apply-summary">
               <div className="fas-summary-card fas-ai-shell">
                 <FasFormAiChat
-                  key={getSchemeLookupId(scheme)}
+                  key={getSchemeLookupIds(scheme).join(':')}
                   scheme={scheme}
                   additionalAnswers={additionalAnswers}
+                  isAiEnabled={isAiEnabled}
+                  isStatusLoading={aiStatusQuery.loading}
+                  isSending={fasAutoFillSubmit.loading}
+                  isResetting={fasAutoFillResetSubmit.loading}
+                  onSendMessage={(payload) =>
+                    fasAutoFillSubmit.submit({
+                      overrideData: buildFasAutoFillRequest(payload),
+                    })
+                  }
+                  onResetSession={(sessionId) =>
+                    fasAutoFillResetSubmit.submit({
+                      overrideData: { SessionId: sessionId },
+                    })
+                  }
                   onApplySuggestion={(qId, value) => {
                     onAdditionalAnswersChange((current) => ({
                       ...current,

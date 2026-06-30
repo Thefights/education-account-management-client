@@ -11,6 +11,8 @@ export const ApiUrls = {
   AI_CHAT: {
     STATUS: '/ai-chat/status',
     CHAT: '/ai-chat',
+    FAS_AUTO_FILL: '/ai-chat/fas-auto-fill',
+    FAS_AUTO_FILL_RESET_SESSION: '/ai-chat/fas-auto-fill/reset-session',
   },
 
   AUDIT_LOG: {

@@ -1,8 +1,4 @@
 import {
-  chatWithDynamicFas,
-  resetDynamicFasSession,
-} from '@/features/financial-assistance/api/dynamicFasApi'
-import {
   CheckOutlined,
   CloseOutlined,
   ReloadOutlined,
@@ -42,6 +38,10 @@ const normalizeQuestionType = (type) =>
 const FasFormAiChat = ({
   scheme,
   additionalAnswers,
+  isSending,
+  isResetting,
+  onSendMessage,
+  onResetSession,
   onApplySuggestion,
   onApplyAllSuggestions,
 }) => {
@@ -49,8 +49,6 @@ const FasFormAiChat = ({
   const sessionId = useMemo(() => getSessionId(schemeId), [schemeId])
   const [messages, setMessages] = useState([INITIAL_MESSAGE])
   const [inputValue, setInputValue] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isResetting, setIsResetting] = useState(false)
   const [suggestions, setSuggestions] = useState({})
   const [assistantState, setAssistantState] = useState(null)
   const [confirmationQueue, setConfirmationQueue] = useState([])
@@ -89,8 +87,7 @@ const FasFormAiChat = ({
   )
 
   const visibleSuggestions = useMemo(
-    () =>
-      Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
+    () => Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
     [questionMap, suggestions]
   )
 
@@ -113,7 +110,7 @@ const FasFormAiChat = ({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }, [isLoading, messages, suggestions])
+  }, [isSending, messages, suggestions])
 
   const currentAnswers = () =>
     Object.fromEntries(
@@ -126,18 +123,17 @@ const FasFormAiChat = ({
   const handleSend = async (event, quickText, { appendUserMessage = true } = {}) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
-    if (!messageText || isLoading || !questions.length) return
+    if (!messageText || isSending || !questions.length) return
 
     if (appendUserMessage) {
       setMessages((current) => [...current, { role: 'user', content: messageText }])
     }
     setInputValue('')
-    setIsLoading(true)
     setError('')
     setStatus('')
 
     try {
-      const response = await chatWithDynamicFas({
+      const response = await onSendMessage({
         session_id: sessionId,
         fas_scheme_id: Number(schemeId),
         message: messageText,
@@ -145,10 +141,11 @@ const FasFormAiChat = ({
         current_answers: currentAnswers(),
       })
 
-      setMessages((current) => [
-        ...current,
-        { role: 'assistant', content: response.reply },
-      ])
+      if (!response) {
+        throw new Error('Could not connect to the AI service.')
+      }
+
+      setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
       setAssistantState(response.assistant_state || null)
 
       const nextSuggestions = Object.fromEntries(
@@ -162,8 +159,6 @@ const FasFormAiChat = ({
     } catch (requestError) {
       setError(requestError.message || 'Could not connect to the AI service.')
       setLastFailedMessage(messageText)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -184,8 +179,7 @@ const FasFormAiChat = ({
 
   const requiresConfirmation = (questionId, value) => {
     const currentValue = String(additionalAnswers?.[questionId] || '').trim()
-    const confirmedByChat =
-      assistantState?.questions?.[questionId]?.source === 'confirmed_update'
+    const confirmedByChat = assistantState?.questions?.[questionId]?.source === 'confirmed_update'
 
     return currentValue && currentValue !== value && !confirmedByChat
   }
@@ -262,17 +256,18 @@ const FasFormAiChat = ({
   }
 
   const handleReset = async () => {
-    if (isLoading || isResetting) return
-    setIsResetting(true)
+    if (isSending || isResetting) return
     setError('')
 
     try {
-      await resetDynamicFasSession(sessionId)
+      const response = await onResetSession(sessionId)
+      if (!response) {
+        throw new Error('Could not reset the AI session.')
+      }
       setMessages([
         {
           role: 'assistant',
-          content:
-            'The conversation has been reset. Your existing form answers were preserved.',
+          content: 'The conversation has been reset. Your existing form answers were preserved.',
         },
       ])
       setSuggestions({})
@@ -283,8 +278,6 @@ const FasFormAiChat = ({
       setStatus('Conversation reset without changing the form.')
     } catch (requestError) {
       setError(requestError.message || 'Could not reset the AI session.')
-    } finally {
-      setIsResetting(false)
     }
   }
 
@@ -297,7 +290,7 @@ const FasFormAiChat = ({
               <RobotOutlined />
             </span>
             <div className="fas-ai-title-row">
-              <strong>AI form assistant</strong>
+              <strong>FAS Form Assistant</strong>
               <span className="fas-ai-presence">
                 <i /> Online
               </span>
@@ -308,7 +301,7 @@ const FasFormAiChat = ({
             size="small"
             icon={<ReloadOutlined />}
             loading={isResetting}
-            disabled={isLoading}
+            disabled={isSending}
             onClick={handleReset}
           >
             Reset
@@ -316,17 +309,15 @@ const FasFormAiChat = ({
         </header>
 
         <div className="fas-ai-progress">
-          <div>
-            <span>Required answers</span>
-            <strong>
-              {progress.completed}/{progress.total}
-            </strong>
-          </div>
+          <span>Required answers</span>
           <Progress
             percent={progress.total ? (progress.completed / progress.total) * 100 : 100}
             showInfo={false}
             size="small"
           />
+          <strong>
+            {progress.completed}/{progress.total}
+          </strong>
         </div>
 
         <div className="fas-ai-scroll-area">
@@ -343,7 +334,7 @@ const FasFormAiChat = ({
               </div>
             ))}
 
-            {isLoading && (
+            {isSending && (
               <div className="fas-ai-message assistant">
                 <span className="fas-ai-message-avatar">
                   <RobotOutlined />
@@ -443,10 +434,10 @@ const FasFormAiChat = ({
         <footer className="fas-ai-composer-wrap">
           <div className="fas-ai-composer">
             <Input
-              aria-label="Message AI form assistant"
+              aria-label="Message FAS Form Assistant"
               value={inputValue}
               placeholder="Describe your circumstances..."
-              disabled={isLoading || !questions.length}
+              disabled={isSending || !questions.length}
               onChange={(event) => setInputValue(event.target.value)}
               onPressEnter={handleSend}
             />
@@ -455,8 +446,8 @@ const FasFormAiChat = ({
               shape="circle"
               aria-label="Send message"
               icon={<SendOutlined />}
-              loading={isLoading}
-              disabled={!inputValue.trim() || isLoading || !questions.length}
+              loading={isSending}
+              disabled={!inputValue.trim() || isSending || !questions.length}
               onClick={handleSend}
             />
           </div>
