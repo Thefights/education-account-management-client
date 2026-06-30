@@ -26,7 +26,6 @@ const CouresTuition = () => {
   const profile = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
   const { nvPay, handleCheck, selected, resetSelected } = useOutletContext()
 
-  console.log(ApiUrls.PAYMENT.INDEX);
 
   const openNotification = (message, succeeded) => {
     notification[succeeded ? 'success' : 'error']({
@@ -60,7 +59,6 @@ const CouresTuition = () => {
   }, [])
   
   const data = profile.data
-  console.log(profile)
 
   const navigate = useNavigate();
   const { token } = theme.useToken()
@@ -88,7 +86,6 @@ const CouresTuition = () => {
     const charges = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_CHARGES, queryParams, [queryParams])
   
     const charges_data = charges.data
-    console.log(charges)
   
     const inProgressCount = useFetch(
       ApiUrls.ACCOUNT_HOLDER.TUITION_CHARGES,

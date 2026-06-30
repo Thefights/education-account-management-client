@@ -38,7 +38,6 @@ const TuitionCourseFilterSection = ({
     reset(filters)
   }, [filters])
 
-  console.log(values);
 
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),

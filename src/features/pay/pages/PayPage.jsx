@@ -35,7 +35,6 @@ const PayPage = () => {
   const getPayToday = (record) => {
     const net = Number(record.netPayable || 0);
     const months = record.isInstallment ? record.totalInstallments :  Number(plans[record.courseCode]);
-    console.log(months);
     if (!record.isInstallment) return net;
     return Math.ceil((net / months) * 100) / 100;
   };
@@ -106,12 +105,10 @@ const PayPage = () => {
           `CreditBalanceApplied`,
           balanceInput?? 0
         );
-    console.log(formData);
     const response = await pay.submit({
       overrideData: formData,
     })
 
-    console.log('PAY RESPONSE:', response);
 
     const stripeUrl = response?.data?.link;
 
