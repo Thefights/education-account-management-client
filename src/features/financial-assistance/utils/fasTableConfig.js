@@ -7,16 +7,17 @@ export const fasSchemeStatusOptions = [
 ]
 
 export const fasApplicationStatusOptions = [
+  { value: FAS_APPLICATION_STATUS.Draft, label: 'Draft' },
   { value: FAS_APPLICATION_STATUS.Pending, label: 'Pending' },
   { value: FAS_APPLICATION_STATUS.Approved, label: 'Approved' },
   { value: FAS_APPLICATION_STATUS.Expired, label: 'Expired' },
   { value: FAS_APPLICATION_STATUS.Rejected, label: 'Rejected' },
+  { value: FAS_APPLICATION_STATUS.Withdrawn, label: 'Withdrawn' },
 ]
 
 export const myFasApplicationStatusOptions = [
-  { value: FAS_APPLICATION_STATUS.Pending, label: 'Pending' },
   { value: FAS_APPLICATION_STATUS.Draft, label: 'Draft' },
-  { value: FAS_APPLICATION_STATUS.Approved, label: 'Approved' },
+  { value: FAS_APPLICATION_STATUS.Pending, label: 'Pending' },
   { value: FAS_APPLICATION_STATUS.Expired, label: 'Expired' },
   { value: FAS_APPLICATION_STATUS.Rejected, label: 'Rejected' },
 ]
