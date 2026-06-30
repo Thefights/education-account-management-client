@@ -39,7 +39,7 @@ import {
   UpOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { Button, Input, InputNumber, Select, Upload, message, Tabs, Checkbox } from 'antd'
+import { Button, Checkbox, Input, InputNumber, Select, Upload, message } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FasFormAiChat from '@/features/financial-assistance/components/FasFormAiChat'
@@ -797,23 +797,58 @@ const ApplyForm = ({
                   </div>
                   <div className="fas-form-grid" style={{ gridTemplateColumns: '1fr' }}>
                     {scheme.additionalQuestions.map((q) => (
-                      <div key={q.id}>
+                      <div
+                        className="fas-additional-question"
+                        id={`fas-question-${q.id}`}
+                        key={q.id}
+                      >
                         <label className="fas-field-label">
                           {q.questionText}{' '}
                           {q.isRequired && <span style={{ color: 'var(--fas-red)' }}>*</span>}
                         </label>
-                        <Input.TextArea
-                          value={additionalAnswers[q.id] || ''}
-                          maxLength={2000}
-                          placeholder="Your answer (max 2000 characters)"
-                          rows={3}
-                          onChange={(e) =>
-                            onAdditionalAnswersChange((current) => ({
-                              ...current,
-                              [q.id]: e.target.value,
-                            }))
-                          }
-                        />
+                        {q.description && <div className="fas-field-help">{q.description}</div>}
+                        {q.type === 'select' ? (
+                          <Select
+                            value={additionalAnswers[q.id] || undefined}
+                            placeholder="Select an answer"
+                            options={(q.options || []).map((option) => ({
+                              value: option,
+                              label: option,
+                            }))}
+                            style={{ width: '100%' }}
+                            onChange={(value) =>
+                              onAdditionalAnswersChange((current) => ({
+                                ...current,
+                                [q.id]: value,
+                              }))
+                            }
+                          />
+                        ) : q.type === 'text' ? (
+                          <Input
+                            value={additionalAnswers[q.id] || ''}
+                            maxLength={2000}
+                            placeholder="Your answer"
+                            onChange={(event) =>
+                              onAdditionalAnswersChange((current) => ({
+                                ...current,
+                                [q.id]: event.target.value,
+                              }))
+                            }
+                          />
+                        ) : (
+                          <Input.TextArea
+                            value={additionalAnswers[q.id] || ''}
+                            maxLength={2000}
+                            placeholder="Your answer (max 2000 characters)"
+                            rows={3}
+                            onChange={(event) =>
+                              onAdditionalAnswersChange((current) => ({
+                                ...current,
+                                [q.id]: event.target.value,
+                              }))
+                            }
+                          />
+                        )}
                       </div>
                     ))}
                   </div>
@@ -971,45 +1006,24 @@ const ApplyForm = ({
             </div>
 
             <aside className="fas-apply-summary">
-              <div
-                className="fas-summary-card"
-                style={{
-                  padding: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  flex: 1,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    padding: '20px 24px',
-                    borderBottom: '1px solid #E5EAF3',
-                    backgroundColor: '#ffffff',
-                    fontWeight: 700,
-                    fontSize: '16px',
+              <div className="fas-summary-card fas-ai-shell">
+                <FasFormAiChat
+                  key={getSchemeLookupId(scheme)}
+                  scheme={scheme}
+                  additionalAnswers={additionalAnswers}
+                  onApplySuggestion={(qId, value) => {
+                    onAdditionalAnswersChange((current) => ({
+                      ...current,
+                      [qId]: value,
+                    }))
                   }}
-                >
-                  Ask AI ✨
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <FasFormAiChat
-                    scheme={scheme}
-                    additionalAnswers={additionalAnswers}
-                    onApplySuggestion={(qId, value) => {
-                      onAdditionalAnswersChange((current) => ({
-                        ...current,
-                        [qId]: value,
-                      }))
-                    }}
-                    onApplyAllSuggestions={(newAnswers) => {
-                      onAdditionalAnswersChange((current) => ({
-                        ...current,
-                        ...newAnswers,
-                      }))
-                    }}
-                  />
-                </div>
+                  onApplyAllSuggestions={(newAnswers) => {
+                    onAdditionalAnswersChange((current) => ({
+                      ...current,
+                      ...newAnswers,
+                    }))
+                  }}
+                />
               </div>
             </aside>
           </div>
