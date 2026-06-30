@@ -201,10 +201,6 @@ const roleRouteGroups = [
       { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
       {
-        path: routeUrls.TRANSACTION.INDEX,
-        element: <AccountTransactionHistoryPage />,
-      },
-      {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <AccountHolderCourseManagementPage />,
       },

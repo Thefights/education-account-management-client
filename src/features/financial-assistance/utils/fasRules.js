@@ -102,6 +102,10 @@ const describeGroup = (group) => {
 }
 
 export const buildEligibilityPreviewParts = (value = [], connectors = []) => {
+  if (Array.isArray(value?.conditionsSummary)) {
+    return value.conditionsSummary.filter(Boolean)
+  }
+
   const group = resolveConditionGroup(value, connectors)
   if (!group || !(group.conditions?.length || group.groups?.length)) return []
 
@@ -125,7 +129,9 @@ export const buildEligibilityPreview = (value = [], connectors = []) => {
 const profileValueForField = (field, profile) => {
   const normalizedField = normalizeFasConditionField(field)
   if (normalizedField === FAS_CONDITION_FIELD.Nationality) return profile?.nationality
-  if (normalizedField === FAS_CONDITION_FIELD.ParentNationality) return profile?.parentNationality
+  if (normalizedField === FAS_CONDITION_FIELD.GuardianNationality) {
+    return profile?.guardianNationality ?? profile?.parentNationality
+  }
   if (normalizedField === FAS_CONDITION_FIELD.StudentAge) return profile?.age
   if (normalizedField === FAS_CONDITION_FIELD.GrossHouseholdIncome) return profile?.income
   if (normalizedField === FAS_CONDITION_FIELD.PerCapitaIncome) return profile?.pci
@@ -253,7 +259,7 @@ export const describeTierSubsidy = (scheme, tier) => {
   }
 
   if (scheme.subsidyType === 'fixed') {
-    return 'S$' + Number(tier.value || 0).toLocaleString() + ' fixed'
+    return 'SS$' + Number(tier.value || 0).toLocaleString() + ' fixed'
   }
 
   return Number(tier.value || 0) + '% of (Course + Misc)'

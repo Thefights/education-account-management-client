@@ -7,6 +7,7 @@ import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/forma
 import {
   CheckCircleOutlined,
   CopyOutlined,
+  DeleteOutlined,
   EditOutlined,
   EyeOutlined,
   RollbackOutlined,
@@ -111,10 +112,9 @@ export const FasAdminApplicationTableSection = ({
       key: 'applicantName',
       title: 'Account name',
       width: 200,
-      sortable: true,
       render: (value) => <Typography.Text>{value}</Typography.Text>,
     },
-    { key: 'accountNumber', title: 'Account No.', width: 140, sortable: true },
+    { key: 'accountNumber', title: 'Account No.', width: 140 },
     { key: 'schemeName', title: 'FAS applied for', width: 240, sortable: true },
     {
       key: 'displayStatus',
@@ -165,10 +165,10 @@ export const MyFasApplicationTableSection = ({
   loading,
   sort,
   setSort,
-  activeStatus,
   onWithdraw,
   onView,
   onEditDraft,
+  onDeleteDraft,
   onApplyAgain,
 }) => {
   const baseFields = [
@@ -192,7 +192,11 @@ export const MyFasApplicationTableSection = ({
           <Flex gap={6} justify="end" wrap="wrap">
             <Button type="link" onClick={() => onEditDraft?.(row)}>
               <EditOutlined />
-              Update
+              Edit
+            </Button>
+            <Button danger type="link" onClick={() => onDeleteDraft?.(row)}>
+              <DeleteOutlined />
+              Delete
             </Button>
           </Flex>
         )
@@ -219,6 +223,10 @@ export const MyFasApplicationTableSection = ({
         )
       }
 
+      if (row.displayStatus === FAS_APPLICATION_STATUS.Withdrawn) {
+        return null
+      }
+
       return (
         <Button type="link" onClick={() => onView?.(row)}>
           <EyeOutlined />
@@ -241,40 +249,7 @@ export const MyFasApplicationTableSection = ({
     ),
   })
 
-  const statusFields = {
-    [FAS_APPLICATION_STATUS.Pending]: [
-      ...baseFields,
-      dateField('submittedAt', 'Submitted'),
-      actionField,
-    ],
-    [FAS_APPLICATION_STATUS.Draft]: [
-      ...baseFields,
-      dateField('submittedAt', 'Last saved'),
-      actionField,
-    ],
-    [FAS_APPLICATION_STATUS.Approved]: [
-      ...baseFields,
-      dateField('submittedAt', 'Submitted'),
-      dateField('approvedAt', 'Approved'),
-      dateField('endDate', 'Valid until'),
-      actionField,
-    ],
-    [FAS_APPLICATION_STATUS.Expired]: [
-      ...baseFields,
-      dateField('submittedAt', 'Submitted'),
-      dateField('approvedAt', 'Approved'),
-      dateField('endDate', 'Valid until', true),
-      actionField,
-    ],
-    [FAS_APPLICATION_STATUS.Rejected]: [
-      ...baseFields,
-      { key: 'reason', title: 'Reason', width: 260 },
-      dateField('submittedAt', 'Submitted'),
-      actionField,
-    ],
-  }
-
-  const fields = statusFields[activeStatus] || [
+  const fields = [
     ...baseFields,
     {
       key: 'displayStatus',
@@ -283,6 +258,22 @@ export const MyFasApplicationTableSection = ({
       type: 'tag',
       options: fasApplicationStatusOptions,
       color: getFasStatusColor,
+    },
+    dateField('submittedAt', 'Submitted'),
+    dateField('approvedAt', 'Approved'),
+    {
+      key: 'endDate',
+      title: 'Valid until',
+      width: 150,
+      sortable: true,
+      render: (value, row) => (
+        <Typography.Text
+          type={row.displayStatus === FAS_APPLICATION_STATUS.Expired ? 'danger' : undefined}
+        >
+          {formatFasDate(value)}
+          {row.displayStatus === FAS_APPLICATION_STATUS.Expired ? ' · Expired' : ''}
+        </Typography.Text>
+      ),
     },
     actionField,
   ]

@@ -15,18 +15,6 @@ const AccountHolderLayout = () => {
           {
             items: [
               {
-                key: 'profile',
-                label: t('account_profile.title'),
-                icon: UserOutlined,
-                url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.PROFILE.INDEX),
-              },
-              {
-                key: 'transaction',
-                label: t('transaction.title'),
-                icon: HistoryOutlined,
-                url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TRANSACTION.INDEX),
-              },
-              {
                 key: 'cousre-management',
                 label: t('course_management.menu_label'),
                 icon: BookOutlined,

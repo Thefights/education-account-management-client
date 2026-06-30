@@ -1,5 +1,8 @@
-import { FAS_APPLICATION_STATUS, FAS_STATUS } from '@/features/financial-assistance/data/fasSeedData'
 import { EnumConfig } from '@/shared/config/enumConfig'
+
+const FAS_APPLICATION_STATUS = EnumConfig.FasApplicationStatus
+const FAS_STATUS = EnumConfig.FasSchemeStatus
+const FAS_SUBSIDY_TYPE = EnumConfig.FasSubsidyType
 
 export const FAS_GUARDIAN_NATIONALITY = EnumConfig.FasGuardianNationalityId
 
@@ -19,19 +22,24 @@ const API_STATUS_TO_UI = {
 }
 
 const UI_STATUS_TO_API = {
+  [FAS_APPLICATION_STATUS.Draft]: EnumConfig.FasApplicationStatusId.Draft,
   [FAS_APPLICATION_STATUS.Pending]: EnumConfig.FasApplicationStatusId.Pending,
   [FAS_APPLICATION_STATUS.Approved]: EnumConfig.FasApplicationStatusId.Approved,
+  [FAS_APPLICATION_STATUS.Expired]: EnumConfig.FasApplicationStatusId.Expired,
   [FAS_APPLICATION_STATUS.Rejected]: EnumConfig.FasApplicationStatusId.Rejected,
   [FAS_APPLICATION_STATUS.Withdrawn]: EnumConfig.FasApplicationStatusId.Withdrawn,
 }
 
 const API_SCHEME_STATUS_TO_UI = {
-  1: FAS_STATUS.Draft,
-  2: FAS_STATUS.Active,
-  3: FAS_STATUS.Inactive,
+  [EnumConfig.FasSchemeStatusId.Draft]: FAS_STATUS.Draft,
+  [EnumConfig.FasSchemeStatusId.Active]: FAS_STATUS.Active,
+  [EnumConfig.FasSchemeStatusId.Inactive]: FAS_STATUS.Inactive,
   [EnumConfig.FasSchemeStatus.Draft]: FAS_STATUS.Draft,
   [EnumConfig.FasSchemeStatus.Active]: FAS_STATUS.Active,
   [EnumConfig.FasSchemeStatus.Inactive]: FAS_STATUS.Inactive,
+  draft: FAS_STATUS.Draft,
+  active: FAS_STATUS.Active,
+  inactive: FAS_STATUS.Inactive,
   Draft: FAS_STATUS.Draft,
   Active: FAS_STATUS.Active,
   Inactive: FAS_STATUS.Inactive,
@@ -90,6 +98,16 @@ export const fromApiSchemeStatus = (status, fallback) =>
   API_SCHEME_STATUS_TO_UI[String(status).toLowerCase()] ??
   fallback
 
+const fromApiSubsidyType = (subsidyType) => {
+  if (Number(subsidyType) === EnumConfig.FasSubsidyTypeId.FixedAmount) {
+    return FAS_SUBSIDY_TYPE.Fixed
+  }
+
+  return String(subsidyType || '').toLowerCase().includes('fixed')
+    ? FAS_SUBSIDY_TYPE.Fixed
+    : FAS_SUBSIDY_TYPE.Percent
+}
+
 export const isApiApprovedExpired = (application) => {
   const status = fromApiApplicationStatus(application?.status)
   const endDateValue = application?.validityEndDate || application?.endDate
@@ -131,7 +149,7 @@ export const normalizeApiScheme = (scheme) => {
     name: scheme.schemeName,
     description: scheme.description,
     status: fromApiSchemeStatus(scheme.status, FAS_STATUS.Active),
-    subsidyType: scheme.subsidyType,
+    subsidyType: fromApiSubsidyType(scheme.subsidyType),
     validityMonths: scheme.durationInMonths,
     linkedCourses: scheme.linkedCourses || [],
     conditionsSummary: scheme.conditionsSummary || [],
@@ -156,6 +174,9 @@ export const normalizeApiScheme = (scheme) => {
         apiId: q.id,
         questionText: q.questionText,
         isRequired: Boolean(q.isRequired),
+        description: q.description || null,
+        type: ['text', 'textarea', 'select'].includes(q.type) ? q.type : 'textarea',
+        options: Array.isArray(q.options) ? q.options : [],
         displayOrder: q.displayOrder,
       }))
       .sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999)),
@@ -163,13 +184,18 @@ export const normalizeApiScheme = (scheme) => {
 }
 
 export const normalizeApiAvailableSchemesResponse = (payload) => {
-  if (!payload || !Array.isArray(payload.schemes)) {
+  const source = payload?.data || payload
+  const schemes = Array.isArray(source)
+    ? source
+    : source?.schemes || source?.collection || null
+
+  if (!Array.isArray(schemes)) {
     return { calculatedPerCapitaIncome: null, schemes: null }
   }
 
   return {
-    calculatedPerCapitaIncome: payload.calculatedPerCapitaIncome,
-    schemes: payload.schemes.map(normalizeApiScheme).filter(Boolean),
+    calculatedPerCapitaIncome: source?.calculatedPerCapitaIncome ?? null,
+    schemes: schemes.map(normalizeApiScheme).filter(Boolean),
   }
 }
 

@@ -34,9 +34,7 @@ function TuitionPaymentLayout() {
         }
         else {
             setSelected(prev => prev.filter(item => item !== invoice));
-        }
-        console.log(selected);
-        
+        }        
     }
     function nvPay() {
     navigate('./pay', {

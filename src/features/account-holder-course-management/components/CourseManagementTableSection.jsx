@@ -126,7 +126,6 @@ const CourseManagementTableSection = ({
   ]
 ;
   const handleExpand = key => {
-    console.log(key)
     setFas(mockData.find(e => e.id === key));
     setOpen(true);
   };
@@ -136,12 +135,12 @@ const CourseManagementTableSection = ({
     const mockData = {
       tier: 'Tier 2',
       subsidy: '30% of course fee',
-      courseFee: '$1,500.00',
-      miscFee: '$100.00',
-      tax: '$144.00',
-      grossAmount: '$1,744.00',
-      fasDeduction: '-$350.00',
-      netPayable: '$1,394.00',
+      courseFee: 'S$1,500.00',
+      miscFee: 'S$100.00',
+      tax: 'S$144.00',
+      grossAmount: 'S$1,744.00',
+      fasDeduction: '-S$350.00',
+      netPayable: 'S$1,394.00',
     }
 
     return (

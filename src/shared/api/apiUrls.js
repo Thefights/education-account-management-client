@@ -126,6 +126,12 @@ export const ApiUrls = {
     DUPLICATE: (id) => `/fas-scheme-management/${id}/duplicate`,
     DELETE_SELECTED: '/fas-scheme-management/selected',
   },
+  FAS_APPLICATION_MANAGEMENT: {
+    INDEX: '/fas-application-management',
+    DETAIL: (id) => `/fas-application-management/${id}`,
+    APPROVE: (id) => `/fas-application-management/${id}/approve`,
+    REJECT: (id) => `/fas-application-management/${id}/reject`,
+  },
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',
@@ -139,6 +145,11 @@ export const ApiUrls = {
     FAS_APPLICATION_PUBLISH_DRAFT: (id) => `/account-holder/fas-applications/${id}/publish`,
     FAS_APPLICATION_SAVE_DRAFT: '/account-holder/fas-applications/draft',
     FAS_APPLICATION_UPDATE_DRAFT: (id) => `/account-holder/fas-applications/draft/${id}`,
+    FAS_APPLICATION_DELETE_DRAFT: (id) => `/account-holder/fas-applications/draft/${id}`,
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
+  },
+  PAYMENT: {
+    INDEX: 'Payment/',
+    HANDLE: 'Payment/handle', 
   },
 }

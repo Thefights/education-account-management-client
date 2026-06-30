@@ -2,16 +2,20 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BankOutlined } from '@ant-design/icons'
-import { Button, Card, Divider, Flex, Form, Grid, Input, InputNumber, Select, Skeleton, Typography, theme } from 'antd'
+import { notification , Button, Card, Divider, Flex, Form, Grid, Input, InputNumber, Select, Skeleton, Typography, theme } from 'antd'
 import { QrcodeOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import CourseListSection from '../components/CourseListSection'
 import { useLocation } from 'react-router-dom'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import { useSearchParams } from 'react-router-dom';
+
 
 const PayPage = () => {
+  const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const selected = state?.selected ?? [];
-  const [singleinstallment, setSingleInstallment] = useState(state?.installment);
+  const [singleinstallment, setSingleInstallment] = useState(null);
 
   const { t } = useTranslation()
   const { token } = theme.useToken()
@@ -28,22 +32,22 @@ const PayPage = () => {
     return initial;
   });
 
+
+  const openNotification = (message, succeeded) => {
+    notification[succeeded ? 'success' : 'error']({
+      message,
+      description: succeeded
+        ? 'Your payment has been processed successfully.'
+        : 'Your payment could not be processed.',
+      placement: 'topRight',
+    });
+  };
+
+
   const getPayToday = (record) => {
     const net = Number(record.netPayable || 0);
-    if (!record.isInstallment) return net;
-    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
-  };
-
-  const getOustandingToday = (record) => {
-    const net = Number(record.netPayable || 0);
-    if (!record.isInstallment) return net;
-    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
-  };
-
-  const getRemainingToday = (record) => {
-    const net = Number(record.netPayable || 0);
-    if (!record.isInstallment) return net;
-    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+    const months = record.isInstallment ? record.totalInstallments :  Number(plans[record.courseCode]);
+    return Math.ceil((net / months) * 100) / 100;
   };
 
   const totalDueToday = selected.reduce(
@@ -69,6 +73,69 @@ const PayPage = () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
+
+
+  
+  class BillItem {
+    constructor( chargeId,intent,paymentPlanMonths) {
+      this.chargeId = chargeId;
+      this.intent = intent;
+      this.paymentPlanMonths = paymentPlanMonths;
+    }
+  } 
+  
+  
+  const pay = useAxiosSubmit({
+     url: ApiUrls.PAYMENT.HANDLE,
+     method: 'POST',
+  })
+
+  
+  const handlePay = async () => {
+    var bill = [];
+    const formData = new FormData()
+    selected.forEach((e, index) => {
+        formData.append(
+          `chargePaymentRequestInfors[${index}].chargeId`,
+          e.chargeId
+        );
+
+        formData.append(
+          `chargePaymentRequestInfors[${index}].intent`,
+          e.isInstallment ? 3 : plans[e.courseCode] == 1 ? 1 : 2
+        );
+
+        if(plans[e.courseCode] > 1) {
+          formData.append(
+            `chargePaymentRequestInfors[${index}].paymentPlanMonths`,
+            plans[e.courseCode]
+          );
+        };
+    });
+    formData.append(
+          `CreditBalanceApplied`,
+          balanceInput?? 0
+        );
+
+    if(exceedsBalance) openNotification("Exceed Balance", false);
+    else {
+      const response = await pay.submit({
+        overrideData: formData,
+      })
+
+
+      const stripeUrl = response?.data?.link;
+
+      if (stripeUrl) {
+        window.location.href = stripeUrl;
+      }
+    }
+  }
+
+
+
+
+
 
   return (
     <Flex vertical gap={24}>
@@ -102,7 +169,7 @@ const PayPage = () => {
               Available balance
             </Typography.Text>
             <Typography.Text strong style={{ fontSize: 13, color: token.colorSuccess }}>
-              {tuitionSummary.loading ? '...' : `$${fmt(availableBalance)}`}
+              {tuitionSummary.loading ? '...' : `S$${fmt(availableBalance)}`}
             </Typography.Text>
           </Flex>
 
@@ -113,7 +180,7 @@ const PayPage = () => {
             min={0}
             max={maxUsable}
             precision={2}
-            prefix="$"
+            prefix="S$"
             value={balanceInput}
             status={exceedsBalance ? 'error' : undefined}
             onChange={(val) => setBalanceInput(val)}
@@ -121,11 +188,11 @@ const PayPage = () => {
 
           {exceedsBalance ? (
             <Typography.Text type="danger" style={{ fontSize: 11 }}>
-              Exceeds available balance of ${fmt(availableBalance)}
+              Exceeds available balance of S${fmt(availableBalance)}
             </Typography.Text>
           ) : (
             <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-              Enter amount to use from balance (max ${fmt(maxUsable)}). Leave blank to pay fully online.
+              Enter amount to use from balance (max S${fmt(maxUsable)}). Leave blank to pay fully online.
             </Typography.Text>
           )}
 
@@ -142,7 +209,7 @@ const PayPage = () => {
                   Online payment (PayNow / bank transfer)
                 </Typography.Text>
                 <Typography.Text strong style={{ fontSize: 16, color: token.colorInfo }}>
-                  ${fmt(onlinePayment)}
+                  S${fmt(onlinePayment)}
                 </Typography.Text>
               </div>
               <BankOutlined style={{ fontSize: 22, color: token.colorTextSecondary }} />
@@ -167,20 +234,20 @@ const PayPage = () => {
 
           <Flex justify="space-between">
             <Typography.Text type="secondary">Total due today</Typography.Text>
-            <Typography.Text strong>${fmt(totalDueToday)}</Typography.Text>
+            <Typography.Text strong>S${fmt(totalDueToday)}</Typography.Text>
           </Flex>
 
           <Flex justify="space-between">
             <Typography.Text type="secondary">From balance</Typography.Text>
             <Typography.Text strong style={{ color: token.colorSuccess }}>
-              {balanceUsed > 0 ? `-$${fmt(balanceUsed)}` : '$0.00'}
+              {balanceUsed > 0 ? `-S$${fmt(balanceUsed)}` : 'S$0.00'}
             </Typography.Text>
           </Flex>
 
           <Flex justify="space-between">
             <Typography.Text type="secondary">Online payment</Typography.Text>
             <Typography.Text strong style={{ color: token.colorInfo }}>
-              ${fmt(onlinePayment)}
+              S${fmt(onlinePayment)}
             </Typography.Text>
           </Flex>
 
@@ -189,7 +256,7 @@ const PayPage = () => {
           <Flex justify="space-between">
             <Typography.Text strong style={{ fontSize: 14 }}>Charge today</Typography.Text>
             <Typography.Text strong style={{ fontSize: 14, color: token.colorPrimary }}>
-              ${fmt(totalDueToday)}
+              S${fmt(totalDueToday)}
             </Typography.Text>
           </Flex>
 
@@ -202,6 +269,7 @@ const PayPage = () => {
               height: 48,
               fontWeight: 600,
             }}
+            onClick={handlePay}
           >
             Confirm & Pay
           </Button>

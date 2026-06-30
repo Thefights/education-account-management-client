@@ -140,7 +140,8 @@ const SchoolManagementPage = () => {
           onEdit={(row) => {
             setSelectedRow(row)
             setOpenUpdate(true)
-          }}
+          }}
+
         />
         <GenericTablePagination
           totalCount={schools.data?.totalCount}
