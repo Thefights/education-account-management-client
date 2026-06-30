@@ -4,16 +4,7 @@ import { isEmail, maxLen } from '@/shared/utils/validateUtil'
 
 const initialValues = { schoolName: '', address: '', phoneNumber: '', email: '' }
 
-const SchoolManagementFormSection = ({
-  openCreate,
-  setOpenCreate,
-  openUpdate,
-  setOpenUpdate,
-  selectedRow,
-  onCreateSubmit,
-  onUpdateSubmit,
-  refetch,
-}) => {
+const SchoolManagementFormSection = ({ openCreate, setOpenCreate, onCreateSubmit, refetch }) => {
   const { t } = useTranslation()
   const fields = [
     {
@@ -64,16 +55,6 @@ const SchoolManagementFormSection = ({
         fields={fields}
         destroyOnHidden
         onSubmit={handleSubmit(onCreateSubmit)}
-      />
-      <GenericFormDialog
-        open={openUpdate}
-        onClose={() => setOpenUpdate(false)}
-        title={t('school_management.title.update')}
-        submitLabel={t('button.update')}
-        initialValues={{ ...initialValues, ...selectedRow }}
-        fields={fields}
-        destroyOnHidden
-        onSubmit={handleSubmit(onUpdateSubmit)}
       />
     </>
   )

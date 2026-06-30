@@ -4,6 +4,7 @@
     "title": {
       "management": "School Management",
       "create": "Create School",
+      "detail": "School Details",
       "update": "Update School"
     },
     "field": {

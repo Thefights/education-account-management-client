@@ -23,6 +23,7 @@ import ManagementActionLogDetailPage from '@/features/management-action-log/page
 import ManagementActionLogManagementPage from '@/features/management-action-log/pages/ManagementActionLogManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
+import SchoolManagementDetailPage from '@/features/school-management/pages/SchoolManagementDetailPage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
@@ -45,6 +46,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.SCHOOL_MANAGEMENT.INDEX,
         element: <SchoolManagementPage />,
+      },
+      {
+        path: routeUrls.SCHOOL_MANAGEMENT.DETAIL(),
+        element: <SchoolManagementDetailPage />,
       },
       {
         path: routeUrls.ADMIN_MANAGEMENT.INDEX,
