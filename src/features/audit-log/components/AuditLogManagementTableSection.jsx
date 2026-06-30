@@ -14,6 +14,14 @@ const AuditLogManagementTableSection = ({ auditLogs, loading, sort, setSort }) =
   const fields = useMemo(
     () => [
       {
+        key: 'occurredAt',
+        title: t('audit_log.field.created_at'),
+        width: 180,
+        sortable: true,
+        render: (value) =>
+          formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
+      },
+      {
         key: 'actorUserId',
         title: t('audit_log.field.actor_user_id'),
         width: 160,
@@ -52,14 +60,6 @@ const AuditLogManagementTableSection = ({ auditLogs, loading, sort, setSort }) =
         type: 'tag',
         options: _enum.auditLogCategoryOptions,
         color: defaultAuditLogCategoryStyle,
-      },
-      {
-        key: 'occurredAt',
-        title: t('audit_log.field.created_at'),
-        width: 180,
-        sortable: true,
-        render: (value) =>
-          formatDatetimeStringBasedOnCurrentLanguage(value) || renderEmptyFallback(null),
       },
     ],
     [t, _enum.auditLogCategoryOptions]

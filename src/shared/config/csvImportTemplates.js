@@ -1,3 +1,5 @@
+import { manualEducationAccountTestNrics } from '@/shared/config/manualEducationAccountTestNrics'
+
 export const csvImportTemplates = {
   admins: {
     filename: 'admin-import-template.csv',
@@ -51,7 +53,10 @@ export const csvImportTemplates = {
     filename: 'education-account-import-template.csv',
     headers: ['Nric', 'Reason'],
     sampleRows: [
-      ['S1234567D', 'Eligible citizen included through the manual batch import process.'],
+      [
+        manualEducationAccountTestNrics[0],
+        'Eligible citizen included through the manual batch import process.',
+      ],
     ],
   },
   manualTopup: {
