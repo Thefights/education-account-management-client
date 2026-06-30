@@ -1,0 +1,14 @@
+{
+  "financial_assistance": {
+    "message": {
+      "application_id_missing": "无法找到此申请。",
+      "application_submitted": "申请已提交：{name}",
+      "attach_required_documents": "请上传所有必需文件（还剩 {count} 份）",
+      "confirm_required_details": "请确认必填的申请信息",
+      "duplicate_application": "您已为此计划提交了待审核或已批准的申请。",
+      "no_matching_tier": "输入的信息不符合此计划的任何资助等级",
+      "reapply_failed": "无法准备重新申请。",
+      "submit_failed": "无法提交 FAS 申请"
+    }
+  }
+}

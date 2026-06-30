@@ -1,0 +1,14 @@
+{
+  "financial_assistance": {
+    "message": {
+      "application_id_missing": "Unable to find this application.",
+      "application_submitted": "Application submitted: {name}",
+      "attach_required_documents": "Attach all required documents ({count} left)",
+      "confirm_required_details": "Confirm the required application details",
+      "duplicate_application": "You already have a pending or approved application for this scheme.",
+      "no_matching_tier": "The entered details do not match any tier for this scheme",
+      "reapply_failed": "Unable to prepare this application for reapply.",
+      "submit_failed": "Unable to submit the FAS application"
+    }
+  }
+}
