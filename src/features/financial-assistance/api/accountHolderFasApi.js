@@ -172,6 +172,9 @@ export const normalizeApiScheme = (scheme) => {
         apiId: q.id,
         questionText: q.questionText,
         isRequired: Boolean(q.isRequired),
+        description: q.description || null,
+        type: ['text', 'textarea', 'select'].includes(q.type) ? q.type : 'textarea',
+        options: Array.isArray(q.options) ? q.options : [],
         displayOrder: q.displayOrder,
       }))
       .sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999)),
