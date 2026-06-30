@@ -38,11 +38,6 @@ const TuitionCourseFilterSection = ({
     reset(filters)
   }, [filters])
 
-
-  const adminRoleOptions = useMemo(
-    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
-    [_enum.roleIdOptions]
-  )
   const fields = useMemo(
     () => [
       {
@@ -68,7 +63,7 @@ const TuitionCourseFilterSection = ({
         selectedText: (count) => `${count} ${t('text.items')}`,
       }
     ],
-    [t, adminRoleOptions, _enum.authAccountStatusOptions, schoolOptions, schoolsLoading]
+    [t, _enum.authAccountStatusOptions, schoolOptions, schoolsLoading]
   )
 
   const handleReset = () => {

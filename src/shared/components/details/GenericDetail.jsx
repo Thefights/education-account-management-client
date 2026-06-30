@@ -8,8 +8,18 @@ import { Button, Card, Descriptions, Flex, Skeleton, Space, Typography } from 'a
 import { useEffect, useMemo, useState } from 'react'
 
 const defaultColumn = { xs: 1, md: 2 }
-const emptyObject = {}
-const emptyArray = []
+const detailCellMinHeight = 40
+const viewCellContentStyle = {
+  minHeight: detailCellMinHeight,
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  overflowWrap: 'anywhere',
+}
+const editCellContentStyle = {
+  minHeight: detailCellMinHeight,
+  width: '100%',
+}
 
 const GenericDetail = ({
   title,
@@ -28,7 +38,7 @@ const GenericDetail = ({
   const [editing, setEditing] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [saving, setSaving] = useState(false)
-  const editInitialValues = edit?.initialValues || emptyObject
+  const editInitialValues = useMemo(() => edit?.initialValues ?? {}, [edit?.initialValues])
   const { values, handleChange, setField, reset, registerRef, validateAll, resetValidation } =
     useForm(editInitialValues)
   const { renderField, hasRequiredMissing } = useFieldRenderer(
@@ -43,23 +53,26 @@ const GenericDetail = ({
     [fields]
   )
   const editableFields = useMemo(() => {
-    const editFields = edit?.fields || emptyArray
+    const editFields = edit?.fields ?? []
     const resolvedFields =
       typeof editFields === 'function' ? editFields({ values, data }) : editFields
 
     return resolvedFields.filter((field) => field && field.hidden !== true)
   }, [data, edit, values])
-  const disabledFields = useMemo(() => {
-    const editDisabledFields = edit?.disabledFields || emptyArray
-    const resolvedFields =
-      typeof editDisabledFields === 'function'
-        ? editDisabledFields({ values, data })
-        : editDisabledFields
+  const editableFieldMap = useMemo(() => {
+    const map = new Map()
+    editableFields.forEach((field) => {
+      const detailKey = field.detailKey || field.viewKey || field.key
+      if (detailKey) map.set(detailKey, field)
+    })
 
-    return resolvedFields.filter((field) => field && field.hidden !== true)
-  }, [data, edit, values])
+    return map
+  }, [editableFields])
   const editable = !!edit
   const editLoading = saving || !!edit?.loading
+  const descriptionsClassName = ['generic-detail-descriptions', descriptionsProps?.className]
+    .filter(Boolean)
+    .join(' ')
 
   useEffect(() => {
     reset(editInitialValues)
@@ -80,6 +93,28 @@ const GenericDetail = ({
     }
 
     return renderEmptyFallback(value)
+  }
+
+  const renderEditField = (field) =>
+    renderField({
+      ...field,
+      title: undefined,
+      label: undefined,
+      hideLabel: true,
+    })
+
+  const renderInlineEditValue = (field) => {
+    const editableField = editableFieldMap.get(field.key)
+    if (!editableField) return renderValue(field)
+
+    return renderEditField(editableField)
+  }
+
+  const renderDetailCellValue = (field) => {
+    const content = editing ? renderInlineEditValue(field) : renderValue(field)
+    const editableField = editing && editableFieldMap.has(field.key)
+
+    return <div style={editableField ? editCellContentStyle : viewCellContentStyle}>{content}</div>
   }
 
   const handleCancelEdit = () => {
@@ -152,26 +187,20 @@ const GenericDetail = ({
 
         {loading && !data ? (
           <Skeleton active />
-        ) : editing ? (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: 16,
-              ...(edit?.fieldGridStyle || {}),
-            }}
-          >
-            {[...editableFields, ...disabledFields].map((field) => renderField(field))}
-          </div>
         ) : (
-          <Descriptions bordered={bordered} column={column} {...descriptionsProps}>
+          <Descriptions
+            bordered={bordered}
+            column={column}
+            {...descriptionsProps}
+            className={descriptionsClassName}
+          >
             {visibleFields.map((field) => (
               <Descriptions.Item
                 key={field.key || field.label}
                 label={field.label ?? field.title}
                 span={field.span}
               >
-                {renderValue(field)}
+                {renderDetailCellValue(field)}
               </Descriptions.Item>
             ))}
           </Descriptions>

@@ -1,5 +1,4 @@
 import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
-import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
@@ -27,10 +26,6 @@ const TuitionCourseFilterSection = ({
     'medium'
   )
 
-  const adminRoleOptions = useMemo(
-    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
-    [_enum.roleIdOptions]
-  )
   const fields = useMemo(
     () => [
       {
@@ -55,7 +50,7 @@ const TuitionCourseFilterSection = ({
         selectedText: (count) => `${count} ${t('text.items')}`,
       }
     ],
-    [t, adminRoleOptions, _enum.studentTuitionFilterStatusOptions, schoolOptions, schoolsLoading]
+    [t, _enum.studentTuitionFilterStatusOptions, schoolOptions, schoolsLoading]
   )
 
   return (
