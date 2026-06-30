@@ -289,15 +289,17 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
         <Tag>{index + 1}</Tag>
         <Typography.Text type="secondary">{t('topup_form.rule')}</Typography.Text>
       </Flex>
-      <Tooltip title={t('topup_form.delete_condition')}>
-        <Button
-          danger
-          type="text"
-          icon={<DeleteOutlined />}
-          onClick={onDelete}
-          style={{ position: 'absolute', top: 10, right: 8 }}
-        />
-      </Tooltip>
+      {onDelete ? (
+        <Tooltip title={t('topup_form.delete_condition')}>
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            onClick={onDelete}
+            style={{ position: 'absolute', top: 10, right: 8 }}
+          />
+        </Tooltip>
+      ) : null}
       <Row gutter={[8, 8]} align="top">
         <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
@@ -451,10 +453,6 @@ const GroupEditor = ({
       token={token}
     >
       <Flex vertical gap={12}>
-        <Tag color="blue" style={{ width: 'fit-content' }}>
-          {t('topup_form.must_match_all_in_scenario')}
-        </Tag>
-
         {conditions.map((condition, index) => (
           <ConditionRow
             key={condition.id ?? `condition-${index}`}
@@ -464,13 +462,16 @@ const GroupEditor = ({
             token={token}
             showValidationErrors={showValidationErrors}
             onChange={(nextCondition) => updateCondition(index, nextCondition)}
-            onDelete={() =>
-              onChange({
-                ...group,
-                logicalOperator: EnumConfig.TopupLogicalOperator.And,
-                groups: [],
-                conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
-              })
+            onDelete={
+              conditions.length > 1
+                ? () =>
+                    onChange({
+                      ...group,
+                      logicalOperator: EnumConfig.TopupLogicalOperator.And,
+                      groups: [],
+                      conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
+                    })
+                : null
             }
           />
         ))}
@@ -523,23 +524,47 @@ const TopupRuleConditionsField = ({ value, onChange, showValidationErrors = fals
 
   return (
     <Flex vertical gap={12}>
-      <Alert type="info" showIcon message={t('topup_form.scenario_only_help')} />
       {scenarios.map((scenario, index) => (
-        <GroupEditor
-          key={scenario.id ?? `scenario-${index}`}
-          group={scenario}
-          groupNumber={index + 1}
-          t={t}
-          token={token}
-          canDelete={scenarios.length > 1}
-          showValidationErrors={showValidationErrors}
-          onChange={(nextScenario) => updateScenario(index, nextScenario)}
-          onDelete={() => emitScenarioRoot(scenarios.filter((_, itemIndex) => itemIndex !== index))}
-        />
+        <Flex key={scenario.id ?? `scenario-${index}`} vertical gap={12}>
+          {index > 0 && (
+            <Flex align="center" gap={12} role="separator">
+              <div
+                style={{
+                  flex: 1,
+                  borderTop: `1px solid ${token.colorBorderSecondary}`,
+                }}
+              />
+              <Tag color="blue" style={{ margin: 0, fontWeight: token.fontWeightStrong }}>
+                {t('topup_form.or_condition_group')}
+              </Tag>
+              <div
+                style={{
+                  flex: 1,
+                  borderTop: `1px solid ${token.colorBorderSecondary}`,
+                }}
+              />
+            </Flex>
+          )}
+          <GroupEditor
+            group={scenario}
+            groupNumber={index + 1}
+            t={t}
+            token={token}
+            canDelete={scenarios.length > 1}
+            showValidationErrors={showValidationErrors}
+            onChange={(nextScenario) => updateScenario(index, nextScenario)}
+            onDelete={() =>
+              emitScenarioRoot(scenarios.filter((_, itemIndex) => itemIndex !== index))
+            }
+          />
+        </Flex>
       ))}
       <Button
-        type="dashed"
+        color="cyan"
+        variant="filled"
+        block
         icon={<PlusOutlined />}
+        style={{ height: 40 }}
         onClick={() => emitScenarioRoot([...scenarios, createEmptyTopupConditionGroup()])}
       >
         {t('topup_form.add_scenario')}
