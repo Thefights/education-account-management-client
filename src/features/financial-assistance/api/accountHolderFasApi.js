@@ -22,8 +22,10 @@ const API_STATUS_TO_UI = {
 }
 
 const UI_STATUS_TO_API = {
+  [FAS_APPLICATION_STATUS.Draft]: EnumConfig.FasApplicationStatusId.Draft,
   [FAS_APPLICATION_STATUS.Pending]: EnumConfig.FasApplicationStatusId.Pending,
   [FAS_APPLICATION_STATUS.Approved]: EnumConfig.FasApplicationStatusId.Approved,
+  [FAS_APPLICATION_STATUS.Expired]: EnumConfig.FasApplicationStatusId.Expired,
   [FAS_APPLICATION_STATUS.Rejected]: EnumConfig.FasApplicationStatusId.Rejected,
   [FAS_APPLICATION_STATUS.Withdrawn]: EnumConfig.FasApplicationStatusId.Withdrawn,
 }

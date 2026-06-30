@@ -103,6 +103,7 @@ export const FasApplicationFilterSection = ({
   dateTitle = 'Submitted date',
   showStatus = true,
   statusMode = 'multi',
+  statusOptions = fasApplicationStatusOptions,
   showDateRange = true,
 }) => {
   const { values, handleChange, reset, setField, registerRef } = useForm(filters)
@@ -125,7 +126,7 @@ export const FasApplicationFilterSection = ({
             key: 'status',
             title: 'Status',
             type: 'select',
-            options: [{ value: 'all', label: 'All' }, ...fasApplicationStatusOptions],
+            options: [{ value: 'all', label: 'All' }, ...statusOptions],
             required: false,
             placeholder: 'All',
             colProps: { xs: 24, sm: 12, md: 8, xl: 5 },
@@ -134,7 +135,7 @@ export const FasApplicationFilterSection = ({
             ...makeMultiCheckField({
               key: 'statuses',
               title: 'Status',
-              options: fasApplicationStatusOptions,
+              options: statusOptions,
             }),
             colProps: { xs: 24, sm: 12, md: 8, xl: 5 },
           }

@@ -1,5 +1,6 @@
 import {
   FAS_APPLICATION_STATUS,
+  FAS_STATUS,
   MOCK_ACCOUNT_HOLDER,
 } from '@/features/financial-assistance/data/fasSeedData'
 import {
@@ -59,21 +60,54 @@ const isBlockingApplication = (application) =>
   (application?.displayStatus === FAS_APPLICATION_STATUS.Approved &&
     !isApprovedApplicationExpired(application))
 
-const getSchemeLookupId = (scheme) => {
-  const value = scheme?.apiId ?? scheme?.id ?? scheme?.schemeId
+const getSchemeLookupIds = (scheme) =>
+  [scheme?.apiId, scheme?.id, scheme?.schemeId]
+    .filter((value) => value != null && value !== '')
+    .map((value) => String(value))
+
+const getApplicationSchemeId = (application) => {
+  const value = application?.schemeId ?? application?.fasSchemeId ?? application?.scheme?.id
   return value == null ? '' : String(value)
 }
 
 const findActiveApplicationForScheme = (applications, scheme) => {
-  const schemeId = getSchemeLookupId(scheme)
-  if (!schemeId) return null
+  const schemeIds = getSchemeLookupIds(scheme)
+  if (!schemeIds.length) return null
 
   return (
     (applications || []).find(
       (application) =>
-        String(application.schemeId) === schemeId && isBlockingApplication(application)
+        schemeIds.includes(getApplicationSchemeId(application)) && isBlockingApplication(application)
     ) || null
   )
+}
+
+const buildAppliedSchemeFallbacks = (applications, schemes) => {
+  const existingSchemeIds = new Set(schemes.flatMap(getSchemeLookupIds))
+
+  return (applications || [])
+    .filter(isBlockingApplication)
+    .filter((application) => {
+      const schemeId = getApplicationSchemeId(application)
+      return schemeId && !existingSchemeIds.has(schemeId)
+    })
+    .map((application) => ({
+      id: getApplicationSchemeId(application),
+      apiId: Number(getApplicationSchemeId(application)),
+      code: '',
+      name: application.schemeName || 'FAS scheme',
+      description: 'You already have an application for this scheme.',
+      status: FAS_STATUS.Active,
+      subsidyType: 'percent',
+      validityMonths: 12,
+      linkedCourses: [],
+      conditionsSummary: [],
+      reapplyFallback: true,
+      appliedFallback: true,
+      tiers: [],
+      documents: [],
+      additionalQuestions: [],
+    }))
 }
 
 const getAgeFromDateOfBirth = (dateOfBirth) => {
@@ -208,12 +242,20 @@ const MyFasApplyPage = () => {
   const usingApiSchemes = Array.isArray(apiAvailableSchemes.schemes) && !availableSchemesQuery.error
   const schemes = useMemo(() => {
     const apiSchemes = usingApiSchemes ? apiAvailableSchemes.schemes : []
-    if (!initialScheme) return apiSchemes
-    if (apiSchemes.some((scheme) => String(scheme.id) === String(initialScheme.id))) {
-      return apiSchemes
+    const seedSchemes =
+      initialScheme &&
+      !apiSchemes.some((scheme) =>
+        getSchemeLookupIds(scheme).some((id) => getSchemeLookupIds(initialScheme).includes(id))
+      )
+        ? [initialScheme, ...apiSchemes]
+        : apiSchemes
+    const fallbackSchemes = buildAppliedSchemeFallbacks(activeApplications, seedSchemes)
+
+    if (!fallbackSchemes.length) {
+      return seedSchemes
     }
-    return [initialScheme, ...apiSchemes]
-  }, [apiAvailableSchemes.schemes, initialScheme, usingApiSchemes])
+    return [...seedSchemes, ...fallbackSchemes]
+  }, [activeApplications, apiAvailableSchemes.schemes, initialScheme, usingApiSchemes])
 
   const schemeById = useMemo(
     () => Object.fromEntries(schemes.map((scheme) => [String(scheme.id), scheme])),
@@ -269,8 +311,6 @@ const MyFasApplyPage = () => {
     return activeAvailableSchemes.filter((scheme) => {
       const matchesQuery = !query || scheme.name.toLowerCase().includes(query)
       if (!matchesQuery) return false
-      if (!draftApplicationId && findActiveApplicationForScheme(activeApplications, scheme))
-        return false
       if (!shown) return true
       if (usingApiSchemes && scheme.apiId != null && !scheme.reapplyFallback) return true
       if (scheme.reapplyFallback || !scheme.tiers?.length) return true
@@ -286,8 +326,6 @@ const MyFasApplyPage = () => {
     search,
     shown,
     usingApiSchemes,
-    activeApplications,
-    draftApplicationId,
   ])
 
   const openForm = (schemeId) => {
@@ -435,12 +473,16 @@ const MyFasApplyPage = () => {
                   visibleSchemes.map((scheme, index) => {
                     const expanded =
                       expandedSchemeId === scheme.id || (expandedSchemeId === null && index === 0)
+                    const blockingApplication = draftApplicationId
+                      ? null
+                      : findActiveApplicationForScheme(activeApplications, scheme)
 
                     return (
                       <SchemeApplyCard
                         key={scheme.id}
                         scheme={scheme}
                         expanded={expanded}
+                        appliedApplication={blockingApplication}
                         onToggle={() =>
                           setExpandedSchemeId((current) => {
                             const isAutoExpanded = current === null && index === 0
@@ -465,8 +507,8 @@ const MyFasApplyPage = () => {
 
               {!shown && (
                 <div className="fas-note">
-                  Showing active schemes that do not already have an application. Enter details and
-                  use the button to narrow the list.
+                  Showing active schemes. Schemes with a pending or active approved application are
+                  marked as applied. Enter details and use the button to narrow the list.
                   {availableSchemesQuery.error ? ' Unable to load FAS schemes from the API.' : ''}
                 </div>
               )}
@@ -488,7 +530,7 @@ const ProfileQuestion = ({ icon, label, children }) => (
   </div>
 )
 
-const SchemeApplyCard = ({ scheme, expanded, onToggle, onApply }) => (
+const SchemeApplyCard = ({ scheme, expanded, appliedApplication, onToggle, onApply }) => (
   <div className="fas-scheme-card">
     <div className="fas-scheme-card-top">
       <div className="fas-scheme-main">
@@ -499,8 +541,8 @@ const SchemeApplyCard = ({ scheme, expanded, onToggle, onApply }) => (
         </div>
       </div>
       <div className="fas-card-buttons">
-        <Button type="primary" onClick={onApply}>
-          Apply
+        <Button type="primary" disabled={Boolean(appliedApplication)} onClick={onApply}>
+          {appliedApplication ? 'Applied' : 'Apply'}
         </Button>
         <Button
           aria-label={`View ${scheme.name} information`}

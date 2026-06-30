@@ -145,6 +145,7 @@ export const ApiUrls = {
     FAS_APPLICATION_PUBLISH_DRAFT: (id) => `/account-holder/fas-applications/${id}/publish`,
     FAS_APPLICATION_SAVE_DRAFT: '/account-holder/fas-applications/draft',
     FAS_APPLICATION_UPDATE_DRAFT: (id) => `/account-holder/fas-applications/draft/${id}`,
+    FAS_APPLICATION_DELETE_DRAFT: (id) => `/account-holder/fas-applications/draft/${id}`,
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
   },
 }
