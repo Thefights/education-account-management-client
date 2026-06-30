@@ -1,26 +1,40 @@
-import { FAS_APPLICATION_STATUS } from '@/features/financial-assistance/data/fasSeedData'
+import { FAS_APPLICATION_STATUS, FAS_STATUS } from '@/features/financial-assistance/data/fasSeedData'
+import { EnumConfig } from '@/shared/config/enumConfig'
 
-export const FAS_GUARDIAN_NATIONALITY = {
-  SingaporeCitizen: 1,
-  Other: 2,
-}
+export const FAS_GUARDIAN_NATIONALITY = EnumConfig.FasGuardianNationalityId
 
 const API_STATUS_TO_UI = {
-  1: FAS_APPLICATION_STATUS.Pending,
-  2: FAS_APPLICATION_STATUS.Approved,
-  3: FAS_APPLICATION_STATUS.Rejected,
-  4: FAS_APPLICATION_STATUS.Withdrawn,
-  pending: FAS_APPLICATION_STATUS.Pending,
-  approved: FAS_APPLICATION_STATUS.Approved,
-  rejected: FAS_APPLICATION_STATUS.Rejected,
-  withdrawn: FAS_APPLICATION_STATUS.Withdrawn,
+  [EnumConfig.FasApplicationStatusId.Pending]: FAS_APPLICATION_STATUS.Pending,
+  [EnumConfig.FasApplicationStatusId.Approved]: FAS_APPLICATION_STATUS.Approved,
+  [EnumConfig.FasApplicationStatusId.Rejected]: FAS_APPLICATION_STATUS.Rejected,
+  [EnumConfig.FasApplicationStatusId.Withdrawn]: FAS_APPLICATION_STATUS.Withdrawn,
+  [EnumConfig.FasApplicationStatusId.Draft]: FAS_APPLICATION_STATUS.Draft,
+  [EnumConfig.FasApplicationStatusId.Expired]: FAS_APPLICATION_STATUS.Expired,
+  [EnumConfig.FasApplicationStatus.Pending]: FAS_APPLICATION_STATUS.Pending,
+  [EnumConfig.FasApplicationStatus.Approved]: FAS_APPLICATION_STATUS.Approved,
+  [EnumConfig.FasApplicationStatus.Rejected]: FAS_APPLICATION_STATUS.Rejected,
+  [EnumConfig.FasApplicationStatus.Withdrawn]: FAS_APPLICATION_STATUS.Withdrawn,
+  [EnumConfig.FasApplicationStatus.Draft]: FAS_APPLICATION_STATUS.Draft,
+  [EnumConfig.FasApplicationStatus.Expired]: FAS_APPLICATION_STATUS.Expired,
 }
 
 const UI_STATUS_TO_API = {
-  [FAS_APPLICATION_STATUS.Pending]: 1,
-  [FAS_APPLICATION_STATUS.Approved]: 2,
-  [FAS_APPLICATION_STATUS.Rejected]: 3,
-  [FAS_APPLICATION_STATUS.Withdrawn]: 4,
+  [FAS_APPLICATION_STATUS.Pending]: EnumConfig.FasApplicationStatusId.Pending,
+  [FAS_APPLICATION_STATUS.Approved]: EnumConfig.FasApplicationStatusId.Approved,
+  [FAS_APPLICATION_STATUS.Rejected]: EnumConfig.FasApplicationStatusId.Rejected,
+  [FAS_APPLICATION_STATUS.Withdrawn]: EnumConfig.FasApplicationStatusId.Withdrawn,
+}
+
+const API_SCHEME_STATUS_TO_UI = {
+  1: FAS_STATUS.Draft,
+  2: FAS_STATUS.Active,
+  3: FAS_STATUS.Inactive,
+  [EnumConfig.FasSchemeStatus.Draft]: FAS_STATUS.Draft,
+  [EnumConfig.FasSchemeStatus.Active]: FAS_STATUS.Active,
+  [EnumConfig.FasSchemeStatus.Inactive]: FAS_STATUS.Inactive,
+  Draft: FAS_STATUS.Draft,
+  Active: FAS_STATUS.Active,
+  Inactive: FAS_STATUS.Inactive,
 }
 
 const toDateOnly = (value) => {
@@ -69,7 +83,12 @@ export const fromNationalityApi = (value) => {
 export const toApiApplicationStatus = (status) => UI_STATUS_TO_API[status]
 
 export const fromApiApplicationStatus = (status) =>
-  API_STATUS_TO_UI[String(status).toLowerCase()] || API_STATUS_TO_UI[status] || status
+  API_STATUS_TO_UI[status] ?? API_STATUS_TO_UI[String(status).toLowerCase()] ?? status
+
+export const fromApiSchemeStatus = (status, fallback) =>
+  API_SCHEME_STATUS_TO_UI[status] ??
+  API_SCHEME_STATUS_TO_UI[String(status).toLowerCase()] ??
+  fallback
 
 export const isApiApprovedExpired = (application) => {
   const status = fromApiApplicationStatus(application?.status)
@@ -82,75 +101,83 @@ export const isApiApprovedExpired = (application) => {
   return endDate < today
 }
 
-const normalizeSubsidyType = (value) =>
-  String(value || '').toLowerCase().includes('fixed') ? 'fixed' : 'percent'
+const normalizeRequiredDocument = (document) => ({
+  id: String(document.id),
+  apiId: document.id,
+  name: document.documentName,
+  templateName: document.templateName,
+  templateUrl: document.templateUrl,
+})
+
+const normalizeApplicationDocument = (document) => ({
+  id: String(document.requiredDocumentId),
+  apiId: document.requiredDocumentId,
+  name: document.documentNameSnapshot,
+  templateName: document.templateName,
+  templateUrl: document.templateUrl,
+  fileName: document.fileName,
+  fileKey: document.fileKey,
+})
 
 export const normalizeApiScheme = (scheme) => {
   if (!scheme) return null
 
-  const subsidyType = normalizeSubsidyType(scheme.subsidyType)
   const perComponent = Boolean(scheme.isPerComponent)
 
   return {
     id: String(scheme.id),
     apiId: scheme.id,
     code: scheme.schemeCode,
-    name: scheme.schemeName || scheme.name || scheme.schemeCode || String(scheme.id),
-    description: scheme.description || 'Financial assistance scheme for eligible students.',
-    status: 'active',
-    subsidyType,
-    validityMonths: scheme.durationInMonths || scheme.validityMonths || 12,
-    linkedCourses: [],
+    name: scheme.schemeName,
+    description: scheme.description,
+    status: fromApiSchemeStatus(scheme.status, FAS_STATUS.Active),
+    subsidyType: scheme.subsidyType,
+    validityMonths: scheme.durationInMonths,
+    linkedCourses: scheme.linkedCourses || [],
     conditionsSummary: scheme.conditionsSummary || [],
-    tiers: (scheme.tiers || []).map((tier, index) => {
-      const maxPci = tier.maxPerCapitaIncome ?? tier.maxPci ?? ''
-      return {
-        id: String(tier.id ?? index + 1),
-        apiId: tier.id,
-        name: tier.tierName || tier.name || `Tier ${index + 1}`,
-        conditionText: maxPci !== '' && maxPci != null ? `PCI ≤ ${Number(maxPci).toLocaleString()}` : '',
-        maxPci,
-        perComponent,
-        value: tier.subsidyValue ?? '',
-        courseValue: tier.courseFeeSubsidyValue ?? '',
-        miscValue: tier.miscFeeSubsidyValue ?? '',
-        displayOrder: tier.displayOrder ?? index + 1,
-      }
-    }),
-    documents: (scheme.requiredDocuments || scheme.documents || []).map((document) => ({
-      id: String(document.id),
-      apiId: document.id,
-      name: document.documentName || document.name || 'Required document',
-      templateName: document.templateUrl || '',
-      templateUrl: document.templateUrl || '',
+    reapplyFallback: Boolean(scheme.reapplyFallback),
+    tiers: (scheme.tiers || []).map((tier, index) => ({
+      id: String(tier.id),
+      apiId: tier.id,
+      name: tier.tierName,
+      conditionText:
+        tier.maxPerCapitaIncome != null ? `PCI ≤ ${Number(tier.maxPerCapitaIncome).toLocaleString()}` : '',
+      maxPci: tier.maxPerCapitaIncome,
+      perComponent,
+      value: tier.subsidyValue,
+      courseValue: tier.courseFeeSubsidyValue,
+      miscValue: tier.miscFeeSubsidyValue,
+      displayOrder: tier.displayOrder ?? index + 1,
     })),
+    documents: (scheme.requiredDocuments || []).map(normalizeRequiredDocument),
   }
 }
 
 export const normalizeApiAvailableSchemesResponse = (payload) => {
-  const data = payload?.schemes ? payload : payload?.data?.schemes ? payload.data : payload
-  if (!data || !Array.isArray(data.schemes)) {
+  if (!payload || !Array.isArray(payload.schemes)) {
     return { calculatedPerCapitaIncome: null, schemes: null }
   }
 
   return {
-    calculatedPerCapitaIncome: data.calculatedPerCapitaIncome ?? null,
-    schemes: data.schemes.map(normalizeApiScheme).filter(Boolean),
+    calculatedPerCapitaIncome: payload.calculatedPerCapitaIncome,
+    schemes: payload.schemes.map(normalizeApiScheme).filter(Boolean),
   }
 }
 
-export const buildAvailableSchemesParams = ({ shown, profile }) => {
-  if (!shown) return {}
+export const buildAvailableSchemesParams = ({ shown, profile }) => ({
+  Page: 1,
+  PageSize: 100,
+  Sort: 'schemeName asc',
+  ...(shown
+    ? {
+        GrossHouseholdIncome: Number(profile.income || 0),
+        HouseholdMemberCount: Number(profile.members || 0),
+        GuardianNationality: toGuardianNationalityApi(profile.parentNationality),
+      }
+    : {}),
+})
 
-  return {
-    grossHouseholdIncome: Number(profile.income || 0),
-    householdMemberCount: Number(profile.members || 0),
-    guardianNationality: toGuardianNationalityApi(profile.parentNationality),
-  }
-}
-
-export const normalizeFasProfileFromApi = (payload, fallback) => {
-  const accountHolder = payload?.data || payload
+export const normalizeFasProfileFromApi = (accountHolder, fallback) => {
   if (!accountHolder) return fallback
 
   const isSingaporeCitizen =
@@ -162,6 +189,8 @@ export const normalizeFasProfileFromApi = (payload, fallback) => {
 
   return {
     ...fallback,
+    name: accountHolder.name || fallback?.name,
+    accountNumber: accountHolder.accountNumber || fallback?.accountNumber,
     age:
       getAgeFromDateOfBirth(accountHolder.dateOfBirth) ??
       accountHolder.age ??
@@ -183,6 +212,8 @@ export const normalizeFasSnapshotProfile = (snapshot, fallback) => {
 
   return {
     ...fallback,
+    name: snapshot.name || fallback?.name,
+    accountNumber: snapshot.accountNumber || fallback?.accountNumber,
     age: snapshot.age ?? snapshot.studentAgeSnapshot ?? fallback?.age,
     nationality:
       snapshot.nationality || fromNationalityApi(snapshot.studentNationalitySnapshot) || fallback?.nationality,
@@ -195,55 +226,43 @@ export const normalizeFasSnapshotProfile = (snapshot, fallback) => {
   }
 }
 
-export const buildSubmitFasApplicationFormData = ({ scheme, profile, documents, attachedDocs }) => {
-  const formData = new FormData()
-  formData.append('FasSchemeId', scheme.apiId ?? scheme.id)
-  formData.append('GuardianNationality', toGuardianNationalityApi(profile.parentNationality))
-  formData.append('GrossHouseholdIncome', Number(profile.income || 0))
-  formData.append('HouseholdMemberCount', Number(profile.members || 0))
-
-  documents.forEach((document, index) => {
+export const buildSubmitFasApplicationPayload = ({ scheme, profile, documents, attachedDocs }) => ({
+  FasSchemeId: scheme.apiId,
+  GuardianNationality: toGuardianNationalityApi(profile.parentNationality),
+  GrossHouseholdIncome: Number(profile.income || 0),
+  HouseholdMemberCount: Number(profile.members || 0),
+  Documents: documents.map((document) => {
     const attachment = attachedDocs[document.id]
-    formData.append(`Documents[${index}].RequiredDocumentId`, document.apiId ?? document.id)
-    formData.append(`Documents[${index}].FileName`, attachment?.fileName || document.name)
-    formData.append(
-      `Documents[${index}].FileKey`,
-      attachment?.fileKey || attachment?.fileName || document.templateUrl || document.name
-    )
-  })
-
-  return formData
-}
+    return {
+      RequiredDocumentId: document.apiId,
+      FileName: attachment?.fileName || document.name,
+      FileKey: attachment?.fileKey || attachment?.fileName || document.templateUrl || document.name,
+    }
+  }),
+})
 
 const normalizePaginationCollection = (payload) => {
-  const data = Array.isArray(payload)
-    ? payload
-    : payload?.collection || payload?.items
-      ? payload
-      : payload?.data || payload
-  const collection = Array.isArray(data?.collection)
-    ? data.collection
-    : Array.isArray(data?.items)
-      ? data.items
-      : Array.isArray(data)
-        ? data
-        : []
-  const pageSize = data?.pageSize || 10
-  const totalCount = data?.totalCount ?? data?.total ?? collection.length
+  const collection = Array.isArray(payload?.collection) ? payload.collection : []
+  const pageSize = payload?.pageSize || 10
+  const totalCount = payload?.totalCount ?? collection.length
 
   return {
     collection,
     totalCount,
-    totalPage: data?.totalPage ?? data?.totalPages ?? Math.max(1, Math.ceil(totalCount / pageSize)),
-    pageSize: data?.pageSize,
+    totalPage: payload?.totalPage ?? Math.max(1, Math.ceil(totalCount / pageSize)),
+    pageSize: payload?.pageSize,
   }
 }
 
+const getApplicationApiId = (application) =>
+  application?.id ?? application?.applicationId ?? application?.fasApplicationId
+
 export const normalizeApiApplicationSummary = (application) => {
   const status = fromApiApplicationStatus(application.status)
+  const apiId = getApplicationApiId(application)
   const normalized = {
-    id: application.applicationNumber || String(application.id),
-    apiId: application.id,
+    id: application.applicationNumber || (apiId != null ? String(apiId) : '-'),
+    apiId,
     applicationNumber: application.applicationNumber,
     schemeId: application.schemeId != null ? String(application.schemeId) : undefined,
     schemeName: application.schemeName || '-',
@@ -256,7 +275,7 @@ export const normalizeApiApplicationSummary = (application) => {
   }
 
   if (isApiApprovedExpired(normalized)) {
-    normalized.displayStatus = 'expired'
+    normalized.displayStatus = FAS_APPLICATION_STATUS.Expired
   }
 
   return normalized
@@ -302,10 +321,11 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
       getPci(detail.grossHouseholdIncomeSnapshot, detail.householdMemberCountSnapshot),
   }
 
+  const apiId = getApplicationApiId(detail)
   const application = {
     ...summary,
-    id: detail.applicationNumber || summary.id || String(detail.id),
-    apiId: detail.id,
+    id: detail.applicationNumber || summary.id || (apiId != null ? String(apiId) : '-'),
+    apiId,
     applicationNumber: detail.applicationNumber,
     schemeId,
     schemeName: detail.scheme?.schemeName || summary.schemeName,
@@ -324,18 +344,25 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
   }
 
   if (isApiApprovedExpired(application)) {
-    application.displayStatus = 'expired'
+    application.displayStatus = FAS_APPLICATION_STATUS.Expired
   }
 
   application.scheme = {
     id: schemeId,
-    apiId: detail.scheme?.id,
+    apiId: detail.scheme?.id ?? Number(schemeId),
     code: detail.scheme?.schemeCode,
     name: detail.scheme?.schemeName || summary.schemeName || '-',
     description: detail.scheme?.description || '',
+    status: fromApiSchemeStatus(detail.scheme?.status, FAS_STATUS.Active),
     subsidyType: approvedTier?.subsidyValue != null ? 'fixed' : 'percent',
-    validityMonths: undefined,
+    validityMonths: summary.scheme?.validityMonths || 12,
+    linkedCourses: [],
+    conditionsSummary: [],
+    reapplyFallback: true,
     tiers: approvedTier ? [approvedTier] : [],
+    documents: (detail.documents || [])
+      .filter((document) => document.requiredDocumentId != null)
+      .map(normalizeApplicationDocument),
   }
 
   return application
