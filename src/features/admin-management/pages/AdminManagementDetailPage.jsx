@@ -5,36 +5,22 @@ import {
   defaultAuthAccountStatusStyle,
   defaultRoleStyle,
 } from '@/shared/config/theme/defaultStylesConfig'
-import useApiOptions from '@/shared/hooks/useApiOptions'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { getEnumLabelByValue, renderEmptyFallback } from '@/shared/utils/handleStringUtil'
-import { EditOutlined } from '@ant-design/icons'
-import { Button, Tag } from 'antd'
-import { useMemo, useState } from 'react'
+import { Tag } from 'antd'
+import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import AdminManagementFormSection from '../components/AdminManagementFormSection'
 
 const AdminManagementDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const _enum = useEnum()
-  const [openUpdate, setOpenUpdate] = useState(false)
   const detail = useFetch(ApiUrls.ADMIN_MANAGEMENT.DETAIL(id))
   const admin = detail.data
-  const schools = useApiOptions({
-    url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
-    valueKey: 'id',
-    labelKey: 'schoolName',
-  })
-  const updateAdmin = useAxiosSubmit({
-    url: ApiUrls.ADMIN_MANAGEMENT.DETAIL(id),
-    method: 'PUT',
-  })
 
   const roleLabel = getEnumLabelByValue(_enum.roleOptions, admin?.role) || admin?.role
   const statusLabel =
@@ -104,37 +90,13 @@ const AdminManagementDetailPage = () => {
   )
 
   return (
-    <>
-      <GenericDetail
-        title={t('admin_management.title.detail')}
-        data={admin}
-        fields={fields}
-        loading={detail.loading}
-        onBack={() => navigate(-1)}
-        extra={
-          <Button
-            icon={<EditOutlined />}
-            disabled={!admin}
-            loading={updateAdmin.loading}
-            onClick={() => setOpenUpdate(true)}
-          >
-            {t('button.update')}
-          </Button>
-        }
-      />
-      <AdminManagementFormSection
-        openCreate={false}
-        setOpenCreate={() => {}}
-        openUpdate={openUpdate}
-        setOpenUpdate={setOpenUpdate}
-        selectedRow={admin || {}}
-        onCreateSubmit={async () => undefined}
-        onUpdateSubmit={updateAdmin.submit}
-        refetch={detail.fetch}
-        schoolOptions={schools.options}
-        schoolsLoading={schools.loading}
-      />
-    </>
+    <GenericDetail
+      title={t('admin_management.title.detail')}
+      data={admin}
+      fields={fields}
+      loading={detail.loading}
+      onBack={() => navigate(-1)}
+    />
   )
 }
 

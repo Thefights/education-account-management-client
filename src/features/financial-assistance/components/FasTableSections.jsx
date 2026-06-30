@@ -5,6 +5,14 @@ import { FAS_APPLICATION_STATUS, FAS_STATUS } from '../data/fasSeedData'
 import { formatFasDate } from '../utils/fasRules'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import {
+  CheckCircleOutlined,
+  CopyOutlined,
+  EditOutlined,
+  EyeOutlined,
+  RollbackOutlined,
+  StopOutlined,
+} from '@ant-design/icons'
+import {
   fasApplicationStatusOptions,
   fasSchemeStatusOptions,
   getFasStatusColor,
@@ -18,7 +26,6 @@ export const FasAdminSchemeTableSection = ({
   onView,
   onEdit,
   onDuplicate,
-  onDelete,
   onActivate,
   onDeactivate,
 }) => {
@@ -55,16 +62,23 @@ export const FasAdminSchemeTableSection = ({
         const actions =
           row.status === FAS_STATUS.Draft
             ? [
-                { title: 'Edit', onClick: () => onEdit?.(row) },
-                { title: 'Duplicate', onClick: () => onDuplicate?.(row) },
-                { title: 'Delete', onClick: () => onDelete?.(row) },
+                { title: 'Update', icon: <EditOutlined />, onClick: () => onEdit?.(row) },
+                { title: 'Duplicate', icon: <CopyOutlined />, onClick: () => onDuplicate?.(row) },
               ]
             : [
-                { title: 'View', onClick: () => onView?.(row) },
-                { title: 'Duplicate', onClick: () => onDuplicate?.(row) },
+                { title: 'View', icon: <EyeOutlined />, onClick: () => onView?.(row) },
+                { title: 'Duplicate', icon: <CopyOutlined />, onClick: () => onDuplicate?.(row) },
                 row.status === FAS_STATUS.Active
-                  ? { title: 'Deactivate', onClick: () => onDeactivate?.(row) }
-                  : { title: 'Activate', onClick: () => onActivate?.(row) },
+                  ? {
+                      title: 'Deactivate',
+                      icon: <StopOutlined />,
+                      onClick: () => onDeactivate?.(row),
+                    }
+                  : {
+                      title: 'Activate',
+                      icon: <CheckCircleOutlined />,
+                      onClick: () => onActivate?.(row),
+                    },
               ]
 
         return <ActionMenu actions={actions} />
@@ -124,6 +138,7 @@ export const FasAdminApplicationTableSection = ({
         <Button
           size="small"
           type={row.status === FAS_APPLICATION_STATUS.Pending ? 'primary' : 'link'}
+          icon={row.status === FAS_APPLICATION_STATUS.Pending ? <EditOutlined /> : <EyeOutlined />}
           onClick={() => onReview?.(row)}
         >
           {row.status === FAS_APPLICATION_STATUS.Pending ? 'Review' : 'View'}
@@ -153,7 +168,6 @@ export const MyFasApplicationTableSection = ({
   onWithdraw,
   onView,
   onEditDraft,
-  onDeleteDraft,
   onApplyAgain,
 }) => {
   const baseFields = [
@@ -176,10 +190,8 @@ export const MyFasApplicationTableSection = ({
         return (
           <Flex gap={6} justify="end" wrap="wrap">
             <Button type="link" onClick={() => onEditDraft?.(row)}>
-              Edit
-            </Button>
-            <Button danger type="link" onClick={() => onDeleteDraft?.(row)}>
-              Delete
+              <EditOutlined />
+              Update
             </Button>
           </Flex>
         )
@@ -188,6 +200,7 @@ export const MyFasApplicationTableSection = ({
       if (row.displayStatus === FAS_APPLICATION_STATUS.Pending) {
         return onWithdraw ? (
           <Button danger type="link" onClick={() => onWithdraw(row)}>
+            <StopOutlined />
             Withdraw
           </Button>
         ) : null
@@ -199,6 +212,7 @@ export const MyFasApplicationTableSection = ({
       ) {
         return (
           <Button type="link" onClick={() => onApplyAgain?.(row)}>
+            <RollbackOutlined />
             Apply again
           </Button>
         )
@@ -206,6 +220,7 @@ export const MyFasApplicationTableSection = ({
 
       return (
         <Button type="link" onClick={() => onView?.(row)}>
+          <EyeOutlined />
           View
         </Button>
       )

@@ -157,8 +157,6 @@ const EServiceAccountsPage = () => {
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.DETAIL(account.id))
             )
           }
-          onCreate={() => setOpenCreate(true)}
-          onImport={() => setOpenImport(true)}
         />
         <GenericTablePagination
           totalCount={accounts.data?.totalCount}

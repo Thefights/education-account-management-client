@@ -55,6 +55,13 @@
       "pending": "Đang chờ",
       "success": "Thành công",
       "failed": "Thất bại"
+    },
+    "payment_plan_months": {
+      "full": "Toàn bộ",
+      "three_months": "3 tháng",
+      "six_months": "6 tháng",
+      "nine_months": "9 tháng",
+      "twelve_months": "12 tháng"
     }
   }
 }

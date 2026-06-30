@@ -254,5 +254,13 @@ export default function useEnum() {
       { value: EnumConfig.EducationCreditTransactionDirection.Credit, label: 'Credit' },
       { value: EnumConfig.EducationCreditTransactionDirection.Debit, label: 'Debit' },
     ],
+
+    paymentPlanOptions: [
+      { value: EnumConfig.PaymentPlanMonths.Full, label: t('enum.payment_plan_months.full') },
+      { value: EnumConfig.PaymentPlanMonths.ThreeMonths, label: t('enum.payment_plan_months.three_months') },
+      { value: EnumConfig.PaymentPlanMonths.SixMonths, label: t('enum.payment_plan_months.six_months') },
+      { value: EnumConfig.PaymentPlanMonths.NineMonths, label: t('enum.payment_plan_months.nine_months') },
+      { value: EnumConfig.PaymentPlanMonths.TwelveMonths, label: t('enum.payment_plan_months.twelve_months') },
+    ],
   }
 }

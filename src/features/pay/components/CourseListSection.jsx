@@ -1,305 +1,395 @@
-import { Flex, Typography, Card, Tag } from "antd"
-import {
-  CheckSquareOutlined,
-  DownOutlined,
-  LeftOutlined,
-} from "@ant-design/icons";
-import { useState } from "react";
+import { Table, Typography, Flex, Button, Divider, Tag } from "antd";
+import { theme } from "antd";
+import useEnum from "@/shared/hooks/useEnum";
 
-const invoices = [
-  {
-    id: "CRS-2026-000160",
-    title: "Intro to AI",
-    netPayable: 11445.0,
-    fas: "Income T1",
-    paid: 5000.0,
-    dueDate: "23/01/2026",
-    amountDue: 1445.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000161",
-    title: "Data Science Fundamentals",
-    netPayable: 9850.0,
-    fas: "Income T1",
-    paid: 4000.0,
-    dueDate: "28/01/2026",
-    amountDue: 1350.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000162",
-    title: "Machine Learning Basics",
-    netPayable: 12500.0,
-    fas: "Income T1",
-    paid: 6000.0,
-    dueDate: "05/02/2026",
-    amountDue: 1250.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000163",
-    title: "Python for Data Analysis",
-    netPayable: 8300.0,
-    fas: "Income T1",
-    paid: 3000.0,
-    dueDate: "12/02/2026",
-    amountDue: 1300.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000164",
-    title: "Deep Learning Essentials",
-    netPayable: 14200.0,
-    fas: "Income T1",
-    paid: 7000.0,
-    dueDate: "19/02/2026",
-    amountDue: 1700.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000165",
-    title: "Natural Language Processing",
-    netPayable: 10750.0,
-    fas: "Income T1",
-    paid: 4500.0,
-    dueDate: "26/02/2026",
-    amountDue: 1250.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000166",
-    title: "AI Ethics and Governance",
-    netPayable: 7900.0,
-    fas: "Income T1",
-    paid: 3000.0,
-    dueDate: "05/03/2026",
-    amountDue: 1150.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000167",
-    title: "Computer Vision",
-    netPayable: 11800.0,
-    fas: "Income T1",
-    paid: 5500.0,
-    dueDate: "11/03/2026",
-    amountDue: 1500.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000168",
-    title: "Generative AI Applications",
-    netPayable: 13650.0,
-    fas: "Income T1",
-    paid: 8000.0,
-    dueDate: "18/03/2026",
-    amountDue: 950.0,
-    status: "Overdue"
-  },
-  {
-    id: "CRS-2026-000169",
-    title: "Big Data Engineering",
-    netPayable: 9500.0,
-    fas: "Income T1",
-    paid: 2500.0,
-    dueDate: "25/03/2026",
-    amountDue: 1800.0,
-    status: "Overdue"
-  }
-];
+// ─── helpers ────────────────────────────────────────────────────────────────
 
-const CourseEntry = ({ invoice }) => {
-    const [view, setView] = useState('autoset');
-    return (
-        <Card
-        style={{
-            padding: "8px 12px",
-            borderRadius: 0
-        }}
-        bodyStyle={{ padding: 0 }}
-        >
-            <Flex justify="space-between">
-                <Flex vertical align="flex-start" justify="space-between">
-                    <Flex align="center" gap={12}>
-                    {/* <CheckSquareOutlined style={{ fontSize: 20 }} /> */}
+const fmt = (v) =>
+  Number(v ?? 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
-                    <div>
-                        <Typography.Title
-                        level={4}
-                        style={{
-                            margin: 0,
-                            lineHeight: 1.2,
-                        }}
-                        >
-                        {invoice.title}
-                        </Typography.Title>
-
-                        <Typography.Text type="secondary">
-                        {invoice.id}
-                        </Typography.Text>
-                    </div>
-                    </Flex>
-                </Flex>
-                <Flex vertical align="flex-end" gap={4}>
-                    <Typography.Title
-                    level={3}
-                    style={{ margin: 0 }}
-                    >
-                    ${invoice.amountDue.toLocaleString()}
-                    </Typography.Title>
-
-                    <Tag color="error">{invoice.status}</Tag>
-                </Flex>
-            </Flex>
-            <Flex vertical gap={12} style={{ marginTop:'5px',height:view,overflow:'hidden'}}>
-                <div style={{borderTop:'1px solid lightgray'}}></div>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        Course Fee
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
-                        $1000000
-                    </Typography.Title>
-                </Flex>
-                <div style={{borderTop:'1px solid lightgray'}}></div>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        MISC Fee
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
-                        $1000000
-                    </Typography.Title>
-                </Flex>
-                <div style={{borderTop:'1px solid lightgray'}}></div>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        FAS Income T1
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'green'}}
-                        >
-                        -$1000000
-                    </Typography.Title>
-                </Flex>
-                <div style={{borderTop:'1px solid lightgray'}}></div>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        GST 9%
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
-                        $1000000
-                    </Typography.Title>
-                </Flex>
-                    <div style={{border:'3px solid lightgray'}}>
-                        <Flex justify="space-between">
-                            <Typography.Title
-                                level={5}
-                                style={{ margin: 0, color:'green' }}
-                                >
-                                Net Payable
-                            </Typography.Title>
-                            <Typography.Title
-                                level={5}
-                                style={{ margin: 0}}
-                                >
-                                $1000000
-                            </Typography.Title>
-                        </Flex>
-                    </div>
-            </Flex>
-        </Card>
-    );
+const fmtDate = (iso) => {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-SG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 };
 
-const InfoBlock = ({ label, value }) => (
-  <Flex vertical style={{ padding: "0 32px" }}>
-    <Typography.Text type="secondary">
-      {label}
-    </Typography.Text>
+const statusTagColor = (status) => {
+  if (status === "Paid") return "success";
+  if (status === "Overdue") return "error";
+  if (status === "Upcoming") return "default";
+  return "default";
+};
 
-    <Typography.Text strong>
-      {value}
-    </Typography.Text>
+// ─── expanded rows ──────────────────────────────────────────────────────────
+
+const NormalExpandedRow = ({ record, token }) => (
+  <Flex vertical gap={8} style={{ padding: "4px 0" }}>
+    <Flex justify="space-between">
+      <Typography.Text type="secondary">Course fee</Typography.Text>
+      <Typography.Text strong>${fmt(record.courseFee)}</Typography.Text>
+    </Flex>
+
+    <Flex justify="space-between">
+      <Typography.Text type="secondary">Misc fee</Typography.Text>
+      <Typography.Text strong>${fmt(record.miscFee)}</Typography.Text>
+    </Flex>
+
+    <Flex justify="space-between">
+      <Typography.Text type="secondary">Tax (GST 9%)</Typography.Text>
+      <Typography.Text strong>${fmt(record.gstAmount)}</Typography.Text>
+    </Flex>
+
+    <Divider style={{ margin: "4px 0" }} />
+
+    <Flex justify="space-between">
+      <Typography.Text strong>Gross amount</Typography.Text>
+      <Typography.Text strong>${fmt(record.grossAmount)}</Typography.Text>
+    </Flex>
+
+    <Flex justify="space-between">
+      <Flex vertical>
+        <Typography.Text style={{ color: token.colorSuccess }}>
+          FAS deduction
+        </Typography.Text>
+        {record.appliedFasSchemeName && (
+          <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+            {record.appliedFasSchemeName}
+            {record.appliedFasTierName ? ` – ${record.appliedFasTierName}` : ""}
+          </Typography.Text>
+        )}
+      </Flex>
+      <Typography.Text strong style={{ color: token.colorSuccess }}>
+        {Number(record.fasSubsidyAmount || 0) > 0
+          ? `-$${fmt(record.fasSubsidyAmount)}`
+          : "—"}
+      </Typography.Text>
+    </Flex>
+
+    <Divider style={{ margin: "4px 0" }} />
+
+    <Flex justify="space-between">
+      <Typography.Text strong style={{ color: token.colorPrimary }}>
+        Net payable
+      </Typography.Text>
+      <Typography.Text strong style={{ color: token.colorPrimary }}>
+        ${fmt(record.netPayable)}
+      </Typography.Text>
+    </Flex>
   </Flex>
 );
 
-const Divider = () => (
-  <div
-    style={{
-      width: 1,
-      height: 40,
-      background: "#d9d9d9",
-    }}
-  />
-);
+const InstallmentExpandedRow = ({ record, token }) => {
+  const installments = record.installments ?? [];
 
-const CourseListSection = () => {
-    return (
-        <>
-            <div style={{height:'650px', overflowY:'scroll'}}>
-                <Flex vertical gap={5} style={{ flex: 1 }}>
-                    {invoices.map((entry) => (
-                    <CourseEntry invoice={entry}/>
-                    ))}
-                </Flex>
-            </div>
+  return (
+    <Flex vertical gap={0} style={{ padding: "4px 0" }}>
+      {/* Fee breakdown */}
+      <Flex gap={24} wrap="wrap" style={{ marginBottom: 12 }}>
+        <Flex gap={4}>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            Course fee:
+          </Typography.Text>
+          <Typography.Text strong style={{ fontSize: 12 }}>
+            ${fmt(record.courseFee)}
+          </Typography.Text>
+        </Flex>
+        <Flex gap={4}>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            Misc fee:
+          </Typography.Text>
+          <Typography.Text strong style={{ fontSize: 12 }}>
+            ${fmt(record.miscFee)}
+          </Typography.Text>
+        </Flex>
+        <Flex gap={4}>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            GST:
+          </Typography.Text>
+          <Typography.Text strong style={{ fontSize: 12 }}>
+            ${fmt(record.gstAmount)}
+          </Typography.Text>
+        </Flex>
+        <Flex gap={4}>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            Gross Amount
+          </Typography.Text>
+          <Typography.Text strong style={{ fontSize: 12 }}>
+            ${fmt(record.grossAmount)}
+          </Typography.Text>
+        </Flex>
+        {Number(record.fasSubsidyAmount) > 0 && (
+          <Flex gap={4}>
+            <Typography.Text style={{ color: token.colorSuccess, fontSize: 12 }}>
+              FAS:
+            </Typography.Text>
+            <Typography.Text
+              strong
+              style={{ color: token.colorSuccess, fontSize: 12 }}
+            >
+              -${fmt(record.fasSubsidyAmount)}
+            </Typography.Text>
+          </Flex>
+        )}
+      </Flex>
 
-            <div>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        Balance
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'green'}}
-                        >
-                        -$1000000
-                    </Typography.Title>
-                </Flex>
-                <div style={{borderTop:'1px solid lightgray'}}></div>
-                <Flex justify="space-between">
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0, color:'gray' }}
-                        >
-                        Total
-                    </Typography.Title>
-                    <Typography.Title
-                        level={5}
-                        style={{ margin: 0}}
-                        >
-                        $1000000
-                    </Typography.Title>
-                </Flex>
-            </div>
-        </>
-    )
-}
+      {/* Progress bar */}
+      <Flex justify="space-between" style={{ marginBottom: 6 }}>
+        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          Already Paid
+        </Typography.Text>
+        <Typography.Text strong style={{ fontSize: 12 }}>
+          ${fmt(record.paidAmount)} / ${fmt(record.netPayable)}
+        </Typography.Text>
+      </Flex>
+      <div
+        style={{
+          height: 4,
+          borderRadius: 99,
+          background: token.colorBorder,
+          marginBottom: 14,
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            borderRadius: 99,
+            width: `${Math.min(
+              100,
+              (Number(record.paidAmount) / Number(record.netPayable || 1)) * 100
+            )}%`,
+            background: token.colorSuccess,
+          }}
+        />
+      </div>
+    </Flex>
+  );
+};
 
-export default CourseListSection
+// ─── main component ──────────────────────────────────────────────────────────
+
+const CourseListSection = ({
+  selected = [],
+  plans = {},
+  onPlanChange,
+  getPayToday,
+  totalDueToday = 0,
+  totalGross = 0,
+  singleinstallment
+}) => {
+  const { token } = theme.useToken();
+  const _enum = useEnum();
+
+  selected.forEach(e => {
+    totalGross += e.grossAmount
+  })
+
+  const totalFasDeduction = selected.reduce(
+    (sum, item) => sum + Number(item.fasSubsidyAmount || 0),
+    0
+  );
+
+  const totalNetPayable = selected.reduce(
+    (sum, item) => sum + Number(item.netPayable || 0),
+    0
+  );
+
+  // ─── columns ───────────────────────────────────────────────────────────────
+
+  const columns = [
+    {
+      title: "Course",
+      key: "course",
+      render: (_, record) => (
+        <Flex vertical>
+          <Typography.Text strong>{record.courseName}</Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {record.courseCode}
+          </Typography.Text>
+        </Flex>
+      ),
+    },
+    {
+      title: "Net Payable",
+      dataIndex: "netPayable",
+      key: "netPayable",
+      align: "right",
+      render: (value) => (
+        <Typography.Text strong style={{ color: token.colorPrimary }}>
+          ${fmt(value)}
+        </Typography.Text>
+      ),
+    },
+    {
+      // For installments: shows "X of Y · Status"
+      // For regular: shows plan picker buttons
+      title: "Payment Plan",
+      key: "paymentPlan",
+      align: "center",
+      render: (_, record) => {
+        if (record.isInstallment) {
+          return (
+            <Flex vertical align="center" gap={4}>
+              <Typography.Text strong style={{ fontSize: 13 }}>
+                {singleinstallment?.installmentNumber?? record.currentInstallmentNumber} of {record.totalInstallments}
+              </Typography.Text>
+              <Tag
+                color={statusTagColor(singleinstallment?.status?? record.installments.find(e => e.installmentNumber == record.currentInstallmentNumber)?.status)}
+                bordered={false}
+                style={{ borderRadius: 20, margin: 0 }}
+              >
+                {singleinstallment?.status?? record.installments.find(e => e.installmentNumber == record.currentInstallmentNumber)?.status}
+              </Tag>
+            </Flex>
+          );
+        }
+
+        const currentMonths = plans[record.courseCode] || 1;
+        return (
+          <Flex gap={4} wrap="wrap" justify="center">
+            {_enum.paymentPlanOptions.map((opt) => (
+              <Button
+                key={opt.value}
+                size="small"
+                type={currentMonths === opt.value ? "primary" : "default"}
+                style={{ borderRadius: 20, minWidth: 42, fontSize: 12 }}
+                onClick={() => onPlanChange(record.courseCode, opt.value)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </Flex>
+        );
+      },
+    },
+    {
+      title: "Pay Today",
+      key: "payToday",
+      align: "right",
+      render: (_, record) => {
+        if (record.isInstallment) {
+          // For installments: show remaining amount
+          const remaining = record.isInstallment ? Number(singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0)) : Number(record.remainingAmount ?? 0);
+          const isOverdue = record.paymentStatus === "Overdue";
+          return (
+            <Flex vertical align="flex-end">
+              <Typography.Text
+                strong
+                style={{
+                  fontSize: 14,
+                  color: isOverdue ? token.colorError : undefined,
+                }}
+              >
+                ${fmt(remaining)}
+              </Typography.Text>
+              <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                remaining
+              </Typography.Text>
+            </Flex>
+          );
+        }
+
+        const payToday = getPayToday(record);
+        const months = plans[record.courseCode] || 1;
+        return (
+          <Flex vertical align="flex-end">
+            <Typography.Text strong style={{ fontSize: 14 }}>
+              ${fmt(payToday)}
+            </Typography.Text>
+            {months > 1 && (
+              <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                1 of {months} installments
+              </Typography.Text>
+            )}
+          </Flex>
+        );
+      },
+    },
+  ];
+
+  // ─── render ────────────────────────────────────────────────────────────────
+
+  return (
+    <Flex vertical gap={0}>
+      <div style={{ marginBottom: 8 }}>
+        <Typography.Text
+          type="secondary"
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          Selected courses
+        </Typography.Text>
+      </div>
+
+      <Table
+        rowKey={(record) => record.courseCode}
+        columns={columns}
+        dataSource={selected}
+        pagination={false}
+        scroll={{ y: 400 }}
+        expandable={{
+          expandedRowRender: (record) =>
+            record.isInstallment ? (
+              <InstallmentExpandedRow record={record} token={token} />
+            ) : (
+              <NormalExpandedRow record={record} token={token} />
+            ),
+        }}
+      />
+
+      {/* ── Footer totals ── */}
+      <div
+        style={{
+          background: token.colorBgLayout,
+          borderRadius: `0 0 ${token.borderRadiusLG}px ${token.borderRadiusLG}px`,
+          padding: "14px 16px",
+          borderTop: `1px solid ${token.colorBorder}`,
+        }}
+      >
+        <Flex justify="space-between" style={{ marginBottom: 6 }}>
+          <Typography.Text type="secondary">Total gross amount</Typography.Text>
+          <Typography.Text strong>${fmt(totalGross)}</Typography.Text>
+        </Flex>
+
+        <Flex justify="space-between" style={{ marginBottom: 6 }}>
+          <Typography.Text style={{ color: token.colorSuccess }}>
+            Total FAS deduction
+          </Typography.Text>
+          <Typography.Text strong style={{ color: token.colorSuccess }}>
+            {totalFasDeduction > 0 ? `-$${fmt(totalFasDeduction)}` : "—"}
+          </Typography.Text>
+        </Flex>
+
+        <Flex justify="space-between" style={{ marginBottom: 6 }}>
+          <Typography.Text type="secondary">Total net payable</Typography.Text>
+          <Typography.Text strong>${fmt(totalNetPayable)}</Typography.Text>
+        </Flex>
+
+        <Divider style={{ margin: "8px 0" }} />
+
+        <Flex justify="space-between">
+          <Typography.Title level={5} style={{ margin: 0 }}>
+            Total due today
+          </Typography.Title>
+          <Typography.Title
+            level={5}
+            style={{ margin: 0, color: token.colorPrimary }}
+          >
+            ${fmt(totalDueToday)}
+          </Typography.Title>
+        </Flex>
+      </div>
+    </Flex>
+  );
+};
+
+export default CourseListSection;

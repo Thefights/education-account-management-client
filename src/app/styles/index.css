@@ -170,6 +170,18 @@ a {
   border-color: transparent;
 }
 
+.ant-btn.topup-add-alternative-button {
+  color: var(--app-primary) !important;
+  background: var(--app-elevated-bg) !important;
+  border-color: var(--app-primary) !important;
+}
+
+.ant-btn.topup-add-alternative-button:not(:disabled):not(.ant-btn-disabled):hover {
+  color: #ffffff !important;
+  background: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

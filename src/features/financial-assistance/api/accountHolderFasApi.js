@@ -166,6 +166,15 @@ export const normalizeApiScheme = (scheme) => {
       displayOrder: tier.displayOrder ?? index + 1,
     })),
     documents: (scheme.requiredDocuments || []).map(normalizeRequiredDocument),
+    additionalQuestions: (scheme.additionalQuestions || [])
+      .map((q) => ({
+        id: String(q.id),
+        apiId: q.id,
+        questionText: q.questionText,
+        isRequired: Boolean(q.isRequired),
+        displayOrder: q.displayOrder,
+      }))
+      .sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999)),
   }
 }
 
@@ -225,6 +234,7 @@ export const normalizeFasProfileFromApi = (accountHolder, fallback) => {
     parentNationality: accountHolder.parentNationality || fallback?.parentNationality,
     income: accountHolder.monthlyHouseholdIncome ?? fallback?.income,
     members: accountHolder.householdMembers ?? fallback?.members,
+
   }
 }
 
@@ -244,10 +254,11 @@ export const normalizeFasSnapshotProfile = (snapshot, fallback) => {
       fallback?.parentNationality,
     income: snapshot.income ?? snapshot.grossHouseholdIncomeSnapshot ?? fallback?.income,
     members: snapshot.members ?? snapshot.householdMemberCountSnapshot ?? fallback?.members,
+
   }
 }
 
-export const buildSubmitFasApplicationPayload = ({ scheme, profile, documents, attachedDocs }) => ({
+export const buildSubmitFasApplicationPayload = ({ scheme, profile, documents, attachedDocs, additionalAnswers }) => ({
   FasSchemeId: scheme.apiId,
   GuardianNationality: toGuardianNationalityApi(profile.parentNationality),
   GrossHouseholdIncome: Number(profile.income || 0),
@@ -260,6 +271,7 @@ export const buildSubmitFasApplicationPayload = ({ scheme, profile, documents, a
       FileKey: attachment?.fileKey || attachment?.fileName || document.templateUrl || document.name,
     }
   }),
+  AdditionalAnswers: additionalAnswers || [],
 })
 
 const normalizePaginationCollection = (payload) => {
@@ -340,6 +352,7 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
     pci:
       detail.perCapitaIncomeSnapshot ??
       getPci(detail.grossHouseholdIncomeSnapshot, detail.householdMemberCountSnapshot),
+
   }
 
   const apiId = getApplicationApiId(detail)
@@ -362,6 +375,10 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
     approvedTier,
     tierId: approvedTier?.id,
     attachments: detail.documents || [],
+    additionalAnswers: (detail.additionalAnswers || []).map((a) => ({
+      fasSchemeAdditionalQuestionId: a.fasSchemeAdditionalQuestionId,
+      answerText: a.answerText,
+    })),
   }
 
   if (isApiApprovedExpired(application)) {

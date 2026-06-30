@@ -42,6 +42,7 @@
     "amount_credited": "Amount credited",
     "view_execution": "View execution",
     "account_number": "Account number",
+    "search_account_number": "Search by account number",
     "account_name": "Account name",
     "failure_reason": "Failure reason",
     "history_title": "Top-up Execution History",
@@ -61,7 +62,17 @@
     "executing": "Executing",
     "processing": "Processing",
     "completed": "Completed",
-    "execution_targets": "Execution targets"
+    "execution_targets": "Execution targets",
+    "manual_completed": "Manual Top-up Completed",
+    "execution_summary": "Successfully credited {amount} to {count} education accounts.",
+    "credited": "Credited",
+    "total_credited": "Total credited",
+    "execution_details": "Execution details",
+    "recipients": "Recipients",
+    "accounts": "accounts",
+    "successful_accounts": "Successful accounts",
+    "review_failed_accounts": "Review the failed accounts before running another top-up.",
+    "view_history": "View history"
   },
   "topup_form": {
     "topup_name": "Top-up name",

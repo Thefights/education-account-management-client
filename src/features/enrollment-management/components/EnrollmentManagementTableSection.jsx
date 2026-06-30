@@ -9,6 +9,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { StopOutlined } from '@ant-design/icons'
 
 const isEnrollmentRemovable = (enrollment) =>
   (enrollment.courseStatus === 'Draft' || enrollment.courseStatus === 'Enrolling') &&
@@ -25,7 +26,6 @@ const EnrollmentManagementTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onDelete,
   onWithdraw,
   showCourse = true,
   showGrossAmount = true,
@@ -169,13 +169,11 @@ const EnrollmentManagementTableSection = ({
             render: (_, row) => (
               <ActionMenu
                 actions={[
-                  ...(isEnrollmentRemovable(row)
-                    ? [{ title: t('button.delete'), onClick: () => onDelete?.(row) }]
-                    : []),
                   ...(isEnrollmentWithdrawable(row)
                     ? [
                         {
                           title: t('enrollment_management.action.withdraw'),
+                          icon: <StopOutlined />,
                           onClick: () => onWithdraw?.(row),
                         },
                       ]

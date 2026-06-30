@@ -3,6 +3,7 @@ import { Card, Flex, Row, Space } from 'antd'
 const FilterSectionLayout = ({
   children,
   actions,
+  onEnterFilter,
   cardProps = {},
   rowProps = {},
   actionFlexProps = {},
@@ -10,8 +11,15 @@ const FilterSectionLayout = ({
   gutter = [16, 16],
   align = 'bottom',
 }) => {
+  const handleKeyDownCapture = (event) => {
+    if (event.key !== 'Enter' || !onEnterFilter) return
+    if (event.target?.tagName === 'TEXTAREA') return
+    event.preventDefault()
+    onEnterFilter(event)
+  }
+
   const content = (
-    <Flex vertical gap={16}>
+    <Flex vertical gap={16} onKeyDownCapture={handleKeyDownCapture}>
       <Row gutter={gutter} align={align} {...rowProps}>
         {children}
       </Row>

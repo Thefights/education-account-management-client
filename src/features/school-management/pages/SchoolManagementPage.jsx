@@ -50,7 +50,6 @@ const SchoolManagementPage = () => {
     url: ApiUrls.SCHOOL_MANAGEMENT.UPDATE_STATUS,
     method: 'PUT',
   })
-  const deleteSchool = useAxiosSubmit({ method: 'DELETE' })
   const deleteSelectedSchools = useAxiosSubmit({
     url: ApiUrls.SCHOOL_MANAGEMENT.DELETE_SELECTED,
     method: 'DELETE',
@@ -83,21 +82,6 @@ const SchoolManagementPage = () => {
     if (!response) return
     setSelectedIds([])
     await schools.fetch()
-  }
-
-  const handleDelete = async (school) => {
-    const reason = await confirmReason({
-      title: t('school_management.confirm.delete_title'),
-      description: t('school_management.confirm.delete_description', { name: school.schoolName }),
-      confirmColor: 'error',
-      confirmText: t('button.delete'),
-    })
-    if (!reason) return
-    const response = await deleteSchool.submit({
-      overrideUrl: ApiUrls.SCHOOL_MANAGEMENT.DELETE_SELECTED,
-      overrideData: { ids: [school.id], reason },
-    })
-    if (response) await schools.fetch()
   }
 
   const handleDeleteSelected = async () => {
@@ -147,7 +131,7 @@ const SchoolManagementPage = () => {
         />
         <SchoolManagementTableSection
           schools={schools.data?.collection}
-          loading={schools.loading || deleteSchool.loading}
+          loading={schools.loading || deleteSelectedSchools.loading}
           sort={sort}
           setSort={setSort}
           selectedIds={selectedIds}
@@ -156,8 +140,7 @@ const SchoolManagementPage = () => {
           onEdit={(row) => {
             setSelectedRow(row)
             setOpenUpdate(true)
-          }}
-          onDelete={handleDelete}
+          }}
         />
         <GenericTablePagination
           totalCount={schools.data?.totalCount}

@@ -7,8 +7,6 @@ import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import CourseManagementFilterSection from '../components/CourseManagementFilterSection'
 import CourseManagementTableSection from '../components/CourseManagementTableSection'
-import { useEffect } from 'react'
-import Search from 'antd/es/transfer/search'
 
 const defaultFilters = { Search: '', searchfields: ['Course.CourseName', 'Course.CourseCode'] }
 
@@ -37,6 +35,12 @@ const AccountHolderCourseManagementPage = () => {
 
   console.log(courses.data);
 
+  const inUpcoming = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.COURSES,
+    { Tab: 3, Page: 1, PageSize: 1 },
+    []
+  )
+
   const inProgressCount = useFetch(
     ApiUrls.ACCOUNT_HOLDER.COURSES,
     { Tab: 4, Page: 1, PageSize: 1 },
@@ -50,7 +54,7 @@ const AccountHolderCourseManagementPage = () => {
   )
 
   const counts = {
-    upcoming: courses.data?.totalCount ?? 0,
+    upcoming: inUpcoming.data?.totalCount ?? 0,
     inProgress: inProgressCount.data?.totalCount ?? 0,
     closed: closedCount.data?.totalCount ?? 0,
   }
@@ -62,38 +66,43 @@ const AccountHolderCourseManagementPage = () => {
   
 
   return (
-    <Card>
-      <Flex vertical gap={16}>
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          {t('course_management.title.management')}
-        </Typography.Title>
-      
-        <CourseManagementFilterSection
-          tab={tab}
-          setTab={setTab}
-          counts={counts}
-          filters={filters}
-          loading={courses.loading}
-          onFilter={handleFilter}
-          onReset={() => handleFilter(defaultFilters)}
-        />
-        <CourseManagementTableSection
-          courses={courses.data?.collection ?? []}
-          loading={courses.loading}
-          sort={sort}
-          setSort={setSort}
-        />
-        <GenericTablePagination
-          totalCount={courses.data?.totalCount}
-          totalPage={courses.data?.totalPage}
-          page={page}
-          setPage={setPage}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          loading={courses.loading}
-        />
-      </Flex>
-    </Card>
+    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1400, margin: '0 auto' }}>
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            {t('course_management.title.management')}
+          </Typography.Title>
+      <Card>
+        <Flex vertical gap={16}>
+        
+          <CourseManagementFilterSection
+            tab={tab}
+            setTab={setTab}
+            counts={counts}
+            filters={filters}
+            loading={courses.loading}
+            onFilter={handleFilter}
+            onReset={() => handleFilter(defaultFilters)}
+          />
+          <CourseManagementTableSection
+            courses={courses.data?.collection ?? []}
+            loading={courses.loading}
+            sort={sort}
+            setSort={setSort}
+          />
+          <GenericTablePagination
+            totalCount={courses.data?.totalCount}
+            totalPage={courses.data?.totalPage}
+            page={page}
+            setPage={setPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            loading={courses.loading}
+          />
+        </Flex>
+      </Card>
+    
+    </Flex>
+
+
   )
 }
 

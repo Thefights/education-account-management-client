@@ -1,280 +1,214 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BankOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Col, Divider, Flex, Form, Grid, Input, Row, Select, Skeleton, Typography, theme } from 'antd'
+import { BankOutlined } from '@ant-design/icons'
+import { Button, Card, Divider, Flex, Form, Grid, Input, InputNumber, Select, Skeleton, Typography, theme } from 'antd'
 import { QrcodeOutlined } from '@ant-design/icons'
-import TuitionCourseFilterSection from '../components/TuitionCourseFilterSection'
-import { useState, useMemo } from 'react'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import { minLen } from '@/shared/utils/validateUtil'
+import { useState } from 'react'
 import CourseListSection from '../components/CourseListSection'
-import FilterButton from '@/shared/components/buttons/FilterButton'
-
-
-
-const defaultFilters = { search: '', statuses: [] }
-
+import { useLocation } from 'react-router-dom'
 
 const PayPage = () => {
+  const { state } = useLocation();
+  const selected = state?.selected ?? [];
+  const [singleinstallment, setSingleInstallment] = useState(state?.installment);
+
   const { t } = useTranslation()
   const { token } = theme.useToken()
   const screens = Grid.useBreakpoint()
-  const profile = useFetch(ApiUrls.ACCOUNT_HOLDER.PROFILE)
-  const data = profile.data
 
+  const tuitionSummary = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
+  const availableBalance = tuitionSummary.data?.educationAccountBalance ?? 0
 
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'createdDate', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
-  const [openImport, setOpenImport] = useState(false)
-  const [importResult, setImportResult] = useState(null)
-  const [selectedIds, setSelectedIds] = useState([])
-  const { submit: submitAccounts } = useAxiosSubmit({
-    url: ApiUrls.EDUCATION_ACCOUNT.INDEX,
-    method: 'POST',
-  })
-  const { submit: submitImport } = useAxiosSubmit({
-    url: ApiUrls.EDUCATION_ACCOUNT.IMPORT,
-    method: 'POST',
-  })
-  const updateStatus = useAxiosSubmit({
-    url: ApiUrls.EDUCATION_ACCOUNT.UPDATE_STATUS,
-    method: 'PUT',
-  })
-  const queryParams = useMemo(
-    () => ({ ...filters, sort: `${sort.key} ${sort.direction}`, page, pageSize }),
-    [filters, page, pageSize, sort]
-  )
-  const createFields = useMemo(
-    () => [
-      {
-        key: 'nric',
-        title: t('education_account.nric'),
-        type: 'custom',
-        render: ({ value, onChange }) => (
-          <NricInput value={value} onChange={onChange} placeholder="e.g. S1234567D" />
-        ),
-      },
-      {
-        key: 'reason',
-        title: t('education_account.reason'),
-        multiple: 5,
-        validate: [minLen(20, t('education_account.reason_min'))],
-        props: {
-          placeholder: 'e.g. Newly naturalised citizen missed by the nightly batch.',
-        },
-      },
-    ],
-    [t]
+    const [plans, setPlans] = useState(() => {
+    const initial = {};
+    selected.forEach((item) => {
+      initial[item.courseCode] = 1;
+    });
+    return initial;
+  });
+
+  const getPayToday = (record) => {
+    const net = Number(record.netPayable || 0);
+    if (!record.isInstallment) return net;
+    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+  };
+
+  const getOustandingToday = (record) => {
+    const net = Number(record.netPayable || 0);
+    if (!record.isInstallment) return net;
+    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+  };
+
+  const getRemainingToday = (record) => {
+    const net = Number(record.netPayable || 0);
+    if (!record.isInstallment) return net;
+    return singleinstallment?.amount?? record.installments?.filter(e => e.status != 'Paid' && e.installmentNumber == record?.currentInstallmentNumber).reduce((sum, item) => sum + item.amount, 0);
+  };
+
+  const totalDueToday = selected.reduce(
+    (sum, item) => sum + getPayToday(item),
+    0
   )
 
+  const handlePlanChange = (courseCode, months) => {
+    setPlans((prev) => ({ ...prev, [courseCode]: months }));
+  };
 
-  const descriptionItems = [
-    {
-      key: 'accountNumber',
-      label: t('account_profile.account_number'),
-      children: data?.accountNumber,
-    },
-    { key: 'name', label: t('account_profile.name'), children: data?.name },
-    { key: 'nric', label: t('account_profile.nric'), children: <MaskedNric value={data?.nric} /> },
-    { key: 'dateOfBirth', label: t('account_profile.date_of_birth'), children: data?.dateOfBirth },
-    {
-      key: 'expectedClosingDate',
-      label: t('education_account.expected_closing_date'),
-      children: data?.expectedClosingDate,
-    },
-    { key: 'email', label: t('account_profile.email'), children: data?.email },
-    { key: 'phoneNumber', label: t('account_profile.phone'), children: data?.phoneNumber },
-    {
-      key: 'residentialAddress',
-      label: t('account_profile.residential_address'),
-      children: data?.residentialAddress,
-    },
-    {
-      key: 'mailingAddress',
-      label: t('account_profile.mailing_address'),
-      children: data?.mailingAddress,
-    },
-  ]
+  const [balanceInput, setBalanceInput] = useState(null)
+
+  const maxUsable = Math.min(availableBalance, totalDueToday)
+  const balanceUsed = balanceInput !== null
+    ? Math.min(Math.max(Number(balanceInput) || 0, 0), maxUsable)
+    : 0
+  const onlinePayment = Math.max(totalDueToday - balanceUsed, 0)
+  const exceedsBalance = (Number(balanceInput) || 0) > availableBalance
+
+  const fmt = (v) =>
+    Number(v || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
 
   return (
-    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1400, margin: '0 auto' }}>
-      <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
-        Pay Now
-      </Typography.Title>
+    <Flex vertical gap={24}>
+      <Card bordered={false}>
+        <CourseListSection
+          selected={selected}
+          plans={plans}
+          onPlanChange={handlePlanChange}
+          getPayToday={getPayToday}
+          totalDueToday={totalDueToday}
+          singleinstallment={singleinstallment}
+        />
+      </Card>
 
-      {profile.loading && !data ? (
-        <Card>
-          <Skeleton active paragraph={{ rows: 8 }} />
-        </Card>
-      ) : (
-        <>
-          
-          <Row gutter={24} align="top">
-            {/* LEFT */}
-            <Col xs={24} lg={12}>
-              <Flex vertical gap={16}>
-                <CourseListSection />
-              </Flex>
-            </Col>
+      <Card bordered={false}>
+        <Flex vertical gap={12}>
+          <Typography.Text
+            type="secondary"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            From education account
+          </Typography.Text>
 
-            {/* RIGHT */}
-            <Col xs={24} lg={12}>
-              <Card
-                bordered={false}
-                style={{
-                  height: '100%'
-                }}
-              >
-                <Flex vertical gap={24}>
-                  {/* QR */}
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    icon={<QrcodeOutlined />}
-                  >
-                    QR Code
-                  </Button>
+          <Flex align="center" gap={8} wrap="wrap">
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              Available balance
+            </Typography.Text>
+            <Typography.Text strong style={{ fontSize: 13, color: token.colorSuccess }}>
+              {tuitionSummary.loading ? '...' : `$${fmt(availableBalance)}`}
+            </Typography.Text>
+          </Flex>
 
-                  {/* Divider */}
-                  <Divider style={{ margin: 0 }}>
-                    Or pay with card
-                  </Divider>
+          <InputNumber
+            style={{ width: '100%', fontSize: 17, fontWeight: 500 }}
+            size="large"
+            placeholder="0.00"
+            min={0}
+            max={maxUsable}
+            precision={2}
+            prefix="$"
+            value={balanceInput}
+            status={exceedsBalance ? 'error' : undefined}
+            onChange={(val) => setBalanceInput(val)}
+          />
 
-                  {/* SHIPPING INFO */}
-                  <div>
-                    <Typography.Title
-                      level={4}
-                      style={{ marginBottom: 16 }}
-                    >
-                      Shipping information
-                    </Typography.Title>
+          {exceedsBalance ? (
+            <Typography.Text type="danger" style={{ fontSize: 11 }}>
+              Exceeds available balance of ${fmt(availableBalance)}
+            </Typography.Text>
+          ) : (
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              Enter amount to use from balance (max ${fmt(maxUsable)}). Leave blank to pay fully online.
+            </Typography.Text>
+          )}
 
-                    <Form layout="vertical">
-                      <Form.Item
-                        label="Email"
-                        style={{ marginBottom: 16 }}
-                      >
-                        <Input placeholder="e.g. user@example.com" />
-                      </Form.Item>
-                    </Form>
-                  </div>
+          <div
+            style={{
+              padding: 12,
+              borderRadius: token.borderRadius,
+              background: token.colorBgLayout,
+            }}
+          >
+            <Flex justify="space-between" align="center">
+              <div>
+                <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 3 }}>
+                  Online payment (PayNow / bank transfer)
+                </Typography.Text>
+                <Typography.Text strong style={{ fontSize: 16, color: token.colorInfo }}>
+                  ${fmt(onlinePayment)}
+                </Typography.Text>
+              </div>
+              <BankOutlined style={{ fontSize: 22, color: token.colorTextSecondary }} />
+            </Flex>
+          </div>
+        </Flex>
+      </Card>
 
-                  {/* SHIPPING ADDRESS */}
-                  <div>
-                    <Typography.Text
-                      strong
-                      style={{
-                        display: 'block',
-                        marginBottom: 8
-                      }}
-                    >
-                      Shipping address
-                    </Typography.Text>
+      <Card bordered={false}>
+        <Flex vertical gap={8}>
+          <Typography.Text
+            type="secondary"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            Summary
+          </Typography.Text>
 
-                    <Input
-                      placeholder="e.g. Tan Wei Ming"
-                      style={{
-                        borderRadius: '6px 6px 0 0'
-                      }}
-                    />
+          <Flex justify="space-between">
+            <Typography.Text type="secondary">Total due today</Typography.Text>
+            <Typography.Text strong>${fmt(totalDueToday)}</Typography.Text>
+          </Flex>
 
-                    <Select
-                      defaultValue="United States"
-                      placeholder="Select country"
-                      style={{
-                        width: '100%'
-                      }}
-                      options={[
-                        {
-                          label: 'United States',
-                          value: 'United States'
-                        }
-                      ]}
-                    />
+          <Flex justify="space-between">
+            <Typography.Text type="secondary">From balance</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorSuccess }}>
+              {balanceUsed > 0 ? `-$${fmt(balanceUsed)}` : '$0.00'}
+            </Typography.Text>
+          </Flex>
 
-                    <Input
-                      placeholder="e.g. 123 Example Road"
-                      style={{
-                        borderRadius: '0 0 6px 6px'
-                      }}
-                    />
-                  </div>
+          <Flex justify="space-between">
+            <Typography.Text type="secondary">Online payment</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorInfo }}>
+              ${fmt(onlinePayment)}
+            </Typography.Text>
+          </Flex>
 
-                  {/* PAYMENT DETAILS */}
-                  <div>
-                    <Typography.Title
-                      level={4}
-                      style={{ marginBottom: 16 }}
-                    >
-                      Payment details
-                    </Typography.Title>
+          <Divider style={{ margin: '4px 0' }} />
 
-                    <Typography.Text
-                      style={{
-                        display: 'block',
-                        marginBottom: 8
-                      }}
-                    >
-                      Card information
-                    </Typography.Text>
+          <Flex justify="space-between">
+            <Typography.Text strong style={{ fontSize: 14 }}>Charge today</Typography.Text>
+            <Typography.Text strong style={{ fontSize: 14, color: token.colorPrimary }}>
+              ${fmt(totalDueToday)}
+            </Typography.Text>
+          </Flex>
 
-                    <Input
-                      placeholder="e.g. 1234 1234 1234 1234"
-                      style={{
-                        borderRadius: '6px 6px 0 0'
-                      }}
-                    />
-
-                    <Input.Group compact>
-                      <Input
-                        placeholder="e.g. MM / YY"
-                        style={{
-                          width: '50%',
-                          borderRadius: 0
-                        }}
-                      />
-
-                      <Input
-                        placeholder="e.g. CVC"
-                        style={{
-                          width: '50%',
-                          borderRadius: 0
-                        }}
-                      />
-                    </Input.Group>
-                  </div>
-
-                  {/* PAY BUTTON */}
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    style={{
-                      marginTop: 12,
-                      height: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    Pay $2,445.00
-                  </Button>
-                </Flex>
-              </Card>
-            </Col>
-
-
-          </Row>
-          <Button style={{alignSelf:'flex-end', width:'100px'}}>Pay</Button>
-        </>
-      )}
+          <Button
+            type="primary"
+            size="large"
+            block
+            style={{
+              marginTop: 10,
+              height: 48,
+              fontWeight: 600,
+            }}
+          >
+            Confirm & Pay
+          </Button>
+        </Flex>
+      </Card>
     </Flex>
   )
 }
 
 export default PayPage
-

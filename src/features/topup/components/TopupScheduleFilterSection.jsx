@@ -3,9 +3,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { getDateHourFormatBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 
-const DATE_HOUR_SHOW_TIME = { format: 'HH', showMinute: false, showSecond: false }
 
 const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
 
@@ -21,7 +19,7 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       label: t('topup.search_topup'),
       type: 'search',
       required: false,
-      placeholder: 'e.g. Student Support Top-up 2026',
+      placeholder: 'Search...',
       reserveLabelSpace: true,
     },
     {
@@ -59,8 +57,6 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       valueType: 'language-datetime',
       from: { key: 'createdFrom' },
       to: { key: 'createdTo' },
-      showTime: DATE_HOUR_SHOW_TIME,
-      format: getDateHourFormatBasedOnCurrentLanguage(),
       disallowFutureFrom: true,
       placeholder: ['From date', 'To date'],
       colProps: { xs: 24, md: 12, xl: 6 },
