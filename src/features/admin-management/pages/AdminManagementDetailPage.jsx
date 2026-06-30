@@ -40,19 +40,22 @@ const AdminManagementDetailPage = () => {
   const statusLabel =
     getEnumLabelByValue(_enum.authAccountStatusOptions, admin?.status) || admin?.status
   const initialValues = useMemo(
-    () => ({
-      role: admin.role,
-      azureObjectId: admin.azureObjectId,
-      fullName: admin.fullName,
-      nric: admin.nric,
-      email: admin.email,
-      phoneNumber: admin.phoneNumber,
-      schoolId: admin.schoolId ?? renderEmptyFallback(null),
-      staffCode: admin.staffCode,
-      statusDisplay: statusLabel,
-      schoolName: admin?.schoolName ?? renderEmptyFallback(null),
-      createdAtDisplay: formatDatetimeStringBasedOnCurrentLanguage(admin?.createdAt) ?? '',
-    }),
+    () =>
+      admin
+        ? {
+            role: admin.role,
+            azureObjectId: admin.azureObjectId,
+            fullName: admin.fullName,
+            nric: admin.nric,
+            email: admin.email,
+            phoneNumber: admin.phoneNumber,
+            schoolId: admin.schoolId ?? '',
+            staffCode: admin.staffCode,
+            statusDisplay: statusLabel,
+            schoolName: admin.schoolName ?? renderEmptyFallback(null),
+            createdAtDisplay: formatDatetimeStringBasedOnCurrentLanguage(admin.createdAt) ?? '',
+          }
+        : {},
     [admin, statusLabel]
   )
   const adminRoleOptions = useMemo(
