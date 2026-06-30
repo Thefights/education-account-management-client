@@ -129,7 +129,9 @@ export const buildEligibilityPreview = (value = [], connectors = []) => {
 const profileValueForField = (field, profile) => {
   const normalizedField = normalizeFasConditionField(field)
   if (normalizedField === FAS_CONDITION_FIELD.Nationality) return profile?.nationality
-  if (normalizedField === FAS_CONDITION_FIELD.ParentNationality) return profile?.parentNationality
+  if (normalizedField === FAS_CONDITION_FIELD.GuardianNationality) {
+    return profile?.guardianNationality ?? profile?.parentNationality
+  }
   if (normalizedField === FAS_CONDITION_FIELD.StudentAge) return profile?.age
   if (normalizedField === FAS_CONDITION_FIELD.GrossHouseholdIncome) return profile?.income
   if (normalizedField === FAS_CONDITION_FIELD.PerCapitaIncome) return profile?.pci

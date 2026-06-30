@@ -97,10 +97,9 @@ export const FasAdminApplicationTableSection = ({
       key: 'applicantName',
       title: 'Account name',
       width: 200,
-      sortable: true,
       render: (value) => <Typography.Text>{value}</Typography.Text>,
     },
-    { key: 'accountNumber', title: 'Account No.', width: 140, sortable: true },
+    { key: 'accountNumber', title: 'Account No.', width: 140 },
     { key: 'schemeName', title: 'FAS applied for', width: 240, sortable: true },
     {
       key: 'displayStatus',

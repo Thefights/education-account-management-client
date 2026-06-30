@@ -197,7 +197,7 @@ const MyFasManagementPage = () => {
         setPage(1)
         apiApplicationsQuery.reload()
         apiAllApplicationsQuery.reload()
-      } catch (error) {
+      } catch {
         // Errors handled globally by axios interceptor
       }
     }

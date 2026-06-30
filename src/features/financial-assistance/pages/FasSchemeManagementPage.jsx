@@ -86,6 +86,21 @@ const clone = (value) => JSON.parse(JSON.stringify(value))
 const rowId = (prefix) => prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
 
 const numericInputStyle = { width: '100%' }
+const FAS_DOCUMENT_UPLOAD_ACCEPT =
+  '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+const FAS_DOCUMENT_UPLOAD_EXTENSIONS = new Set(['pdf', 'doc', 'docx'])
+const FAS_DOCUMENT_UPLOAD_MIME_TYPES = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+])
+
+const isAllowedFasDocumentUpload = (file) => {
+  const extension = file.name?.split('.').pop()?.toLowerCase()
+  const hasAllowedExtension = FAS_DOCUMENT_UPLOAD_EXTENSIONS.has(extension)
+  const hasAllowedMimeType = !file.type || FAS_DOCUMENT_UPLOAD_MIME_TYPES.has(file.type)
+  return hasAllowedExtension && hasAllowedMimeType
+}
 
 const FAS_SCHEME_STATUS_ID = EnumConfig.FasSchemeStatusId
 const FAS_SUBSIDY_TYPE_ID = EnumConfig.FasSubsidyTypeId
@@ -127,6 +142,7 @@ const normalizeScheme = (scheme) => {
   return {
     ...draft,
     rootConditionGroup,
+    additionalQuestions: draft.additionalQuestions || [],
   }
 }
 
@@ -163,7 +179,6 @@ const createDraftScheme = () => {
       {
         id: rowId('tier'),
         name: 'Tier 1',
-        conditionText: '',
         maxPci: '',
         perComponent: false,
         value: '',
@@ -185,6 +200,7 @@ const createDraftScheme = () => {
         templateUrl: '/templates/fas/identity_proof_guide.docx',
       },
     ],
+    additionalQuestions: [],
   })
 }
 
@@ -216,6 +232,12 @@ const mapFrontendSchemeToBackend = (scheme) => {
     schemeCourses: (scheme.linkedCourses || []).map((courseId) => ({
       courseId: Number(courseId),
     })),
+    additionalQuestions: (scheme.additionalQuestions || [])
+      .map((question) => ({
+        questionText: String(question.questionText || '').trim(),
+        isRequired: Boolean(question.isRequired),
+      }))
+      .filter((question) => question.questionText),
   }
 }
 
@@ -234,7 +256,6 @@ const mapBackendSchemeToFrontend = (dto) => {
     tiers: (dto.tiers || []).map((tier, index) => ({
       id: String(tier.id || index + 1),
       name: tier.tierName || `Tier ${index + 1}`,
-      conditionText: tier.maxPerCapitaIncome !== '' && tier.maxPerCapitaIncome != null ? `PCI ≤ ${Number(tier.maxPerCapitaIncome).toLocaleString()}` : '',
       maxPci: tier.maxPerCapitaIncome ?? '',
       value: tier.subsidyValue ?? '',
       courseValue: tier.courseFeeSubsidyValue ?? '',
@@ -245,6 +266,11 @@ const mapBackendSchemeToFrontend = (dto) => {
       id: String(doc.id),
       name: doc.documentName || '',
       templateUrl: doc.templateFileKey || '',
+    })),
+    additionalQuestions: (dto.additionalQuestions || []).map((question) => ({
+      id: String(question.id),
+      questionText: question.questionText || '',
+      isRequired: Boolean(question.isRequired),
     })),
   }
 }
@@ -327,6 +353,10 @@ const FasSchemeManagementPage = () => {
     method: 'PUT',
   })
 
+  const detailSubmit = useAxiosSubmit({
+    method: 'GET',
+  })
+
   const duplicateSubmit = useAxiosSubmit({
     method: 'POST',
   })
@@ -340,8 +370,24 @@ const FasSchemeManagementPage = () => {
     setReadOnly(false)
   }
 
-  const openEdit = (scheme, locked = false) => {
-    setEditingScheme(normalizeScheme(scheme))
+  const openEdit = async (scheme, locked = false) => {
+    if (!scheme?.id || scheme.isNew) {
+      setEditingScheme(normalizeScheme(scheme))
+      setReadOnly(locked)
+      return
+    }
+
+    const response = await detailSubmit.submit({
+      overrideUrl: ApiUrls.FAS_SCHEME_MANAGEMENT.DETAIL(scheme.id),
+    })
+    if (!response) {
+      setEditingScheme(normalizeScheme(scheme))
+      setReadOnly(locked)
+      return
+    }
+
+    const detail = response.data || response
+    setEditingScheme(normalizeScheme(mapBackendSchemeToFrontend(detail)))
     setReadOnly(locked)
   }
 
@@ -507,7 +553,7 @@ const FasSchemeManagementPage = () => {
         />
         <FasAdminSchemeTableSection
           schemes={tableData.collection}
-          loading={schemesList.loading || statusSubmit.loading || duplicateSubmit.loading || deleteSubmit.loading}
+          loading={schemesList.loading || statusSubmit.loading || detailSubmit.loading || duplicateSubmit.loading || deleteSubmit.loading}
           sort={sort}
           setSort={setSort}
           onView={(scheme) => openEdit(scheme, true)}
@@ -557,19 +603,33 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
       return
     }
 
-        const pciValues = scheme.tiers
-            .map((t) => (t.maxPci !== '' && t.maxPci != null ? Number(t.maxPci) : null))
-          .filter((v) => Number.isFinite(v))
-
-        for (let index = 1; index < pciValues.length; index += 1) {
-            if (pciValues[index] <= pciValues[index - 1]) {
-                message.error('Tier Max PCI must be strictly increasing to avoid overlaps.')
-                return
-              }
-          }
+    const tierLimitKeys = new Set()
+    const hasDuplicateTierLimit = scheme.tiers.some((tier) => {
+      const limitKey =
+        tier.maxPci !== '' && tier.maxPci != null && Number.isFinite(Number(tier.maxPci))
+          ? String(Number(tier.maxPci))
+          : 'none'
+      if (tierLimitKeys.has(limitKey)) return true
+      tierLimitKeys.add(limitKey)
+      return false
+    })
+    if (hasDuplicateTierLimit) {
+      message.error('Tier Max PCI values must be unique to avoid duplicate tier limits.')
+      return
+    }
 
     if (status === FAS_STATUS.Active && !Number(scheme.validityMonths)) {
       message.error('Set the FAS duration before publishing')
+      return
+    }
+
+    const invalidQuestion = (scheme.additionalQuestions || []).find(
+      (question) =>
+        !String(question.questionText || '').trim() ||
+        String(question.questionText || '').trim().length > 500
+    )
+    if (invalidQuestion) {
+      message.error('Complete each additional question using 500 characters or fewer')
       return
     }
 
@@ -662,6 +722,7 @@ const SchemeEditor = ({ scheme, isNew, readOnly, courseOptions, onBack, onChange
           <EligibilityEditor scheme={scheme} readOnly={readOnly} onChange={onChange} />
           <SubsidyEditor scheme={scheme} readOnly={readOnly} onChange={onChange} />
           <DocumentsEditor scheme={scheme} readOnly={readOnly} onChange={onChange} />
+          <AdditionalQuestionsEditor scheme={scheme} readOnly={readOnly} onChange={onChange} />
 
           {readOnly ? (
             <div className="fas-actions" style={{ justifyContent: 'flex-end' }}>
@@ -1096,7 +1157,6 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
       draft.tiers.push({
         id: rowId('tier'),
         name: '',
-        conditionText: '',
         maxPci: '',
         perComponent: false,
         value: '',
@@ -1159,17 +1219,12 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
               value={tier.name}
               onChange={(event) => updateTier(index, { name: event.target.value })}
             />
-            <Input
-              disabled={readOnly}
-              placeholder="e.g. PCI <= 690"
-              value={tier.conditionText}
-              onChange={(event) => updateTier(index, { conditionText: event.target.value })}
-            />
             <InputNumber
               disabled={readOnly}
               value={tier.maxPci}
               min={0}
               style={numericInputStyle}
+              addonBefore="PCI ≤"
               placeholder="e.g. 690"
               onChange={(value) => updateTier(index, { maxPci: value ?? '' })}
             />
@@ -1291,7 +1346,13 @@ const DocumentsEditor = ({ scheme, readOnly, onChange }) => {
             <Upload
               disabled={readOnly}
               showUploadList={false}
+              accept={FAS_DOCUMENT_UPLOAD_ACCEPT}
+              maxCount={1}
               beforeUpload={(file) => {
+                if (!isAllowedFasDocumentUpload(file)) {
+                  message.error('Upload PDF, DOC, or DOCX files only.')
+                  return Upload.LIST_IGNORE
+                }
                 updateDocument(index, { templateName: file.name, templateUrl: '' })
                 return false
               }}
@@ -1312,6 +1373,92 @@ const DocumentsEditor = ({ scheme, readOnly, onChange }) => {
 
       <Button disabled={readOnly} size="small" icon={<PlusOutlined />} onClick={addDocument}>
         Add document
+      </Button>
+    </div>
+  )
+}
+
+const AdditionalQuestionsEditor = ({ scheme, readOnly, onChange }) => {
+  const questions = scheme.additionalQuestions || []
+
+  const updateQuestion = (index, patch) => {
+    onChange((draft) => {
+      const existingQuestions = draft.additionalQuestions || []
+      existingQuestions[index] = { ...existingQuestions[index], ...patch }
+      draft.additionalQuestions = existingQuestions
+      return draft
+    })
+  }
+
+  const addQuestion = () => {
+    onChange((draft) => {
+      draft.additionalQuestions = [
+        ...(draft.additionalQuestions || []),
+        { id: rowId('question'), questionText: '', isRequired: false },
+      ]
+      return draft
+    })
+  }
+
+  const removeQuestion = (index) => {
+    onChange((draft) => {
+      draft.additionalQuestions = (draft.additionalQuestions || []).filter(
+        (_, itemIndex) => itemIndex !== index
+      )
+      return draft
+    })
+  }
+
+  return (
+    <div className="fas-block">
+      <div className="fas-block-title">
+        <span className="fas-block-number">4</span>
+        Additional questions
+      </div>
+      <div className="fas-block-subtitle">
+        These questions are shown to account holders when they apply for this scheme.
+      </div>
+
+      <Flex vertical gap={10}>
+        {questions.map((question, index) => (
+          <div className="fas-doc-row" key={question.id || `question-${index}`}>
+            <Input.TextArea
+              disabled={readOnly}
+              rows={2}
+              maxLength={500}
+              showCount
+              placeholder="e.g. Briefly explain why financial assistance is needed."
+              value={question.questionText}
+              onChange={(event) => updateQuestion(index, { questionText: event.target.value })}
+            />
+            <Flex align="center" gap={8} style={{ minWidth: 130 }}>
+              <Switch
+                disabled={readOnly}
+                checked={Boolean(question.isRequired)}
+                onChange={(isRequired) => updateQuestion(index, { isRequired })}
+              />
+              <span>Required</span>
+            </Flex>
+            <Button
+              disabled={readOnly}
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => removeQuestion(index)}
+            />
+          </div>
+        ))}
+      </Flex>
+
+      {!questions.length && <div className="fas-muted">No additional questions configured.</div>}
+
+      <Button
+        disabled={readOnly}
+        size="small"
+        icon={<PlusOutlined />}
+        style={{ marginTop: 10 }}
+        onClick={addQuestion}
+      >
+        Add question
       </Button>
     </div>
   )

@@ -125,6 +125,12 @@ export const ApiUrls = {
     DUPLICATE: (id) => `/fas-scheme-management/${id}/duplicate`,
     DELETE_SELECTED: '/fas-scheme-management/selected',
   },
+  FAS_APPLICATION_MANAGEMENT: {
+    INDEX: '/fas-application-management',
+    DETAIL: (id) => `/fas-application-management/${id}`,
+    APPROVE: (id) => `/fas-application-management/${id}/approve`,
+    REJECT: (id) => `/fas-application-management/${id}/reject`,
+  },
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',

@@ -10,9 +10,9 @@ export const FAS_FIELD_OPTIONS = [
   { value: FAS_CONDITION_FIELD.StudentAge, legacyValue: 'studentAge', label: 'Student age' },
   { value: FAS_CONDITION_FIELD.Nationality, legacyValue: 'nationality', label: 'Nationality' },
   {
-    value: FAS_CONDITION_FIELD.ParentNationality,
+    value: FAS_CONDITION_FIELD.GuardianNationality,
     legacyValue: 'parentNationality',
-    label: "Parent's Nationality",
+    label: "Guardian's Nationality",
   },
   { value: FAS_CONDITION_FIELD.PerCapitaIncome, legacyValue: 'pci', label: 'Per-Capita Income' },
   {
@@ -36,26 +36,40 @@ export const FAS_FIELD_KEY_BY_VALUE = FAS_FIELD_OPTIONS.reduce(
   {}
 )
 
-export const FAS_FIELD_VALUE_BY_KEY = FAS_FIELD_OPTIONS.reduce(
-  (acc, item) => ({ ...acc, [item.legacyValue]: item.value }),
-  {}
-)
+export const FAS_FIELD_VALUE_BY_KEY = {
+  ...FAS_FIELD_OPTIONS.reduce((acc, item) => ({ ...acc, [item.legacyValue]: item.value }), {}),
+  StudentAge: FAS_CONDITION_FIELD.StudentAge,
+  StudentNationality: FAS_CONDITION_FIELD.StudentNationality,
+  Nationality: FAS_CONDITION_FIELD.StudentNationality,
+  GuardianNationality: FAS_CONDITION_FIELD.GuardianNationality,
+  ParentNationality: FAS_CONDITION_FIELD.GuardianNationality,
+  GrossHouseholdIncome: FAS_CONDITION_FIELD.GrossHouseholdIncome,
+  PerCapitaIncome: FAS_CONDITION_FIELD.PerCapitaIncome,
+  guardianNationality: FAS_CONDITION_FIELD.GuardianNationality,
+}
 
 export const FAS_TEXT_FIELD_VALUES = new Set([
-  FAS_CONDITION_FIELD.Nationality,
-  FAS_CONDITION_FIELD.ParentNationality,
+  FAS_CONDITION_FIELD.StudentNationality,
+  FAS_CONDITION_FIELD.GuardianNationality,
 ])
 
 const localId = (prefix) =>
   prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
 
-export const normalizeFasConditionField = (field) =>
-  typeof field === 'number'
-    ? field
-    : FAS_FIELD_VALUE_BY_KEY[field] || FAS_CONDITION_FIELD.PerCapitaIncome
+export const normalizeFasConditionField = (field) => {
+  if (typeof field === 'number') return field
+
+  const numericField = Number(field)
+  if (Number.isFinite(numericField) && numericField > 0) return numericField
+
+  return FAS_FIELD_VALUE_BY_KEY[field] || FAS_CONDITION_FIELD.PerCapitaIncome
+}
 
 export const normalizeFasConditionOperator = (operator) => {
   if (typeof operator === 'number') return operator
+
+  const numericOperator = Number(operator)
+  if (Number.isFinite(numericOperator) && numericOperator > 0) return numericOperator
 
   const operatorValues = {
     Equal: FAS_CONDITION_OPERATOR.Equal,
