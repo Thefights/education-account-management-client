@@ -259,7 +259,7 @@ export const describeTierSubsidy = (scheme, tier) => {
   }
 
   if (scheme.subsidyType === 'fixed') {
-    return 'S$' + Number(tier.value || 0).toLocaleString() + ' fixed'
+    return 'SS$' + Number(tier.value || 0).toLocaleString() + ' fixed'
   }
 
   return Number(tier.value || 0) + '% of (Course + Misc)'

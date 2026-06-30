@@ -102,25 +102,25 @@ const InstallmentTrackerPage = () => {
           >
             <SummaryCard token={token}>
               <CardLabel>Net total</CardLabel>
-              <CardValue color={token.colorPrimary}>${fmt(netPayable)}</CardValue>
+              <CardValue color={token.colorPrimary}>S${fmt(netPayable)}</CardValue>
             </SummaryCard>
 
             <SummaryCard token={token}>
               <CardLabel>Already Paid</CardLabel>
-              <CardValue color={token.colorSuccess}>${fmt(paidAmount)}</CardValue>
+              <CardValue color={token.colorSuccess}>S${fmt(paidAmount)}</CardValue>
             </SummaryCard>
 
             <SummaryCard token={token}>
               <CardLabel>Remaining</CardLabel>
               <CardValue color={overdueInstallments.length > 0 ? token.colorError : undefined}>
-                ${fmt(remainingAmount)}
+                S${fmt(remainingAmount)}
               </CardValue>
             </SummaryCard>
 
             <SummaryCard token={token}>
               <CardLabel>Per month</CardLabel>
               <CardValue>
-                ${fmt(perMonth)}{' '}
+                S${fmt(perMonth)}{' '}
                 <span style={{ fontSize: 13, fontWeight: 400, color: token.colorTextSecondary }}></span>
               </CardValue>
             </SummaryCard>
@@ -202,7 +202,7 @@ const InstallmentTrackerPage = () => {
                       <Flex vertical gap={4}>
                         <Flex align="center" gap={8} wrap="wrap">
                           <Typography.Text strong style={{ fontSize: 14 }}>
-                            Installment {item.installmentNumber} — ${fmt(item.amount)}
+                            Installment {item.installmentNumber} — S${fmt(item.amount)}
                           </Typography.Text>
 
                           {item.status === 'Paid' && (
@@ -225,6 +225,13 @@ const InstallmentTrackerPage = () => {
                             </Tag>
                           )}
                         </Flex>
+                        <Typography.Text
+                                style={{ fontSize: 12, lineHeight: 1.5 }} type='secondary'
+                              >
+                                {new Date(wip.installments.find(e => e.installmentNumber == wip.currentInstallmentNumber).dueDate).toLocaleString('en-GB', {day: '2-digit',
+  month: '2-digit',
+  year: 'numeric'})}
+                              </Typography.Text>
 
                         {/* Overdue action box */}
                         {isOverdue && (
@@ -267,7 +274,7 @@ const InstallmentTrackerPage = () => {
                           <Flex gap={4} wrap="wrap" style={{ marginTop: 4 }}>
                             {item.paymentAllocations.map((alloc, ai) => (
                               <Tag key={ai} color="blue" style={{ fontSize: 11 }}>
-                                Paid ${fmt(alloc.amount)} on {fmtDate(alloc.paidAt)}
+                                Paid S${fmt(alloc.amount)} on {fmtDate(alloc.paidAt)}
                               </Tag>
                             ))}
                           </Flex>
@@ -298,7 +305,7 @@ const InstallmentTrackerPage = () => {
                               });
                     }}
                   >
-                    {`Pay Remaining $${remainingAmount} Early`}
+                    {`Pay Remaining S$${remainingAmount} Early`}
                   </Button>
                   <Typography.Text type='secondary' style={{fontWeight:'bold', fontSize:'0.75rem'}}>
                       All remaining months will be marked as settled immediately.

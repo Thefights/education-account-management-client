@@ -44,12 +44,12 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                     <Flex gap={80} justify="space-around" align="center" style={{ minWidth: '350px' }}>
                         <InfoBlock
                             label="Gross fee"
-                            value={`$${invoice.grossAmount.toLocaleString()}`}
+                            value={`S$${invoice.grossAmount.toLocaleString()}`}
                         />
                         <AntDivider type="vertical" style={{ height: '40px', background: 'var(--app-border-color, #e2eaf3)' }} />
                         <InfoBlock
                             label="Net payable"
-                            value={`$${invoice.netPayable.toLocaleString()}`}
+                            value={`S$${invoice.netPayable.toLocaleString()}`}
                         />
                         <AntDivider type="vertical" style={{ height: '40px', background: 'var(--app-border-color, #e2eaf3)' }} />
                         <InfoBlock
@@ -78,7 +78,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                                     : '#52c41a',
                         }}
                     >
-                    ${currInstallment?.amount ?? invoice.remainingAmount.toLocaleString()}
+                    S${currInstallment?.amount ?? invoice.remainingAmount.toLocaleString()}
                     </Typography.Title>
 
                     <Tag 
@@ -123,7 +123,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                         Course Fee
                     </Typography.Text>
                     <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
-                        ${invoice.courseFee}
+                        S${invoice.courseFee}
                     </Typography.Text>
                 </Flex>
 
@@ -132,7 +132,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                         MISC Fee
                     </Typography.Text>
                     <Typography.Text type="secondary" style={{ fontSize: '13px' }}>
-                        ${invoice.miscFee}
+                        S${invoice.miscFee}
                     </Typography.Text>
                 </Flex>
 
@@ -148,8 +148,8 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                     )}
                     <Typography.Text type="secondary" style={{ fontSize: '13px', color: '#52c41a' }}>
                         {invoice.fasSubsidyAmount > 0
-                            ? `-$${invoice.fasSubsidyAmount}`
-                            : `$${invoice.fasSubsidyAmount}`}
+                            ? `-S$${invoice.fasSubsidyAmount}`
+                            : `S$${invoice.fasSubsidyAmount}`}
                     </Typography.Text>
                 </Flex>
 
@@ -174,7 +174,7 @@ const CourseEntry = ({ invoice, handleCheck, pay }) => {
                         Net Payable
                     </Typography.Text>
                     <Typography.Text style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
-                        ${invoice.netPayable}
+                        S${invoice.netPayable}
                     </Typography.Text>
                 </Flex>
             </Flex>

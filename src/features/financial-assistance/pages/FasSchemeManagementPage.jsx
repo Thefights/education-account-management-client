@@ -762,10 +762,10 @@ const conditionInputMeta = (field) => {
     return { precision: 0, suffix: 'years', placeholder: '12' }
   }
   if (normalizedField === FAS_CONDITION_FIELD.PerCapitaIncome) {
-    return { precision: 2, prefix: 'S$', placeholder: '1000' }
+    return { precision: 2, prefix: 'SS$', placeholder: '1000' }
   }
   if (normalizedField === FAS_CONDITION_FIELD.GrossHouseholdIncome) {
-    return { precision: 2, prefix: 'S$', placeholder: '4000' }
+    return { precision: 2, prefix: 'SS$', placeholder: '4000' }
   }
   return { precision: 2, placeholder: 'Value' }
 }
@@ -1207,7 +1207,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
         }
       >
         <Radio.Button value="percent">% Percent</Radio.Button>
-        <Radio.Button value="fixed">$ Fixed</Radio.Button>
+        <Radio.Button value="fixed">S$ Fixed</Radio.Button>
       </Radio.Group>
 
       {scheme.tiers.map((tier, index) => (
@@ -1244,7 +1244,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
                 min={0}
                 style={{ width: 150 }}
                 placeholder={scheme.subsidyType === 'percent' ? 'e.g. 50' : 'e.g. 500'}
-                addonAfter={scheme.subsidyType === 'percent' ? '%' : 'S$'}
+                addonAfter={scheme.subsidyType === 'percent' ? '%' : 'SS$'}
                 onChange={(value) => updateTier(index, { value: value ?? '' })}
               />
             )}
@@ -1262,7 +1262,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
             <div className="fas-component-grid">
               <div>
                 <label className="fas-field-label">
-                  Course Fee {scheme.subsidyType === 'percent' ? '%' : 'S$'}
+                  Course Fee {scheme.subsidyType === 'percent' ? '%' : 'SS$'}
                 </label>
                 <InputNumber
                   disabled={readOnly}
@@ -1275,7 +1275,7 @@ const SubsidyEditor = ({ scheme, readOnly, onChange }) => {
               </div>
               <div>
                 <label className="fas-field-label">
-                  Misc Fee {scheme.subsidyType === 'percent' ? '%' : 'S$'}
+                  Misc Fee {scheme.subsidyType === 'percent' ? '%' : 'SS$'}
                 </label>
                 <InputNumber
                   disabled={readOnly}
