@@ -134,6 +134,8 @@ export const ApiUrls = {
     FAS_AVAILABLE_SCHEMES: '/account-holder/fas-schemes/available',
     FAS_APPLICATIONS: '/account-holder/fas-applications',
     FAS_APPLICATION_DETAIL: (id) => `/account-holder/fas-applications/${id}`,
+    FAS_APPLICATION_REAPPLY_DRAFT: (id) => `/account-holder/fas-applications/${id}/reapply-draft`,
+    FAS_APPLICATION_PUBLISH_DRAFT: (id) => `/account-holder/fas-applications/${id}/publish`,
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
   },
 }
