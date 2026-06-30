@@ -36,7 +36,7 @@ const SystemAdminLayout = () => {
         },
         {
           key: 'sweep-reports',
-          label: t('navigation.batch_reports'),
+          label: t('batch_report.title'),
           icon: ScheduleOutlined,
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SWEEP_REPORTS.INDEX),
         },

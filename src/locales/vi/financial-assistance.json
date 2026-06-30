@@ -1,7 +1,14 @@
 {
-  "my_fas": {
-    "title": "FAS của tôi",
-    "apply": "Đăng ký",
-    "management": "Quản lý"
+  "financial_assistance": {
+    "message": {
+      "application_id_missing": "Không tìm thấy hồ sơ này.",
+      "application_submitted": "Đã nộp hồ sơ: {name}",
+      "attach_required_documents": "Vui lòng đính kèm đầy đủ tài liệu bắt buộc (còn {count})",
+      "confirm_required_details": "Vui lòng xác nhận đầy đủ thông tin bắt buộc",
+      "duplicate_application": "Bạn đã có hồ sơ đang chờ duyệt hoặc đã được duyệt cho chương trình này.",
+      "no_matching_tier": "Thông tin đã nhập không khớp với bất kỳ mức hỗ trợ nào của chương trình",
+      "reapply_failed": "Không thể chuẩn bị hồ sơ để nộp lại.",
+      "submit_failed": "Không thể nộp hồ sơ FAS"
+    }
   }
 }

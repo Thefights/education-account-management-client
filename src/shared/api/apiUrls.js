@@ -40,6 +40,7 @@ export const ApiUrls = {
     GET_ALL: '/admin-management/all',
     DETAIL: (id) => `/admin-management/${id}`,
     UPDATE_STATUS: '/admin-management/status',
+    DELETE_SELECTED: '/admin-management/selected',
     IMPORT: '/admin-management/import',
   },
 
@@ -125,6 +126,12 @@ export const ApiUrls = {
     DUPLICATE: (id) => `/fas-scheme-management/${id}/duplicate`,
     DELETE_SELECTED: '/fas-scheme-management/selected',
   },
+  FAS_APPLICATION_MANAGEMENT: {
+    INDEX: '/fas-application-management',
+    DETAIL: (id) => `/fas-application-management/${id}`,
+    APPROVE: (id) => `/fas-application-management/${id}/approve`,
+    REJECT: (id) => `/fas-application-management/${id}/reject`,
+  },
   ACCOUNT_HOLDER: {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',
@@ -134,6 +141,10 @@ export const ApiUrls = {
     FAS_AVAILABLE_SCHEMES: '/account-holder/fas-schemes/available',
     FAS_APPLICATIONS: '/account-holder/fas-applications',
     FAS_APPLICATION_DETAIL: (id) => `/account-holder/fas-applications/${id}`,
+    FAS_APPLICATION_REAPPLY_DRAFT: (id) => `/account-holder/fas-applications/${id}/reapply-draft`,
+    FAS_APPLICATION_PUBLISH_DRAFT: (id) => `/account-holder/fas-applications/${id}/publish`,
+    FAS_APPLICATION_SAVE_DRAFT: '/account-holder/fas-applications/draft',
+    FAS_APPLICATION_UPDATE_DRAFT: (id) => `/account-holder/fas-applications/draft/${id}`,
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
   },
   PAYMENT: {

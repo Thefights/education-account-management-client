@@ -12,7 +12,7 @@ import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { showErrorToast } from '@/shared/utils/toastUtil'
-import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -35,8 +35,10 @@ const AdminManagementPage = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(false)
+  const [openUpdate, setOpenUpdate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
+  const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const schools = useApiOptions({
     url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
@@ -53,9 +55,17 @@ const AdminManagementPage = () => {
     url: ApiUrls.ADMIN_MANAGEMENT.INDEX,
     method: 'POST',
   })
+  const updateAdmin = useAxiosSubmit({
+    url: ApiUrls.ADMIN_MANAGEMENT.DETAIL(selectedRow.userId),
+    method: 'PUT',
+  })
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.UPDATE_STATUS,
     method: 'PUT',
+  })
+  const deleteSelectedAdmins = useAxiosSubmit({
+    url: ApiUrls.ADMIN_MANAGEMENT.DELETE_SELECTED,
+    method: 'DELETE',
   })
   const submitImport = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.IMPORT,
@@ -93,6 +103,31 @@ const AdminManagementPage = () => {
     setSelectedIds([])
     await getAdmins.fetch()
   }
+
+  const handleDeleteSelected = async () => {
+    if (!selectedIds.length) return
+    if (selectedIds.some((id) => String(id) === String(currentUserId))) {
+      showErrorToast('You cannot delete your own account.')
+      setSelectedIds((ids) => ids.filter((id) => String(id) !== String(currentUserId)))
+      return
+    }
+
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteSelectedAdmins.submit({
+      overrideData: { ids: selectedIds, reason },
+    })
+    if (!response) return
+    setSelectedIds([])
+    await getAdmins.fetch()
+  }
+
+  const mutationLoading = updateStatus.loading || deleteSelectedAdmins.loading
 
   const handleImport = async (values) => {
     if (!values.file?.name?.toLowerCase().endsWith('.csv')) return
@@ -137,6 +172,10 @@ const AdminManagementPage = () => {
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.DETAIL(row.userId))
             )
           }}
+          onEdit={(row) => {
+            setSelectedRow(row)
+            setOpenUpdate(true)
+          }}
         />
         <GenericTablePagination
           totalCount={getAdmins.data?.totalCount}
@@ -149,7 +188,7 @@ const AdminManagementPage = () => {
         />
         <BulkActionBar
           selectedCount={selectedIds.length}
-          loading={updateStatus.loading}
+          loading={mutationLoading}
           onClear={() => setSelectedIds([])}
           actions={[
             {
@@ -165,17 +204,24 @@ const AdminManagementPage = () => {
               danger: true,
               onClick: () => handleChangeStatus(2),
             },
+            {
+              key: 'delete',
+              label: t('button.delete'),
+              icon: <DeleteOutlined />,
+              danger: true,
+              onClick: handleDeleteSelected,
+            },
           ]}
         />
       </Flex>
       <AdminManagementFormSection
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
-        openUpdate={false}
-        setOpenUpdate={() => {}}
-        selectedRow={{}}
+        openUpdate={openUpdate}
+        setOpenUpdate={setOpenUpdate}
+        selectedRow={selectedRow}
         onCreateSubmit={createAdmin.submit}
-        onUpdateSubmit={async () => undefined}
+        onUpdateSubmit={updateAdmin.submit}
         refetch={getAdmins.fetch}
         schoolOptions={schools.options}
         schoolsLoading={schools.loading}

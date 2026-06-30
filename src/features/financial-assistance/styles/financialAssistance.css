@@ -352,7 +352,7 @@
 
 .fas-tier-grid {
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.3fr) minmax(105px, 0.8fr) 34px;
+  grid-template-columns: minmax(150px, 1.2fr) minmax(180px, 1fr) 34px;
   gap: 8px;
   align-items: center;
   margin-bottom: 9px;

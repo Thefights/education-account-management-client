@@ -19,7 +19,7 @@ const SweepReportsPage = () => {
     <Card>
       <Flex vertical gap={16}>
         <Typography.Title level={4} style={{ margin: 0 }}>
-          {t('batch_report.title', 'Account Creation Report')}
+          {t('batch_report.title')}
         </Typography.Title>
         <SweepReportFilterSection
           key={batchDate}

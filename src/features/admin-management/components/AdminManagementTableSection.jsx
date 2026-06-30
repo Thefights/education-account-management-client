@@ -1,3 +1,4 @@
+import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import {
   defaultAuthAccountStatusStyle,
@@ -5,6 +6,7 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { EditOutlined } from '@ant-design/icons'
 import { useMemo } from 'react'
 
 const AdminManagementTableSection = ({
@@ -15,6 +17,7 @@ const AdminManagementTableSection = ({
   selectedIds,
   setSelectedIds,
   onDetail,
+  onEdit,
   currentUserId,
 }) => {
   const { t } = useTranslation()
@@ -57,8 +60,24 @@ const AdminManagementTableSection = ({
         options: _enum.authAccountStatusOptions,
         color: defaultAuthAccountStatusStyle,
       },
+      {
+        key: 'actions',
+        title: '',
+        width: 70,
+        render: (_, row) => (
+          <ActionMenu
+            actions={[
+              {
+                title: t('button.update'),
+                icon: <EditOutlined />,
+                onClick: () => onEdit?.(row),
+              },
+            ]}
+          />
+        ),
+      },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.roleOptions]
+    [t, _enum.authAccountStatusOptions, _enum.roleOptions, onEdit]
   )
 
   return (

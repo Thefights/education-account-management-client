@@ -1,9 +1,7 @@
 import PhoneInputField from '@/shared/components/textFields/PhoneInputField'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { PHONE_REGEX } from '@/shared/utils/authValidateUtil'
 import { Form } from 'antd'
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
-import { isPossiblePhoneNumber } from 'react-phone-number-input'
 
 const PhoneRenderField = ({ field, value, onChange, size = 'middle' }, ref) => {
   const { t } = useTranslation()
@@ -15,11 +13,6 @@ const PhoneRenderField = ({ field, value, onChange, size = 'middle' }, ref) => {
       const nextError = required ? t('error.required') : ''
       setError(nextError)
       return !nextError
-    }
-
-    if (!isPossiblePhoneNumber(value) || !PHONE_REGEX.test(value)) {
-      setError(t('auth.error.phone'))
-      return false
     }
 
     if (value.length > 16) {

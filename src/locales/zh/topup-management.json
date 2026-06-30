@@ -33,6 +33,20 @@
     "manual_tab": "Manual Topup",
     "topup_name": "充值名称",
     "search_topup": "按充值名称搜索",
-    "search_execution": "按执行代码或充值名称搜索"
+    "search_execution": "按执行代码或充值名称搜索",
+    "search_account_number": "按账户编号搜索",
+    "manual_completed": "???????",
+    "execution_summary": "???? {count} ??????? {amount}?",
+    "processed": "???",
+    "credited": "???",
+    "succeeded": "??",
+    "failed": "??",
+    "total_credited": "????",
+    "execution_details": "????",
+    "recipients": "????",
+    "accounts": "???",
+    "successful_accounts": "????",
+    "review_failed_accounts": "??????????????",
+    "view_history": "????"
   }
 }

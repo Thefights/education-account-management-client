@@ -32,6 +32,20 @@
     "manual_tab": "Manual Topup",
     "topup_name": "Tên cấu hình nạp tiền",
     "search_topup": "Tìm theo tên cấu hình nạp tiền",
-    "search_execution": "Tìm theo mã thực thi hoặc tên cấu hình nạp tiền"
+    "search_execution": "Tìm theo mã thực thi hoặc tên cấu hình nạp tiền",
+    "search_account_number": "Tìm theo số tài khoản",
+    "manual_completed": "Ho?n t?t n?p ti?n th? c?ng",
+    "execution_summary": "?? c?ng {amount} cho {count} t?i kho?n gi?o d?c.",
+    "processed": "?? x? l?",
+    "credited": "?? c?ng",
+    "succeeded": "Th?nh c?ng",
+    "failed": "Th?t b?i",
+    "total_credited": "T?ng ?? c?ng",
+    "execution_details": "Chi ti?t th?c thi",
+    "recipients": "Ng??i nh?n",
+    "accounts": "t?i kho?n",
+    "successful_accounts": "T?i kho?n th?nh c?ng",
+    "review_failed_accounts": "Ki?m tra c?c t?i kho?n th?t b?i tr??c khi n?p ti?n l?i.",
+    "view_history": "Xem l?ch s?"
   }
 }

@@ -1,28 +1,129 @@
 import { FasApplicationFilterSection } from '@/features/financial-assistance/components/FasFilterSections'
 import { FasAdminApplicationTableSection } from '@/features/financial-assistance/components/FasTableSections'
 import { FAS_APPLICATION_STATUS } from '@/features/financial-assistance/data/fasSeedData'
-import {
-  fasMockStore,
-  useFasMockStore,
-} from '@/features/financial-assistance/data/fasMockStore'
-import { useFasMockTable } from '@/features/financial-assistance/hooks/useFasMockTable'
 import '@/features/financial-assistance/styles/financialAssistance.css'
-import {
-  describeTierSubsidy,
-  formatTierConditionText,
-  formatFasDate,
-  getApplicationDisplayStatus,
-  getSuggestedTier,
-  isApprovedApplicationExpired,
-  statusLabel,
-} from '@/features/financial-assistance/utils/fasRules'
+import { statusLabel } from '@/features/financial-assistance/utils/fasRules'
 import {
   defaultFasApplicationFilters,
-  fasApplicationStatusOptions,
 } from '@/features/financial-assistance/utils/fasTableConfig'
+import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
-import { Button, Card, Flex, Input, Modal, Radio, Select, Tabs, Tag, Typography, message } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { EnumConfig } from '@/shared/config/enumConfig'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useFetch from '@/shared/hooks/useFetch'
+import { Button, Card, Flex, Input, Modal, Radio, Select, Spin, Tag, Typography, message } from 'antd'
+import { useMemo, useState } from 'react'
+
+const FAS_APPLICATION_STATUS_ID = EnumConfig.FasApplicationStatusId
+
+const apiStatusToUi = {
+  [FAS_APPLICATION_STATUS_ID.Pending]: FAS_APPLICATION_STATUS.Pending,
+  [FAS_APPLICATION_STATUS_ID.Approved]: FAS_APPLICATION_STATUS.Approved,
+  [FAS_APPLICATION_STATUS_ID.Rejected]: FAS_APPLICATION_STATUS.Rejected,
+  [FAS_APPLICATION_STATUS_ID.Withdrawn]: FAS_APPLICATION_STATUS.Withdrawn,
+  [FAS_APPLICATION_STATUS_ID.Draft]: FAS_APPLICATION_STATUS.Draft,
+  [FAS_APPLICATION_STATUS_ID.Expired]: FAS_APPLICATION_STATUS.Expired,
+  Pending: FAS_APPLICATION_STATUS.Pending,
+  Approved: FAS_APPLICATION_STATUS.Approved,
+  Rejected: FAS_APPLICATION_STATUS.Rejected,
+  Withdrawn: FAS_APPLICATION_STATUS.Withdrawn,
+  Draft: FAS_APPLICATION_STATUS.Draft,
+  Expired: FAS_APPLICATION_STATUS.Expired,
+  pending: FAS_APPLICATION_STATUS.Pending,
+  approved: FAS_APPLICATION_STATUS.Approved,
+  rejected: FAS_APPLICATION_STATUS.Rejected,
+  withdrawn: FAS_APPLICATION_STATUS.Withdrawn,
+  draft: FAS_APPLICATION_STATUS.Draft,
+  expired: FAS_APPLICATION_STATUS.Expired,
+}
+
+const uiStatusToApi = {
+  [FAS_APPLICATION_STATUS.Pending]: FAS_APPLICATION_STATUS_ID.Pending,
+  [FAS_APPLICATION_STATUS.Approved]: FAS_APPLICATION_STATUS_ID.Approved,
+  [FAS_APPLICATION_STATUS.Rejected]: FAS_APPLICATION_STATUS_ID.Rejected,
+  [FAS_APPLICATION_STATUS.Withdrawn]: FAS_APPLICATION_STATUS_ID.Withdrawn,
+  [FAS_APPLICATION_STATUS.Draft]: FAS_APPLICATION_STATUS_ID.Draft,
+  [FAS_APPLICATION_STATUS.Expired]: FAS_APPLICATION_STATUS_ID.Expired,
+}
+
+const normalizeApplicationStatus = (status) =>
+  apiStatusToUi[status] ??
+  apiStatusToUi[String(status || '').toLowerCase()] ??
+  FAS_APPLICATION_STATUS.Pending
+
+const toDateOnly = (value) => (value ? String(value).slice(0, 10) : '')
+
+const normalizePaginationCollection = (payload) => {
+  const collection = Array.isArray(payload?.collection) ? payload.collection : []
+  const pageSize = payload?.pageSize || 10
+  const totalCount = payload?.totalCount ?? collection.length
+
+  return {
+    collection,
+    totalCount,
+    totalPage: payload?.totalPage ?? Math.max(1, Math.ceil(totalCount / pageSize)),
+    pageSize,
+  }
+}
+
+const normalizeApplicationRow = (application) => {
+  const status = normalizeApplicationStatus(application.status)
+  return {
+    id: application.applicationNumber || String(application.id),
+    apiId: application.id,
+    applicantName: application.accountName || '-',
+    accountNumber: application.accountNumber || '-',
+    schemeName: application.schemeName || '-',
+    status,
+    displayStatus: status,
+    submittedAt: toDateOnly(application.submittedAt),
+  }
+}
+
+const normalizeApplicationPage = (payload) => {
+  const page = normalizePaginationCollection(payload)
+  return {
+    ...page,
+    collection: page.collection.map(normalizeApplicationRow),
+  }
+}
+
+const getBackendSort = (sort) => {
+  if (!sort?.key) return 'createdAt asc'
+
+  const sortFieldByTableKey = {
+    id: 'applicationNumber',
+    schemeName: 'schemeName',
+    submittedAt: 'createdAt',
+    displayStatus: 'status',
+  }
+
+  return `${sortFieldByTableKey[sort.key] || 'createdAt'} ${sort.direction}`
+}
+
+const formatCurrency = (value) =>
+  value == null || value === ''
+    ? '-'
+    : `S$${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+
+const formatSubsidy = (tier) => {
+  const hasComponentValues = tier.courseValue != null || tier.miscValue != null
+  if (hasComponentValues) {
+    return `Course ${tier.courseValue ?? '-'}${tier.courseValue != null ? '%' : ''} · Misc ${
+      tier.miscValue ?? '-'
+    }${tier.miscValue != null ? '%' : ''}`
+  }
+
+  if (tier.value != null) return `${tier.value}%`
+  return '-'
+}
+
+const formatTierCondition = (tier) => {
+  const parts = []
+  if (tier.maxPci != null) parts.push(`PCI ≤ ${Number(tier.maxPci).toLocaleString()}`)
+  if (tier.maxGross != null) parts.push(`Gross ≤ ${Number(tier.maxGross).toLocaleString()}`)
+  return parts.length ? parts.join(' and ') : '-'
+}
 
 const escapePdfText = (value) =>
   String(value || '-')
@@ -31,17 +132,17 @@ const escapePdfText = (value) =>
     .replace(/\(/g, '\\(')
     .replace(/\)/g, '\\)')
 
-const createMockDocumentPdfUrl = ({ document, application, scheme, attachment }) => {
+const createDocumentPreviewPdfUrl = ({ document, application }) => {
   const lines = [
-    'Mock supporting document preview',
-    `Application: ${application.id}`,
-    `Student: ${application.applicantName} (${application.accountNumber})`,
-    `Scheme: ${scheme.name}`,
+    'Supporting document preview',
+    `Application: ${application?.id || '-'}`,
+    `Student: ${application?.applicantName || '-'} (${application?.accountNumber || '-'})`,
+    `Scheme: ${application?.scheme?.name || '-'}`,
     `Document: ${document.name}`,
-    `Uploaded file: ${attachment?.fileName || 'Not attached'}`,
-    `Submitted: ${formatFasDate(application.submittedAt)}`,
+    `Uploaded file: ${document.fileName || '-'}`,
+    `Storage key: ${document.fileKey || '-'}`,
     '',
-    'This PDF is generated by the frontend mock until the real document API is available.',
+    'This preview is generated from the stored document metadata.',
   ]
 
   const content = [
@@ -79,72 +180,129 @@ const createMockDocumentPdfUrl = ({ document, application, scheme, attachment })
   return URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }))
 }
 
+const normalizeApplicationDetail = (detail, summary = {}) => {
+  const status = normalizeApplicationStatus(detail.status ?? summary.status)
+  const studentProfile = detail.studentProfile || {}
+  const scheme = detail.scheme || {}
+  const systemSuggestedTier = detail.systemSuggestedTier
+    ? {
+        id: String(detail.systemSuggestedTier.id),
+        apiId: detail.systemSuggestedTier.id,
+        name: detail.systemSuggestedTier.tierName || '-',
+        reason: detail.systemSuggestedTier.reason || '',
+      }
+    : null
+  const approvedTier = detail.approvedTier
+    ? {
+        id: String(detail.approvedTier.id),
+        apiId: detail.approvedTier.id,
+        name: detail.approvedTier.tierName || '-',
+      }
+    : null
+
+  const tiers = (scheme.tiers || []).map((tier) => ({
+    id: String(tier.id),
+    apiId: tier.id,
+    name: tier.tierName || '-',
+    maxPci: tier.maxPerCapitaIncome,
+    maxGross: tier.maxGrossHouseholdIncome,
+    value: tier.subsidyValue,
+    courseValue: tier.courseFeeSubsidyValue,
+    miscValue: tier.miscFeeSubsidyValue,
+  }))
+
+  const documents = (scheme.requiredDocuments || []).map((document) => ({
+    id: String(document.requiredDocumentId),
+    apiId: document.requiredDocumentId,
+    applicationDocumentId: document.applicationDocumentId,
+    name: document.documentName || '-',
+    fileName: document.fileName,
+    fileKey: document.fileKey,
+  }))
+
+  return {
+    ...summary,
+    id: detail.applicationNumber || summary.id || String(detail.id),
+    apiId: detail.id ?? summary.apiId,
+    status,
+    displayStatus: status,
+    data: {
+      age: studentProfile.age,
+      nationality: studentProfile.studentNationality,
+      guardianNationality: studentProfile.guardianNationality,
+      parentNationality: studentProfile.guardianNationality,
+      income: studentProfile.grossHouseholdIncome,
+      members: studentProfile.householdMembers,
+      pci: studentProfile.perCapitaIncome,
+    },
+    systemSuggestedTier,
+    approvedTier,
+    tierOverrideHistories: (detail.tierOverrideHistories || []).map((history) => ({
+      id: history.id,
+      oldTierName: history.oldTierName,
+      newTierName: history.newTierName,
+      recommendationReason: history.recommendationReason,
+      reason: history.reason,
+      modifiedByName: history.modifiedByName,
+      modifiedAt: history.modifiedAt,
+    })),
+    additionalAnswers: (detail.additionalAnswers || []).map((answer) => ({
+      id: answer.id,
+      questionText: answer.questionText || '',
+      answerText: answer.answerText || '',
+      isRequired: Boolean(answer.isRequired),
+    })),
+    scheme: {
+      id: String(scheme.id || ''),
+      apiId: scheme.id,
+      name: scheme.schemeName || summary.schemeName || '-',
+      tiers,
+      documents,
+    },
+  }
+}
+
 const FasApplicationQueuePage = () => {
-  const { schemes, applications } = useFasMockStore()
   const [filters, setFilters] = useState(defaultFasApplicationFilters)
-  const [activeStatus, setActiveStatus] = useState(fasApplicationStatusOptions[0].value)
   const [sort, setSort] = useState({ key: 'submittedAt', direction: 'asc' })
   const [sortChoice, setSortChoice] = useState('oldest')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [reviewId, setReviewId] = useState(null)
+  const [reviewApplication, setReviewApplication] = useState(null)
 
-  const schemeById = useMemo(
-    () => Object.fromEntries(schemes.map((scheme) => [scheme.id, scheme])),
-    [schemes]
+  const queryParams = useMemo(
+    () => ({
+      page,
+      pageSize,
+      search: filters.search ? filters.search.trim() : undefined,
+      status:
+        filters.status && filters.status !== 'all'
+          ? uiStatusToApi[filters.status]
+          : undefined,
+      sort: getBackendSort(sort),
+    }),
+    [filters.search, filters.status, page, pageSize, sort]
   )
 
-  const applicationRows = useMemo(
-    () =>
-      applications
-        .map((application) => {
-          const scheme = schemeById[application.schemeId]
-          if (!scheme) return null
+  const applicationsQuery = useFetch(
+    ApiUrls.FAS_APPLICATION_MANAGEMENT.INDEX,
+    queryParams,
+    [queryParams]
+  )
+  const detailSubmit = useAxiosSubmit({ method: 'GET' })
+  const approveSubmit = useAxiosSubmit({ method: 'POST' })
+  const rejectSubmit = useAxiosSubmit({ method: 'POST' })
 
-          return {
-            ...application,
-            schemeName: scheme.name,
-            displayStatus: getApplicationDisplayStatus(application),
-          }
-        })
-        .filter(Boolean),
-    [applications, schemeById]
+  const applicationPage = useMemo(
+    () => normalizeApplicationPage(applicationsQuery.data),
+    [applicationsQuery.data]
   )
 
-  const statusCounts = useMemo(
-    () =>
-      applicationRows.reduce((acc, application) => {
-        acc[application.displayStatus] = (acc[application.displayStatus] || 0) + 1
-        return acc
-      }, {}),
-    [applicationRows]
-  )
+  const tableData = applicationPage
 
-  const tableData = useFasMockTable({
-    rows: applicationRows,
-    filters,
-    sort,
-    page,
-    pageSize,
-    filterRow: (application, currentFilters) => {
-      const query = currentFilters.search.trim().toLowerCase()
-      const submittedAt = application.submittedAt || ''
-      const matchesQuery =
-        !query ||
-        application.id.toLowerCase().includes(query) ||
-        application.accountNumber.toLowerCase().includes(query) ||
-        application.applicantName.toLowerCase().includes(query) ||
-        application.schemeName.toLowerCase().includes(query)
-      const matchesStatus = application.displayStatus === activeStatus
-      const matchesDateFrom = !currentFilters.dateFrom || submittedAt >= currentFilters.dateFrom
-      const matchesDateTo = !currentFilters.dateTo || submittedAt <= currentFilters.dateTo
-
-      return matchesQuery && matchesStatus && matchesDateFrom && matchesDateTo
-    },
-  })
-
-  const reviewApplication = applications.find((application) => application.id === reviewId)
-  const reviewScheme = schemeById[reviewApplication?.schemeId]
+  const refreshApplications = async () => {
+    await applicationsQuery.fetch()
+  }
 
   const handleFilter = (values) => {
     setFilters(values)
@@ -157,6 +315,24 @@ const FasApplicationQueuePage = () => {
     setPage(1)
   }
 
+  const openReview = async (application) => {
+    if (!application?.apiId) {
+      message.error('Unable to load this application because its API id is missing.')
+      return
+    }
+
+    const response = await detailSubmit.submit({
+      overrideUrl: ApiUrls.FAS_APPLICATION_MANAGEMENT.DETAIL(application.apiId),
+    })
+    if (response) {
+      setReviewApplication(normalizeApplicationDetail(response.data || response, application))
+    }
+  }
+
+  const closeReview = () => {
+    setReviewApplication(null)
+  }
+
   return (
     <div className="fas-management-shell">
       <Card>
@@ -164,23 +340,13 @@ const FasApplicationQueuePage = () => {
           <Typography.Title level={4} style={{ margin: 0 }}>
             FAS Applications
           </Typography.Title>
-          <Tabs
-            activeKey={activeStatus}
-            onChange={(status) => {
-              setActiveStatus(status)
-              setPage(1)
-            }}
-            items={fasApplicationStatusOptions.map((status) => ({
-              key: status.value,
-              label: `${status.label} (${statusCounts[status.value] || 0})`,
-            }))}
-          />
           <FasApplicationFilterSection
             filters={filters}
-            loading={false}
+            loading={applicationsQuery.loading}
             searchTitle="Search account, name, FAS, or app no."
             dateTitle="Submitted date"
-            showStatus={false}
+            statusMode="single"
+            showDateRange={false}
             onFilter={handleFilter}
             onReset={() => handleFilter(defaultFasApplicationFilters)}
           />
@@ -198,10 +364,15 @@ const FasApplicationQueuePage = () => {
           </Flex>
           <FasAdminApplicationTableSection
             applications={tableData.collection}
-            loading={false}
+            loading={
+              applicationsQuery.loading ||
+              detailSubmit.loading ||
+              approveSubmit.loading ||
+              rejectSubmit.loading
+            }
             sort={sort}
             setSort={setSort}
-            onReview={(application) => setReviewId(application.id)}
+            onReview={openReview}
           />
           <GenericTablePagination
             totalCount={tableData.totalCount}
@@ -210,7 +381,7 @@ const FasApplicationQueuePage = () => {
             setPage={setPage}
             pageSize={pageSize}
             setPageSize={setPageSize}
-            loading={false}
+            loading={applicationsQuery.loading}
           />
 
           <div className="fas-note">
@@ -221,252 +392,203 @@ const FasApplicationQueuePage = () => {
       </Card>
 
       <ApplicationReviewModal
+        key={reviewApplication?.apiId || 'empty-review'}
         application={reviewApplication}
-        scheme={reviewScheme}
-        open={!!reviewApplication && !!reviewScheme}
-        onClose={() => setReviewId(null)}
+        open={!!reviewApplication}
+        loading={approveSubmit.loading || rejectSubmit.loading}
+        onClose={closeReview}
+        onApproved={async (application, approval) => {
+          const response = await approveSubmit.submit({
+            overrideUrl: ApiUrls.FAS_APPLICATION_MANAGEMENT.APPROVE(application.apiId),
+            overrideData: approval,
+          })
+          if (response) {
+            message.success(`Approved ${application.id}`)
+            closeReview()
+            await refreshApplications()
+          }
+        }}
+        onRejected={async (application, reason) => {
+          const response = await rejectSubmit.submit({
+            overrideUrl: ApiUrls.FAS_APPLICATION_MANAGEMENT.REJECT(application.apiId),
+            overrideData: { RejectionReason: reason },
+          })
+          if (response) {
+            message.success(`Rejected ${application.id}`)
+            closeReview()
+            await refreshApplications()
+          }
+        }}
       />
     </div>
   )
 }
 
-const ApplicationReviewModal = ({ application, scheme, open, onClose }) => {
+const ApplicationReviewModal = ({ application, open, loading, onClose, onApproved, onRejected }) => {
   const [rejectOpen, setRejectOpen] = useState(false)
   const [reason, setReason] = useState('')
+  const [selectedTierId, setSelectedTierId] = useState(
+    application?.approvedTier?.id ||
+      application?.systemSuggestedTier?.id ||
+      null
+  )
   const [overrideReason, setOverrideReason] = useState('')
-  const [documentPreview, setDocumentPreview] = useState(null)
-  const suggestedTier = getSuggestedTier(scheme, application)
-  const defaultTierId = suggestedTier?.id || scheme?.tiers?.[0]?.id || null
-  const [manualTierSelection, setManualTierSelection] = useState({
-    applicationId: null,
-    tierId: null,
-  })
-  const selectedTierId =
-    manualTierSelection.applicationId === application?.id
-      ? manualTierSelection.tierId
-      : defaultTierId
-  const selectedTier = scheme?.tiers?.find((tier) => tier.id === selectedTierId)
-  const needsOverrideReason = !!selectedTier && selectedTier.id !== suggestedTier?.id
-  const expired = isApprovedApplicationExpired(application)
-
-  useEffect(() => {
-    if (!documentPreview?.url) return undefined
-
-    return () => URL.revokeObjectURL(documentPreview.url)
-  }, [documentPreview?.url])
-
-  const selectTier = (tierId) => {
-    setManualTierSelection({ applicationId: application?.id, tierId })
-  }
 
   const close = () => {
     setRejectOpen(false)
     setReason('')
     setOverrideReason('')
-    setDocumentPreview(null)
-    setManualTierSelection({ applicationId: null, tierId: null })
     onClose()
   }
 
-  const viewDocument = (document) => {
-    const attachment = application.attachments?.find((item) => item.documentId === document.id)
-    if (!attachment) {
-      message.warning('Document is missing')
-      return
-    }
-
-    setDocumentPreview((current) => {
-      if (current?.url) URL.revokeObjectURL(current.url)
-      return {
-        title: document.name,
-        url: createMockDocumentPdfUrl({ document, application, scheme, attachment }),
-      }
-    })
-  }
-
-  const approve = () => {
-    if (!selectedTier) return
-
-    if (needsOverrideReason && !overrideReason.trim()) {
-      message.error('Enter the reason for overriding the recommended tier')
-      return
-    }
-
-    fasMockStore.approveApplication(application.id, selectedTier.id, {
-      recommendedTierId: suggestedTier?.id,
-      reason: needsOverrideReason
-        ? overrideReason.trim()
-        : 'Approved the system-recommended tier.',
-    })
-    message.success(`Approved ${application.id} · ${selectedTier.name}`)
-    close()
-  }
-
-  const reject = () => {
+  const reject = async () => {
     if (!reason.trim()) {
       message.error('Enter a rejection reason')
       return
     }
 
-    fasMockStore.rejectApplication(application.id, reason.trim())
-    message.success(`Rejected ${application.id}`)
-    close()
+    await onRejected?.(application, reason.trim())
   }
 
-  if (!application || !scheme) return null
+  if (!application) return null
 
-  const title = `${application.status === FAS_APPLICATION_STATUS.Pending ? 'Review' : 'View'} · ${
-    application.id
-  }`
+  const scheme = application.scheme
+  const isPending = application.status === FAS_APPLICATION_STATUS.Pending
+  const title = `${isPending ? 'Review' : 'View'} · ${application.id}`
+  const isOverride =
+    Boolean(selectedTierId && application.systemSuggestedTier?.id) &&
+    selectedTierId !== application.systemSuggestedTier.id
+  const canApprove = Boolean(application.systemSuggestedTier && selectedTierId)
+
+  const approve = async () => {
+    if (!canApprove) return
+    if (isOverride && overrideReason.trim().length < 10) {
+      message.error('Enter an override reason with at least 10 characters')
+      return
+    }
+
+    await onApproved?.(application, {
+      approvedTierId: Number(selectedTierId),
+      reason: isOverride ? overrideReason.trim() : undefined,
+    })
+  }
 
   return (
-    <Modal title={title} open={open} onCancel={close} footer={null} width={620}>
-      {application.status === FAS_APPLICATION_STATUS.Pending ? (
-        <>
-          <StudentDataBlock application={application} scheme={scheme} />
-
-          <div className="fas-section-label" style={{ marginBottom: 7 }}>
-            Tier selection
-          </div>
-          <TierTable
-            scheme={scheme}
-            selectedTierId={selectedTierId}
-            systemTierId={suggestedTier?.id}
-            onSelectTier={selectTier}
-          />
-
-          {suggestedTier && selectedTier?.id === suggestedTier.id ? (
-            <div className="fas-suggest">
-              System recommended <strong>{suggestedTier.name}</strong> from the student data.
-            </div>
-          ) : suggestedTier && selectedTier ? (
-            <div className="fas-suggest">
-              System recommended <strong>{suggestedTier.name}</strong>, but{' '}
-              <strong>{selectedTier.name}</strong> is selected for approval.
-            </div>
-          ) : selectedTier ? (
-            <div className="fas-suggest">
-              No exact tier matched the student data. <strong>{selectedTier.name}</strong> is
-              selected manually.
-            </div>
-          ) : (
-            <div className="fas-suggest fas-suggest-danger">
-              No tier is available. Approve is disabled.
-            </div>
-          )}
-
-          {needsOverrideReason && (
-            <div style={{ marginBottom: 12 }}>
-              <label className="fas-field-label">Override reason</label>
-              <Input.TextArea
-                value={overrideReason}
-                rows={3}
-                placeholder="Reason for selecting a different tier"
-                onChange={(event) => setOverrideReason(event.target.value)}
-              />
-            </div>
-          )}
-
-          <RequiredDocuments scheme={scheme} application={application} onView={viewDocument} />
-
-          <Flex gap={8} style={{ marginTop: 14 }}>
-            <Button type="primary" disabled={!selectedTier} style={{ flex: 1 }} onClick={approve}>
-              {selectedTier ? `Approve · ${selectedTier.name}` : 'Approve'}
-            </Button>
-            <Button danger style={{ flex: 1 }} onClick={() => setRejectOpen(true)}>
-              Reject
-            </Button>
-          </Flex>
-
-          {rejectOpen && (
-            <div style={{ marginTop: 12 }}>
-              <Input.TextArea
-                value={reason}
-                rows={3}
-                placeholder="Reason, e.g. Income documents incomplete"
-                onChange={(event) => setReason(event.target.value)}
-              />
-              <Flex gap={8} style={{ marginTop: 8 }}>
-                <Button danger type="primary" onClick={reject}>
-                  Confirm reject
-                </Button>
-                <Button onClick={() => setRejectOpen(false)}>Cancel</Button>
-              </Flex>
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <div className="fas-kv">
-            <div className="fas-kv-row">
-              <span>Student</span>
-              <strong>
-                {application.applicantName} · {application.accountNumber}
-              </strong>
-            </div>
-            <div className="fas-kv-row">
-              <span>Scheme</span>
-              <strong>{scheme.name}</strong>
-            </div>
-            <div className="fas-kv-row">
-              <span>Result</span>
-              <strong style={{ color: expired ? 'var(--fas-red)' : 'var(--fas-green)' }}>
-                {expired ? 'Expired' : statusLabel(application.status)}
-                {application.tierId ? ` · ${scheme.tiers.find((t) => t.id === application.tierId)?.name}` : ''}
-              </strong>
-            </div>
-            {application.validFrom && (
+    <Modal title={title} open={open} onCancel={close} footer={null} width={680}>
+      <Spin spinning={loading}>
+        <Flex vertical gap={14}>
+          {!isPending && (
+            <div className="fas-kv">
               <div className="fas-kv-row">
-                <span>Valid from</span>
-                <strong>{formatFasDate(application.validFrom)}</strong>
-              </div>
-            )}
-            <div className="fas-kv-row">
-              <span>Duration</span>
-              <strong>{scheme.validityMonths || 12} months</strong>
-            </div>
-            {application.endDate && (
-              <div className="fas-kv-row">
-                <span>Valid until</span>
-                <strong style={{ color: expired ? 'var(--fas-red)' : undefined }}>
-                  {formatFasDate(application.endDate)}
-                  {expired ? ' · Expired' : ''}
+                <span>Student</span>
+                <strong>
+                  {application.applicantName} · {application.accountNumber}
                 </strong>
               </div>
-            )}
-            {application.status === FAS_APPLICATION_STATUS.Rejected && (
               <div className="fas-kv-row">
-                <span>Reason</span>
-                <strong>{application.reason || '-'}</strong>
+                <span>Scheme</span>
+                <strong>{scheme.name}</strong>
+              </div>
+              <div className="fas-kv-row">
+                <span>Result</span>
+                <strong>{statusLabel(application.status)}</strong>
+              </div>
+            </div>
+          )}
+
+          <StudentDataBlock application={application} />
+
+          <div>
+            <div className="fas-section-label" style={{ marginBottom: 7 }}>
+              Tier selection
+            </div>
+            <TierTable
+              scheme={scheme}
+              selectedTierId={selectedTierId}
+              systemTierId={application.systemSuggestedTier?.id}
+              approvedTierId={application.approvedTier?.id}
+              selectable={isPending && Boolean(application.systemSuggestedTier)}
+              onSelectTier={setSelectedTierId}
+            />
+            {application.systemSuggestedTier ? (
+              <div className="fas-suggest">
+                System recommended <strong>{application.systemSuggestedTier.name}</strong>
+                {application.systemSuggestedTier.reason
+                  ? ` · ${application.systemSuggestedTier.reason}`
+                  : ''}
+              </div>
+            ) : (
+              <div className="fas-suggest fas-suggest-danger">
+                No eligible tier was recommended. Approve is disabled.
               </div>
             )}
-            {application.status === FAS_APPLICATION_STATUS.Approved && application.tierReview && (
-              <>
-                <div className="fas-kv-row">
-                  <span>Approved reason</span>
-                  <strong>{application.tierReview.reason || '-'}</strong>
-                </div>
-                <div className="fas-kv-row">
-                  <span>Approved by</span>
-                  <strong>{application.tierReview.modifiedBy || '-'}</strong>
-                </div>
-                <div className="fas-kv-row">
-                  <span>Approved date</span>
-                  <strong>{formatFasDate(application.tierReview.modifiedDate?.slice(0, 10))}</strong>
-                </div>
-              </>
+            {application.approvedTier && (
+              <div className="fas-suggest">
+                Approved tier <strong>{application.approvedTier.name}</strong>
+              </div>
+            )}
+            {isPending && isOverride && (
+              <div style={{ marginTop: 10 }}>
+                <label className="fas-field-label">Override reason</label>
+                <Input.TextArea
+                  value={overrideReason}
+                  rows={3}
+                  maxLength={500}
+                  showCount
+                  placeholder="Reason for approving a different tier"
+                  onChange={(event) => setOverrideReason(event.target.value)}
+                />
+              </div>
             )}
           </div>
-          <StudentDataBlock application={application} scheme={scheme} />
-          <RequiredDocuments scheme={scheme} application={application} onView={viewDocument} />
-        </>
-      )}
-      <DocumentPreviewModal
-        open={!!documentPreview}
-        title={documentPreview?.title}
-        url={documentPreview?.url}
-        onClose={() => setDocumentPreview(null)}
-      />
+
+          <TierOverrideHistory histories={application.tierOverrideHistories} />
+          <AdditionalAnswers answers={application.additionalAnswers} />
+          <RequiredDocuments documents={scheme.documents} application={application} />
+
+          {isPending && (
+            <>
+              <Flex gap={8}>
+                <Button
+                  type="primary"
+                  disabled={!canApprove}
+                  loading={loading}
+                  style={{ flex: 1 }}
+                  onClick={approve}
+                >
+                  {selectedTierId
+                    ? `Approve · ${
+                        scheme.tiers.find((tier) => tier.id === selectedTierId)?.name ||
+                        application.systemSuggestedTier?.name ||
+                        'Selected tier'
+                      }`
+                    : 'Approve'}
+                </Button>
+                <Button danger style={{ flex: 1 }} onClick={() => setRejectOpen(true)}>
+                  Reject
+                </Button>
+              </Flex>
+
+              {rejectOpen && (
+                <div>
+                  <Input.TextArea
+                    value={reason}
+                    rows={3}
+                    placeholder="Reason, e.g. Income documents incomplete"
+                    onChange={(event) => setReason(event.target.value)}
+                  />
+                  <Flex gap={8} style={{ marginTop: 8 }}>
+                    <Button danger type="primary" loading={loading} onClick={reject}>
+                      Confirm reject
+                    </Button>
+                    <Button onClick={() => setRejectOpen(false)}>Cancel</Button>
+                  </Flex>
+                </div>
+              )}
+            </>
+          )}
+        </Flex>
+      </Spin>
     </Modal>
   )
 }
@@ -482,12 +604,14 @@ const StudentDataBlock = ({ application }) => (
       <strong>{application.data?.nationality || '-'}</strong>
     </div>
     <div className="fas-kv-row">
-      <span>Parent nationality</span>
-      <strong>{application.data?.parentNationality || '-'}</strong>
+      <span>Guardian nationality</span>
+      <strong>
+        {application.data?.guardianNationality || application.data?.parentNationality || '-'}
+      </strong>
     </div>
     <div className="fas-kv-row">
       <span>Gross household income</span>
-      <strong>S${Number(application.data?.income || 0).toLocaleString()}</strong>
+      <strong>{formatCurrency(application.data?.income)}</strong>
     </div>
     <div className="fas-kv-row">
       <span>Members</span>
@@ -495,12 +619,19 @@ const StudentDataBlock = ({ application }) => (
     </div>
     <div className="fas-kv-row">
       <span>Per-capita income (PCI)</span>
-      <strong>S${Number(application.data?.pci || 0).toLocaleString()}</strong>
+      <strong>{formatCurrency(application.data?.pci)}</strong>
     </div>
   </div>
 )
 
-const TierTable = ({ scheme, selectedTierId, systemTierId, onSelectTier }) => (
+const TierTable = ({
+  scheme,
+  selectedTierId,
+  systemTierId,
+  approvedTierId,
+  selectable,
+  onSelectTier,
+}) => (
   <table className="fas-tier-table">
     <thead>
       <tr>
@@ -510,74 +641,176 @@ const TierTable = ({ scheme, selectedTierId, systemTierId, onSelectTier }) => (
       </tr>
     </thead>
     <tbody>
-      {scheme.tiers.map((tier) => {
-        const isSelected = tier.id === selectedTierId
-        const isSystemTier = tier.id === systemTierId
+      {scheme.tiers.length ? (
+        scheme.tiers.map((tier) => {
+          const isSelected = tier.id === selectedTierId
+          const isSystemTier = tier.id === systemTierId
+          const isApprovedTier = tier.id === approvedTierId
 
-        return (
-        <tr
-          key={tier.id}
-          className={`${isSelected ? 'is-selected' : ''} ${
-            isSystemTier ? 'is-system-tier' : ''
-          }`.trim()}
-          onClick={() => onSelectTier?.(tier.id)}
-        >
-          <td>
-            <Radio checked={isSelected} onChange={() => onSelectTier?.(tier.id)}>
-              {tier.name}
-              {isSystemTier ? ' · recommended' : ''}
-            </Radio>
-          </td>
-          <td>{formatTierConditionText(tier)}</td>
-          <td>{describeTierSubsidy(scheme, tier)}</td>
+          return (
+            <tr
+              key={tier.id}
+              className={`${isSystemTier ? 'is-system-tier' : ''} ${
+                isSelected ? 'is-selected' : ''
+              }`.trim()}
+              onClick={() => {
+                if (selectable) onSelectTier?.(tier.id)
+              }}
+              style={{ cursor: selectable ? 'pointer' : 'default' }}
+            >
+              <td>
+                {selectable ? (
+                  <Radio checked={isSelected} onChange={() => onSelectTier?.(tier.id)}>
+                    {tier.name}
+                  </Radio>
+                ) : (
+                  tier.name
+                )}
+                {isSystemTier ? ' · recommended' : ''}
+                {isApprovedTier ? ' · approved' : ''}
+              </td>
+              <td>{formatTierCondition(tier)}</td>
+              <td>{formatSubsidy(tier)}</td>
+            </tr>
+          )
+        })
+      ) : (
+        <tr>
+          <td colSpan={3}>No tiers available</td>
         </tr>
-        )
-      })}
+      )}
     </tbody>
   </table>
 )
 
-const RequiredDocuments = ({ scheme, application, onView }) => (
+const TierOverrideHistory = ({ histories = [] }) => {
+  if (!histories.length) return null
+
+  return (
+    <div>
+      <div className="fas-section-label" style={{ marginBottom: 7 }}>
+        Tier override history
+      </div>
+      <div className="fas-kv">
+        {histories.map((history) => (
+          <div className="fas-kv-row" key={history.id}>
+            <span>
+              {history.oldTierName || 'Recommended tier'} {'->'} {history.newTierName || 'Approved tier'}
+            </span>
+            <strong>
+              {history.reason}
+              {history.modifiedByName ? ` · ${history.modifiedByName}` : ''}
+            </strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const AdditionalAnswers = ({ answers = [] }) => (
   <div>
     <div className="fas-section-label" style={{ marginBottom: 7 }}>
-      Supporting documents to verify
+      Additional question answers
     </div>
-    <Flex gap={6} wrap="wrap">
-      {scheme.documents.length ? (
-        scheme.documents.map((document) => {
-          const attached = application.attachments?.some((item) => item.documentId === document.id)
-          return (
-            <Tag
-              color={attached ? 'blue' : 'default'}
-              key={document.id}
-              style={{ cursor: attached ? 'pointer' : 'default' }}
-              onClick={() => {
-                if (attached) onView?.(document)
-              }}
-            >
-              {document.name} · {attached ? 'View PDF' : 'Missing'}
-            </Tag>
-          )
-        })
-      ) : (
-        <span className="fas-muted">No documents required</span>
-      )}
-    </Flex>
+    {answers.length ? (
+      <div className="fas-kv">
+        {answers.map((answer) => (
+          <div className="fas-kv-row" key={answer.id || answer.questionText}>
+            <span>
+              {answer.questionText}
+              {answer.isRequired ? (
+                <Tag color="blue" style={{ marginLeft: 6 }}>
+                  Required
+                </Tag>
+              ) : null}
+            </span>
+            <strong>{answer.answerText || '-'}</strong>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <span className="fas-muted">No additional answers submitted.</span>
+    )}
   </div>
 )
 
-const DocumentPreviewModal = ({ open, title, url, onClose }) => (
-  <Modal title={title || 'Document preview'} open={open} onCancel={onClose} footer={null} width={840}>
-    {url ? (
-      <iframe
-        title={title || 'Document preview'}
-        src={url}
-        style={{ width: '100%', height: '72vh', border: 0, borderRadius: 8 }}
-      />
-    ) : (
-      <span className="fas-muted">No document available.</span>
-    )}
-  </Modal>
-)
+const RequiredDocuments = ({ documents = [], application }) => {
+  const [documentPreview, setDocumentPreview] = useState(null)
+
+  const closePreview = () => {
+    if (documentPreview?.generated) {
+      URL.revokeObjectURL(documentPreview.url)
+    }
+    setDocumentPreview(null)
+  }
+
+  const openDocument = (document) => {
+    if (!document.fileName && !document.fileKey) {
+      message.warning('Document is missing')
+      return
+    }
+
+    const title = `${document.name} · ${document.fileName || 'Document'}`
+    const directUrl =
+      document.fileKey && /^(https?:|blob:|data:|\/)/i.test(document.fileKey)
+        ? document.fileKey
+        : null
+
+    setDocumentPreview({
+      title,
+      url: directUrl || createDocumentPreviewPdfUrl({ document, application }),
+      generated: !directUrl,
+    })
+  }
+
+  return (
+    <>
+      <div>
+        <div className="fas-section-label" style={{ marginBottom: 7 }}>
+          Supporting documents to verify
+        </div>
+        <Flex gap={6} wrap="wrap">
+          {documents.length ? (
+            documents.map((document) => {
+              const attached = Boolean(document.fileName || document.fileKey)
+              return (
+                <Tag
+                  color={attached ? 'blue' : 'default'}
+                  key={document.id}
+                  style={{ cursor: attached ? 'pointer' : 'default' }}
+                  onClick={() => openDocument(document)}
+                >
+                  {document.name} · {attached ? document.fileName || 'View PDF' : 'Missing'}
+                </Tag>
+              )
+            })
+          ) : (
+            <span className="fas-muted">No documents required</span>
+          )}
+        </Flex>
+      </div>
+
+      <Modal
+        title={documentPreview?.title || 'Document preview'}
+        open={!!documentPreview}
+        onCancel={closePreview}
+        footer={null}
+        width={900}
+        destroyOnHidden
+      >
+        {documentPreview?.url ? (
+          <iframe
+            title={documentPreview.title}
+            src={documentPreview.url}
+            style={{ width: '100%', height: '72vh', border: 0, borderRadius: 8 }}
+          />
+        ) : (
+          <span className="fas-muted">No document available.</span>
+        )}
+      </Modal>
+    </>
+  )
+}
 
 export default FasApplicationQueuePage

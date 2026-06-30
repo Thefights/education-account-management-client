@@ -1,34 +1,31 @@
 import {
   FAS_APPLICATION_STATUS,
-  FAS_STATUS,
   MOCK_ACCOUNT_HOLDER,
 } from '@/features/financial-assistance/data/fasSeedData'
 import {
   buildAvailableSchemesParams,
-  buildSubmitFasApplicationFormData,
+  buildSubmitFasApplicationPayload,
+  normalizeApiApplicationDetail,
+  normalizeApiApplicationPage,
   normalizeApiAvailableSchemesResponse,
   normalizeFasProfileFromApi,
   normalizeFasSnapshotProfile,
 } from '@/features/financial-assistance/api/accountHolderFasApi'
-import {
-  fasMockStore,
-  useFasMockStore,
-} from '@/features/financial-assistance/data/fasMockStore'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
   buildEligibilityPreview,
   collectConditionFields,
   describeTierSubsidy,
-  evaluateSchemeEligibility,
   formatTierConditionText,
   getSuggestedTier,
   getPci,
   isApprovedApplicationExpired,
 } from '@/features/financial-assistance/utils/fasRules'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useFetch from '@/shared/hooks/useFetch'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useTranslation from '@/shared/hooks/useTranslation'
 import {
   ArrowLeftOutlined,
   BankOutlined,
@@ -56,6 +53,28 @@ const parentNationalityOptions = ['Singapore Citizen', 'Other'].map((value) => (
 }))
 
 const noExpandedSchemeId = '__none__'
+const applicationListParams = { Page: 1, PageSize: 100, Sort: 'createdAt desc' }
+const isBlockingApplication = (application) =>
+  application?.displayStatus === FAS_APPLICATION_STATUS.Pending ||
+  (application?.displayStatus === FAS_APPLICATION_STATUS.Approved &&
+    !isApprovedApplicationExpired(application))
+
+const getSchemeLookupId = (scheme) => {
+  const value = scheme?.apiId ?? scheme?.id ?? scheme?.schemeId
+  return value == null ? '' : String(value)
+}
+
+const findActiveApplicationForScheme = (applications, scheme) => {
+  const schemeId = getSchemeLookupId(scheme)
+  if (!schemeId) return null
+
+  return (
+    (applications || []).find(
+      (application) =>
+        String(application.schemeId) === schemeId && isBlockingApplication(application)
+    ) || null
+  )
+}
 
 const getAgeFromDateOfBirth = (dateOfBirth) => {
   if (!dateOfBirth) return null
@@ -103,23 +122,43 @@ const getTemplateUrl = (document) => {
   return `/templates/fas/${document.templateName}`
 }
 
-const getApiErrorMessage = (error) => {
+const getApiErrorMessage = (error, t) => {
   const payload = error?.response?.data
-  if (!payload) return 'Unable to submit the FAS application'
+  if (!payload) return t('financial_assistance.message.submit_failed')
   if (payload.message && payload.message !== 'Validation failed') return payload.message
   if (typeof payload.error === 'string') return payload.error
   if (payload.error && typeof payload.error === 'object') {
     return Object.values(payload.error).filter(Boolean).join(', ')
   }
-  return payload.message || 'Unable to submit the FAS application'
+  return payload.message || t('financial_assistance.message.submit_failed')
 }
 
+const buildAttachedDocsFromApplication = (application) =>
+  Object.fromEntries(
+    (application?.attachments || [])
+      .filter((document) => document.requiredDocumentId != null)
+      .map((document) => [
+        String(document.requiredDocumentId),
+        {
+          fileName: document.fileName,
+          fileKey: document.fileKey,
+        },
+      ])
+  )
+
 const MyFasApplyPage = () => {
-  const { schemes: mockSchemes, applications } = useFasMockStore()
   const location = useLocation()
   const navigate = useNavigate()
-  const initialSchemeId = location.state?.schemeId != null ? String(location.state.schemeId) : null
-  const snapshotProfile = normalizeFasSnapshotProfile(location.state?.snapshot, initialProfile)
+  const [initialSchemeId] = useState(() =>
+    location.state?.schemeId != null ? String(location.state.schemeId) : null
+  )
+  const [stateScheme] = useState(() => location.state?.scheme || null)
+  const [draftApplicationId] = useState(() =>
+    location.state?.draftApplicationId != null ? String(location.state.draftApplicationId) : null
+  )
+  const [snapshotProfile] = useState(() =>
+    normalizeFasSnapshotProfile(location.state?.snapshot, initialProfile)
+  )
   const startingProfile = snapshotProfile || initialProfile
   const [profile, setProfile] = useState(startingProfile)
   const [shown, setShown] = useState(Boolean(snapshotProfile))
@@ -128,7 +167,19 @@ const MyFasApplyPage = () => {
   const [formSchemeId, setFormSchemeId] = useState(initialSchemeId)
   const [formProfile, setFormProfile] = useState(startingProfile)
   const [attachedDocs, setAttachedDocs] = useState({})
+  const [additionalAnswers, setAdditionalAnswers] = useState({})
   const profileQuery = useFetch(ApiUrls.ACCOUNT_HOLDER.PROFILE)
+  const draftApplicationQuery = useFetch(
+    draftApplicationId ? ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DETAIL(draftApplicationId) : '',
+    {},
+    [draftApplicationId],
+    Boolean(draftApplicationId)
+  )
+  const draftApplication = useMemo(
+    () => normalizeApiApplicationDetail(draftApplicationQuery.data),
+    [draftApplicationQuery.data]
+  )
+  const initialScheme = draftApplication?.scheme || stateScheme
 
   const pci = getPci(profile.income, profile.members)
   const availableParams = useMemo(
@@ -140,12 +191,29 @@ const MyFasApplyPage = () => {
     availableParams,
     [availableParams]
   )
+  const applicationsQuery = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    applicationListParams,
+    []
+  )
+  const applicationPage = useMemo(
+    () => normalizeApiApplicationPage(applicationsQuery.data),
+    [applicationsQuery.data]
+  )
+  const activeApplications = applicationPage.collection
   const apiAvailableSchemes = useMemo(
     () => normalizeApiAvailableSchemesResponse(availableSchemesQuery.data),
     [availableSchemesQuery.data]
   )
   const usingApiSchemes = Array.isArray(apiAvailableSchemes.schemes) && !availableSchemesQuery.error
-  const schemes = usingApiSchemes ? apiAvailableSchemes.schemes : mockSchemes
+  const schemes = useMemo(() => {
+    const apiSchemes = usingApiSchemes ? apiAvailableSchemes.schemes : []
+    if (!initialScheme) return apiSchemes
+    if (apiSchemes.some((scheme) => String(scheme.id) === String(initialScheme.id))) {
+      return apiSchemes
+    }
+    return [initialScheme, ...apiSchemes]
+  }, [apiAvailableSchemes.schemes, initialScheme, usingApiSchemes])
 
   const schemeById = useMemo(
     () => Object.fromEntries(schemes.map((scheme) => [String(scheme.id), scheme])),
@@ -153,48 +221,40 @@ const MyFasApplyPage = () => {
   )
 
   useEffect(() => {
-    if (!initialSchemeId && !snapshotProfile) return
+    if (!initialSchemeId && !snapshotProfile && !draftApplicationId) return
     navigate(location.pathname, { replace: true })
-  }, [initialSchemeId, location.pathname, navigate, snapshotProfile])
+  }, [draftApplicationId, initialSchemeId, location.pathname, navigate, snapshotProfile])
 
   useEffect(() => {
-    if (!profileQuery.data || snapshotProfile) return
+    if (!profileQuery.data || snapshotProfile || draftApplication) return
     const nextProfile = normalizeFasProfileFromApi(profileQuery.data, initialProfile)
     queueMicrotask(() => {
       setProfile(nextProfile)
       setFormProfile(nextProfile)
     })
-  }, [profileQuery.data, snapshotProfile])
+  }, [draftApplication, profileQuery.data, snapshotProfile])
 
-  const accountApplications = useMemo(
-    () =>
-      applications.filter(
-        (application) => application.accountNumber === MOCK_ACCOUNT_HOLDER.accountNumber
-      ),
-    [applications]
-  )
+  useEffect(() => {
+    if (!draftApplication) return
+    const nextProfile = normalizeFasSnapshotProfile(draftApplication.profileSnapshot, initialProfile)
+    queueMicrotask(() => {
+      setProfile(nextProfile)
+      setFormProfile(nextProfile)
+      setShown(true)
+      setFormSchemeId(draftApplication.schemeId)
+      setAttachedDocs(buildAttachedDocsFromApplication(draftApplication))
 
-  const blockingSchemeIds = useMemo(
-    () =>
-      new Set(
-        accountApplications
-          .filter(
-            (application) =>
-              application.status === FAS_APPLICATION_STATUS.Pending ||
-              (application.status === FAS_APPLICATION_STATUS.Approved &&
-                !isApprovedApplicationExpired(application))
-          )
-          .map((application) => application.schemeId)
-      ),
-    [accountApplications]
-  )
+      const initialAnswers = {}
+      ;(draftApplication.additionalAnswers || []).forEach((answer) => {
+        if (answer.fasSchemeAdditionalQuestionId) {
+          initialAnswers[answer.fasSchemeAdditionalQuestionId] = answer.answerText || ''
+        }
+      })
+      setAdditionalAnswers(initialAnswers)
+    })
+  }, [draftApplication])
 
-  const activeAvailableSchemes = useMemo(() => {
-    if (usingApiSchemes) return schemes
-    return schemes.filter(
-      (scheme) => scheme.status === FAS_STATUS.Active && !blockingSchemeIds.has(scheme.id)
-    )
-  }, [blockingSchemeIds, schemes, usingApiSchemes])
+  const activeAvailableSchemes = schemes
 
   const visibleSchemes = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -209,14 +269,12 @@ const MyFasApplyPage = () => {
     return activeAvailableSchemes.filter((scheme) => {
       const matchesQuery = !query || scheme.name.toLowerCase().includes(query)
       if (!matchesQuery) return false
+      if (!draftApplicationId && findActiveApplicationForScheme(activeApplications, scheme))
+        return false
       if (!shown) return true
-      if (usingApiSchemes) {
-        return !!getSuggestedTier(scheme, { data: eligibleProfile })
-      }
-      return (
-        evaluateSchemeEligibility(scheme, eligibleProfile) &&
-        !!getSuggestedTier(scheme, { data: eligibleProfile })
-      )
+      if (usingApiSchemes && scheme.apiId != null && !scheme.reapplyFallback) return true
+      if (scheme.reapplyFallback || !scheme.tiers?.length) return true
+      return !!getSuggestedTier(scheme, { data: eligibleProfile })
     })
   }, [
     activeAvailableSchemes,
@@ -228,12 +286,15 @@ const MyFasApplyPage = () => {
     search,
     shown,
     usingApiSchemes,
+    activeApplications,
+    draftApplicationId,
   ])
 
   const openForm = (schemeId) => {
     setFormSchemeId(String(schemeId))
     setFormProfile(profile)
     setAttachedDocs({})
+    setAdditionalAnswers({})
   }
 
   if (formSchemeId) {
@@ -255,14 +316,22 @@ const MyFasApplyPage = () => {
       )
     }
 
+    const blockingApplication = draftApplicationId
+      ? null
+      : findActiveApplicationForScheme(activeApplications, scheme)
+
     return (
       <ApplyForm
         scheme={scheme}
         profile={formProfile}
+        draftApplicationId={draftApplicationId}
+        blockingApplication={blockingApplication}
         attachedDocs={attachedDocs}
+        additionalAnswers={additionalAnswers}
         onBack={() => setFormSchemeId(null)}
         onProfileChange={setFormProfile}
         onAttachedDocsChange={setAttachedDocs}
+        onAdditionalAnswersChange={setAdditionalAnswers}
         onSubmitted={() => {
           setFormSchemeId(null)
           navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT))
@@ -285,7 +354,9 @@ const MyFasApplyPage = () => {
                   prefix="S$"
                   placeholder="e.g. 4000.00"
                   style={{ width: '100%' }}
-                  onChange={(value) => setProfile((current) => ({ ...current, income: value || '' }))}
+                  onChange={(value) =>
+                    setProfile((current) => ({ ...current, income: value || '' }))
+                  }
                 />
               </ProfileQuestion>
 
@@ -323,7 +394,8 @@ const MyFasApplyPage = () => {
               </ProfileQuestion>
 
               <div className="fas-pci-pill">
-                Per-capita income (PCI) = <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
+                Per-capita income (PCI) ={' '}
+                <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
               </div>
 
               <Button
@@ -382,7 +454,9 @@ const MyFasApplyPage = () => {
                   })
                 ) : (
                   <div className="fas-empty">
-                    {shown
+                    {availableSchemesQuery.error
+                      ? 'Unable to load FAS schemes from the API right now.'
+                      : shown
                       ? 'No scheme matches the household details and tier limits entered.'
                       : 'No schemes available right now.'}
                   </div>
@@ -393,7 +467,7 @@ const MyFasApplyPage = () => {
                 <div className="fas-note">
                   Showing active schemes that do not already have an application. Enter details and
                   use the button to narrow the list.
-                  {!usingApiSchemes && availableSchemesQuery.error ? ' Real API is unavailable, so mock data is shown.' : ''}
+                  {availableSchemesQuery.error ? ' Unable to load FAS schemes from the API.' : ''}
                 </div>
               )}
             </div>
@@ -473,13 +547,24 @@ const SchemeInfo = ({ scheme }) => (
 const ApplyForm = ({
   scheme,
   profile,
+  draftApplicationId,
+  blockingApplication,
   attachedDocs,
+  additionalAnswers,
   onBack,
   onProfileChange,
   onAttachedDocsChange,
+  onAdditionalAnswersChange,
   onSubmitted,
 }) => {
   const [submitting, setSubmitting] = useState(false)
+  const { t } = useTranslation()
+  const submitApplication = useAxiosSubmit({
+    method: 'POST',
+    onError: async (error) => {
+      message.error(getApiErrorMessage(error, t))
+    },
+  })
   const pci = getPci(profile.income, profile.members)
   const schemeFieldSet = useMemo(() => getSchemeFieldSet(scheme), [scheme])
   const requiresIncome = schemeRequiresIncome(schemeFieldSet)
@@ -502,7 +587,18 @@ const ApplyForm = ({
     (!schemeFieldSet.has('parentNationality') || !!profile.parentNationality) &&
     (!requiresIncome || !!profile.income) &&
     (!requiresMembers || !!profile.members)
-  const isReadyToSubmit = hasProfileDetails && !!matchingTier && attachedCount === totalDocuments
+  const needsTierMatch = scheme.tiers?.length > 0
+
+  const areRequiredQuestionsAnswered = (scheme.additionalQuestions || []).every(
+    (q) => !q.isRequired || !!(additionalAnswers[q.id] && additionalAnswers[q.id].trim())
+  )
+
+  const isReadyToSubmit =
+    !blockingApplication &&
+    hasProfileDetails &&
+    (!needsTierMatch || !!matchingTier) &&
+    attachedCount === totalDocuments &&
+    areRequiredQuestionsAnswered
 
   const attachDoc = (documentId, file) => {
     onAttachedDocsChange((current) => ({
@@ -516,53 +612,74 @@ const ApplyForm = ({
     }))
   }
 
-  const submit = async () => {
+  const submit = async (isDraft = false) => {
+    if (blockingApplication) {
+      message.error(t('financial_assistance.message.duplicate_application'))
+      return
+    }
+
     if (!hasProfileDetails) {
-      message.error('Confirm the required application details')
+      message.error(t('financial_assistance.message.confirm_required_details'))
       return
     }
 
-    if (!matchingTier) {
-      message.error('The entered details do not match any tier for this scheme')
+    if (needsTierMatch && !matchingTier) {
+      message.error(t('financial_assistance.message.no_matching_tier'))
       return
     }
 
-    const missing = scheme.documents.filter((document) => !attachedDocs[document.id])
-    if (missing.length) {
-      message.error(`Attach all required documents (${missing.length} left)`)
-      return
-    }
-
-    if (scheme.apiId) {
-      setSubmitting(true)
-      try {
-        const formData = buildSubmitFasApplicationFormData({
-          scheme,
-          profile,
-          documents: scheme.documents,
-          attachedDocs,
-        })
-        await axiosConfig.post(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, formData)
-        message.success(`Application submitted: ${scheme.name}`)
-        onSubmitted()
-      } catch (error) {
-        message.error(getApiErrorMessage(error))
-      } finally {
-        setSubmitting(false)
+    if (!isDraft) {
+      const missing = scheme.documents.filter((document) => !attachedDocs[document.id])
+      if (missing.length) {
+        message.error(
+          t('financial_assistance.message.attach_required_documents', { count: missing.length })
+        )
+        return
       }
-      return
+
+      if (!areRequiredQuestionsAnswered) {
+        message.error('Please answer all required additional questions.')
+        return
+      }
     }
 
-    fasMockStore.createAccountHolderApplication({
-      schemeId: scheme.id,
-      profile,
-      attachedDocuments: scheme.documents.map((document) => ({
-        documentId: document.id,
-        fileName: attachedDocs[document.id]?.fileName || `${document.id}.pdf`,
-      })),
-    })
-    message.success(`Application submitted: ${scheme.name}`)
-    onSubmitted()
+    setSubmitting(true)
+    try {
+      const answersList = Object.entries(additionalAnswers)
+        .filter(([, answerText]) => answerText)
+        .map(([questionId, answerText]) => ({
+          fasSchemeAdditionalQuestionId: Number(questionId),
+          answerText,
+        }))
+
+      const payload = buildSubmitFasApplicationPayload({
+        scheme,
+        profile,
+        documents: scheme.documents,
+        attachedDocs,
+        additionalAnswers: answersList,
+      })
+      const submitUrl = isDraft
+        ? draftApplicationId
+          ? ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_UPDATE_DRAFT(draftApplicationId)
+          : ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_SAVE_DRAFT
+        : draftApplicationId
+          ? ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_PUBLISH_DRAFT(draftApplicationId)
+          : ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS
+      const response = await submitApplication.submit({
+        overrideUrl: submitUrl,
+        overrideData: payload,
+      })
+      if (!response) return
+      message.success(
+        isDraft
+          ? 'Draft application saved successfully.'
+          : t('financial_assistance.message.application_submitted', { name: scheme.name })
+      )
+      onSubmitted()
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -598,12 +715,24 @@ const ApplyForm = ({
                 <div className="fas-apply-step-head">
                   <span className="fas-block-number">1</span>
                   <div>
-                    <h3>Review household details</h3>
-                    <p>Profile details are locked. Update only the household values for this application.</p>
+                    <h3>Personal Information</h3>
+                    <p>Profile details are locked.</p>
                   </div>
                 </div>
 
-                <SchemeApplicationFields
+                <PersonalInfoFields profile={profile} />
+              </section>
+
+              <section className="fas-apply-step-card">
+                <div className="fas-apply-step-head">
+                  <span className="fas-block-number">2</span>
+                  <div>
+                    <h3>Household Information</h3>
+                    <p>Update the household values for this application.</p>
+                  </div>
+                </div>
+
+                <HouseholdInfoFields
                   fieldSet={schemeFieldSet}
                   profile={profile}
                   pci={pci}
@@ -611,9 +740,47 @@ const ApplyForm = ({
                 />
               </section>
 
+              {scheme.additionalQuestions?.length > 0 && (
+                <section className="fas-apply-step-card">
+                  <div className="fas-apply-step-head">
+                    <span className="fas-block-number">3</span>
+                    <div>
+                      <h3>Additional Questions</h3>
+                      <p>
+                        Please answer the following questions to help us evaluate your application.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="fas-form-grid" style={{ gridTemplateColumns: '1fr' }}>
+                    {scheme.additionalQuestions.map((q) => (
+                      <div key={q.id}>
+                        <label className="fas-field-label">
+                          {q.questionText}{' '}
+                          {q.isRequired && <span style={{ color: 'var(--fas-red)' }}>*</span>}
+                        </label>
+                        <Input.TextArea
+                          value={additionalAnswers[q.id] || ''}
+                          maxLength={2000}
+                          placeholder="Your answer (max 2000 characters)"
+                          rows={3}
+                          onChange={(e) =>
+                            onAdditionalAnswersChange((current) => ({
+                              ...current,
+                              [q.id]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               <section className="fas-apply-step-card">
                 <div className="fas-apply-step-head">
-                  <span className="fas-block-number">2</span>
+                  <span className="fas-block-number">
+                    {scheme.additionalQuestions?.length > 0 ? '4' : '3'}
+                  </span>
                   <div>
                     <h3>Attach supporting documents</h3>
                     <p>Download each template if needed, then attach the completed file.</p>
@@ -641,7 +808,9 @@ const ApplyForm = ({
                             onClick={(event) => {
                               if (templateUrl) return
                               event.preventDefault()
-                              message.warning('No template file has been uploaded for this document')
+                              message.warning(
+                                'No template file has been uploaded for this document'
+                              )
                             }}
                           >
                             Download template
@@ -657,7 +826,10 @@ const ApplyForm = ({
                             return false
                           }}
                         >
-                          <Button icon={<PaperClipOutlined />} type={attachment ? 'primary' : 'default'}>
+                          <Button
+                            icon={<PaperClipOutlined />}
+                            type={attachment ? 'primary' : 'default'}
+                          >
                             {attachment ? 'Replace' : 'Attach'}
                           </Button>
                         </Upload>
@@ -672,35 +844,84 @@ const ApplyForm = ({
               <div className="fas-summary-card">
                 <div className="fas-section-label">Application summary</div>
                 <div className="fas-summary-title">{scheme.name}</div>
-                <ApplicationSummaryRows
-                  fieldSet={schemeFieldSet}
-                  profile={profile}
-                  pci={pci}
-                />
+                <ApplicationSummaryRows profile={profile} pci={pci} />
                 <div className="fas-summary-row">
                   <span>Estimated tier</span>
-                  <strong>{matchingTier?.name || 'No matching tier'}</strong>
+                  <div style={{ textAlign: 'right' }}>
+                    <strong>
+                      {matchingTier?.name ||
+                        (scheme.tiers?.length ? 'No matching tier' : 'To be confirmed')}
+                    </strong>
+                    {matchingTier && (
+                      <div style={{ fontSize: '12px', color: 'var(--fas-gray-dark)', marginTop: '2px' }}>
+                        ({describeTierSubsidy(scheme, matchingTier)})
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="fas-summary-row">
                   <span>FAS duration</span>
                   <strong>{scheme.validityMonths || 12} months</strong>
                 </div>
+                {scheme.additionalQuestions?.length > 0 && (
+                  <div className="fas-summary-row">
+                    <span>Questions answered</span>
+                    <strong>
+                      {
+                        scheme.additionalQuestions.filter(
+                          (q) => additionalAnswers[q.id] && additionalAnswers[q.id].trim()
+                        ).length
+                      }
+                      /{scheme.additionalQuestions.length}
+                    </strong>
+                  </div>
+                )}
                 <div className="fas-summary-row">
                   <span>Documents</span>
                   <strong>
                     {attachedCount}/{totalDocuments}
                   </strong>
                 </div>
-                <Button
-                  type="primary"
-                  block
-                  size="large"
-                  disabled={!isReadyToSubmit}
-                  loading={submitting}
-                  onClick={submit}
-                >
-                  Submit application
-                </Button>
+                {blockingApplication && (
+                  <p style={{ color: 'var(--fas-red)', marginTop: 0 }}>
+                    You already have a pending or approved application for this scheme
+                    {blockingApplication.id ? ` (${blockingApplication.id})` : ''}.
+                  </p>
+                )}
+                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                  <Button
+                    type="primary"
+                    block
+                    size="large"
+                    disabled={!isReadyToSubmit}
+                    loading={submitting || submitApplication.loading}
+                    onClick={() => submit(false)}
+                  >
+                    Submit application
+                  </Button>
+                  {!isReadyToSubmit && !blockingApplication && (
+                    <div style={{ fontSize: '12px', color: 'var(--fas-red)', textAlign: 'center', lineHeight: '1.2' }}>
+                      {!hasProfileDetails
+                        ? '* Please fill in all required profile fields.'
+                        : needsTierMatch && !matchingTier
+                          ? '* Household details do not meet any tier.'
+                          : attachedCount < totalDocuments
+                            ? `* Please attach all required documents (${attachedCount}/${totalDocuments}).`
+                            : !areRequiredQuestionsAnswered
+                              ? '* Please answer all required additional questions.'
+                              : '* Please complete all required fields.'}
+                    </div>
+                  )}
+                  <Button
+                    block
+                    size="large"
+                    loading={submitting || submitApplication.loading}
+                    disabled={Boolean(blockingApplication)}
+                    onClick={() => submit(true)}
+                  >
+                    Save as draft
+                  </Button>
+                </div>
                 <p>
                   The school admin reviews your documents and confirms the final assistance tier.
                 </p>
@@ -713,77 +934,78 @@ const ApplyForm = ({
   )
 }
 
-const SchemeApplicationFields = ({ fieldSet, profile, pci, onProfileChange }) => {
-  const requiresIncome = schemeRequiresIncome(fieldSet)
-  const requiresMembers = schemeRequiresMembers(fieldSet)
+const PersonalInfoFields = ({ profile }) => {
+  return (
+    <div className="fas-form-grid">
+      <div>
+        <label className="fas-field-label">Account holder name</label>
+        <Input disabled value={profile.name || '-'} />
+        <div className="fas-field-help">Auto-filled from profile.</div>
+      </div>
 
+      <div>
+        <label className="fas-field-label">Student age</label>
+        <InputNumber disabled min={0} value={profile.age} style={{ width: '100%' }} />
+        <div className="fas-field-help">Auto-filled from profile date of birth.</div>
+      </div>
+
+      <div>
+        <label className="fas-field-label">Student nationality</label>
+        <Select
+          disabled
+          value={profile.nationality}
+          options={nationalityOptions}
+          style={{ width: '100%' }}
+        />
+        <div className="fas-field-help">Auto-filled from profile citizenship.</div>
+      </div>
+    </div>
+  )
+}
+
+const HouseholdInfoFields = ({ fieldSet, profile, pci, onProfileChange }) => {
   return (
     <>
       <div className="fas-form-grid">
         <div>
-          <label className="fas-field-label">Account holder name</label>
-          <Input disabled value={profile.name || '-'} />
-          <div className="fas-field-help">Auto-filled from profile.</div>
-        </div>
-
-        <div>
-          <label className="fas-field-label">Student age</label>
-          <InputNumber disabled min={0} value={profile.age} style={{ width: '100%' }} />
-          <div className="fas-field-help">Auto-filled from profile date of birth.</div>
-        </div>
-
-        <div>
-          <label className="fas-field-label">Student nationality</label>
-          <Select
-            disabled
-            value={profile.nationality}
-            options={nationalityOptions}
-            style={{ width: '100%' }}
-          />
-          <div className="fas-field-help">Auto-filled from profile citizenship.</div>
-        </div>
-
-        <div>
           <label className="fas-field-label">Parent&apos;s nationality</label>
           <Select
-            disabled
             value={profile.parentNationality}
             options={parentNationalityOptions}
             style={{ width: '100%' }}
+            onChange={(value) =>
+              onProfileChange((current) => ({ ...current, parentNationality: value }))
+            }
           />
           <div className="fas-field-help">Auto-filled from linked guardian profile.</div>
         </div>
 
-        {requiresIncome && (
-          <div>
-            <label className="fas-field-label">Gross household income (S$/month)</label>
-                <InputNumber
-                  min={0}
-                  value={profile.income}
-                  prefix="S$"
-                  placeholder="e.g. 4000.00"
-                  style={{ width: '100%' }}
-              onChange={(value) =>
-                onProfileChange((current) => ({ ...current, income: value || '' }))
-              }
-            />
-          </div>
-        )}
+        <div>
+          <label className="fas-field-label">Gross household income (S$/month)</label>
+          <InputNumber
+            min={0}
+            value={profile.income}
+            prefix="S$"
+            placeholder="e.g. 4000.00"
+            style={{ width: '100%' }}
+            onChange={(value) =>
+              onProfileChange((current) => ({ ...current, income: value || '' }))
+            }
+          />
+        </div>
 
-        {requiresMembers && (
-          <div>
-            <label className="fas-field-label">Household members</label>
-              <InputNumber
-                min={0}
-                value={profile.members}
-                placeholder="e.g. 4"
-                style={{ width: '100%' }}
-              onChange={(value) =>
-                onProfileChange((current) => ({ ...current, members: value || '' }))
-              }
-            />
-          </div>
-        )}
+        <div>
+          <label className="fas-field-label">Household members</label>
+          <InputNumber
+            min={0}
+            value={profile.members}
+            placeholder="e.g. 4"
+            style={{ width: '100%' }}
+            onChange={(value) =>
+              onProfileChange((current) => ({ ...current, members: value || '' }))
+            }
+          />
+        </div>
       </div>
 
       {fieldSet.has('pci') && (
@@ -797,10 +1019,7 @@ const SchemeApplicationFields = ({ fieldSet, profile, pci, onProfileChange }) =>
   )
 }
 
-const ApplicationSummaryRows = ({ fieldSet, profile, pci }) => {
-  const requiresIncome = schemeRequiresIncome(fieldSet)
-  const requiresMembers = schemeRequiresMembers(fieldSet)
-
+const ApplicationSummaryRows = ({ profile, pci }) => {
   return (
     <>
       <div className="fas-summary-row">
@@ -819,24 +1038,18 @@ const ApplicationSummaryRows = ({ fieldSet, profile, pci }) => {
         <span>Parent nationality</span>
         <strong>{profile.parentNationality || '-'}</strong>
       </div>
-      {requiresIncome && (
-        <div className="fas-summary-row">
-          <span>Monthly income</span>
-          <strong>S${Number(profile.income || 0).toLocaleString()}</strong>
-        </div>
-      )}
-      {requiresMembers && (
-        <div className="fas-summary-row">
-          <span>Household size</span>
-          <strong>{profile.members || '-'}</strong>
-        </div>
-      )}
-      {fieldSet.has('pci') && (
-        <div className="fas-summary-highlight">
-          <span>Calculated PCI</span>
-          <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
-        </div>
-      )}
+      <div className="fas-summary-row">
+        <span>Monthly income</span>
+        <strong>S${Number(profile.income || 0).toLocaleString()}</strong>
+      </div>
+      <div className="fas-summary-row">
+        <span>Household size</span>
+        <strong>{profile.members || '-'}</strong>
+      </div>
+      <div className="fas-summary-highlight">
+        <span>Calculated PCI</span>
+        <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
+      </div>
     </>
   )
 }
