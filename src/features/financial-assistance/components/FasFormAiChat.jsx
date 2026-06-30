@@ -87,8 +87,7 @@ const FasFormAiChat = ({
   )
 
   const visibleSuggestions = useMemo(
-    () =>
-      Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
+    () => Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
     [questionMap, suggestions]
   )
 
@@ -146,10 +145,7 @@ const FasFormAiChat = ({
         throw new Error('Could not connect to the AI service.')
       }
 
-      setMessages((current) => [
-        ...current,
-        { role: 'assistant', content: response.reply },
-      ])
+      setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
       setAssistantState(response.assistant_state || null)
 
       const nextSuggestions = Object.fromEntries(
@@ -183,8 +179,7 @@ const FasFormAiChat = ({
 
   const requiresConfirmation = (questionId, value) => {
     const currentValue = String(additionalAnswers?.[questionId] || '').trim()
-    const confirmedByChat =
-      assistantState?.questions?.[questionId]?.source === 'confirmed_update'
+    const confirmedByChat = assistantState?.questions?.[questionId]?.source === 'confirmed_update'
 
     return currentValue && currentValue !== value && !confirmedByChat
   }
@@ -272,8 +267,7 @@ const FasFormAiChat = ({
       setMessages([
         {
           role: 'assistant',
-          content:
-            'The conversation has been reset. Your existing form answers were preserved.',
+          content: 'The conversation has been reset. Your existing form answers were preserved.',
         },
       ])
       setSuggestions({})
@@ -296,7 +290,7 @@ const FasFormAiChat = ({
               <RobotOutlined />
             </span>
             <div className="fas-ai-title-row">
-              <strong>AI form assistant</strong>
+              <strong>FAS Form Assistant</strong>
               <span className="fas-ai-presence">
                 <i /> Online
               </span>
@@ -315,17 +309,15 @@ const FasFormAiChat = ({
         </header>
 
         <div className="fas-ai-progress">
-          <div>
-            <span>Required answers</span>
-            <strong>
-              {progress.completed}/{progress.total}
-            </strong>
-          </div>
+          <span>Required answers</span>
           <Progress
             percent={progress.total ? (progress.completed / progress.total) * 100 : 100}
             showInfo={false}
             size="small"
           />
+          <strong>
+            {progress.completed}/{progress.total}
+          </strong>
         </div>
 
         <div className="fas-ai-scroll-area">
@@ -442,7 +434,7 @@ const FasFormAiChat = ({
         <footer className="fas-ai-composer-wrap">
           <div className="fas-ai-composer">
             <Input
-              aria-label="Message AI form assistant"
+              aria-label="Message FAS Form Assistant"
               value={inputValue}
               placeholder="Describe your circumstances..."
               disabled={isSending || !questions.length}

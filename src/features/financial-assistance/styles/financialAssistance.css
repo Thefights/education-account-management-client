@@ -1101,6 +1101,14 @@
   background: #86efac;
 }
 
+.fas-ai-presence.offline i {
+  background: #f87171;
+}
+
+.fas-ai-presence.checking i {
+  background: #cbd5e1;
+}
+
 .fas-ai-chat-header .ant-btn {
   color: #fff;
 }
@@ -1112,31 +1120,38 @@
 }
 
 .fas-ai-progress {
-  padding: 11px 16px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--app-border-color);
   background: var(--app-elevated-bg);
 }
 
-.fas-ai-progress > div:first-child {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
+.fas-ai-progress span {
   color: var(--fas-grey);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .fas-ai-progress strong {
   color: var(--fas-primary);
   font-size: 11px;
+  white-space: nowrap;
 }
 
 .fas-ai-progress .ant-progress {
+  flex: 1;
   margin: 0;
   line-height: 1;
+}
+
+.fas-ai-progress .ant-progress-inner,
+.fas-ai-progress .ant-progress-bg {
+  height: 4px !important;
 }
 
 .fas-ai-scroll-area {

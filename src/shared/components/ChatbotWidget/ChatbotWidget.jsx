@@ -75,7 +75,7 @@ const ChatbotWidget = () => {
           },
         ])
       }
-    }
+    },
   })
 
   useEffect(() => {
@@ -105,7 +105,7 @@ const ChatbotWidget = () => {
       overrideData: {
         message: userMessage.content,
         history: historyPayload,
-      }
+      },
     })
 
     if (response && response.answer) {
@@ -114,7 +114,7 @@ const ChatbotWidget = () => {
   }
 
   const toggleChat = () => setIsOpen(!isOpen)
-  
+
   const isLoading = statusFetch.loading || chatSubmit.loading
 
   return (
@@ -151,7 +151,7 @@ const ChatbotWidget = () => {
                 <RobotOutlined className="text-[16px] text-white opacity-100" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-[15px] tracking-wide">SFS Assistant</span>
+                <span className="font-medium text-[15px] tracking-wide">SFS Help Assistant</span>
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${isAiEnabled ? 'bg-green-300' : 'bg-red-400'}`}
@@ -251,7 +251,7 @@ const ChatbotWidget = () => {
             }}
           >
             <Input
-              placeholder={isAiEnabled ? "Ask a question..." : "Assistant is currently disabled"}
+              placeholder={isAiEnabled ? 'Ask a question...' : 'Assistant is currently disabled'}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onPressEnter={handleSend}

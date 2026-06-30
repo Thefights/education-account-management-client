@@ -623,6 +623,7 @@ const ApplyForm = ({
 }) => {
   const [submitting, setSubmitting] = useState(false)
   const [isDeclared, setIsDeclared] = useState(false)
+  const [isAiBlockedByRequest, setIsAiBlockedByRequest] = useState(false)
   const { t } = useTranslation()
   const submitApplication = useAxiosSubmit({
     method: 'POST',
@@ -630,14 +631,27 @@ const ApplyForm = ({
       message.error(getApiErrorMessage(error, t))
     },
   })
+  const aiStatusQuery = useFetch(ApiUrls.AI_CHAT.STATUS)
+  const handleAiRequestError = (error) => {
+    const statusCode = error.response?.status || error.status
+    if (statusCode === 403) {
+      setIsAiBlockedByRequest(true)
+    }
+  }
   const fasAutoFillSubmit = useAxiosSubmit({
     url: ApiUrls.AI_CHAT.FAS_AUTO_FILL,
     method: 'POST',
+    onError: handleAiRequestError,
   })
   const fasAutoFillResetSubmit = useAxiosSubmit({
     url: ApiUrls.AI_CHAT.FAS_AUTO_FILL_RESET_SESSION,
     method: 'POST',
+    onError: handleAiRequestError,
   })
+  const isAiEnabled =
+    !isAiBlockedByRequest &&
+    !aiStatusQuery.error &&
+    (aiStatusQuery.data?.isEnabled ?? true)
   const pci = getPci(profile.income, profile.members)
   const schemeFieldSet = useMemo(() => getSchemeFieldSet(scheme), [scheme])
   const requiresIncome = schemeRequiresIncome(schemeFieldSet)
@@ -1045,6 +1059,8 @@ const ApplyForm = ({
                   key={getSchemeLookupIds(scheme).join(':')}
                   scheme={scheme}
                   additionalAnswers={additionalAnswers}
+                  isAiEnabled={isAiEnabled}
+                  isStatusLoading={aiStatusQuery.loading}
                   isSending={fasAutoFillSubmit.loading}
                   isResetting={fasAutoFillResetSubmit.loading}
                   onSendMessage={(payload) =>
