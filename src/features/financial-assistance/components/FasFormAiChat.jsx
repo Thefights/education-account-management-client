@@ -1,8 +1,4 @@
 import {
-  chatWithDynamicFas,
-  resetDynamicFasSession,
-} from '@/features/financial-assistance/api/dynamicFasApi'
-import {
   CheckOutlined,
   CloseOutlined,
   ReloadOutlined,
@@ -42,6 +38,10 @@ const normalizeQuestionType = (type) =>
 const FasFormAiChat = ({
   scheme,
   additionalAnswers,
+  isSending,
+  isResetting,
+  onSendMessage,
+  onResetSession,
   onApplySuggestion,
   onApplyAllSuggestions,
 }) => {
@@ -49,8 +49,6 @@ const FasFormAiChat = ({
   const sessionId = useMemo(() => getSessionId(schemeId), [schemeId])
   const [messages, setMessages] = useState([INITIAL_MESSAGE])
   const [inputValue, setInputValue] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isResetting, setIsResetting] = useState(false)
   const [suggestions, setSuggestions] = useState({})
   const [assistantState, setAssistantState] = useState(null)
   const [confirmationQueue, setConfirmationQueue] = useState([])
@@ -113,7 +111,7 @@ const FasFormAiChat = ({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }, [isLoading, messages, suggestions])
+  }, [isSending, messages, suggestions])
 
   const currentAnswers = () =>
     Object.fromEntries(
@@ -126,24 +124,27 @@ const FasFormAiChat = ({
   const handleSend = async (event, quickText, { appendUserMessage = true } = {}) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
-    if (!messageText || isLoading || !questions.length) return
+    if (!messageText || isSending || !questions.length) return
 
     if (appendUserMessage) {
       setMessages((current) => [...current, { role: 'user', content: messageText }])
     }
     setInputValue('')
-    setIsLoading(true)
     setError('')
     setStatus('')
 
     try {
-      const response = await chatWithDynamicFas({
+      const response = await onSendMessage({
         session_id: sessionId,
         fas_scheme_id: Number(schemeId),
         message: messageText,
         questions,
         current_answers: currentAnswers(),
       })
+
+      if (!response) {
+        throw new Error('Could not connect to the AI service.')
+      }
 
       setMessages((current) => [
         ...current,
@@ -162,8 +163,6 @@ const FasFormAiChat = ({
     } catch (requestError) {
       setError(requestError.message || 'Could not connect to the AI service.')
       setLastFailedMessage(messageText)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -262,12 +261,14 @@ const FasFormAiChat = ({
   }
 
   const handleReset = async () => {
-    if (isLoading || isResetting) return
-    setIsResetting(true)
+    if (isSending || isResetting) return
     setError('')
 
     try {
-      await resetDynamicFasSession(sessionId)
+      const response = await onResetSession(sessionId)
+      if (!response) {
+        throw new Error('Could not reset the AI session.')
+      }
       setMessages([
         {
           role: 'assistant',
@@ -283,8 +284,6 @@ const FasFormAiChat = ({
       setStatus('Conversation reset without changing the form.')
     } catch (requestError) {
       setError(requestError.message || 'Could not reset the AI session.')
-    } finally {
-      setIsResetting(false)
     }
   }
 
@@ -308,7 +307,7 @@ const FasFormAiChat = ({
             size="small"
             icon={<ReloadOutlined />}
             loading={isResetting}
-            disabled={isLoading}
+            disabled={isSending}
             onClick={handleReset}
           >
             Reset
@@ -343,7 +342,7 @@ const FasFormAiChat = ({
               </div>
             ))}
 
-            {isLoading && (
+            {isSending && (
               <div className="fas-ai-message assistant">
                 <span className="fas-ai-message-avatar">
                   <RobotOutlined />
@@ -446,7 +445,7 @@ const FasFormAiChat = ({
               aria-label="Message AI form assistant"
               value={inputValue}
               placeholder="Describe your circumstances..."
-              disabled={isLoading || !questions.length}
+              disabled={isSending || !questions.length}
               onChange={(event) => setInputValue(event.target.value)}
               onPressEnter={handleSend}
             />
@@ -455,8 +454,8 @@ const FasFormAiChat = ({
               shape="circle"
               aria-label="Send message"
               icon={<SendOutlined />}
-              loading={isLoading}
-              disabled={!inputValue.trim() || isLoading || !questions.length}
+              loading={isSending}
+              disabled={!inputValue.trim() || isSending || !questions.length}
               onClick={handleSend}
             />
           </div>
