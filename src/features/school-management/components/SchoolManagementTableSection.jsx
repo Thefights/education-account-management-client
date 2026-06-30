@@ -4,6 +4,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { EditOutlined } from '@ant-design/icons'
 
 const SchoolManagementTableSection = ({
   schools,
@@ -13,7 +14,6 @@ const SchoolManagementTableSection = ({
   selectedIds,
   setSelectedIds,
   onEdit,
-  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -61,10 +61,7 @@ const SchoolManagementTableSection = ({
       width: 70,
       render: (_, row) => (
         <ActionMenu
-          actions={[
-            { title: t('button.edit'), onClick: () => onEdit(row) },
-            { title: t('button.delete'), onClick: () => onDelete(row) },
-          ]}
+          actions={[{ title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit(row) }]}
         />
       ),
     },

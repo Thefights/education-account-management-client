@@ -81,7 +81,7 @@ const CourseManagementTableSection = ({
         <ActionMenu
           actions={[
             {
-              title: t('button.edit'),
+              title: t('button.update'),
               icon: <EditOutlined />,
               disabled: !canEdit(row),
               onClick: () => onEdit(row),
