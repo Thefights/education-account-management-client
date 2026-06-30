@@ -740,36 +740,6 @@
   text-align: right;
 }
 
-.fas-application-detail-modal .ant-modal-title {
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.fas-application-detail-modal .fas-section-label {
-  font-size: 12px;
-  line-height: 18px;
-}
-
-.fas-application-detail-modal .fas-kv-row {
-  align-items: flex-start;
-  padding: 12px 14px;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.fas-application-detail-modal .fas-kv-row span {
-  color: var(--fas-grey);
-  min-width: 180px;
-}
-
-.fas-application-detail-modal .fas-kv-row strong {
-  color: var(--fas-dark);
-  font-weight: 700;
-  line-height: 20px;
-  white-space: normal;
-  word-break: break-word;
-}
-
 .fas-tier-table {
   width: 100%;
   border-collapse: collapse;

@@ -309,7 +309,7 @@ export const normalizeApiApplicationSummary = (application) => {
     submittedAt: toDateOnly(application.submittedAt || application.createdAt),
     approvedAt: toDateOnly(application.approvedDate || application.approvedAt),
     endDate: toDateOnly(application.validityEndDate),
-    reason: application.externalRejectionReason || application.rejectionReason || 'N/A',
+    reason: application.rejectionReason || 'N/A',
   }
 
   if (isApiApprovedExpired(normalized)) {
@@ -374,7 +374,7 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
     approvedAt: toDateOnly(detail.approvedAt),
     validFrom: toDateOnly(detail.validityStartDate),
     endDate: toDateOnly(detail.validityEndDate),
-    reason: detail.externalRejectionReason || detail.rejectionReason || summary.reason,
+    reason: detail.rejectionReason || summary.reason,
     data: profileSnapshot,
     profileSnapshot,
     approvedTier,
@@ -382,8 +382,6 @@ export const normalizeApiApplicationDetail = (detail, summary = {}) => {
     attachments: detail.documents || [],
     additionalAnswers: (detail.additionalAnswers || []).map((a) => ({
       fasSchemeAdditionalQuestionId: a.fasSchemeAdditionalQuestionId,
-      questionText: a.questionTextSnapshot || a.questionText || '',
-      isRequired: Boolean(a.isRequiredSnapshot ?? a.isRequired),
       answerText: a.answerText,
     })),
   }

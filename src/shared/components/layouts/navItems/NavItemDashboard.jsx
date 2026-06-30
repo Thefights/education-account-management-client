@@ -157,7 +157,7 @@ const NavItemDashboard = ({
               title={item.label}
               style={{
                 display: 'block',
-                fontSize: 13,
+                fontSize: 12,
                 maxWidth: '100%',
                 overflow: 'hidden',
                 textAlign: 'left',
@@ -276,7 +276,7 @@ const NavItemDashboard = ({
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                     textAlign: 'left',
-                    fontSize: 12,
+                    fontSize: 11,
                     lineHeight: '16px',
                   }}
                 >

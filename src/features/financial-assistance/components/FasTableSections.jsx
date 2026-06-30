@@ -185,7 +185,7 @@ export const MyFasApplicationTableSection = ({
   const actionField = {
     key: 'actions',
     title: '',
-    width: 180,
+    width: 120,
     render: (_, row) => {
       if (row.displayStatus === FAS_APPLICATION_STATUS.Draft) {
         return (
@@ -203,20 +203,12 @@ export const MyFasApplicationTableSection = ({
       }
 
       if (row.displayStatus === FAS_APPLICATION_STATUS.Pending) {
-        return (
-          <Flex gap={6} justify="end" wrap="wrap">
-            <Button type="link" onClick={() => onView?.(row)}>
-              <EyeOutlined />
-              View
-            </Button>
-            {onWithdraw ? (
-              <Button danger type="link" onClick={() => onWithdraw(row)}>
-                <StopOutlined />
-                Withdraw
-              </Button>
-            ) : null}
-          </Flex>
-        )
+        return onWithdraw ? (
+          <Button danger type="link" onClick={() => onWithdraw(row)}>
+            <StopOutlined />
+            Withdraw
+          </Button>
+        ) : null
       }
 
       if (
@@ -224,26 +216,15 @@ export const MyFasApplicationTableSection = ({
         row.displayStatus === FAS_APPLICATION_STATUS.Expired
       ) {
         return (
-          <Flex gap={6} justify="end" wrap="wrap">
-            <Button type="link" onClick={() => onView?.(row)}>
-              <EyeOutlined />
-              View
-            </Button>
-            <Button type="link" onClick={() => onApplyAgain?.(row)}>
-              <RollbackOutlined />
-              Apply again
-            </Button>
-          </Flex>
+          <Button type="link" onClick={() => onApplyAgain?.(row)}>
+            <RollbackOutlined />
+            Apply again
+          </Button>
         )
       }
 
       if (row.displayStatus === FAS_APPLICATION_STATUS.Withdrawn) {
-        return (
-          <Button type="link" onClick={() => onView?.(row)}>
-            <EyeOutlined />
-            View
-          </Button>
-        )
+        return null
       }
 
       return (
