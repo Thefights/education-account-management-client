@@ -89,6 +89,7 @@
     "reason": "Lý do",
     "reason_placeholder": "Nhập lý do cho thao tác này",
     "search": "Tìm kiếm",
+    "search_placeholder": "Tìm kiếm...",
     "search_label": "Tìm kiếm",
     "select_options": "Chọn tùy chọn",
     "selected": "Đã chọn",

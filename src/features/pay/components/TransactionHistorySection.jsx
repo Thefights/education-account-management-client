@@ -1,21 +1,25 @@
 import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import GenericTable from '@/shared/components/tables/GenericTable'
+import { EnumConfig } from '@/shared/config/enumConfig'
+import { defaultEducationCreditTransactionDirectionStyle } from '@/shared/config/theme/defaultStylesConfig'
+import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { getEnumLabelByValue } from '@/shared/utils/handleStringUtil'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Card, Flex, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
-
 
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
 const TransactionHistorySection = ({ url, pageMode = false }) => {
   const { t } = useTranslation()
+  const _enum = useEnum()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
   const [page, setPage] = useState(1)
@@ -27,21 +31,6 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   const transactions = useFetch(url, params, [params])
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
-  const typeLabels = useMemo(
-    () => ({
-      Topup: t('transaction.topup'),
-      CourseFee: t('transaction.course_fee'),
-      Adjustment: t('transaction.adjustment'),
-    }),
-    [t]
-  )
-  const directionLabels = useMemo(
-    () => ({
-      Credit: t('transaction.credit'),
-      Debit: t('transaction.debit'),
-    }),
-    [t]
-  )
   const filterFields = [
     {
       key: 'search',
@@ -50,17 +39,13 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       type: 'search',
       reserveLabelSpace: true,
       required: false,
-      placeholder: 'e.g. TXN-2026-0001 or course fee',
     },
     {
       key: 'types',
       title: t('transaction.type'),
       type: 'multi-check-dropdown',
       required: false,
-      options: ['Topup', 'CourseFee', 'Adjustment'].map((value) => ({
-        value,
-        label: typeLabels[value],
-      })),
+      options: _enum.educationCreditTransactionTypeOptions,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
       searchPlaceholder: t('general.input_keyword'),
@@ -73,10 +58,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       title: t('transaction.direction'),
       type: 'multi-check-dropdown',
       required: false,
-      options: ['Credit', 'Debit'].map((value) => ({
-        value,
-        label: directionLabels[value],
-      })),
+      options: _enum.educationCreditTransactionDirectionOptions,
       placeholder: t('text.all'),
       selectAllText: t('general.select_all'),
       searchPlaceholder: t('general.input_keyword'),
@@ -103,7 +85,11 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         title: t('transaction.type'),
         width: 130,
         sortable: true,
-        render: (value) => <Tag>{typeLabels[value] || value}</Tag>,
+        render: (value) => (
+          <Tag>
+            {getEnumLabelByValue(_enum.educationCreditTransactionTypeOptions, value) || value}
+          </Tag>
+        ),
       },
       {
         key: 'direction',
@@ -111,8 +97,8 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         width: 110,
         sortable: true,
         render: (value) => (
-          <Tag color={value === 'Credit' ? 'success' : 'error'}>
-            {directionLabels[value] || value}
+          <Tag color={defaultEducationCreditTransactionDirectionStyle(value)}>
+            {getEnumLabelByValue(_enum.educationCreditTransactionDirectionOptions, value) || value}
           </Tag>
         ),
       },
@@ -122,13 +108,20 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         width: 130,
         sortable: true,
         render: (amount, row) => {
-          const isCredit = row.direction === 'Credit'
+          const isIncreased =
+            row.direction === EnumConfig.EducationCreditTransactionDirection.Increased
+          const isDecreased =
+            row.direction === EnumConfig.EducationCreditTransactionDirection.Decreased
+          const sign = isIncreased ? 'credit' : isDecreased ? 'debit' : undefined
           return (
-            <Typography.Text strong type={isCredit ? 'success' : 'danger'}>
-              {isCredit ? <ArrowUpOutlined /> : <ArrowDownOutlined />}{' '}
-              {formatCurrencyBasedOnCurrentLanguage(amount, {
-                sign: isCredit ? 'credit' : 'debit',
-              })}
+            <Typography.Text
+              strong
+              type={isIncreased ? 'success' : isDecreased ? 'danger' : undefined}
+            >
+              {isIncreased && <ArrowUpOutlined />}
+              {isDecreased && <ArrowDownOutlined />}
+              {(isIncreased || isDecreased) && ' '}
+              {formatCurrencyBasedOnCurrentLanguage(amount, { sign })}
             </Typography.Text>
           )
         },
@@ -155,7 +148,11 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         render: formatDatetimeStringBasedOnCurrentLanguage,
       },
     ],
-    [t, typeLabels, directionLabels]
+    [
+      t,
+      _enum.educationCreditTransactionDirectionOptions,
+      _enum.educationCreditTransactionTypeOptions,
+    ]
   )
   const applyFilters = () => {
     setFilters(values)

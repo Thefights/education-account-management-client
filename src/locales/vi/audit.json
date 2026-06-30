@@ -33,10 +33,12 @@
       "reason": "Lý do",
       "status_change": "Thay đổi trạng thái"
     },
+    "label": {
+      "search_text": "Tìm theo lý do hoặc IP"
+    },
     "placeholder": {
       "occurred_from": "Xảy ra từ",
-      "occurred_to": "Xảy ra đến",
-      "search_text": "Tìm theo lý do hoặc IP"
+      "occurred_to": "Xảy ra đến"
     },
     "title": {
       "detail": "Chi tiết nhật ký thao tác quản trị",
@@ -100,10 +102,12 @@
       "object": "Đối tượng",
       "search": "Search"
     },
+    "label": {
+      "search_text": "Tìm theo hành động hoặc địa chỉ IP"
+    },
     "placeholder": {
       "created_from": "Tạo từ ngày",
-      "created_to": "Tạo đến ngày",
-      "search_text": "Tìm theo hành động hoặc địa chỉ IP"
+      "created_to": "Tạo đến ngày"
     },
     "title": {
       "audit_log_management": "Quản lý nhật ký kiểm tra",

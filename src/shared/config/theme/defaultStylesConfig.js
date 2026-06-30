@@ -157,3 +157,13 @@ export const defaultChargeStatusStyle = (status) => {
 
   return map[status] || 'default'
 }
+
+export const defaultEducationCreditTransactionDirectionStyle = (direction) => {
+  const map = {
+    [EnumConfig.EducationCreditTransactionDirection.Increased]: 'success',
+    [EnumConfig.EducationCreditTransactionDirection.Decreased]: 'error',
+    [EnumConfig.EducationCreditTransactionDirection.Unchanged]: 'default',
+  }
+
+  return map[direction] || 'default'
+}

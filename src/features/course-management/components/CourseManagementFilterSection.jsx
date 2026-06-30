@@ -16,7 +16,6 @@ const CourseManagementFilterSection = ({ filters, onFilter, onReset, loading }) 
       key: 'search',
       title: t('course_management.label.search'),
       label: t('course_management.label.search'),
-      placeholder: t('course_management.placeholder.search'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,

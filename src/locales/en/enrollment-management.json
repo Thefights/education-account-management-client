@@ -6,9 +6,6 @@
       "assign_students": "Add Students",
       "add_students_to_course": "Add Students to {{course}}"
     },
-    "placeholder": {
-      "search": "Search..."
-    },
     "label": {
       "search": "Search by student name, NRIC, email, phone number, or account number"
     },

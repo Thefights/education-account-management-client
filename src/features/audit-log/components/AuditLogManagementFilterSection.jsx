@@ -32,11 +32,10 @@ const AuditLogManagementFilterSection = ({
     () => [
       {
         key: 'search',
-        title: t('audit_log.placeholder.search_text'),
+        title: t('audit_log.label.search_text'),
         type: 'search',
         required: false,
-        label: t('audit_log.placeholder.search_text'),
-        placeholder: t('audit_log.placeholder.search_text'),
+        label: t('audit_log.label.search_text'),
         reserveLabelSpace: true,
       },
       {

@@ -46,8 +46,10 @@
       "per_component": "Theo từng khoản phí",
       "standard": "Tiêu chuẩn"
     },
-    "label": { "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường" },
-    "placeholder": { "search": "Tìm kiếm..." },
+    "label": {
+      "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường",
+      "search_by_id": "Tìm theo tên khóa học hoặc ID"
+    },
     "confirm": {
       "delete_title": "Xóa khóa học?",
       "delete_description": "Bạn có chắc muốn xóa {name}?",

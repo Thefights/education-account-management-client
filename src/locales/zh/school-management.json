@@ -10,7 +10,7 @@
       "phone_number": "电话号码",
       "email": "电子邮件"
     },
-    "placeholder": { "search": "搜索学校名称、电子邮件、电话号码或地址" },
+    "label": { "search": "搜索学校名称、电子邮件、电话号码或地址" },
     "confirm": { "delete_title": "删除学校？", "delete_description": "确定要删除 {name} 吗？" }
   }
 }

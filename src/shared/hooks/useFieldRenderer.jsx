@@ -493,7 +493,6 @@ export default function useFieldRenderer(
         widthPercent={field.widthPercent ?? 0}
         value={value}
         setValue={setValue}
-        placeholder={field.placeholder || field.title}
         options={field.options || []}
         getOptionLabel={getOptionLabel}
         onEnterDown={field.onEnterDown}

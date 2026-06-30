@@ -6,9 +6,6 @@
       "assign_students": "添加学生",
       "add_students_to_course": "将学生添加到 {{course}}"
     },
-    "placeholder": {
-      "search": "搜索..."
-    },
     "label": {
       "search": "按学生姓名、NRIC、电子邮件、电话号码或账号搜索"
     },

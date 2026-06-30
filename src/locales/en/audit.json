@@ -33,10 +33,12 @@
       "reason": "Reason",
       "status_change": "Status Change"
     },
+    "label": {
+      "search_text": "Search by reason or IP"
+    },
     "placeholder": {
       "occurred_from": "Occurred from",
-      "occurred_to": "Occurred to",
-      "search_text": "Search by reason or IP"
+      "occurred_to": "Occurred to"
     },
     "title": {
       "detail": "Management Action Log Detail",
@@ -100,10 +102,12 @@
       "object": "Object",
       "search": "Search"
     },
+    "label": {
+      "search_text": "Search by action or IP address"
+    },
     "placeholder": {
       "created_from": "Created from",
-      "created_to": "Created to",
-      "search_text": "Search by action or IP address"
+      "created_to": "Created to"
     },
     "title": {
       "audit_log_management": "Audit Log Management",

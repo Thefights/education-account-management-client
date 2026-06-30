@@ -6,7 +6,6 @@ const SearchBar = ({
   widthPercent = 100,
   value,
   setValue,
-  placeholder,
   options = [],
   getOptionLabel = (opt) => opt?.label || opt,
   onEnterDown = () => {},
@@ -35,7 +34,7 @@ const SearchBar = ({
         }}
         style={width}
         size="large"
-        placeholder={placeholder || t('text.search')}
+        placeholder={t('text.search_placeholder')}
         allowClear
       />
     )
@@ -56,7 +55,7 @@ const SearchBar = ({
       }}
       style={width}
       size="large"
-      placeholder={placeholder || t('text.search')}
+      placeholder={t('text.search_placeholder')}
       allowClear
     />
   )
@@ -71,6 +70,5 @@ export default SearchBar
 	widthPercent={50}
 	value={searchTerm}
 	setValue={setSearchTerm}
-	placeholder="Search items..."
 />
 */

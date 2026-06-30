@@ -83,6 +83,7 @@
     "rows_per_page": "Rows per page",
     "reason": "Reason",
     "reason_placeholder": "Enter the reason for this action",
+    "search_placeholder": "Search...",
     "search_label": "Search",
     "select_options": "Select options",
     "selected": "Selected",

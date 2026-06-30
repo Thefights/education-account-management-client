@@ -6,9 +6,6 @@
       "assign_students": "Thêm học sinh",
       "add_students_to_course": "Thêm học sinh vào {{course}}"
     },
-    "placeholder": {
-      "search": "Tìm kiếm..."
-    },
     "label": {
       "search": "Tìm theo tên học sinh, NRIC, email, số điện thoại hoặc số tài khoản"
     },

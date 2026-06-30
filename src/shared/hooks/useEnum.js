@@ -241,26 +241,54 @@ export default function useEnum() {
     educationAccountStatusOptions: [
       { value: EnumConfig.EducationAccountStatus.Active, label: t('topup_form.active') },
       { value: EnumConfig.EducationAccountStatus.Extended, label: 'Extended' },
-      { value: EnumConfig.EducationAccountStatus.Closed, label: t('course_management.status.closed') },
+      {
+        value: EnumConfig.EducationAccountStatus.Closed,
+        label: t('course_management.status.closed'),
+      },
     ],
 
     educationCreditTransactionTypeOptions: [
       { value: EnumConfig.EducationCreditTransactionType.Topup, label: 'Top-up' },
-      { value: EnumConfig.EducationCreditTransactionType.CourseFeePayment, label: 'Course Fee Payment' },
+      {
+        value: EnumConfig.EducationCreditTransactionType.CourseFeePayment,
+        label: 'Course Fee Payment',
+      },
       { value: EnumConfig.EducationCreditTransactionType.ExpiredBalance, label: 'Expired Balance' },
     ],
 
     educationCreditTransactionDirectionOptions: [
-      { value: EnumConfig.EducationCreditTransactionDirection.Credit, label: 'Credit' },
-      { value: EnumConfig.EducationCreditTransactionDirection.Debit, label: 'Debit' },
+      {
+        value: EnumConfig.EducationCreditTransactionDirection.Increased,
+        label: t('transaction.increased'),
+      },
+      {
+        value: EnumConfig.EducationCreditTransactionDirection.Decreased,
+        label: t('transaction.decreased'),
+      },
+      {
+        value: EnumConfig.EducationCreditTransactionDirection.Unchanged,
+        label: t('transaction.unchanged'),
+      },
     ],
 
     paymentPlanOptions: [
       { value: EnumConfig.PaymentPlanMonths.Full, label: t('enum.payment_plan_months.full') },
-      { value: EnumConfig.PaymentPlanMonths.ThreeMonths, label: t('enum.payment_plan_months.three_months') },
-      { value: EnumConfig.PaymentPlanMonths.SixMonths, label: t('enum.payment_plan_months.six_months') },
-      { value: EnumConfig.PaymentPlanMonths.NineMonths, label: t('enum.payment_plan_months.nine_months') },
-      { value: EnumConfig.PaymentPlanMonths.TwelveMonths, label: t('enum.payment_plan_months.twelve_months') },
+      {
+        value: EnumConfig.PaymentPlanMonths.ThreeMonths,
+        label: t('enum.payment_plan_months.three_months'),
+      },
+      {
+        value: EnumConfig.PaymentPlanMonths.SixMonths,
+        label: t('enum.payment_plan_months.six_months'),
+      },
+      {
+        value: EnumConfig.PaymentPlanMonths.NineMonths,
+        label: t('enum.payment_plan_months.nine_months'),
+      },
+      {
+        value: EnumConfig.PaymentPlanMonths.TwelveMonths,
+        label: t('enum.payment_plan_months.twelve_months'),
+      },
     ],
   }
 }

@@ -39,7 +39,6 @@ const SweepReportTargetsTable = ({ batchDate }) => {
         key: 'nric',
         title: t('batch_report.search_nric'),
         label: t('batch_report.search_nric'),
-        placeholder: t('batch_report.search_nric'),
         type: 'search',
         reserveLabelSpace: true,
         required: false,

@@ -5,8 +5,8 @@ import { GenericTablePagination } from '@/shared/components/generals/GenericPagi
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useApiOptions from '@/shared/hooks/useApiOptions'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useAuth from '@/shared/hooks/useAuth'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -35,10 +35,8 @@ const AdminManagementPage = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(false)
-  const [openUpdate, setOpenUpdate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
-  const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
   const schools = useApiOptions({
     url: ApiUrls.SCHOOL_MANAGEMENT.GET_ALL,
@@ -54,10 +52,6 @@ const AdminManagementPage = () => {
   const createAdmin = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.INDEX,
     method: 'POST',
-  })
-  const updateAdmin = useAxiosSubmit({
-    url: ApiUrls.ADMIN_MANAGEMENT.DETAIL(selectedRow.userId),
-    method: 'PUT',
   })
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.UPDATE_STATUS,
@@ -96,7 +90,6 @@ const AdminManagementPage = () => {
     })
     if (!reason) return
     const response = await updateStatus.submit({
-      
       overrideData: { ids: selectedIds, status, reason },
     })
     if (!response) return
@@ -172,10 +165,6 @@ const AdminManagementPage = () => {
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.DETAIL(row.userId))
             )
           }}
-          onEdit={(row) => {
-            setSelectedRow(row)
-            setOpenUpdate(true)
-          }}
         />
         <GenericTablePagination
           totalCount={getAdmins.data?.totalCount}
@@ -217,11 +206,7 @@ const AdminManagementPage = () => {
       <AdminManagementFormSection
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
-        openUpdate={openUpdate}
-        setOpenUpdate={setOpenUpdate}
-        selectedRow={selectedRow}
         onCreateSubmit={createAdmin.submit}
-        onUpdateSubmit={updateAdmin.submit}
         refetch={getAdmins.fetch}
         schoolOptions={schools.options}
         schoolsLoading={schools.loading}

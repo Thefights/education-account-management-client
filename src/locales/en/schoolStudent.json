@@ -35,9 +35,6 @@
     "label": {
       "search": "Search by full name, NRIC, email, or phone number"
     },
-    "placeholder": {
-      "search": "Search..."
-    },
     "confirm": {
       "delete_title": "Delete Student",
       "delete_description": "Are you sure you want to delete student {{name}}?"

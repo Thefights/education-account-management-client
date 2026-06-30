@@ -39,7 +39,6 @@ const EnrollmentManagementFilterSection = ({
         key: 'search',
         title: t('enrollment_management.label.search'),
         label: t('enrollment_management.label.search'),
-        placeholder: t('enrollment_management.placeholder.search'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,

@@ -24,9 +24,6 @@
     },
     "label": {
       "search": "Tìm mã nhân viên, họ tên, NRIC hoặc email"
-    },
-    "placeholder": {
-      "search": "Tìm kiếm..."
     }
   }
 }

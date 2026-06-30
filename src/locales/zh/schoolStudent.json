@@ -35,9 +35,6 @@
     "label": {
       "search": "按姓名、NRIC、电子邮件或电话号码搜索"
     },
-    "placeholder": {
-      "search": "搜索..."
-    },
     "confirm": {
       "delete_title": "删除学生",
       "delete_description": "您确定要删除学生 {{name}} 吗？"

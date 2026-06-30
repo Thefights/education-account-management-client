@@ -4,7 +4,7 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { isEmail, maxLen } from '@/shared/utils/validateUtil'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 const initialValues = {
   role: '',
@@ -19,30 +19,18 @@ const initialValues = {
 const toPayload = (values) => ({
   ...values,
   schoolId:
-    values.role === EnumConfig.RoleId.SchoolAdmin && values.schoolId !== '' && values.schoolId != null
+    values.role === EnumConfig.RoleId.SchoolAdmin &&
+    values.schoolId !== '' &&
+    values.schoolId != null
       ? Number(values.schoolId)
       : null,
   phoneNumber: values.phoneNumber || null,
 })
 
-const normalizeInitialValues = (admin = {}) => ({
-  role: admin.role ?? '',
-  azureObjectId: admin.azureObjectId ?? '',
-  fullName: admin.fullName ?? '',
-  nric: admin.nric ?? '',
-  email: admin.email ?? '',
-  schoolId: admin.schoolId ?? '',
-  phoneNumber: admin.phoneNumber ?? '',
-})
-
 const AdminManagementFormSection = ({
   openCreate,
   setOpenCreate,
-  openUpdate,
-  setOpenUpdate,
-  selectedRow,
   onCreateSubmit,
-  onUpdateSubmit,
   refetch,
   schoolOptions,
   schoolsLoading,
@@ -50,7 +38,6 @@ const AdminManagementFormSection = ({
   const { t } = useTranslation()
   const _enum = useEnum()
   const [currentRole, setCurrentRole] = useState('')
-  const updateInitialValues = useMemo(() => normalizeInitialValues(selectedRow), [selectedRow])
   const adminRoleOptions = useMemo(
     () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
     [_enum.roleIdOptions]
@@ -134,22 +121,16 @@ const AdminManagementFormSection = ({
     setCurrentRole((prev) => (values.role !== prev ? values.role : prev))
   }, [])
 
-  useEffect(() => {
-    if (openUpdate) {
-      setCurrentRole(updateInitialValues.role)
-      return
-    }
-
-    if (openCreate) {
-      setCurrentRole(initialValues.role)
-    }
-  }, [openCreate, openUpdate, updateInitialValues.role])
+  const handleCloseCreate = () => {
+    setCurrentRole(initialValues.role)
+    setOpenCreate(false)
+  }
 
   return (
     <>
       <GenericFormDialog
         open={openCreate}
-        onClose={() => setOpenCreate(false)}
+        onClose={handleCloseCreate}
         title={t('admin_management.title.create')}
         submitLabel={t('button.create')}
         initialValues={initialValues}
@@ -157,17 +138,6 @@ const AdminManagementFormSection = ({
         destroyOnHidden
         onSubmit={handleSubmit(onCreateSubmit)}
         onValuesChange={openCreate ? handleValuesChange : undefined}
-      />
-      <GenericFormDialog
-        open={openUpdate}
-        onClose={() => setOpenUpdate(false)}
-        title={t('admin_management.title.update')}
-        submitLabel={t('button.update')}
-        initialValues={updateInitialValues}
-        fields={fields}
-        destroyOnHidden
-        onSubmit={handleSubmit(onUpdateSubmit)}
-        onValuesChange={openUpdate ? handleValuesChange : undefined}
       />
     </>
   )
