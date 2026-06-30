@@ -5,7 +5,6 @@ import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import ProtectedRoute from '@/app/routes/ProtectedRoute'
 import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
 import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePage'
-import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
 import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AdminProfilePage from '@/features/admin-profile/pages/AdminProfilePage'
@@ -18,12 +17,11 @@ import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAc
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
 import FasSchemeManagementPage from '@/features/financial-assistance/pages/FasSchemeManagementPage'
-import ManagementActionLogDetailPage from '@/features/management-action-log/pages/ManagementActionLogDetailPage'
-import ManagementActionLogManagementPage from '@/features/management-action-log/pages/ManagementActionLogManagementPage'
 import MyFasApplyPage from '@/features/financial-assistance/pages/MyFasApplyPage'
 import MyFasManagementPage from '@/features/financial-assistance/pages/MyFasManagementPage'
+import ManagementActionLogDetailPage from '@/features/management-action-log/pages/ManagementActionLogDetailPage'
+import ManagementActionLogManagementPage from '@/features/management-action-log/pages/ManagementActionLogManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
-import PayPage from '@/features/pay/pages/PayPage'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
@@ -36,7 +34,6 @@ import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import InstallmentTrackerPage from '@/features/tuition-payment/pages/InstallmentTrackerPage'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 const roleRouteGroups = [
@@ -74,17 +71,12 @@ const roleRouteGroups = [
         element: <EducationAccountDetailPage />,
       },
       {
-        path: routeUrls.SWEEP_REPORTS.INDEX,
+        path: routeUrls.ACCOUNT_CREATION_REPORT.INDEX,
         element: <SweepReportsPage />,
       },
       {
         path: routeUrls.AUDIT_LOGS.INDEX,
-        element: (
-          <Navigate
-            replace
-            to={routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.LOGS.AUDIT)}
-          />
-        ),
+        element: <Navigate replace to={routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.LOGS.AUDIT)} />,
       },
       {
         path: routeUrls.LOGS.AUDIT,

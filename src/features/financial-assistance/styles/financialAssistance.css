@@ -52,7 +52,9 @@
   --fas-soft-2: var(--app-subtle-bg);
 }
 
-*:focus-visible {
+.fas-page *:focus-visible,
+.fas-management-shell *:focus-visible,
+.ant-modal *:focus-visible {
   outline: 2px solid rgba(37, 99, 235, 0.35) !important;
   outline-offset: 2px !important;
 }

@@ -32,11 +32,10 @@ const ManagementActionLogManagementFilterSection = ({
     () => [
       {
         key: 'search',
-        title: t('management_action_log.placeholder.search_text'),
+        title: t('management_action_log.label.search_text'),
         type: 'search',
         required: false,
-        label: t('management_action_log.placeholder.search_text'),
-        placeholder: t('management_action_log.placeholder.search_text'),
+        label: t('management_action_log.label.search_text'),
         reserveLabelSpace: true,
       },
       {

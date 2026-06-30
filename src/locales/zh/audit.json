@@ -33,10 +33,12 @@
       "reason": "原因",
       "status_change": "状态变更"
     },
+    "label": {
+      "search_text": "按原因或IP搜索"
+    },
     "placeholder": {
       "occurred_from": "发生开始",
-      "occurred_to": "发生结束",
-      "search_text": "按原因或IP搜索"
+      "occurred_to": "发生结束"
     },
     "title": {
       "detail": "管理操作日志详情",
@@ -100,10 +102,12 @@
       "object": "目的",
       "search": "搜索"
     },
+    "label": {
+      "search_text": "按操作或 IP 地址搜索"
+    },
     "placeholder": {
       "created_from": "创建自",
-      "created_to": "创建于",
-      "search_text": "按操作或 IP 地址搜索"
+      "created_to": "创建于"
     },
     "title": {
       "audit_log_management": "审计日志管理",

@@ -165,7 +165,14 @@ export const EnumConfig = {
     NotEquals: 2,
   },
   FasLogicalOperator: { All: 1, Any: 2 },
-  FasApplicationStatusId: { Pending: 1, Approved: 2, Rejected: 3, Withdrawn: 4, Draft: 5, Expired: 6 },
+  FasApplicationStatusId: {
+    Pending: 1,
+    Approved: 2,
+    Rejected: 3,
+    Withdrawn: 4,
+    Draft: 5,
+    Expired: 6,
+  },
   FasApplicationStatus: {
     Pending: 'pending',
     Approved: 'approved',
@@ -194,8 +201,9 @@ export const EnumConfig = {
     ExpiredBalance: 'ExpiredBalance',
   },
   EducationCreditTransactionDirection: {
-    Credit: 'Credit',
-    Debit: 'Debit',
+    Increased: 'Increased',
+    Decreased: 'Decreased',
+    Unchanged: 'Unchanged',
   },
 
   PaymentPlanMonths: {

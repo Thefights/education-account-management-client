@@ -6,10 +6,12 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { downloadCsvTemplate } from '@/shared/utils/downloadFile'
-import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import {
+  formatCurrencyBasedOnCurrentLanguage,
+  getCurrencySymbolBasedOnCurrentLanguage,
+} from '@/shared/utils/formatCurrencyUtil'
 import {
   CheckCircleOutlined,
-  DollarOutlined,
   DownloadOutlined,
   FileTextOutlined,
   UploadOutlined,
@@ -146,7 +148,9 @@ const ManualTopupResult = ({ result, submittedTopup, onViewExecution, t }) => {
       <Flex vertical gap={20}>
         <Flex align="flex-start" justify="space-between" gap={16} wrap>
           <Flex gap={12} align="flex-start">
-            <CheckCircleOutlined style={{ color: token.colorSuccess, fontSize: 28, marginTop: 2 }} />
+            <CheckCircleOutlined
+              style={{ color: token.colorSuccess, fontSize: 28, marginTop: 2 }}
+            />
             <Flex vertical gap={4}>
               <Typography.Title level={4} style={{ margin: 0 }}>
                 {t('topup.manual_completed')}
@@ -227,6 +231,7 @@ const ManualTopupResult = ({ result, submittedTopup, onViewExecution, t }) => {
 const ManualTopupPage = ({ embedded = false }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const [mode, setMode] = useState('selection')
   const [accountIds, setAccountIds] = useState([])
   const [accountOptionCache, setAccountOptionCache] = useState({})
@@ -267,8 +272,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                 {account.accountNumber} - {account.name}
               </Typography.Text>
               <Typography.Text type="secondary">
-                {t('topup.balance')}:{' '}
-                {formatCurrencyBasedOnCurrentLanguage(account.balance)}
+                {t('topup.balance')}: {formatCurrencyBasedOnCurrentLanguage(account.balance)}
               </Typography.Text>
             </Flex>
           ),
@@ -289,8 +293,7 @@ const ManualTopupPage = ({ embedded = false }) => {
               {account.accountNumber} - {account.name}
             </Typography.Text>
             <Typography.Text type="secondary">
-              {t('topup.balance')}:{' '}
-              {formatCurrencyBasedOnCurrentLanguage(account.balance)}
+              {t('topup.balance')}: {formatCurrencyBasedOnCurrentLanguage(account.balance)}
             </Typography.Text>
           </Flex>
         ),
@@ -369,7 +372,11 @@ const ManualTopupPage = ({ embedded = false }) => {
           {renderTopupField(accountField)}
           {accountIds.length > 0 ? (
             <Typography.Text type="success" strong>
-              {t('topup.selected_count', { count: accountIds.length }, `${accountIds.length} selected`)}
+              {t(
+                'topup.selected_count',
+                { count: accountIds.length },
+                `${accountIds.length} selected`
+              )}
             </Typography.Text>
           ) : (
             <Typography.Text type="secondary">No accounts selected</Typography.Text>
@@ -450,8 +457,8 @@ const ManualTopupPage = ({ embedded = false }) => {
               </Typography.Title>
               <Form.Item label={t('topup.amount')} required>
                 <InputNumber
-                  prefix={<DollarOutlined />}
-                  size="large"
+                  prefix={currencySymbol}
+                  size="medium"
                   min={0.01}
                   precision={2}
                   value={topUpAmount}

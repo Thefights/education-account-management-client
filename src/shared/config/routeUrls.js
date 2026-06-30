@@ -41,7 +41,7 @@ export const routeUrls = {
   PAY: {
     INDEX: '/pay',
   },
-  SWEEP_REPORTS: { INDEX: '/sweep-reports' },
+  ACCOUNT_CREATION_REPORT: { INDEX: '/account-creation-report' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
   LOGS: {
     AUDIT: '/logs/audit',
@@ -76,7 +76,6 @@ export const routeUrls = {
     SCHEDULES: '/topup-schedules',
   },
   PROFILE: { INDEX: '/profile' },
-  TRANSACTION: { INDEX: '/transaction' },
   MY_FAS: {
     APPLY: '/fas/apply',
     MANAGEMENT: '/fas/management',

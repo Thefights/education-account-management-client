@@ -35,10 +35,10 @@ const SystemAdminLayout = () => {
           url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.INDEX),
         },
         {
-          key: 'sweep-reports',
-          label: t('batch_report.title'),
+          key: 'account-creation-report',
+          label: t('navigation.account-creation-report'),
           icon: ScheduleOutlined,
-          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SWEEP_REPORTS.INDEX),
+          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ACCOUNT_CREATION_REPORT.INDEX),
         },
         {
           key: 'logs',

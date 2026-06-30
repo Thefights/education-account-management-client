@@ -16,7 +16,7 @@ export const getMicrosoftRedirectUri = () => {
 export const getMicrosoftLoginRequest = () => ({
   scopes: MICROSOFT_SCOPES,
   redirectUri: getMicrosoftRedirectUri(),
-  prompt: 'login',
+  prompt: 'select_account',
 })
 
 export const getMicrosoftClient = async () => {

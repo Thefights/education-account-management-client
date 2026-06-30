@@ -1,6 +1,5 @@
 import FilterButton from '@/shared/components/buttons/FilterButton'
 import ResetFilterButton from '@/shared/components/buttons/ResetFilterButton'
-import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -10,14 +9,13 @@ const emptyFilters = { search: '', statuses: [] }
 
 const CourseManagementFilterSection = ({ tab, setTab, counts, filters, onFilter, onReset, loading }) => {
   const { t } = useTranslation()
-  const _enum = useEnum()
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
   const fields = [
     {
       key: 'search',
-      title: t('course_management.placeholder.searchbyID'),
-      label: t('course_management.placeholder.searchbyID'),
+      title: t('course_management.label.search_by_id'),
+      label: t('course_management.label.search_by_id'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,
@@ -28,8 +26,7 @@ const CourseManagementFilterSection = ({ tab, setTab, counts, filters, onFilter,
   return (
     <>
       <Space style={{ marginBottom: 16 }}>
-
-         <Button
+        <Button
           type={tab === 3 ? 'primary' : 'default'}
           onClick={() => setTab(3)}
         >

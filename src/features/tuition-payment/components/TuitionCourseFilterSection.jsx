@@ -49,7 +49,6 @@ const TuitionCourseFilterSection = ({
         key: 'search',
         title: 'Search',
         label: 'Search',
-        placeholder: 'By Course ID, Name',
         type: 'search',
         required: false,
         reserveLabelSpace: true,

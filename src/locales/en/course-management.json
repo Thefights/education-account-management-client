@@ -46,10 +46,9 @@
       "per_component": "Per component",
       "standard": "Standard"
     },
-    "label": { "search": "Search by course name, course code, or school name" },
-    "placeholder": { 
-      "search": "Search...",
-      "searchbyID": "Search by course name or ID"  
+    "label": {
+      "search": "Search by course name, course code, or school name",
+      "search_by_id": "Search by course name or ID"
     },
     "confirm": {
       "delete_title": "Delete course?",

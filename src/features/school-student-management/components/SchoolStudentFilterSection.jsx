@@ -17,7 +17,6 @@ const SchoolStudentFilterSection = ({ filters, onFilter, onReset, loading }) => 
       key: 'search',
       title: t('school_student.label.search'),
       label: t('school_student.label.search'),
-      placeholder: t('school_student.placeholder.search'),
       type: 'search',
       required: false,
       reserveLabelSpace: true,

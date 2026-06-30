@@ -38,8 +38,10 @@
     },
     "action": { "publish": "发布", "delete_selected": "删除所选", "save_as_draft": "保存为草稿", "manage_fas": "添加FAS" },
     "fas": { "per_component": "按费用项", "standard": "标准" },
-    "label": { "search": "按课程名称、课程代码或学校名称搜索" },
-    "placeholder": { "search": "搜索..." },
+    "label": {
+      "search": "按课程名称、课程代码或学校名称搜索",
+      "search_by_id": "按课程名称或 ID 搜索"
+    },
     "confirm": {
       "delete_title": "删除课程？",
       "delete_description": "确定要删除 {name} 吗？",

@@ -24,9 +24,6 @@
     },
     "label": {
       "search": "Search staff code, full name, NRIC, or email"
-    },
-    "placeholder": {
-      "search": "Search..."
     }
   }
 }

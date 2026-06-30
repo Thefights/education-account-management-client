@@ -1,0 +1,20 @@
+{
+  "transaction": {
+    "title": "Lịch sử giao dịch",
+    "search": "Tìm theo mã giao dịch hoặc mô tả",
+    "code": "Mã giao dịch",
+    "type": "Loại",
+    "direction": "Ảnh hưởng đến số dư",
+    "increased": "Tăng",
+    "decreased": "Giảm",
+    "unchanged": "Không đổi",
+    "topup": "Nạp tiền",
+    "course_fee": "Thanh toán học phí",
+    "expiredbalance": "Số dư hết hạn",
+    "description": "Mô tả",
+    "amount": "Số tiền",
+    "balance_before": "Số dư trước",
+    "balance_after": "Số dư sau",
+    "created_at": "Ngày tạo"
+  }
+}

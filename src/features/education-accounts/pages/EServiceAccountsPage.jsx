@@ -6,6 +6,7 @@ import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import NricInput from '@/shared/components/textFields/NricInput'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { manualEducationAccountTestNrics } from '@/shared/config/manualEducationAccountTestNrics'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -14,7 +15,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { minLen } from '@/shared/utils/validateUtil'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
-import { Card, Flex, Typography, message } from 'antd'
+import { Alert, Card, Flex, Space, Tag, Typography, message } from 'antd'
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import EServiceAccountsFilterSection from '../components/EServiceAccountsFilterSection'
@@ -34,6 +35,10 @@ const EServiceAccountsPage = () => {
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
   const [openImport, setOpenImport] = useState(false)
+  const [createInitialValues, setCreateInitialValues] = useState(() => ({
+    nric: location.state?.nric || '',
+    reason: location.state?.reason || '',
+  }))
   const [importResult, setImportResult] = useState(null)
   const [selectedIds, setSelectedIds] = useState([])
   const { submit: submitAccounts } = useAxiosSubmit({
@@ -91,6 +96,18 @@ const EServiceAccountsPage = () => {
   )
   const accounts = useFetch(ApiUrls.EDUCATION_ACCOUNT.INDEX, queryParams, [queryParams])
 
+  const openCreateDialog = (initialValues = { nric: '', reason: '' }) => {
+    setCreateInitialValues(initialValues)
+    setOpenCreate(true)
+  }
+
+  const openCreateDialogForNric = (nric) => {
+    openCreateDialog({
+      nric,
+      reason: t('education_account.test_nric_reason'),
+    })
+  }
+
   const handleImport = async (values) => {
     if (!values.file?.name?.toLowerCase().endsWith('.csv')) {
       message.error(t('education_account.csv_only'))
@@ -128,8 +145,30 @@ const EServiceAccountsPage = () => {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t('education_account.management_title')}
         </Typography.Title>
+        <Alert
+          type="info"
+          showIcon
+          message={t('education_account.test_nric_note_title')}
+          description={
+            <Flex vertical gap={8}>
+              <Typography.Text>{t('education_account.test_nric_note_description')}</Typography.Text>
+              <Space size={[8, 8]} wrap>
+                {manualEducationAccountTestNrics.map((nric) => (
+                  <Tag
+                    key={nric}
+                    color="blue"
+                    style={{ cursor: 'pointer', marginInlineEnd: 0 }}
+                    onClick={() => openCreateDialogForNric(nric)}
+                  >
+                    {nric}
+                  </Tag>
+                ))}
+              </Space>
+            </Flex>
+          }
+        />
         <EServiceAccountsToolbarSection
-          onCreate={() => setOpenCreate(true)}
+          onCreate={() => openCreateDialog()}
           onImport={() => setOpenImport(true)}
         />
         <EServiceAccountsFilterSection
@@ -194,7 +233,7 @@ const EServiceAccountsPage = () => {
         }}
         title={t('education_account.create_title')}
         submitLabel={t('button.create')}
-        initialValues={{ nric: location.state?.nric || '', reason: location.state?.reason || '' }}
+        initialValues={createInitialValues}
         fields={createFields}
         destroyOnHidden
         onSubmit={async ({ values, setField }) => {
@@ -202,6 +241,7 @@ const EServiceAccountsPage = () => {
           if (!response?.data) return
           setField('nric', '')
           setField('reason', '')
+          setCreateInitialValues({ nric: '', reason: '' })
           setOpenCreate(false)
           await accounts.fetch()
         }}

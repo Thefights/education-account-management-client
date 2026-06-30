@@ -22,7 +22,7 @@
       "school_id": "学校 ID",
       "school": "学校"
     },
-    "placeholder": {
+    "label": {
       "search": "搜索员工代码、姓名、NRIC 或电子邮件"
     }
   }

@@ -1,0 +1,20 @@
+{
+  "transaction": {
+    "title": "交易记录",
+    "search": "按交易代码或说明搜索",
+    "code": "交易代码",
+    "type": "类型",
+    "direction": "对余额的影响",
+    "increased": "增加",
+    "decreased": "减少",
+    "unchanged": "不变",
+    "topup": "充值",
+    "course_fee": "课程费用支付",
+    "expiredbalance": "过期余额",
+    "description": "说明",
+    "amount": "金额",
+    "balance_before": "变更前余额",
+    "balance_after": "变更后余额",
+    "created_at": "创建时间"
+  }
+}

@@ -35,9 +35,6 @@
     "label": {
       "search": "Tìm theo họ tên, NRIC, email hoặc số điện thoại"
     },
-    "placeholder": {
-      "search": "Tìm kiếm..."
-    },
     "confirm": {
       "delete_title": "Xóa học sinh",
       "delete_description": "Bạn có chắc chắn muốn xóa học sinh {{name}} không?"

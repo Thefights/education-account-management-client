@@ -1,7 +1,7 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BookOutlined, CreditCardOutlined, FileProtectOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons'
+import { BookOutlined, CreditCardOutlined, FileProtectOutlined } from '@ant-design/icons'
 
 import ChatbotWidget from '@/shared/components/ChatbotWidget/ChatbotWidget'
 
