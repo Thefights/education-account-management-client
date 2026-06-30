@@ -100,7 +100,7 @@
   "navigation": {
     "education_accounts": "Education Accounts",
     "manual_account_creation": "Manual Account Creation",
-    "batch_reports": "Account Creation Reports",
+    "account-creation-report": "Account Creation Report",
     "logs": "Logs",
     "audit_logs": "Audit Logs"
   }

@@ -74,7 +74,7 @@ const roleRouteGroups = [
         element: <EducationAccountDetailPage />,
       },
       {
-        path: routeUrls.SWEEP_REPORTS.INDEX,
+        path: routeUrls.ACCOUNT_CREATION_REPORT.INDEX,
         element: <SweepReportsPage />,
       },
       {

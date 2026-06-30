@@ -56,6 +56,10 @@ const RangePickerRenderField = ({ field, values, setField }, ref) => {
       : valueType === 'language-datetime'
         ? getDateHourFormatBasedOnCurrentLanguage()
         : undefined
+  const isHourOnlyPicker =
+    typeof showTime === 'object' &&
+    showTime.showMinute === false &&
+    showTime.showSecond === false
 
   const validate = (nextFrom = fromValue, nextTo = toValue) => {
     const fromDate = nextFrom && dayjs(nextFrom)
@@ -105,6 +109,7 @@ const RangePickerRenderField = ({ field, values, setField }, ref) => {
           allowClear={field.allowClear ?? true}
           showTime={showTime}
           format={format}
+          classNames={isHourOnlyPicker ? { popup: { root: 'hour-only-picker-popup' } } : undefined}
           suffixIcon={field.suffixIcon || <CalendarOutlined />}
           value={resolveRangeValue({ fromValue, toValue, parseValue })}
           placeholder={field.placeholder}

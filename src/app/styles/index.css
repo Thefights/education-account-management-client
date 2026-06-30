@@ -182,6 +182,22 @@ a {
   border-color: var(--app-primary) !important;
 }
 
+.hour-only-picker-popup .ant-picker-time-panel .ant-picker-header-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  font-size: 0;
+  line-height: 1;
+}
+
+.hour-only-picker-popup .ant-picker-time-panel .ant-picker-header-view::after {
+  content: 'Hour';
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
