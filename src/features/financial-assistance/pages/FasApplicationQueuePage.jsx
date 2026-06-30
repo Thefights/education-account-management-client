@@ -104,7 +104,7 @@ const getBackendSort = (sort) => {
 const formatCurrency = (value) =>
   value == null || value === ''
     ? '-'
-    : `S$${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+    : `SS$${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
 
 const formatSubsidy = (tier) => {
   const hasComponentValues = tier.courseValue != null || tier.miscValue != null

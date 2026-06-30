@@ -372,7 +372,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 min={isAge ? TOPUP_ELIGIBLE_AGE_MIN : 0}
                 max={isAge ? TOPUP_ELIGIBLE_AGE_MAX : undefined}
                 precision={isAge ? 0 : 2}
-                prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
+                prefix={condition.field === EnumConfig.TopupConditionField.Balance ? 'S$' : undefined}
                 suffix={
                   condition.field === EnumConfig.TopupConditionField.Age
                     ? t('topup_form.years')
@@ -400,7 +400,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                 min={isAge ? TOPUP_ELIGIBLE_AGE_MIN : 0}
                 max={isAge ? TOPUP_ELIGIBLE_AGE_MAX : undefined}
                 precision={isAge ? 0 : 2}
-                prefix={condition.field === EnumConfig.TopupConditionField.Balance ? '$' : undefined}
+                prefix={condition.field === EnumConfig.TopupConditionField.Balance ? 'S$' : undefined}
                 suffix={
                   condition.field === EnumConfig.TopupConditionField.Age
                     ? t('topup_form.years')

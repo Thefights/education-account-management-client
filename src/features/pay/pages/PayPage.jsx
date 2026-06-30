@@ -2,7 +2,7 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { BankOutlined } from '@ant-design/icons'
-import { Button, Card, Divider, Flex, Form, Grid, Input, InputNumber, Select, Skeleton, Typography, theme } from 'antd'
+import { notification , Button, Card, Divider, Flex, Form, Grid, Input, InputNumber, Select, Skeleton, Typography, theme } from 'antd'
 import { QrcodeOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import CourseListSection from '../components/CourseListSection'
@@ -32,10 +32,21 @@ const PayPage = () => {
     return initial;
   });
 
+
+  const openNotification = (message, succeeded) => {
+    notification[succeeded ? 'success' : 'error']({
+      message,
+      description: succeeded
+        ? 'Your payment has been processed successfully.'
+        : 'Your payment could not be processed.',
+      placement: 'topRight',
+    });
+  };
+
+
   const getPayToday = (record) => {
     const net = Number(record.netPayable || 0);
     const months = record.isInstallment ? record.totalInstallments :  Number(plans[record.courseCode]);
-    if (!record.isInstallment) return net;
     return Math.ceil((net / months) * 100) / 100;
   };
 
@@ -105,15 +116,19 @@ const PayPage = () => {
           `CreditBalanceApplied`,
           balanceInput?? 0
         );
-    const response = await pay.submit({
-      overrideData: formData,
-    })
+
+    if(exceedsBalance) openNotification("Exceed Balance", false);
+    else {
+      const response = await pay.submit({
+        overrideData: formData,
+      })
 
 
-    const stripeUrl = response?.data?.link;
+      const stripeUrl = response?.data?.link;
 
-    if (stripeUrl) {
-      window.location.href = stripeUrl;
+      if (stripeUrl) {
+        window.location.href = stripeUrl;
+      }
     }
   }
 
@@ -154,7 +169,7 @@ const PayPage = () => {
               Available balance
             </Typography.Text>
             <Typography.Text strong style={{ fontSize: 13, color: token.colorSuccess }}>
-              {tuitionSummary.loading ? '...' : `$${fmt(availableBalance)}`}
+              {tuitionSummary.loading ? '...' : `S$${fmt(availableBalance)}`}
             </Typography.Text>
           </Flex>
 
@@ -165,7 +180,7 @@ const PayPage = () => {
             min={0}
             max={maxUsable}
             precision={2}
-            prefix="$"
+            prefix="S$"
             value={balanceInput}
             status={exceedsBalance ? 'error' : undefined}
             onChange={(val) => setBalanceInput(val)}
@@ -173,11 +188,11 @@ const PayPage = () => {
 
           {exceedsBalance ? (
             <Typography.Text type="danger" style={{ fontSize: 11 }}>
-              Exceeds available balance of ${fmt(availableBalance)}
+              Exceeds available balance of S${fmt(availableBalance)}
             </Typography.Text>
           ) : (
             <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-              Enter amount to use from balance (max ${fmt(maxUsable)}). Leave blank to pay fully online.
+              Enter amount to use from balance (max S${fmt(maxUsable)}). Leave blank to pay fully online.
             </Typography.Text>
           )}
 
@@ -194,7 +209,7 @@ const PayPage = () => {
                   Online payment (PayNow / bank transfer)
                 </Typography.Text>
                 <Typography.Text strong style={{ fontSize: 16, color: token.colorInfo }}>
-                  ${fmt(onlinePayment)}
+                  S${fmt(onlinePayment)}
                 </Typography.Text>
               </div>
               <BankOutlined style={{ fontSize: 22, color: token.colorTextSecondary }} />
@@ -219,20 +234,20 @@ const PayPage = () => {
 
           <Flex justify="space-between">
             <Typography.Text type="secondary">Total due today</Typography.Text>
-            <Typography.Text strong>${fmt(totalDueToday)}</Typography.Text>
+            <Typography.Text strong>S${fmt(totalDueToday)}</Typography.Text>
           </Flex>
 
           <Flex justify="space-between">
             <Typography.Text type="secondary">From balance</Typography.Text>
             <Typography.Text strong style={{ color: token.colorSuccess }}>
-              {balanceUsed > 0 ? `-$${fmt(balanceUsed)}` : '$0.00'}
+              {balanceUsed > 0 ? `-S$${fmt(balanceUsed)}` : 'S$0.00'}
             </Typography.Text>
           </Flex>
 
           <Flex justify="space-between">
             <Typography.Text type="secondary">Online payment</Typography.Text>
             <Typography.Text strong style={{ color: token.colorInfo }}>
-              ${fmt(onlinePayment)}
+              S${fmt(onlinePayment)}
             </Typography.Text>
           </Flex>
 
@@ -241,7 +256,7 @@ const PayPage = () => {
           <Flex justify="space-between">
             <Typography.Text strong style={{ fontSize: 14 }}>Charge today</Typography.Text>
             <Typography.Text strong style={{ fontSize: 14, color: token.colorPrimary }}>
-              ${fmt(totalDueToday)}
+              S${fmt(totalDueToday)}
             </Typography.Text>
           </Flex>
 

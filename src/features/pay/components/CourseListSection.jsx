@@ -32,24 +32,24 @@ const NormalExpandedRow = ({ record, token }) => (
   <Flex vertical gap={8} style={{ padding: "4px 0" }}>
     <Flex justify="space-between">
       <Typography.Text type="secondary">Course fee</Typography.Text>
-      <Typography.Text strong>${fmt(record.courseFee)}</Typography.Text>
+      <Typography.Text strong>S${fmt(record.courseFee)}</Typography.Text>
     </Flex>
 
     <Flex justify="space-between">
       <Typography.Text type="secondary">Misc fee</Typography.Text>
-      <Typography.Text strong>${fmt(record.miscFee)}</Typography.Text>
+      <Typography.Text strong>S${fmt(record.miscFee)}</Typography.Text>
     </Flex>
 
     <Flex justify="space-between">
       <Typography.Text type="secondary">Tax (GST 9%)</Typography.Text>
-      <Typography.Text strong>${fmt(record.gstAmount)}</Typography.Text>
+      <Typography.Text strong>S${fmt(record.gstAmount)}</Typography.Text>
     </Flex>
 
     <Divider style={{ margin: "4px 0" }} />
 
     <Flex justify="space-between">
       <Typography.Text strong>Gross amount</Typography.Text>
-      <Typography.Text strong>${fmt(record.grossAmount)}</Typography.Text>
+      <Typography.Text strong>S${fmt(record.grossAmount)}</Typography.Text>
     </Flex>
 
     <Flex justify="space-between">
@@ -66,7 +66,7 @@ const NormalExpandedRow = ({ record, token }) => (
       </Flex>
       <Typography.Text strong style={{ color: token.colorSuccess }}>
         {Number(record.fasSubsidyAmount || 0) > 0
-          ? `-$${fmt(record.fasSubsidyAmount)}`
+          ? `-S$${fmt(record.fasSubsidyAmount)}`
           : "—"}
       </Typography.Text>
     </Flex>
@@ -221,7 +221,7 @@ const CourseListSection = ({
       align: "right",
       render: (value) => (
         <Typography.Text strong style={{ color: token.colorPrimary }}>
-          ${fmt(value)}
+          S${fmt(value)}
         </Typography.Text>
       ),
     },
@@ -285,7 +285,7 @@ const CourseListSection = ({
                   color: isOverdue ? token.colorError : undefined,
                 }}
               >
-                ${fmt(remaining)}
+                S${fmt(remaining)}
               </Typography.Text>
               <Typography.Text type="secondary" style={{ fontSize: 11 }}>
                 remaining
@@ -299,7 +299,7 @@ const CourseListSection = ({
         return (
           <Flex vertical align="flex-end">
             <Typography.Text strong style={{ fontSize: 14 }}>
-              ${fmt(payToday)}
+              S${fmt(payToday)}
             </Typography.Text>
             {months > 1 && (
               <Typography.Text type="secondary" style={{ fontSize: 11 }}>
@@ -357,7 +357,7 @@ const CourseListSection = ({
       >
         <Flex justify="space-between" style={{ marginBottom: 6 }}>
           <Typography.Text type="secondary">Total gross amount</Typography.Text>
-          <Typography.Text strong>${fmt(totalGross)}</Typography.Text>
+          <Typography.Text strong>S${fmt(totalGross)}</Typography.Text>
         </Flex>
 
         <Flex justify="space-between" style={{ marginBottom: 6 }}>
@@ -365,13 +365,13 @@ const CourseListSection = ({
             Total FAS deduction
           </Typography.Text>
           <Typography.Text strong style={{ color: token.colorSuccess }}>
-            {totalFasDeduction > 0 ? `-$${fmt(totalFasDeduction)}` : "—"}
+            {totalFasDeduction > 0 ? `-S$${fmt(totalFasDeduction)}` : "—"}
           </Typography.Text>
         </Flex>
 
         <Flex justify="space-between" style={{ marginBottom: 6 }}>
           <Typography.Text type="secondary">Total net payable</Typography.Text>
-          <Typography.Text strong>${fmt(totalNetPayable)}</Typography.Text>
+          <Typography.Text strong>S${fmt(totalNetPayable)}</Typography.Text>
         </Flex>
 
         <Divider style={{ margin: "8px 0" }} />
@@ -384,7 +384,7 @@ const CourseListSection = ({
             level={5}
             style={{ margin: 0, color: token.colorPrimary }}
           >
-            ${fmt(totalDueToday)}
+            S${fmt(totalDueToday)}
           </Typography.Title>
         </Flex>
       </div>

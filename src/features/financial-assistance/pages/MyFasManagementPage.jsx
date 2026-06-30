@@ -4,7 +4,6 @@ import { FAS_APPLICATION_STATUS } from '@/features/financial-assistance/data/fas
 import {
   normalizeApiApplicationDetail,
   normalizeApiApplicationPage,
-  toApiApplicationStatus,
 } from '@/features/financial-assistance/api/accountHolderFasApi'
 import '@/features/financial-assistance/styles/financialAssistance.css'
 import {
@@ -41,12 +40,45 @@ const getApiErrorMessage = (error, t) => {
 
 const getResponseData = (response) => response?.data
 
+const FAS_APPLICATION_ACTIVITY_TAB = {
+  Inactive: 'inactive',
+  Active: 'active',
+}
+
+const inactiveApplicationStatuses = new Set([
+  FAS_APPLICATION_STATUS.Draft,
+  FAS_APPLICATION_STATUS.Pending,
+  FAS_APPLICATION_STATUS.Expired,
+  FAS_APPLICATION_STATUS.Rejected,
+  FAS_APPLICATION_STATUS.Withdrawn,
+])
+
+const activeApplicationStatuses = new Set([FAS_APPLICATION_STATUS.Approved])
+
+const applicationActivityTabOptions = [
+  {
+    value: FAS_APPLICATION_ACTIVITY_TAB.Inactive,
+    label: 'Inactive',
+    statuses: inactiveApplicationStatuses,
+  },
+  {
+    value: FAS_APPLICATION_ACTIVITY_TAB.Active,
+    label: 'Active',
+    statuses: activeApplicationStatuses,
+  },
+]
+
+const isApplicationInActivityTab = (application, tab) => {
+  const tabConfig = applicationActivityTabOptions.find((item) => item.value === tab)
+  return tabConfig?.statuses.has(application.displayStatus) ?? false
+}
+
 const MyFasManagementPage = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const confirm = useConfirm()
   const [filters, setFilters] = useState(defaultFasApplicationFilters)
-  const [activeStatus, setActiveStatus] = useState(myFasApplicationStatusOptions[0].value)
+  const [activeTab, setActiveTab] = useState(FAS_APPLICATION_ACTIVITY_TAB.Inactive)
   const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
   const [sortChoice, setSortChoice] = useState('newest')
   const [page, setPage] = useState(1)
@@ -62,41 +94,35 @@ const MyFasManagementPage = () => {
   const withdrawSubmit = useAxiosSubmit({
     method: 'POST',
   })
+  const deleteDraftSubmit = useAxiosSubmit({
+    method: 'DELETE',
+  })
 
-  const apiStatus = activeStatus === 'expired' ? FAS_APPLICATION_STATUS.Approved : activeStatus
   const apiQueryParams = useMemo(
     () => ({
-      Page: page,
-      PageSize: pageSize,
+      Page: 1,
+      PageSize: 100,
       Sort: `${sort.key === 'submittedAt' ? 'createdAt' : sort.key} ${sort.direction}`,
-      Status: toApiApplicationStatus(apiStatus),
       Search: filters.search || undefined,
     }),
-    [apiStatus, filters.search, page, pageSize, sort.direction, sort.key]
+    [filters.search, sort.direction, sort.key]
   )
   const apiApplicationsQuery = useFetch(
     ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
     apiQueryParams,
     [apiQueryParams]
   )
-  const apiAllApplicationsQuery = useFetch(
-    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
-    { Page: 1, PageSize: 100, Sort: 'createdAt desc' },
-    []
-  )
   const apiApplicationPage = useMemo(
     () => normalizeApiApplicationPage(apiApplicationsQuery.data),
     [apiApplicationsQuery.data]
   )
-  const apiAllApplicationPage = useMemo(
-    () => normalizeApiApplicationPage(apiAllApplicationsQuery.data),
-    [apiAllApplicationsQuery.data]
-  )
-  const statusSourceRows = apiAllApplicationPage.collection
-  const statusCounts = useMemo(
+  const statusSourceRows = apiApplicationPage.collection
+  const activityCounts = useMemo(
     () =>
-      statusSourceRows.reduce((acc, application) => {
-        acc[application.displayStatus] = (acc[application.displayStatus] || 0) + 1
+      applicationActivityTabOptions.reduce((acc, tab) => {
+        acc[tab.value] = statusSourceRows.filter((application) =>
+          tab.statuses.has(application.displayStatus)
+        ).length
         return acc
       }, {}),
     [statusSourceRows]
@@ -104,36 +130,25 @@ const MyFasManagementPage = () => {
 
   const apiVisibleRows = useMemo(() => {
     const query = filters.search.trim().toLowerCase()
-    const sourceRows =
-      activeStatus === FAS_APPLICATION_STATUS.Approved || activeStatus === 'expired'
-        ? apiAllApplicationPage.collection
-        : apiApplicationPage.collection
+    const selectedStatus =
+      activeTab === FAS_APPLICATION_ACTIVITY_TAB.Inactive ? filters.status || 'all' : 'all'
 
-    return sourceRows.filter((application) => {
+    return apiApplicationPage.collection.filter((application) => {
       const matchesQuery =
         !query ||
         application.id.toLowerCase().includes(query) ||
         application.schemeName.toLowerCase().includes(query)
-      const matchesStatus = application.displayStatus === activeStatus
-      return matchesQuery && matchesStatus
+      const matchesTab = isApplicationInActivityTab(application, activeTab)
+      const matchesStatus =
+        selectedStatus === 'all' || application.displayStatus === selectedStatus
+      return matchesQuery && matchesTab && matchesStatus
     })
-  }, [
-    activeStatus,
-    apiAllApplicationPage.collection,
-    apiApplicationPage.collection,
-    filters.search,
-  ])
+  }, [activeTab, apiApplicationPage.collection, filters.search, filters.status])
 
   const apiTableData = {
-    collection: apiVisibleRows,
-    totalCount:
-      filters.search || activeStatus === 'expired' || activeStatus === FAS_APPLICATION_STATUS.Approved
-        ? apiVisibleRows.length
-        : apiApplicationPage.totalCount,
-    totalPage:
-      filters.search || activeStatus === 'expired' || activeStatus === FAS_APPLICATION_STATUS.Approved
-        ? Math.max(1, Math.ceil(apiVisibleRows.length / pageSize))
-        : apiApplicationPage.totalPage,
+    collection: apiVisibleRows.slice((page - 1) * pageSize, page * pageSize),
+    totalCount: apiVisibleRows.length,
+    totalPage: Math.max(1, Math.ceil(apiVisibleRows.length / pageSize)),
   }
   const resolvedTableData = apiTableData
   const viewApplication = apiViewApplication
@@ -175,6 +190,47 @@ const MyFasManagementPage = () => {
     }
   }
 
+  const editDraft = (application) => {
+    if (!application?.apiId) {
+      message.error(t('financial_assistance.message.application_id_missing'))
+      return
+    }
+
+    navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
+      state: { draftApplicationId: application.apiId },
+    })
+  }
+
+  const deleteDraft = async (application) => {
+    const apiId = application?.apiId
+    if (apiId == null) {
+      message.error('Unable to delete this draft because its API id is missing.')
+      return
+    }
+
+    const isConfirmed = await confirm({
+      title: `Delete ${application.schemeName || application.id}?`,
+      description: 'This removes the draft application. You can still apply for this scheme again.',
+      confirmText: 'Delete',
+      confirmColor: 'error',
+    })
+
+    if (!isConfirmed) return
+
+    try {
+      const response = await deleteDraftSubmit.submit({
+        overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DELETE_DRAFT(apiId),
+      })
+      if (response) {
+        message.success('Draft application deleted successfully.')
+        setPage(1)
+        apiApplicationsQuery.fetch()
+      }
+    } catch {
+      // Errors handled globally by axios interceptor
+    }
+  }
+
   const withdraw = async (application) => {
     const apiId = application?.apiId
     if (apiId == null) {
@@ -195,8 +251,7 @@ const MyFasManagementPage = () => {
           overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(apiId),
         })
         setPage(1)
-        apiApplicationsQuery.reload()
-        apiAllApplicationsQuery.reload()
+        apiApplicationsQuery.fetch()
       } catch {
         // Errors handled globally by axios interceptor
       }
@@ -227,22 +282,26 @@ const MyFasManagementPage = () => {
       <Card styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}>
         <Flex vertical gap={16}>
           <Tabs
-            activeKey={activeStatus}
-            onChange={(status) => {
-              setActiveStatus(status)
+            activeKey={activeTab}
+            onChange={(tab) => {
+              setActiveTab(tab)
+              setFilters((currentFilters) => ({ ...currentFilters, status: 'all' }))
               setPage(1)
             }}
-            items={myFasApplicationStatusOptions.map((status) => ({
-              key: status.value,
-              label: `${status.label} (${statusCounts[status.value] || 0})`,
+            items={applicationActivityTabOptions.map((tab) => ({
+              key: tab.value,
+              label: `${tab.label} (${activityCounts[tab.value] || 0})`,
             }))}
           />
           <FasApplicationFilterSection
+            key={activeTab}
             filters={filters}
-            loading={false}
+            loading={apiApplicationsQuery.loading}
             searchTitle="Search by FAS or app no."
             dateTitle="Submitted date"
-            showStatus={false}
+            showStatus={activeTab === FAS_APPLICATION_ACTIVITY_TAB.Inactive}
+            statusMode="single"
+            statusOptions={myFasApplicationStatusOptions}
             showDateRange={false}
             onFilter={handleFilter}
             onReset={() => handleFilter(defaultFasApplicationFilters)}
@@ -262,12 +321,18 @@ const MyFasManagementPage = () => {
           </Flex>
           <MyFasApplicationTableSection
             applications={resolvedTableData.collection}
-            loading={apiApplicationsQuery.loading || apiAllApplicationsQuery.loading || reapplyDraftSubmit.loading || withdrawSubmit.loading}
+            loading={
+              apiApplicationsQuery.loading ||
+              reapplyDraftSubmit.loading ||
+              withdrawSubmit.loading ||
+              deleteDraftSubmit.loading
+            }
             sort={sort}
             setSort={setSort}
-            activeStatus={activeStatus}
             onWithdraw={withdraw}
             onView={viewApplicationDetail}
+            onEditDraft={editDraft}
+            onDeleteDraft={deleteDraft}
             onApplyAgain={applyAgain}
           />
           <GenericTablePagination

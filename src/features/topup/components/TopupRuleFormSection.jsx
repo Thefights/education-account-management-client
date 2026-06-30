@@ -67,7 +67,7 @@ const TopupRuleFormSection = ({
               precision={2}
               value={value}
               onChange={onChange}
-              prefix="$"
+              prefix="S$"
               placeholder="e.g. 100.00"
               style={{ width: '100%' }}
             />
