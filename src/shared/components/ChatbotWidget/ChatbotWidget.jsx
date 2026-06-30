@@ -14,7 +14,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('sfs_chatbot_history')
+    const saved = sessionStorage.getItem('sfs_chatbot_history')
     if (saved) {
       try {
         return JSON.parse(saved)
@@ -31,7 +31,7 @@ const ChatbotWidget = () => {
   })
 
   useEffect(() => {
-    localStorage.setItem('sfs_chatbot_history', JSON.stringify(messages))
+    sessionStorage.setItem('sfs_chatbot_history', JSON.stringify(messages))
   }, [messages])
   const [inputValue, setInputValue] = useState('')
   const [isAiEnabled, setIsAiEnabled] = useState(true)
