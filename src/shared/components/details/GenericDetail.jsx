@@ -33,6 +33,7 @@ const GenericDetail = ({
   bordered = true,
   cardProps,
   descriptionsProps,
+  renderAfter,
 }) => {
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
@@ -129,7 +130,8 @@ const GenericDetail = ({
     setSubmitted(true)
     const missingField = hasRequiredMissing(editableFields)
     const valid = validateAll()
-    if (missingField || !valid) return
+    const customValid = edit?.validate?.({ values, setField }) ?? true
+    if (missingField || !valid || !customValid) return
 
     setSaving(true)
     try {
@@ -188,22 +190,25 @@ const GenericDetail = ({
         {loading && !data ? (
           <Skeleton active />
         ) : (
-          <Descriptions
-            bordered={bordered}
-            column={column}
-            {...descriptionsProps}
-            className={descriptionsClassName}
-          >
-            {visibleFields.map((field) => (
-              <Descriptions.Item
-                key={field.key || field.label}
-                label={field.label ?? field.title}
-                span={field.span}
-              >
-                {renderDetailCellValue(field)}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
+          <>
+            <Descriptions
+              bordered={bordered}
+              column={column}
+              {...descriptionsProps}
+              className={descriptionsClassName}
+            >
+              {visibleFields.map((field) => (
+                <Descriptions.Item
+                  key={field.key || field.label}
+                  label={field.label ?? field.title}
+                  span={field.span}
+                >
+                  {renderDetailCellValue(field)}
+                </Descriptions.Item>
+              ))}
+            </Descriptions>
+            {renderAfter?.({ editing, values, setField, submitted, data })}
+          </>
         )}
       </Flex>
     </Card>

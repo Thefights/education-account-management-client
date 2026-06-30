@@ -110,7 +110,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_EDIT(),
-        element: <TopupConfigurationFormPage type="system" mode="edit" />,
+        element: <TopupConfigurationDetailPage type="system" />,
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_DETAIL(),
