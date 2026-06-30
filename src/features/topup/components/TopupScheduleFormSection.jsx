@@ -86,7 +86,7 @@ const TopupScheduleFormSection = ({
         type: 'input-number',
         minValue: 0.01,
         placeholder: 'e.g. 100.00',
-        props: { precision: 2, prefix: '$' },
+        props: { precision: 2, prefix: 'S$' },
       },
       {
         key: 'frequency',

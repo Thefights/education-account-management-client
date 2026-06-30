@@ -351,7 +351,7 @@ const MyFasApplyPage = () => {
                 <InputNumber
                   min={0}
                   value={profile.income}
-                  prefix="S$"
+                  prefix="SS$"
                   placeholder="e.g. 4000.00"
                   style={{ width: '100%' }}
                   onChange={(value) =>
@@ -395,7 +395,7 @@ const MyFasApplyPage = () => {
 
               <div className="fas-pci-pill">
                 Per-capita income (PCI) ={' '}
-                <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
+                <strong>{pci != null ? `SS$${pci.toLocaleString()}` : '-'}</strong>
               </div>
 
               <Button
@@ -981,11 +981,11 @@ const HouseholdInfoFields = ({ fieldSet, profile, pci, onProfileChange }) => {
         </div>
 
         <div>
-          <label className="fas-field-label">Gross household income (S$/month)</label>
+          <label className="fas-field-label">Gross household income (SS$/month)</label>
           <InputNumber
             min={0}
             value={profile.income}
-            prefix="S$"
+            prefix="SS$"
             placeholder="e.g. 4000.00"
             style={{ width: '100%' }}
             onChange={(value) =>
@@ -1011,7 +1011,7 @@ const HouseholdInfoFields = ({ fieldSet, profile, pci, onProfileChange }) => {
       {fieldSet.has('pci') && (
         <div className="fas-pci-box">
           <span>Per-capita income (PCI)</span>
-          <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
+          <strong>{pci != null ? `SS$${pci.toLocaleString()}` : '-'}</strong>
           <small>Income ÷ household members</small>
         </div>
       )}
@@ -1048,7 +1048,7 @@ const ApplicationSummaryRows = ({ profile, pci }) => {
       </div>
       <div className="fas-summary-highlight">
         <span>Calculated PCI</span>
-        <strong>{pci != null ? `S$${pci.toLocaleString()}` : '-'}</strong>
+        <strong>{pci != null ? `SS$${pci.toLocaleString()}` : '-'}</strong>
       </div>
     </>
   )

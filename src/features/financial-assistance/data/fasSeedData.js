@@ -402,7 +402,7 @@ const slug = (value) =>
   String(value || 'template')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
+    .replace(/^_+|_+S$/g, '')
 
 const schemeDocs = (name) => {
   const low = name.toLowerCase()
