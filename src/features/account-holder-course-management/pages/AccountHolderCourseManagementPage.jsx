@@ -29,11 +29,7 @@ const AccountHolderCourseManagementPage = () => {
     [tab, sort, filters, page, pageSize]
   )
 
-  console.log(ApiUrls.ACCOUNT_HOLDER.COURSES);
-
   const courses = useFetch(ApiUrls.ACCOUNT_HOLDER.COURSES, queryParams, [queryParams])
-
-  console.log(courses.data);
 
   const inUpcoming = useFetch(
     ApiUrls.ACCOUNT_HOLDER.COURSES,

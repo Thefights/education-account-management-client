@@ -189,14 +189,7 @@ export default function useFieldRenderer(
       }
 
       return fields.some((f) => {
-        /*
 
-				// uncomment to debug missing required fields
-
-				const error = checkField(f, getObjectValueFromStringPath(values, f.key))
-				if (error) console.log(f, getObjectValueFromStringPath(values, f.key))
-				
-				*/
         return checkField(f, getObjectValueFromStringPath(values, f.key))
       })
     },
