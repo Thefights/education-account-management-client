@@ -333,6 +333,7 @@ export const MOCK_ACCOUNT_HOLDER = {
   parentNationality: 'Singapore Citizen',
   monthlyHouseholdIncome: 2400,
   householdMembers: 5,
+
 }
 
 export const MOCK_SCHOOL_ADMIN = {

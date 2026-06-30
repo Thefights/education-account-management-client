@@ -1,4 +1,3 @@
-import ActionMenu from '@/shared/components/generals/ActionMenu'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { routeUrls } from '@/shared/config/routeUrls'
@@ -16,7 +15,6 @@ const SchoolStudentTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -102,14 +100,6 @@ const SchoolStudentTableSection = ({
       width: 180,
       sortable: true,
       render: formatDatetimeStringBasedOnCurrentLanguage,
-    },
-    {
-      key: 'actions',
-      title: '',
-      width: 70,
-      render: (_, row) => (
-        <ActionMenu actions={[{ title: t('button.delete'), onClick: () => onDelete?.(row) }]} />
-      ),
     },
   ]
 

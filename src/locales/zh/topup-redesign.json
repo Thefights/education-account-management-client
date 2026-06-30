@@ -95,7 +95,12 @@
     "preview_all_requirement": "必须满足所有必需条件",
     "preview_any_requirement": "满足任一必需条件即可",
     "preview_all_scenario": "此场景要求所有条件都满足",
-    "preview_any_scenario": "此场景满足任一条件即可"
+    "preview_any_scenario": "此场景满足任一条件即可",
+    "age_range_error": "年龄必须在 {min} 到 {max} 之间。",
+    "age_whole_number_error": "年龄必须是整数。",
+    "condition_warnings": "条件警告",
+    "warning_duplicate_condition": "规则 {number} 与同一组中的另一个条件重复。",
+    "warning_broad_age_rule": "规则 {number} 覆盖了完整的合格年龄范围。如果该范围过宽，请考虑添加其他条件。"
   },
   "button": {
     "back": "返回"

@@ -1,3 +1,4 @@
+import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultTopupStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
@@ -7,6 +8,7 @@ import {
   formatDateBasedOnCurrentLanguage,
   formatDatetimeStringBasedOnCurrentLanguage,
 } from '@/shared/utils/formatDateUtil'
+import { EditOutlined } from '@ant-design/icons'
 import { Space, Typography } from 'antd'
 
 const TopupScheduleTableSection = ({
@@ -17,6 +19,7 @@ const TopupScheduleTableSection = ({
   selectedIds,
   setSelectedIds,
   onDetail,
+  onEdit,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -71,6 +74,14 @@ const TopupScheduleTableSection = ({
       width: 190,
       sortable: true,
       render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 70,
+      render: (_, row) => (
+        <ActionMenu actions={[{ title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit?.(row) }]} />
+      ),
     },
   ]
 

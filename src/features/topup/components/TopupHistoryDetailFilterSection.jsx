@@ -18,11 +18,11 @@ const TopupHistoryDetailFilterSection = ({ filters, loading, onFilter, onReset }
   const fields = [
     {
       key: 'accountNumber',
-      title: t('topup.account_number'),
-      label: t('topup.account_number'),
+      title: t('topup.search_account_number'),
+      label: t('topup.search_account_number'),
       type: 'search',
       required: false,
-      placeholder: 'e.g. EA-2026-0001',
+      placeholder: 'Search...',
       reserveLabelSpace: true,
       colProps: { xs: 24, md: 12 },
     },

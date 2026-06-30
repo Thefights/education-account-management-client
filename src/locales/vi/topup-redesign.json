@@ -95,7 +95,12 @@
     "preview_all_requirement": "Phải thỏa tất cả điều kiện bắt buộc",
     "preview_any_requirement": "Chỉ cần thỏa một điều kiện bắt buộc",
     "preview_all_scenario": "Tình huống yêu cầu mọi điều kiện đều đúng",
-    "preview_any_scenario": "Tình huống chỉ cần một điều kiện đúng"
+    "preview_any_scenario": "Tình huống chỉ cần một điều kiện đúng",
+    "age_range_error": "Tuổi phải từ {min} đến {max}.",
+    "age_whole_number_error": "Tuổi phải là số nguyên.",
+    "condition_warnings": "Cảnh báo điều kiện",
+    "warning_duplicate_condition": "Quy tắc {number} bị trùng với một điều kiện khác trong cùng nhóm.",
+    "warning_broad_age_rule": "Quy tắc {number} bao phủ toàn bộ độ tuổi đủ điều kiện. Hãy thêm điều kiện khác nếu phạm vi này quá rộng."
   },
   "button": {
     "back": "Quay lại"

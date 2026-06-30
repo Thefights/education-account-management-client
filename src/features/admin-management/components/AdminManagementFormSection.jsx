@@ -4,7 +4,7 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { isEmail, maxLen } from '@/shared/utils/validateUtil'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const initialValues = {
   role: '',
@@ -133,6 +133,17 @@ const AdminManagementFormSection = ({
   const handleValuesChange = useCallback((values) => {
     setCurrentRole((prev) => (values.role !== prev ? values.role : prev))
   }, [])
+
+  useEffect(() => {
+    if (openUpdate) {
+      setCurrentRole(updateInitialValues.role)
+      return
+    }
+
+    if (openCreate) {
+      setCurrentRole(initialValues.role)
+    }
+  }, [openCreate, openUpdate, updateInitialValues.role])
 
   return (
     <>
