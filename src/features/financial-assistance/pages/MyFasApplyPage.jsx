@@ -38,9 +38,10 @@ import {
   UpOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { Button, Input, InputNumber, Select, Upload, message } from 'antd'
+import { Button, Input, InputNumber, Select, Upload, message, Tabs } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import FasFormAiChat from '@/features/financial-assistance/components/FasFormAiChat'
 
 const nationalityOptions = ['Singapore Citizen', 'Permanent Resident', 'Other'].map((value) => ({
   value,
@@ -841,90 +842,129 @@ const ApplyForm = ({
             </div>
 
             <aside className="fas-apply-summary">
-              <div className="fas-summary-card">
-                <div className="fas-section-label">Application summary</div>
-                <div className="fas-summary-title">{scheme.name}</div>
-                <ApplicationSummaryRows profile={profile} pci={pci} />
-                <div className="fas-summary-row">
-                  <span>Estimated tier</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <strong>
-                      {matchingTier?.name ||
-                        (scheme.tiers?.length ? 'No matching tier' : 'To be confirmed')}
-                    </strong>
-                    {matchingTier && (
-                      <div style={{ fontSize: '12px', color: 'var(--fas-gray-dark)', marginTop: '2px' }}>
-                        ({describeTierSubsidy(scheme, matchingTier)})
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="fas-summary-row">
-                  <span>FAS duration</span>
-                  <strong>{scheme.validityMonths || 12} months</strong>
-                </div>
-                {scheme.additionalQuestions?.length > 0 && (
-                  <div className="fas-summary-row">
-                    <span>Questions answered</span>
-                    <strong>
-                      {
-                        scheme.additionalQuestions.filter(
-                          (q) => additionalAnswers[q.id] && additionalAnswers[q.id].trim()
-                        ).length
-                      }
-                      /{scheme.additionalQuestions.length}
-                    </strong>
-                  </div>
-                )}
-                <div className="fas-summary-row">
-                  <span>Documents</span>
-                  <strong>
-                    {attachedCount}/{totalDocuments}
-                  </strong>
-                </div>
-                {blockingApplication && (
-                  <p style={{ color: 'var(--fas-red)', marginTop: 0 }}>
-                    You already have a pending or approved application for this scheme
-                    {blockingApplication.id ? ` (${blockingApplication.id})` : ''}.
-                  </p>
-                )}
-                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                  <Button
-                    type="primary"
-                    block
-                    size="large"
-                    disabled={!isReadyToSubmit}
-                    loading={submitting || submitApplication.loading}
-                    onClick={() => submit(false)}
-                  >
-                    Submit application
-                  </Button>
-                  {!isReadyToSubmit && !blockingApplication && (
-                    <div style={{ fontSize: '12px', color: 'var(--fas-red)', textAlign: 'center', lineHeight: '1.2' }}>
-                      {!hasProfileDetails
-                        ? '* Please fill in all required profile fields.'
-                        : needsTierMatch && !matchingTier
-                          ? '* Household details do not meet any tier.'
-                          : attachedCount < totalDocuments
-                            ? `* Please attach all required documents (${attachedCount}/${totalDocuments}).`
-                            : !areRequiredQuestionsAnswered
-                              ? '* Please answer all required additional questions.'
-                              : '* Please complete all required fields.'}
-                    </div>
-                  )}
-                  <Button
-                    block
-                    size="large"
-                    loading={submitting || submitApplication.loading}
-                    disabled={Boolean(blockingApplication)}
-                    onClick={() => submit(true)}
-                  >
-                    Save as draft
-                  </Button>
-                </div>
-                <p>
-                  The school admin reviews your documents and confirms the final assistance tier.
-                </p>
+              <div className="fas-summary-card" style={{ padding: 0, display: 'flex', flexDirection: 'column' }}>
+                <Tabs
+                  defaultActiveKey="1"
+                  centered
+                  className="fas-sidebar-tabs"
+                  items={[
+                    {
+                      key: '1',
+                      label: 'Summary',
+                      children: (
+                        <div style={{ padding: '24px', paddingTop: '12px' }}>
+                          <div className="fas-section-label">Application summary</div>
+                          <div className="fas-summary-title">{scheme.name}</div>
+                          <ApplicationSummaryRows fieldSet={schemeFieldSet} profile={profile} pci={pci} />
+                          <div className="fas-summary-row">
+                            <span>Estimated tier</span>
+                            <div style={{ textAlign: 'right' }}>
+                              <strong>
+                                {matchingTier?.name ||
+                                  (scheme.tiers?.length ? 'No matching tier' : 'To be confirmed')}
+                              </strong>
+                              {matchingTier && (
+                                <div style={{ fontSize: '12px', color: 'var(--fas-gray-dark)', marginTop: '2px' }}>
+                                  ({describeTierSubsidy(scheme, matchingTier)})
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="fas-summary-row">
+                            <span>FAS duration</span>
+                            <strong>{scheme.validityMonths || 12} months</strong>
+                          </div>
+                          {scheme.additionalQuestions?.length > 0 && (
+                            <div className="fas-summary-row">
+                              <span>Questions answered</span>
+                              <strong>
+                                {
+                                  scheme.additionalQuestions.filter(
+                                    (q) => additionalAnswers[q.id] && additionalAnswers[q.id].trim()
+                                  ).length
+                                }
+                                /{scheme.additionalQuestions.length}
+                              </strong>
+                            </div>
+                          )}
+                          <div className="fas-summary-row">
+                            <span>Documents</span>
+                            <strong>
+                              {attachedCount}/{totalDocuments}
+                            </strong>
+                          </div>
+                          {blockingApplication && (
+                            <p style={{ color: 'var(--fas-red)', marginTop: 0 }}>
+                              You already have a pending or approved application for this scheme
+                              {blockingApplication.id ? ` (${blockingApplication.id})` : ''}.
+                            </p>
+                          )}
+                          <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', marginTop: '16px' }}>
+                            <Button
+                              type="primary"
+                              block
+                              size="large"
+                              disabled={!isReadyToSubmit}
+                              loading={submitting || submitApplication.loading}
+                              onClick={() => submit(false)}
+                            >
+                              Submit application
+                            </Button>
+                            {!isReadyToSubmit && !blockingApplication && (
+                              <div style={{ fontSize: '12px', color: 'var(--fas-red)', textAlign: 'center', lineHeight: '1.2' }}>
+                                {!hasProfileDetails
+                                  ? '* Please fill in all required profile fields.'
+                                  : needsTierMatch && !matchingTier
+                                    ? '* Household details do not meet any tier.'
+                                    : attachedCount < totalDocuments
+                                      ? `* Please attach all required documents (${attachedCount}/${totalDocuments}).`
+                                      : !areRequiredQuestionsAnswered
+                                        ? '* Please answer all required additional questions.'
+                                        : '* Please complete all required fields.'}
+                              </div>
+                            )}
+                            <Button
+                              block
+                              size="large"
+                              loading={submitting || submitApplication.loading}
+                              disabled={Boolean(blockingApplication)}
+                              onClick={() => submit(true)}
+                            >
+                              Save as draft
+                            </Button>
+                          </div>
+                          <p style={{ marginTop: '16px', color: 'var(--fas-gray-dark)' }}>
+                            The school admin reviews your documents and confirms the final assistance tier.
+                          </p>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: '2',
+                      label: 'Ask AI ✨',
+                      children: (
+                        <div style={{ height: '100%', flex: 1 }}>
+                          <FasFormAiChat
+                            scheme={scheme}
+                            additionalAnswers={additionalAnswers}
+                            onApplySuggestion={(qId, value) => {
+                              onAdditionalAnswersChange((current) => ({
+                                ...current,
+                                [qId]: value,
+                              }))
+                            }}
+                            onApplyAllSuggestions={(newAnswers) => {
+                              onAdditionalAnswersChange((current) => ({
+                                ...current,
+                                ...newAnswers,
+                              }))
+                            }}
+                          />
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
               </div>
             </aside>
           </div>
