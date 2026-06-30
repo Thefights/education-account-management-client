@@ -1,7 +1,15 @@
 {
   "course_management": {
     "menu_label": "课程管理",
-    "title": { "management": "课程管理", "create": "创建课程", "update": "更新课程", "important_dates": "重要日期", "applicable_fas": "适用FAS", "fas_deduction": "适用FAS" },
+    "title": { 
+      "management": "课程管理", 
+      "create": "创建课程", 
+      "update": "更新课程", 
+      "list_of_course": "课程列表",
+      "important_dates": "重要日期", 
+      "applicable_fas": "适用FAS", 
+      "fas_deduction": "适用FAS" 
+    },
     "section": {
       "basic_info": "基本信息",
       "fees": "费用与付款",
@@ -47,6 +55,11 @@
       "update_conflict": "该课程已被其他人修改。最新数据已重新加载，请重新编辑。",
       "publish_deadline_expired": "所有所选课程的报名确认截止时间必须在未来。",
       "no_applicable_fas": "此课程尚未关联任何FAS计划。"
+    },
+    "tab": {
+      "upcoming": "即将开始",
+      "in_progress": "进行中",
+      "closed": "已结束"
     }
   }
 }

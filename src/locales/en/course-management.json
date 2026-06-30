@@ -5,6 +5,7 @@
       "management": "Course Management",
       "create": "Create Course",
       "update": "Update Course",
+      "list_of_course": "List of Courses",
       "important_dates": "Important Dates",
       "applicable_fas": "Applicable FAS",
       "fas_deduction": "Applicable FAS"
@@ -45,11 +46,11 @@
       "per_component": "Per component",
       "standard": "Standard"
     },
-    "placeholder": { 
-      "searchbyID": "Search by course name or ID" 
-    },
     "label": { "search": "Search by course name, course code, or school name" },
-    "placeholder": { "search": "Search..." },
+    "placeholder": { 
+      "search": "Search...",
+      "searchbyID": "Search by course name or ID"  
+    },
     "confirm": {
       "delete_title": "Delete course?",
       "delete_description": "Are you sure you want to delete {name}?",
@@ -65,6 +66,11 @@
       "update_conflict": "This course was changed by someone else. The latest data has been reloaded; please edit it again.",
       "publish_deadline_expired": "All selected courses must have a future enrollment deadline.",
       "no_applicable_fas": "No FAS schemes are linked to this course."
+    },
+    "tab": {
+      "upcoming": "Upcoming",
+      "in_progress": "In Progress",
+      "closed": "Closed"
     }
   }
 }
