@@ -7,7 +7,7 @@
     "total_outstanding": "Tổng tiền chưa thanh toán",
     "education_account_balance": "Số dư tài khoản giáo dục",
     "empty": "Không tìm thấy khoản học phí",
-    "selected": "Đã chọn {{count}} khoản",
+    "selected": "Đã chọn {count} khoản",
     "tabs": {
       "without_plan": "Khoản thu chưa đăng ký trả góp",
       "with_plan": "Khoản thu đã đăng ký trả góp"
