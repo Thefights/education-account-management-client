@@ -33,7 +33,7 @@ import TopupConfigurationFormPage from '@/features/topup/pages/TopupConfiguratio
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
-import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
+import TuitionPaymentPage from '@/features/tuition-payment/pages/TuitionPaymentPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -205,7 +205,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.TUITION_PAYMENT.INDEX + '/*',
-        element: <TuitionPaymentlPage />,
+        element: <TuitionPaymentPage />,
       },
     ],
   },

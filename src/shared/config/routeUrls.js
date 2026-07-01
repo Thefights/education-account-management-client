@@ -37,14 +37,16 @@ export const routeUrls = {
   },
   TUITION_PAYMENT: {
     INDEX: '/tuition-payment',
+    CHECKOUT: '/tuition-payment/checkout',
+    INSTALLMENTS: (enrollmentId = ':enrollmentId') =>
+      `/tuition-payment/installments/${enrollmentId}`,
+    SUCCESS: '/tuition-payment/success',
+    CANCEL: '/tuition-payment/cancel',
   },
   TRANSACTION_HISTORY: {
     INDEX: '/transaction-history',
   },
 
-  PAY: {
-    INDEX: '/pay',
-  },
   ACCOUNT_CREATION_REPORT: { INDEX: '/account-creation-report' },
   AUDIT_LOGS: { INDEX: '/audit-logs' },
   LOGS: {

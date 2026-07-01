@@ -151,7 +151,11 @@ export const ApiUrls = {
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
   },
   PAYMENT: {
-    INDEX: 'Payment/',
-    HANDLE: 'Payment/handle', 
+    FULL: '/payment/full',
+    INSTALLMENT_PLAN: '/payment/installment-plan',
+    INSTALLMENTS_NEXT: '/payment/installments/next',
+    INSTALLMENTS_REMAINING: '/payment/installments/remaining',
+    SUCCESS: '/payment/success',
+    CANCEL: '/payment/cancel',
   },
 }

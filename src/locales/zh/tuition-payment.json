@@ -4,6 +4,97 @@
     "pending_payment_invoice": "待付款账单",
     "pending_payment_invoices": "待付款账单",
     "topup_from_moe": "教育部充值",
-    "total_outstanding": "待支付总额"
+    "total_outstanding": "待支付总额",
+    "education_account_balance": "教育账户余额",
+    "empty": "未找到学费项目",
+    "selected": "已选择 {count} 项",
+    "tabs": {
+      "without_plan": "未设分期计划的收费",
+      "with_plan": "已设分期计划的收费"
+    },
+    "filter": {
+      "search_label": "按课程代码或课程名称搜索",
+      "status": "状态",
+      "newest": "最新优先",
+      "oldest": "最早优先"
+    },
+    "status": {
+      "All": "全部",
+      "Due": "待付款",
+      "Overdue": "已逾期",
+      "Paid": "已付款"
+    },
+    "charge": {
+      "course": "课程",
+      "course_code": "课程代码",
+      "due_date": "到期日",
+      "gross_amount": "总金额",
+      "net_payable": "应付净额",
+      "remaining_amount": "剩余金额",
+      "paid_amount": "已付金额",
+      "fas": "FAS",
+      "no_fas": "未应用 FAS",
+      "fas_subsidy": "FAS 补贴",
+      "next_installment": "下一期",
+      "completed": "已完成"
+    },
+    "action": {
+      "pay_full": "全额支付",
+      "create_plan": "创建分期计划",
+      "pay_next": "支付下一期",
+      "pay_remaining": "支付所有剩余期数",
+      "view_installments": "查看分期",
+      "back_to_charges": "返回收费列表"
+    },
+    "overdue": {
+      "title": "存在逾期分期",
+      "description": "所选项目包含逾期分期。请在继续前检查金额。",
+      "continue": "继续"
+    },
+    "checkout": {
+      "action": {
+        "full": "全额支付",
+        "installment-plan": "创建分期计划",
+        "next": "支付下一期",
+        "remaining": "支付所有剩余分期"
+      },
+      "invalid_request": "付款请求无效",
+      "charges_not_eligible": "一个或多个所选收费不存在或不适用于此付款操作。",
+      "selected_charges": "已选收费",
+      "plan_months": "付款计划",
+      "months": "{{count}} 个月",
+      "due_today": "今日应付",
+      "payment_summary": "付款摘要",
+      "available_balance": "可用教育账户余额",
+      "total_due_today": "今日应付总额",
+      "from_balance": "从教育账户支付",
+      "online_payment": "在线支付",
+      "confirm": "确认并支付",
+      "missing_redirect": "付款会话未返回结账链接。",
+      "unexpected_status": "付款返回状态 {{status}}。",
+      "completed_description": "付款已完成，无需在线结账。",
+      "payment_mode": "付款模式",
+      "total_amount": "总金额",
+      "wallet_amount": "教育账户金额",
+      "online_amount": "在线支付金额"
+    },
+    "installments": {
+      "title": "分期计划",
+      "not_found": "未找到分期计划",
+      "number": "期数",
+      "amount": "金额",
+      "due_date": "到期日",
+      "status": "状态"
+    },
+    "callback": {
+      "processing": "正在确认付款",
+      "missing_session": "缺少付款会话。",
+      "succeeded": "付款成功。",
+      "canceled": "付款已取消。",
+      "status": "付款返回状态 {{status}}。",
+      "failed": "付款确认失败",
+      "failed_description": "付款会话已保留。请重试确认或返回学费列表。",
+      "retry": "重试确认"
+    }
   }
 }

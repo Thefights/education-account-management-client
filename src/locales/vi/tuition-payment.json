@@ -3,7 +3,98 @@
     "title": "Thanh toán học phí",
     "pending_payment_invoice": "hóa đơn chờ thanh toán",
     "pending_payment_invoices": "hóa đơn chờ thanh toán",
-    "topup_from_moe": "Top-up từ MOE",
-    "total_outstanding": "Tổng dư nợ"
+    "topup_from_moe": "Nạp tiền từ MOE",
+    "total_outstanding": "Tổng tiền chưa thanh toán",
+    "education_account_balance": "Số dư tài khoản giáo dục",
+    "empty": "Không tìm thấy khoản học phí",
+    "selected": "Đã chọn {{count}} khoản",
+    "tabs": {
+      "without_plan": "Khoản thu chưa đăng ký trả góp",
+      "with_plan": "Khoản thu đã đăng ký trả góp"
+    },
+    "filter": {
+      "search_label": "Tìm theo mã khóa học hoặc tên khóa học",
+      "status": "Trạng thái",
+      "newest": "Mới nhất trước",
+      "oldest": "Cũ nhất trước"
+    },
+    "status": {
+      "All": "Tất cả",
+      "Due": "Đến hạn",
+      "Overdue": "Quá hạn",
+      "Paid": "Đã thanh toán"
+    },
+    "charge": {
+      "course": "Khóa học",
+      "course_code": "Mã khóa học",
+      "due_date": "Ngày đến hạn",
+      "gross_amount": "Tổng trước hỗ trợ",
+      "net_payable": "Số tiền phải trả",
+      "remaining_amount": "Số tiền còn lại",
+      "paid_amount": "Đã thanh toán",
+      "fas": "FAS",
+      "no_fas": "Không áp dụng FAS",
+      "fas_subsidy": "Trợ cấp FAS",
+      "next_installment": "Kỳ tiếp theo",
+      "completed": "Đã hoàn tất"
+    },
+    "action": {
+      "pay_full": "Thanh toán toàn bộ",
+      "create_plan": "Tạo kế hoạch trả góp",
+      "pay_next": "Thanh toán kỳ tiếp theo",
+      "pay_remaining": "Thanh toán tất cả kỳ còn lại",
+      "view_installments": "Xem các kỳ thanh toán",
+      "back_to_charges": "Quay lại danh sách"
+    },
+    "overdue": {
+      "title": "Có kỳ thanh toán quá hạn",
+      "description": "Lựa chọn này có kỳ thanh toán quá hạn. Hãy kiểm tra số tiền trước khi tiếp tục.",
+      "continue": "Tiếp tục"
+    },
+    "checkout": {
+      "action": {
+        "full": "Thanh toán toàn bộ",
+        "installment-plan": "Tạo kế hoạch trả góp",
+        "next": "Thanh toán kỳ tiếp theo",
+        "remaining": "Thanh toán tất cả kỳ còn lại"
+      },
+      "invalid_request": "Yêu cầu thanh toán không hợp lệ",
+      "charges_not_eligible": "Một hoặc nhiều khoản thu không tồn tại hoặc không phù hợp với hành động thanh toán này.",
+      "selected_charges": "Các khoản đã chọn",
+      "plan_months": "Kế hoạch thanh toán",
+      "months": "{{count}} tháng",
+      "due_today": "Thanh toán hôm nay",
+      "payment_summary": "Tóm tắt thanh toán",
+      "available_balance": "Số dư tài khoản giáo dục khả dụng",
+      "total_due_today": "Tổng thanh toán hôm nay",
+      "from_balance": "Từ tài khoản giáo dục",
+      "online_payment": "Thanh toán trực tuyến",
+      "confirm": "Xác nhận và thanh toán",
+      "missing_redirect": "Phiên thanh toán không trả về đường dẫn thanh toán.",
+      "unexpected_status": "Thanh toán trả về trạng thái {{status}}.",
+      "completed_description": "Thanh toán đã hoàn tất mà không cần chuyển đến cổng trực tuyến.",
+      "payment_mode": "Phương thức thanh toán",
+      "total_amount": "Tổng số tiền",
+      "wallet_amount": "Số tiền từ tài khoản giáo dục",
+      "online_amount": "Số tiền trực tuyến"
+    },
+    "installments": {
+      "title": "Kế hoạch trả góp",
+      "not_found": "Không tìm thấy kế hoạch trả góp",
+      "number": "Kỳ",
+      "amount": "Số tiền",
+      "due_date": "Ngày đến hạn",
+      "status": "Trạng thái"
+    },
+    "callback": {
+      "processing": "Đang xác nhận thanh toán",
+      "missing_session": "Thiếu phiên thanh toán.",
+      "succeeded": "Thanh toán thành công.",
+      "canceled": "Thanh toán đã bị hủy.",
+      "status": "Thanh toán trả về trạng thái {{status}}.",
+      "failed": "Xác nhận thanh toán thất bại",
+      "failed_description": "Phiên thanh toán vẫn được giữ nguyên. Hãy thử xác nhận lại hoặc quay về danh sách học phí.",
+      "retry": "Thử xác nhận lại"
+    }
   }
 }
