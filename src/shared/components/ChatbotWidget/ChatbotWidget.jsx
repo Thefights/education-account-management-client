@@ -34,7 +34,7 @@ const ChatbotWidget = () => {
     sessionStorage.setItem('sfs_chatbot_history', JSON.stringify(messages))
   }, [messages])
   const [inputValue, setInputValue] = useState('')
-  const [isAiEnabled, setIsAiEnabled] = useState(true)
+  const [isAiBlockedByRequest, setIsAiBlockedByRequest] = useState(false)
   const { token } = theme.useToken()
 
   const messagesEndRef = useRef(null)
@@ -56,7 +56,7 @@ const ChatbotWidget = () => {
 
       const status = error.response?.status || error.status
       if (status === 403) {
-        setIsAiEnabled(false)
+        setIsAiBlockedByRequest(true)
         setMessages((prev) => [
           ...prev,
           {
@@ -78,14 +78,10 @@ const ChatbotWidget = () => {
     },
   })
 
-  useEffect(() => {
-    if (!isOpen) return
-    if (statusFetch.data) {
-      setIsAiEnabled(statusFetch.data.isEnabled ?? true)
-    } else if (statusFetch.error) {
-      setIsAiEnabled(false)
-    }
-  }, [statusFetch.data, statusFetch.error, isOpen])
+  const isAiEnabled =
+    !isAiBlockedByRequest &&
+    !statusFetch.error &&
+    (statusFetch.data?.isEnabled ?? true)
 
   const handleSend = async () => {
     if (!inputValue.trim()) return
@@ -115,7 +111,8 @@ const ChatbotWidget = () => {
 
   const toggleChat = () => setIsOpen(!isOpen)
 
-  const isLoading = statusFetch.loading || chatSubmit.loading
+  const isChatSending = chatSubmit.loading
+  const isComposerDisabled = statusFetch.loading || isChatSending || !isAiEnabled
 
   return (
     <>
@@ -217,7 +214,7 @@ const ChatbotWidget = () => {
                 )}
               </div>
             ))}
-            {isLoading && (
+            {isChatSending && (
               <div className="flex gap-3 justify-start">
                 <div
                   className="w-[42px] h-[42px] rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
@@ -255,7 +252,7 @@ const ChatbotWidget = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onPressEnter={handleSend}
-              disabled={isLoading || !isAiEnabled}
+              disabled={isComposerDisabled}
               className="rounded-full px-4 py-2 transition-all"
               variant="outlined"
               aria-label="Chat input"
@@ -264,11 +261,13 @@ const ChatbotWidget = () => {
               type="primary"
               shape="circle"
               icon={
-                <SendOutlined className={inputValue.trim() && !isLoading ? '-mt-0.5 ml-0.5' : ''} />
+                <SendOutlined
+                  className={inputValue.trim() && !isChatSending ? '-mt-0.5 ml-0.5' : ''}
+                />
               }
               onClick={handleSend}
-              loading={isLoading}
-              disabled={!inputValue.trim() || !isAiEnabled}
+              loading={isChatSending}
+              disabled={!inputValue.trim() || isComposerDisabled}
               aria-label="Send message"
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-transform ${
                 inputValue.trim() ? 'shadow-md hover:scale-105' : ''

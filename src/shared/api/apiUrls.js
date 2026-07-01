@@ -97,6 +97,7 @@ export const ApiUrls = {
   SWEEP_REPORT: {
     INDEX: '/education-account-sweep-report-management',
     TARGETS: (batchDate) => `/education-account-sweep-report-management/${batchDate}/targets`,
+    TARGETS_RANGE: '/education-account-sweep-report-management/targets',
     MANUAL_HANDLING: '/education-account-sweep-report-management/failed-records/manual-handling',
   },
   TOPUP: {

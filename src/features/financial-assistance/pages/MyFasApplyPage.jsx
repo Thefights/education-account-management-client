@@ -3,8 +3,11 @@ import {
   formatFriendlyTierRanges,
   formatSubsidy,
 } from '@/features/financial-assistance/utils/fasFormUtil'
+import FasFormAiChat from '@/features/financial-assistance/components/FasFormAiChat'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import { getAccessToken } from '@/shared/api/authTokenStore'
 import { EnumConfig } from '@/shared/config/enumConfig'
+import { envConfig } from '@/shared/config/envConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
@@ -49,6 +52,49 @@ import { useLocation, useNavigate } from 'react-router-dom'
 const NATIONALITY = EnumConfig.NationalityCategory
 
 const getRequiredDocuments = (scheme) => scheme.requiredDocuments || []
+
+const buildFasAutoFillRequest = (payload) => ({
+  SessionId: payload.session_id,
+  FasSchemeId: payload.fas_scheme_id,
+  Message: payload.message,
+  Questions: (payload.questions || []).map((question) => ({
+    QuestionId: question.question_id,
+    QuestionText: question.question_text,
+    IsRequired: question.is_required,
+    Description: question.description,
+    Type: question.type,
+    Options: question.options || [],
+  })),
+  CurrentAnswers: Object.entries(payload.current_answers || {})
+    .filter(([, value]) => typeof value === 'string' && value.trim())
+    .map(([Key, Value]) => ({ Key, Value })),
+})
+
+const getAbsoluteApiUrl = (path) => {
+  const baseUrl = envConfig.api.baseUrl || window.location.origin
+  return new URL(path, baseUrl).toString()
+}
+
+const resetFasAutoFillSessionSilently = (sessionId, { keepalive = false } = {}) => {
+  if (!sessionId) return undefined
+
+  const formData = new FormData()
+  formData.append('SessionId', sessionId)
+
+  const accessToken = getAccessToken()
+  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined
+
+  return fetch(getAbsoluteApiUrl(ApiUrls.AI_CHAT.FAS_AUTO_FILL_RESET_SESSION), {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+    keepalive,
+    headers,
+  }).catch(() => {})
+}
+
+const resetFasAutoFillSessionDuringUnload = (sessionId) =>
+  resetFasAutoFillSessionSilently(sessionId, { keepalive: true })
 
 const ApplicationSection = ({
   scheme,
@@ -98,6 +144,31 @@ const ApplicationSection = ({
   const completionPercent = completionTotal
     ? Math.round((completionCount / completionTotal) * 100)
     : 100
+  const additionalAnswerMap = useMemo(
+    () =>
+      Object.fromEntries(
+        answers.map((answer) => [
+          String(answer.fasSchemeAdditionalQuestionId),
+          answer.answerText || '',
+        ])
+      ),
+    [answers]
+  )
+  const aiStatusQuery = useFetch(ApiUrls.AI_CHAT.STATUS)
+  const fasAutoFillSubmit = useAxiosSubmit({
+    url: ApiUrls.AI_CHAT.FAS_AUTO_FILL,
+    method: 'POST',
+  })
+
+  const updateAnswerByQuestionId = (questionId, answerText) => {
+    setAnswers((current) =>
+      current.map((answer) =>
+        String(answer.fasSchemeAdditionalQuestionId) === String(questionId)
+          ? { ...answer, answerText }
+          : answer
+      )
+    )
+  }
 
   const payload = () =>
     buildApplicationPayload({
@@ -362,6 +433,42 @@ const ApplicationSection = ({
                   {t('financial_assistance.action.submit_application')}
                 </Button>
               </Flex>
+              {answers.length ? (
+                <div
+                  style={{
+                    marginTop: 12,
+                    paddingTop: 12,
+                    borderTop: `1px solid ${token.colorBorderSecondary}`,
+                  }}
+                >
+                  <FasFormAiChat
+                    key={scheme.id}
+                    scheme={scheme}
+                    additionalAnswers={additionalAnswerMap}
+                    isSending={fasAutoFillSubmit.loading}
+                    onSendMessage={async (requestPayload) => {
+                      const response = await fasAutoFillSubmit.submit({
+                        overrideData: buildFasAutoFillRequest(requestPayload),
+                      })
+                      return response?.data || response
+                    }}
+                    onResetSession={resetFasAutoFillSessionSilently}
+                    onResetSessionDuringUnload={resetFasAutoFillSessionDuringUnload}
+                    onApplySuggestion={updateAnswerByQuestionId}
+                    onApplyAllSuggestions={(nextAnswers) => {
+                      setAnswers((current) =>
+                        current.map((answer) => {
+                          const answerText =
+                            nextAnswers[String(answer.fasSchemeAdditionalQuestionId)]
+                          return answerText === undefined ? answer : { ...answer, answerText }
+                        })
+                      )
+                    }}
+                    isAiEnabled={aiStatusQuery.data?.isEnabled ?? !aiStatusQuery.error}
+                    isStatusLoading={aiStatusQuery.loading}
+                  />
+                </div>
+              ) : null}
             </Flex>
           </section>
         </Col>
