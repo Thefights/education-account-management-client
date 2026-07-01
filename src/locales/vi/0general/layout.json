@@ -6,6 +6,11 @@
       "logout": "Đăng xuất"
     }
   },
+  "notification": {
+    "title": "Thông báo",
+    "mark_all_read": "Đánh dấu đã đọc tất cả",
+    "empty": "Không có thông báo"
+  },
   "sidebar": {
     "items": {
       "home": "Trang chủ"

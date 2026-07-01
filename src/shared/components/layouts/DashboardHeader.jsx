@@ -6,6 +6,7 @@ import MobileMenuButton from '../buttons/MobileMenuButton'
 import SwitchLanguageButton from '../buttons/SwitchLanguageButton'
 import SwitchThemeButton from '../buttons/SwitchThemeButton'
 import UserAvatarMenu from '../menus/UserAvatarMenu'
+import NotificationBell from '../notifications/NotificationBell'
 
 const acronymLabels = {
   fas: 'FAS',
@@ -203,6 +204,7 @@ const DashboardHeader = ({ onOpenDrawer, profile, userMenuItems = [], onLogout =
         style={{ flex: '0 0 auto', lineHeight: 'normal' }}
       >
         <SwitchThemeButton />
+        <NotificationBell profile={profile} />
         <SwitchLanguageButton />
         <UserAvatarMenu profile={profile} items={userMenuItems} onLogout={onLogout} />
       </Space>

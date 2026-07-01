@@ -8,6 +8,14 @@ export const ApiUrls = {
     REFRESH_TOKEN: '/auth/refresh-token',
   },
 
+  NOTIFICATION: {
+    INDEX: '/notification',
+    UNREAD_COUNT: '/notification/unread-count',
+    READ: (id) => `/notification/${id}/read`,
+    READ_ALL: '/notification/read-all',
+    DELETE: (id) => `/notification/${id}`,
+  },
+
   AI_CHAT: {
     STATUS: '/ai-chat/status',
     CHAT: '/ai-chat',
