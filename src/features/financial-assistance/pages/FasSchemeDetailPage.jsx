@@ -9,6 +9,7 @@ import {
 import { getScenarioErrors } from '@/features/financial-assistance/utils/fasConditionValidation'
 import {
   buildSchemePayload,
+  formatFriendlyTierRanges,
   getDerivedTiers,
   getSchemeFormValue,
   validateTierConfiguration,
@@ -84,35 +85,6 @@ const formatSubsidy = (value, type) => {
   return type === EnumConfig.FasSubsidyType.Percent
     ? `${value}%`
     : formatCurrencyBasedOnCurrentLanguage(value)
-}
-
-const formatIncomeRange = (min, max) => {
-  const minimum = Number(min || 0)
-  if (max == null || max === '') {
-    return `${formatCurrencyBasedOnCurrentLanguage(minimum)} and above`
-  }
-  const maximum = formatCurrencyBasedOnCurrentLanguage(max)
-  if (minimum === 0) return `Below ${maximum}`
-  return `${formatCurrencyBasedOnCurrentLanguage(minimum)} – below ${maximum}`
-}
-
-const getTierRangeText = (tier) => {
-  const ranges = []
-  if (
-    tier.tierIncomeBasis === EnumConfig.FasTierIncomeBasis.PerCapitaIncome ||
-    tier.tierIncomeBasis === EnumConfig.FasTierIncomeBasis.PerCapitaOrGrossHouseholdIncome
-  ) {
-    ranges.push(`Per capita: ${formatIncomeRange(tier.minPerCapitaIncome, tier.maxPerCapitaIncome)}`)
-  }
-  if (
-    tier.tierIncomeBasis === EnumConfig.FasTierIncomeBasis.GrossHouseholdIncome ||
-    tier.tierIncomeBasis === EnumConfig.FasTierIncomeBasis.PerCapitaOrGrossHouseholdIncome
-  ) {
-    ranges.push(
-      `Gross household: ${formatIncomeRange(tier.minGrossHouseholdIncome, tier.maxGrossHouseholdIncome)}`
-    )
-  }
-  return ranges
 }
 
 const getTemplateUrl = (fileKey) => {
@@ -287,7 +259,7 @@ const FasSchemeDetailPage = () => {
       key: 'incomeRange',
       render: (_, tier) => (
         <Flex vertical gap={2}>
-          {getTierRangeText(tier).map((range) => (
+          {formatFriendlyTierRanges(tier).map((range) => (
             <Typography.Text key={range}>{range}</Typography.Text>
           ))}
         </Flex>

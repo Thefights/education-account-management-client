@@ -68,7 +68,6 @@ const ManagementActionLogManagementFilterSection = ({
         key: 'occurredRange',
         title: t('management_action_log.field.occurred_at'),
         type: 'range-picker',
-        valueType: 'language-datetime',
         from: { key: 'occurredFrom' },
         to: { key: 'occurredTo' },
         disallowFutureFrom: true,

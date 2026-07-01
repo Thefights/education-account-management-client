@@ -70,7 +70,6 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
       key: 'createdRange',
       title: t('transaction.created_at'),
       type: 'range-picker',
-      valueType: 'language-datetime',
       from: { key: 'createdFrom' },
       to: { key: 'createdTo' },
       placeholder: ['From date', 'To date'],

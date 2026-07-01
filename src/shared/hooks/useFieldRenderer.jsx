@@ -9,7 +9,6 @@ import MultipleCheckDropdownField from '@/shared/components/fieldRenderers/Multi
 import PhoneRenderField from '@/shared/components/fieldRenderers/PhoneRenderField'
 import RangePickerRenderField from '@/shared/components/fieldRenderers/RangePickerRenderField'
 import SearchBar from '@/shared/components/generals/SearchBar'
-import DateRangeField from '@/shared/components/textFields/DateRangeField'
 import PasswordTextField from '@/shared/components/textFields/PasswordTextField'
 import TimeRangeField from '@/shared/components/textFields/TimeRangeField'
 import ValidationTextField from '@/shared/components/textFields/ValidationTextField'
@@ -26,7 +25,7 @@ import useTranslation from './useTranslation'
  * @typedef {Object} FieldDefinition
  * @property {string} key
  * @property {string} title
- * @property {"text" | "search" | "date" | "datetime" | "number" | "input-number" | "email" | "tel" | "password" | "select" | "select-dialog" | "multi-check-dropdown" | "radio" | "checkbox" | "checkbox-group" | "image" | "file" | "object" | "array" | "draw" | "custom" | "daterange" | "timerange" | "range-picker"} [type='text']
+ * @property {"text" | "search" | "date" | "datetime" | "number" | "input-number" | "email" | "tel" | "password" | "select" | "select-dialog" | "multi-check-dropdown" | "radio" | "checkbox" | "checkbox-group" | "image" | "file" | "object" | "array" | "draw" | "custom" | "timerange" | "range-picker"} [type='text']
  * @property {boolean} [required=true]
  * @property {number} [multiple=undefined]
  * @property {Array<string|Object>} [options]
@@ -39,8 +38,8 @@ import useTranslation from './useTranslation'
  * @property {string|number} [maxValue]
  * @property {function():void} [onEnterDown]
  * @property {boolean} [reserveLabelSpace=false] - Reserve an empty Form.Item label row for custom fields that need to align with labeled fields.
- * @property {{ key?: string, label?: string, validate?: Array, min?: string }} [from] - Config for the "from" sub-field (daterange/timerange types)
- * @property {{ key?: string, label?: string, validate?: Array, max?: string }} [to] - Config for the "to" sub-field (daterange/timerange types)
+ * @property {{ key?: string, label?: string, validate?: Array, min?: string }} [from] - Config for the "from" sub-field (timerange/range-picker types)
+ * @property {{ key?: string, label?: string, validate?: Array, max?: string }} [to] - Config for the "to" sub-field (timerange/range-picker types)
  * @property {{ key?: string, label?: string, validate?: Array, min?: string, max?: string }} [date] - Config for the "date" sub-field (timerange type, presence enables date input)
  * @property {import('antd').InputProps} [props]
  */
@@ -162,15 +161,6 @@ export default function useFieldRenderer(
             const value = getObjectValueFromStringPath(obj, c.key)
             return value === '' || value == null
           })
-        }
-        if (f.type === 'daterange') {
-          const from = f.from || {}
-          const to = f.to || {}
-          const fk = from.key || 'fromDate'
-          const tk = to.key || 'toDate'
-          return (
-            !getObjectValueFromStringPath(values, fk) || !getObjectValueFromStringPath(values, tk)
-          )
         }
         if (f.type === 'timerange') {
           const from = f.from || {}
@@ -952,37 +942,6 @@ export default function useFieldRenderer(
     )
   }
 
-  const renderDateRange = (field) => {
-    const from = field.from || {}
-    const to = field.to || {}
-    const fromKey = from.key || 'fromDate'
-    const toKey = to.key || 'toDate'
-    const fromDate = getObjectValueFromStringPath(values, fromKey) || ''
-    const toDate = getObjectValueFromStringPath(values, toKey) || ''
-
-    return (
-      <DateRangeField
-        key={field.key}
-        ref={registerRef(field.key)}
-        fromDate={fromDate}
-        toDate={toDate}
-        onChange={(f, t) => {
-          setField(fromKey, f)
-          setField(toKey, t)
-        }}
-        fromLabel={from.label}
-        toLabel={to.label}
-        minDate={from.min}
-        maxDate={to.max}
-        fromValidate={from.validate}
-        toValidate={to.validate}
-        variant={textFieldVariant}
-        size={textFieldSize}
-        {...(field.props || {})}
-      />
-    )
-  }
-
   const renderTimeRange = (field) => {
     const from = field.from || {}
     const to = field.to || {}
@@ -1057,7 +1016,6 @@ export default function useFieldRenderer(
     checkbox: renderCheckbox,
     'checkbox-group': renderCheckboxGroup,
     custom: renderCustom,
-    daterange: renderDateRange,
     timerange: renderTimeRange,
     'range-picker': renderRangePicker,
     _default: renderStandard,

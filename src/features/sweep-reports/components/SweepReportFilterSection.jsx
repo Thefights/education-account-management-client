@@ -27,6 +27,7 @@ const SweepReportFilterSection = ({ filters, loading, onFilter, onReset }) => {
       key: 'batchDateRange',
       title: t('batch_report.batch_date'),
       type: 'range-picker',
+      valueType: 'date',
       from: { key: 'batchDateFrom' },
       to: { key: 'batchDateTo' },
       required: false,

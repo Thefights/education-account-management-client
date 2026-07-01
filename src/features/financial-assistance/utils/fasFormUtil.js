@@ -285,6 +285,34 @@ export const formatTierRange = (tier) => {
   return parts.join(' OR ')
 }
 
+const formatFriendlyIncomeRange = (min, max) => {
+  const minimum = Number(min || 0)
+  if (max == null || max === '') {
+    return `${formatCurrencyBasedOnCurrentLanguage(minimum)} and above`
+  }
+  const maximum = formatCurrencyBasedOnCurrentLanguage(max)
+  if (minimum === 0) return `Below ${maximum}`
+  return `${formatCurrencyBasedOnCurrentLanguage(minimum)} – below ${maximum}`
+}
+
+export const formatFriendlyTierRanges = (tier) => {
+  const ranges = []
+  if (usesPerCapitaRange(tier)) {
+    ranges.push(
+      `Per capita: ${formatFriendlyIncomeRange(tier.minPerCapitaIncome, tier.maxPerCapitaIncome)}`
+    )
+  }
+  if (usesGrossRange(tier)) {
+    ranges.push(
+      `Gross household: ${formatFriendlyIncomeRange(
+        tier.minGrossHouseholdIncome,
+        tier.maxGrossHouseholdIncome
+      )}`
+    )
+  }
+  return ranges
+}
+
 export const validateTierConfiguration = (tiers) => {
   const errors = []
   const ranges = { pci: [], gross: [] }
