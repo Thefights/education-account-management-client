@@ -6,6 +6,11 @@
       "logout": "退出"
     }
   },
+  "notification": {
+    "title": "通知",
+    "mark_all_read": "全部标记为已读",
+    "empty": "没有通知"
+  },
   "sidebar": {
     "items": {
       "home": "家"

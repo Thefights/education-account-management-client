@@ -16,6 +16,7 @@ const defaultErrorHandler = async (error) => Promise.resolve(error)
  * @param {Object|string} [config.params={}]
  * @param {(response) => Promise<any>} [config.onSuccess=async (response) => Promise.resolve(response)]
  * @param {(error) => Promise<any>} [config.onError=async (error) => Promise.resolve(error)]
+ * @param {'form'|'json'} [config.contentType='form']
  * @returns {{loading: boolean, error: Error|null, response: any|null, submit: function({ overrideData, overrideUrl, overrideParam }): Promise<any>}}
  */
 export default function useAxiosSubmit({
@@ -25,6 +26,7 @@ export default function useAxiosSubmit({
   params = emptyObject,
   onSuccess = defaultSuccessHandler,
   onError = defaultErrorHandler,
+  contentType = 'form',
 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -57,8 +59,12 @@ export default function useAxiosSubmit({
 
       try {
         let payload = undefined
+        const headers = {}
         if (!queryOnly) {
-          if (bodySource instanceof FormData) {
+          if (contentType === 'json') {
+            payload = bodySource === undefined ? {} : bodySource
+            headers['Content-Type'] = 'application/json'
+          } else if (bodySource instanceof FormData) {
             payload = bodySource
           } else {
             const trimmed = getTrimString(bodySource)
@@ -70,6 +76,7 @@ export default function useAxiosSubmit({
           method: upper,
           params: axiosParams,
           data: payload,
+          headers,
         })
 
         setResponse(response)
@@ -84,7 +91,7 @@ export default function useAxiosSubmit({
         setLoading(false)
       }
     },
-    [method, data, url, params, onSuccess, onError]
+    [method, data, url, params, onSuccess, onError, contentType]
   )
 
   return { loading, error, response, submit }
