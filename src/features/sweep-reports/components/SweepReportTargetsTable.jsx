@@ -17,7 +17,7 @@ import { useMemo, useState } from 'react'
 
 const defaultFilters = { nric: '', statuses: [], actions: [] }
 
-const SweepReportTargetsTable = ({ batchDate }) => {
+const SweepReportTargetsTable = ({ dateRange }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
   const [filters, setFilters] = useState(defaultFilters)
@@ -25,13 +25,20 @@ const SweepReportTargetsTable = ({ batchDate }) => {
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const dateFrom = dateRange?.dateFrom
+  const dateTo = dateRange?.dateTo
+  const hasDateRange = !!dateFrom && !!dateTo
 
   const params = useMemo(
-    () => ({ ...filters, page, pageSize }),
-    [filters, page, pageSize]
+    () => ({
+      ...filters,
+      ...(hasDateRange ? { dateFrom, dateTo } : {}),
+      page,
+      pageSize,
+    }),
+    [dateFrom, dateTo, filters, hasDateRange, page, pageSize]
   )
-  const url = batchDate ? ApiUrls.SWEEP_REPORT.TARGETS(batchDate) : ''
-  const { data, loading } = useFetch(url, params, [params], !!batchDate)
+  const { data, loading } = useFetch(ApiUrls.SWEEP_REPORT.TARGETS_RANGE, params, [params])
 
   const filterFields = useMemo(
     () => [
@@ -75,6 +82,11 @@ const SweepReportTargetsTable = ({ batchDate }) => {
 
   const tableFields = useMemo(
     () => [
+      {
+        key: 'batchDate',
+        title: t('batch_report.batch_date'),
+        width: 130,
+      },
       {
         key: 'nric',
         title: t('batch_report.nric'),
@@ -128,7 +140,6 @@ const SweepReportTargetsTable = ({ batchDate }) => {
       <GenericTable
         data={data?.collection || []}
         fields={tableFields}
-        rowKey="nric"
         loading={loading}
       />
       <GenericTablePagination
