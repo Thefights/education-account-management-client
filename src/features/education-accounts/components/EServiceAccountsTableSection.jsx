@@ -1,5 +1,6 @@
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDateToDDMMYYYY } from '@/shared/utils/formatDateUtil'
 import { Tag } from 'antd'
 import { useMemo } from 'react'
 
@@ -36,7 +37,13 @@ const EServiceAccountsTableSection = ({
         sortable: true,
         render: (value) => <Tag color={statusColors[value]}>{value}</Tag>,
       },
-      { key: 'dateOfBirth', title: t('education_account.dob'), width: 130, sortable: true },
+      {
+        key: 'dateOfBirth',
+        title: t('education_account.dob'),
+        width: 130,
+        sortable: true,
+        render: formatDateToDDMMYYYY,
+      },
     ],
     [t]
   )
