@@ -182,6 +182,43 @@ export default function useEnum() {
       { value: EnumConfig.SystemTopupStatus.Inactive, label: t('topup_form.inactive') },
     ],
 
+    fasSchemeStatusOptions: [
+      { value: EnumConfig.FasSchemeStatus.Active, label: 'Active' },
+      { value: EnumConfig.FasSchemeStatus.Inactive, label: 'Inactive' },
+      { value: EnumConfig.FasSchemeStatus.Draft, label: 'Draft' },
+    ],
+
+    fasApplicationStatusOptions: [
+      { value: EnumConfig.FasApplicationStatus.Pending, label: 'Pending' },
+      { value: EnumConfig.FasApplicationStatus.Approved, label: 'Approved' },
+      { value: EnumConfig.FasApplicationStatus.Rejected, label: 'Rejected' },
+      { value: EnumConfig.FasApplicationStatus.Withdrawn, label: 'Withdrawn' },
+      { value: EnumConfig.FasApplicationStatus.Draft, label: 'Draft' },
+      { value: EnumConfig.FasApplicationStatus.Expired, label: 'Expired' },
+    ],
+
+    fasSubsidyTypeOptions: [
+      { value: EnumConfig.FasSubsidyType.Percent, label: 'Percent' },
+      { value: EnumConfig.FasSubsidyType.FixedAmount, label: 'Fixed amount' },
+    ],
+
+    fasTierIncomeBasisOptions: [
+      { value: EnumConfig.FasTierIncomeBasis.PerCapitaIncome, label: 'Per-capita income' },
+      {
+        value: EnumConfig.FasTierIncomeBasis.GrossHouseholdIncome,
+        label: 'Gross household income',
+      },
+      {
+        value: EnumConfig.FasTierIncomeBasis.PerCapitaOrGrossHouseholdIncome,
+        label: 'PCI or gross income',
+      },
+    ],
+
+    fasNationalityOptions: [
+      { value: EnumConfig.NationalityCategory.SingaporeCitizen, label: 'Singapore Citizen' },
+      { value: EnumConfig.NationalityCategory.Other, label: 'Foreigner' },
+    ],
+
     topupExecutionSourceTypeOptions: [
       { value: EnumConfig.TopupExecutionSourceType.System, label: t('topup.system_tab') },
       { value: EnumConfig.TopupExecutionSourceType.Schedule, label: t('topup.schedule_tab') },

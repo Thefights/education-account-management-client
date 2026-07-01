@@ -53,7 +53,6 @@ const TopupScheduleFilterSection = ({ filters, loading, onFilter, onReset }) => 
       key: 'createdRange',
       title: t('topup.created_at'),
       type: 'range-picker',
-      valueType: 'language-datetime',
       from: { key: 'createdFrom' },
       to: { key: 'createdTo' },
       disallowFutureFrom: true,

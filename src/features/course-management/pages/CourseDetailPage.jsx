@@ -43,7 +43,7 @@ import {
   ReadOutlined,
   SaveOutlined,
 } from '@ant-design/icons'
-import { Button, Card, Col, Descriptions, Divider, Flex, Row, Space, Tag, Typography } from 'antd'
+import { Button, Card, Col, Descriptions, Divider, Flex, Row, Space, Tag, Typography, theme } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -58,6 +58,7 @@ const CourseDetailPage = () => {
   const confirm = useConfirm()
   const confirmReason = useReasonConfirm()
   const _enum = useEnum()
+  const { token } = theme.useToken()
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
 
   const [filters, setFilters] = useState(defaultFilters)
@@ -500,13 +501,16 @@ const CourseDetailPage = () => {
                     {editing ? (
                       renderEditField('courseName')
                     ) : (
-                      <Typography.Title level={4} style={{ margin: 0, color: '#1677ff' }}>
+                      <Typography.Title level={4} style={{ margin: 0, color: token.colorPrimary }}>
                         {course.courseName}
                       </Typography.Title>
                     )}
                   </div>
                 </Space>
-                <Space separator={<Divider orientation="vertical" />} style={{ color: '#595959' }}>
+                <Space
+                  separator={<Divider orientation="vertical" />}
+                  style={{ color: token.colorTextSecondary }}
+                >
                   <Space>
                     <ReadOutlined />
                     <Typography.Text keyboard>{course.courseCode}</Typography.Text>
@@ -548,7 +552,7 @@ const CourseDetailPage = () => {
                 <Card
                   title={
                     <Space>
-                      <DollarOutlined style={{ color: '#52c41a' }} />
+                      <DollarOutlined style={{ color: token.colorSuccess }} />
                       <span>{t('course_management.field.total_fee_amount')}</span>
                     </Space>
                   }
@@ -579,7 +583,7 @@ const CourseDetailPage = () => {
                     </Descriptions.Item>
                     <Descriptions.Item label={t('course_management.field.total_fee_amount')}>
                       <div style={{ minHeight: 40 }}>
-                        <Typography.Text strong style={{ color: '#cf1322' }}>
+                        <Typography.Text strong style={{ color: token.colorError }}>
                           {formatCurrencyBasedOnCurrentLanguage(
                             editing && isDraft ? editTotalFeeAmount : course.totalFeeAmount
                           )}
@@ -593,7 +597,7 @@ const CourseDetailPage = () => {
                 <Card
                   title={
                     <Space>
-                      <CalendarOutlined style={{ color: '#1677ff' }} />
+                      <CalendarOutlined style={{ color: token.colorPrimary }} />
                       <span>{t('course_management.title.important_dates')}</span>
                     </Space>
                   }
@@ -632,7 +636,7 @@ const CourseDetailPage = () => {
               title={
                 <Flex justify="space-between" align="center" gap={12}>
                   <Space>
-                    <GiftOutlined style={{ color: '#722ed1' }} />
+                    <GiftOutlined style={{ color: token.colorInfo }} />
                     <span>{t('course_management.title.applicable_fas')}</span>
                   </Space>
                 </Flex>

@@ -55,7 +55,6 @@ const AuditLogManagementFilterSection = ({
         key: 'occurredRange',
         title: t('audit_log.field.created_at'),
         type: 'range-picker',
-        valueType: 'language-datetime',
         from: { key: 'occurredFrom' },
         to: { key: 'occurredTo' },
         disallowFutureFrom: true,

@@ -17,6 +17,8 @@ import CourseManagementPage from '@/features/course-management/pages/CourseManag
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
+import FasSchemeCreatePage from '@/features/financial-assistance/pages/FasSchemeCreatePage'
+import FasSchemeDetailPage from '@/features/financial-assistance/pages/FasSchemeDetailPage'
 import FasSchemeManagementPage from '@/features/financial-assistance/pages/FasSchemeManagementPage'
 import MyFasApplyPage from '@/features/financial-assistance/pages/MyFasApplyPage'
 import MyFasManagementPage from '@/features/financial-assistance/pages/MyFasManagementPage'
@@ -33,7 +35,7 @@ import TopupConfigurationFormPage from '@/features/topup/pages/TopupConfiguratio
 import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPage'
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
-import TuitionPaymentlPage from '@/features/tuition-payment/pages/TuitionPaymentlPage'
+import TuitionPaymentPage from '@/features/tuition-payment/pages/TuitionPaymentPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -166,7 +168,15 @@ const roleRouteGroups = [
     Layout: SchoolAdminLayout,
     routes: [
       { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
+      {
+        path: routeUrls.FAS_ADMIN.INDEX,
+        element: (
+          <Navigate replace to={routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.FAS_ADMIN.SCHEMES)} />
+        ),
+      },
       { path: routeUrls.FAS_ADMIN.SCHEMES, element: <FasSchemeManagementPage /> },
+      { path: routeUrls.FAS_ADMIN.SCHEME_CREATE, element: <FasSchemeCreatePage /> },
+      { path: routeUrls.FAS_ADMIN.SCHEME_DETAIL(), element: <FasSchemeDetailPage /> },
       { path: routeUrls.FAS_ADMIN.APPLICATIONS, element: <FasApplicationQueuePage /> },
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
@@ -195,6 +205,10 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.AccountHolder,
     Layout: AccountHolderLayout,
     routes: [
+      {
+        path: routeUrls.MY_FAS.INDEX,
+        element: <Navigate replace to={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY)} />,
+      },
       { path: routeUrls.MY_FAS.APPLY, element: <MyFasApplyPage /> },
       { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
@@ -205,7 +219,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.TUITION_PAYMENT.INDEX + '/*',
-        element: <TuitionPaymentlPage />,
+        element: <TuitionPaymentPage />,
       },
     ],
   },

@@ -1,188 +1,478 @@
-import { FasApplicationFilterSection } from '@/features/financial-assistance/components/FasFilterSections'
-import { MyFasApplicationTableSection } from '@/features/financial-assistance/components/FasTableSections'
-import { FAS_APPLICATION_STATUS } from '@/features/financial-assistance/data/fasSeedData'
+import FasStatusTag from '@/features/financial-assistance/components/FasStatusTag'
 import {
-  normalizeApiApplicationDetail,
-  normalizeApiApplicationPage,
-} from '@/features/financial-assistance/api/accountHolderFasApi'
-import '@/features/financial-assistance/styles/financialAssistance.css'
-import {
-  describeTierSubsidy,
-  formatFasDate,
-  isApprovedApplicationExpired,
-} from '@/features/financial-assistance/utils/fasRules'
-import {
-  defaultFasApplicationFilters,
-  myFasApplicationStatusOptions,
-} from '@/features/financial-assistance/utils/fasTableConfig'
+  formatFriendlyTierRanges,
+  formatMoney,
+  formatSubsidy,
+} from '@/features/financial-assistance/utils/fasFormUtil'
 import { ApiUrls } from '@/shared/api/apiUrls'
-import axiosConfig from '@/shared/api/axiosClient'
+import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
-import useFetch from '@/shared/hooks/useFetch'
-import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useTranslation from '@/shared/hooks/useTranslation'
-import useConfirm from '@/shared/hooks/useConfirm'
+import GenericTable from '@/shared/components/tables/GenericTable'
+import { EnumConfig } from '@/shared/config/enumConfig'
+import { envConfig } from '@/shared/config/envConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { Button, Card, Flex, Modal, Select, Tabs, Typography, message } from 'antd'
+import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import useEnum from '@/shared/hooks/useEnum'
+import useFetch from '@/shared/hooks/useFetch'
+import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
+import useForm from '@/shared/hooks/useForm'
+import useTranslation from '@/shared/hooks/useTranslation'
+import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { getEnumLabelByValue } from '@/shared/utils/handleStringUtil'
+import {
+  DeleteOutlined,
+  EditOutlined,
+  FileTextOutlined,
+  RedoOutlined,
+  StopOutlined,
+} from '@ant-design/icons'
+import { Button, Card, Descriptions, Flex, List, Modal, Space, theme, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const getApiErrorMessage = (error, t) => {
-  const payload = error?.response?.data
-  if (!payload) return t('financial_assistance.message.reapply_failed')
-  if (payload.message && payload.message !== 'Validation failed') return payload.message
-  if (typeof payload.error === 'string') return payload.error
-  if (payload.error && typeof payload.error === 'object') {
-    return Object.values(payload.error).filter(Boolean).join(', ')
-  }
-  return payload.message || t('financial_assistance.message.reapply_failed')
-}
-
-const getResponseData = (response) => response?.data
-
-const FAS_APPLICATION_ACTIVITY_TAB = {
-  Inactive: 'inactive',
-  Active: 'active',
-}
-
-const inactiveApplicationStatuses = new Set([
+const FAS_APPLICATION_STATUS = EnumConfig.FasApplicationStatus
+const defaultFilters = { search: '' }
+const statusTabs = [
   FAS_APPLICATION_STATUS.Draft,
   FAS_APPLICATION_STATUS.Pending,
-  FAS_APPLICATION_STATUS.Expired,
+  FAS_APPLICATION_STATUS.Approved,
   FAS_APPLICATION_STATUS.Rejected,
-  FAS_APPLICATION_STATUS.Withdrawn,
-])
-
-const activeApplicationStatuses = new Set([FAS_APPLICATION_STATUS.Approved])
-
-const applicationActivityTabOptions = [
-  {
-    value: FAS_APPLICATION_ACTIVITY_TAB.Inactive,
-    label: 'Inactive',
-    statuses: inactiveApplicationStatuses,
-  },
-  {
-    value: FAS_APPLICATION_ACTIVITY_TAB.Active,
-    label: 'Active',
-    statuses: activeApplicationStatuses,
-  },
+  FAS_APPLICATION_STATUS.Expired,
 ]
 
-const isApplicationInActivityTab = (application, tab) => {
-  const tabConfig = applicationActivityTabOptions.find((item) => item.value === tab)
-  return tabConfig?.statuses.has(application.displayStatus) ?? false
+const getFileUrl = (fileKey) => {
+  if (!fileKey) return null
+  if (/^https?:\/\//i.test(fileKey)) return fileKey
+  return `${envConfig.imageCloudUrl.replace(/\/$/, '')}/${fileKey.replace(/^\//, '')}`
+}
+
+const MyFasFilterSection = ({ filters, loading, onFilter, onReset }) => {
+  const { t } = useTranslation()
+  const { values, handleChange, setField, registerRef, reset } = useForm(filters)
+  const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
+  const fields = [
+    {
+      key: 'search',
+      title: t('financial_assistance.management.search_label'),
+      label: t('financial_assistance.management.search_label'),
+      type: 'search',
+      required: false,
+      reserveLabelSpace: true,
+      colProps: { xs: 24 },
+    },
+  ]
+
+  return (
+    <GenericFilterSection
+      fields={fields}
+      values={values}
+      renderField={renderField}
+      reset={reset}
+      resetValues={defaultFilters}
+      onFilter={onFilter}
+      onReset={onReset}
+      loading={loading}
+      cardProps={{
+        style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
+        styles: { body: { padding: 16 } },
+      }}
+    />
+  )
+}
+
+const DetailDate = ({ value }) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-'
+
+const DetailSection = ({ title, children, extra }) => {
+  const { token } = theme.useToken()
+
+  return (
+    <Flex
+      vertical
+      gap={12}
+      style={{
+        padding: 16,
+        border: `1px solid ${token.colorBorder}`,
+        borderRadius: token.borderRadiusLG,
+        background: token.colorFillAlter,
+      }}
+    >
+      <Flex justify="space-between" align="center" gap={12}>
+        <Typography.Text strong>{title}</Typography.Text>
+        {extra}
+      </Flex>
+      {children}
+    </Flex>
+  )
+}
+
+const TierSummary = ({ tier }) => {
+  const { t } = useTranslation()
+  const { token } = theme.useToken()
+
+  if (!tier) {
+    return (
+      <Typography.Text type="secondary">
+        {t('financial_assistance.empty.no_approved_tier')}
+      </Typography.Text>
+    )
+  }
+
+  return (
+    <Flex
+      justify="space-between"
+      gap={16}
+      wrap="wrap"
+      style={{
+        padding: 14,
+        borderRadius: token.borderRadius,
+        background: token.colorBgContainer,
+      }}
+    >
+      <Flex vertical gap={6}>
+        <Typography.Text strong>{tier.tierName}</Typography.Text>
+        <Typography.Text type="secondary">{formatFriendlyTierRanges(tier).join(' · ')}</Typography.Text>
+      </Flex>
+      <Flex vertical gap={4} align="flex-end">
+        <Typography.Text type="secondary">
+          {t('financial_assistance.field.deduction')}
+        </Typography.Text>
+        <Typography.Text strong style={{ color: token.colorSuccess, fontSize: 16 }}>
+          {tier.isPerComponent
+            ? t('financial_assistance.text.per_component_subsidy', {
+                course: formatSubsidy(tier.courseFeeSubsidyValue, tier.subsidyType),
+                misc: formatSubsidy(tier.miscFeeSubsidyValue, tier.subsidyType),
+              })
+            : formatSubsidy(tier.subsidyValue, tier.subsidyType)}
+        </Typography.Text>
+      </Flex>
+    </Flex>
+  )
+}
+
+const MyFasApplicationDetailDialog = ({
+  detail,
+  loading,
+  onClose,
+  onEditDraft,
+  onDeleteDraft,
+  onWithdraw,
+  onReapply,
+}) => {
+  const { t } = useTranslation()
+  const status = detail?.status
+  const isDraft = status === FAS_APPLICATION_STATUS.Draft
+  const isPending = status === FAS_APPLICATION_STATUS.Pending
+  const canReapply =
+    status === FAS_APPLICATION_STATUS.Rejected || status === FAS_APPLICATION_STATUS.Expired
+  const showTier =
+    status === FAS_APPLICATION_STATUS.Approved || status === FAS_APPLICATION_STATUS.Expired
+  const title = t('financial_assistance.management.detail_title', {
+    number: detail?.applicationNumber || '',
+  })
+
+  const footer = (
+    <Flex justify="space-between" gap={12} wrap="wrap">
+      <Button onClick={onClose}>{t('button.close')}</Button>
+      <Space wrap>
+        {isDraft && (
+          <>
+            <Button icon={<DeleteOutlined />} danger onClick={onDeleteDraft}>
+              {t('financial_assistance.action.delete_draft')}
+            </Button>
+            <Button type="primary" icon={<EditOutlined />} onClick={onEditDraft}>
+              {t('button.update')}
+            </Button>
+          </>
+        )}
+        {isPending && (
+          <Button icon={<StopOutlined />} danger onClick={onWithdraw}>
+            {t('financial_assistance.action.withdraw')}
+          </Button>
+        )}
+        {canReapply && (
+          <Button type="primary" icon={<RedoOutlined />} onClick={onReapply}>
+            {t('financial_assistance.action.apply_again')}
+          </Button>
+        )}
+      </Space>
+    </Flex>
+  )
+
+  return (
+    <Modal
+      open={Boolean(detail) || loading}
+      width={860}
+      title={title}
+      footer={footer}
+      onCancel={onClose}
+      destroyOnHidden
+    >
+      {loading || !detail ? (
+        <Typography.Text type="secondary">{t('general.loading')}</Typography.Text>
+      ) : (
+        <Flex vertical gap={16}>
+          <Descriptions bordered size="small" column={{ xs: 1, md: 2 }}>
+            <Descriptions.Item label={t('financial_assistance.field.scheme')}>
+              {detail.scheme?.schemeName || '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.status')}>
+              <FasStatusTag status={detail.status} />
+            </Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.submitted_at')}>
+              <DetailDate value={detail.createdAt} />
+            </Descriptions.Item>
+            {detail.withdrawnAt && (
+              <Descriptions.Item label={t('financial_assistance.field.withdrawn_at')}>
+                <DetailDate value={detail.withdrawnAt} />
+              </Descriptions.Item>
+            )}
+            {detail.approvedAt && (
+              <Descriptions.Item label={t('financial_assistance.field.approved_at')}>
+                <DetailDate value={detail.approvedAt} />
+              </Descriptions.Item>
+            )}
+            {detail.validityEndDate && (
+              <Descriptions.Item label={t('financial_assistance.field.validity_end_date')}>
+                <DetailDate value={detail.validityEndDate} />
+              </Descriptions.Item>
+            )}
+            <Descriptions.Item label={t('financial_assistance.field.gross_household_income')}>
+              {formatMoney(detail.grossHouseholdIncomeSnapshot)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.per_capita_income')}>
+              {formatMoney(detail.perCapitaIncomeSnapshot)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.household_members')}>
+              {detail.householdMemberCountSnapshot ?? '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.guardian_nationality')}>
+              {detail.guardianNationalitySnapshot || '-'}
+            </Descriptions.Item>
+          </Descriptions>
+
+          {showTier && (
+            <DetailSection title={t('financial_assistance.section.tier')}>
+              <TierSummary tier={detail.approvedTier} />
+            </DetailSection>
+          )}
+
+          {(detail.externalRejectionReason ||
+            status === FAS_APPLICATION_STATUS.Rejected ||
+            status === FAS_APPLICATION_STATUS.Withdrawn) && (
+            <DetailSection
+              title={
+                status === FAS_APPLICATION_STATUS.Withdrawn
+                  ? t('financial_assistance.section.application_note')
+                  : t('financial_assistance.section.rejection_reason')
+              }
+            >
+              <Typography.Paragraph>
+                {detail.externalRejectionReason ||
+                  t('financial_assistance.message.application_withdrawn_description')}
+              </Typography.Paragraph>
+            </DetailSection>
+          )}
+
+          <DetailSection
+            title={t('financial_assistance.section.documents')}
+            extra={
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {(detail.documents || []).length}
+              </Typography.Text>
+            }
+          >
+            <List
+              size="small"
+              dataSource={detail.documents || []}
+              locale={{ emptyText: t('financial_assistance.empty.no_documents') }}
+              renderItem={(document) => {
+                const fileUrl = getFileUrl(document.fileKey)
+                return (
+                  <List.Item
+                    actions={
+                      fileUrl
+                        ? [
+                            <Button
+                              key="view"
+                              type="link"
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {t('financial_assistance.action.view_document')}
+                            </Button>,
+                          ]
+                        : []
+                    }
+                  >
+                    <List.Item.Meta
+                      avatar={<FileTextOutlined />}
+                      title={document.documentNameSnapshot || document.fileName}
+                      description={document.fileName || '-'}
+                    />
+                  </List.Item>
+                )
+              }}
+            />
+          </DetailSection>
+
+          <DetailSection
+            title={t('financial_assistance.section.additional_questions')}
+            extra={
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {(detail.additionalAnswers || []).length}
+              </Typography.Text>
+            }
+          >
+            <List
+              size="small"
+              dataSource={detail.additionalAnswers || []}
+              locale={{ emptyText: t('financial_assistance.empty.no_additional_questions') }}
+              renderItem={(answer) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={
+                      <Space size={6}>
+                        <Typography.Text>{answer.questionTextSnapshot}</Typography.Text>
+                        {answer.isRequiredSnapshot && (
+                          <Typography.Text type="danger">*</Typography.Text>
+                        )}
+                      </Space>
+                    }
+                    description={answer.answerText || '-'}
+                  />
+                </List.Item>
+              )}
+            />
+          </DetailSection>
+        </Flex>
+      )}
+    </Modal>
+  )
 }
 
 const MyFasManagementPage = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const confirm = useConfirm()
-  const [filters, setFilters] = useState(defaultFasApplicationFilters)
-  const [activeTab, setActiveTab] = useState(FAS_APPLICATION_ACTIVITY_TAB.Inactive)
-  const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
-  const [sortChoice, setSortChoice] = useState('newest')
+  const { fasApplicationStatusOptions } = useEnum()
+  const [filters, setFilters] = useState(defaultFilters)
+  const [activeStatus, setActiveStatus] = useState(FAS_APPLICATION_STATUS.Draft)
+  const [sort, setSort] = useState({ key: null, direction: 'desc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [apiViewApplication, setApiViewApplication] = useState(null)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const reapplyDraftSubmit = useAxiosSubmit({
-    method: 'POST',
-    onError: async (error) => {
-      message.error(getApiErrorMessage(error, t))
-    },
-  })
-  const withdrawSubmit = useAxiosSubmit({
-    method: 'POST',
-  })
-  const deleteDraftSubmit = useAxiosSubmit({
-    method: 'DELETE',
-  })
+  const [detail, setDetail] = useState(null)
 
-  const apiQueryParams = useMemo(
+  const queryParams = useMemo(
     () => ({
-      Page: 1,
-      PageSize: 100,
-      Sort: `${sort.key === 'submittedAt' ? 'createdAt' : sort.key} ${sort.direction}`,
       Search: filters.search || undefined,
+      Statuses: [activeStatus],
+      ...(sort.key ? { Sort: `${sort.key} ${sort.direction}` } : {}),
+      Page: page,
+      PageSize: pageSize,
     }),
-    [filters.search, sort.direction, sort.key]
+    [activeStatus, filters.search, page, pageSize, sort]
   )
-  const apiApplicationsQuery = useFetch(
+
+  const applications = useFetch(ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS, queryParams, [queryParams])
+  const pendingCount = useFetch(
     ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
-    apiQueryParams,
-    [apiQueryParams]
+    { Statuses: [FAS_APPLICATION_STATUS.Pending], Page: 1, PageSize: 1 },
+    []
   )
-  const apiApplicationPage = useMemo(
-    () => normalizeApiApplicationPage(apiApplicationsQuery.data),
-    [apiApplicationsQuery.data]
+  const approvedCount = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    { Statuses: [FAS_APPLICATION_STATUS.Approved], Page: 1, PageSize: 1 },
+    []
   )
-  const statusSourceRows = apiApplicationPage.collection
-  const activityCounts = useMemo(
-    () =>
-      applicationActivityTabOptions.reduce((acc, tab) => {
-        acc[tab.value] = statusSourceRows.filter((application) =>
-          tab.statuses.has(application.displayStatus)
-        ).length
-        return acc
-      }, {}),
-    [statusSourceRows]
+  const rejectedCount = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    { Statuses: [FAS_APPLICATION_STATUS.Rejected], Page: 1, PageSize: 1 },
+    []
   )
-
-  const apiVisibleRows = useMemo(() => {
-    const query = filters.search.trim().toLowerCase()
-    const selectedStatus =
-      activeTab === FAS_APPLICATION_ACTIVITY_TAB.Inactive ? filters.status || 'all' : 'all'
-
-    return apiApplicationPage.collection.filter((application) => {
-      const matchesQuery =
-        !query ||
-        application.id.toLowerCase().includes(query) ||
-        application.schemeName.toLowerCase().includes(query)
-      const matchesTab = isApplicationInActivityTab(application, activeTab)
-      const matchesStatus =
-        selectedStatus === 'all' || application.displayStatus === selectedStatus
-      return matchesQuery && matchesTab && matchesStatus
-    })
-  }, [activeTab, apiApplicationPage.collection, filters.search, filters.status])
-
-  const apiTableData = {
-    collection: apiVisibleRows.slice((page - 1) * pageSize, page * pageSize),
-    totalCount: apiVisibleRows.length,
-    totalPage: Math.max(1, Math.ceil(apiVisibleRows.length / pageSize)),
+  const withdrawnCount = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    { Statuses: [FAS_APPLICATION_STATUS.Withdrawn], Page: 1, PageSize: 1 },
+    []
+  )
+  const draftCount = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    { Statuses: [FAS_APPLICATION_STATUS.Draft], Page: 1, PageSize: 1 },
+    []
+  )
+  const expiredCount = useFetch(
+    ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATIONS,
+    { Statuses: [FAS_APPLICATION_STATUS.Expired], Page: 1, PageSize: 1 },
+    []
+  )
+  const countMap = {
+    [FAS_APPLICATION_STATUS.Pending]: pendingCount.data?.totalCount ?? 0,
+    [FAS_APPLICATION_STATUS.Approved]: approvedCount.data?.totalCount ?? 0,
+    [FAS_APPLICATION_STATUS.Rejected]: rejectedCount.data?.totalCount ?? 0,
+    [FAS_APPLICATION_STATUS.Withdrawn]: withdrawnCount.data?.totalCount ?? 0,
+    [FAS_APPLICATION_STATUS.Draft]: draftCount.data?.totalCount ?? 0,
+    [FAS_APPLICATION_STATUS.Expired]: expiredCount.data?.totalCount ?? 0,
   }
-  const resolvedTableData = apiTableData
-  const viewApplication = apiViewApplication
-  const viewScheme = viewApplication?.scheme
+
+  const loadDetail = useAxiosSubmit({ method: 'GET' })
+  const withdraw = useAxiosSubmit({ method: 'POST' })
+  const removeDraft = useAxiosSubmit({ method: 'DELETE' })
+  const reapply = useAxiosSubmit({ method: 'POST' })
+  const pageData = applications.data || { collection: [], totalCount: 0, totalPage: 0 }
 
   const handleFilter = (values) => {
     setFilters(values)
     setPage(1)
   }
 
-  const loadApiApplicationDetail = async (application) => {
-    if (!application?.apiId) return null
-
-    setDetailLoading(true)
-    try {
-      const response = await axiosConfig.get(
-        ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DETAIL(application.apiId)
-      )
-      return normalizeApiApplicationDetail(response.data, application)
-    } finally {
-      setDetailLoading(false)
-    }
+  const handleStatusChange = (status) => {
+    setActiveStatus(status)
+    setPage(1)
   }
 
-  const applyAgain = async (application) => {
-    if (!application?.apiId) {
-      message.error(t('financial_assistance.message.application_id_missing'))
-      return
-    }
-
-    const response = await reapplyDraftSubmit.submit({
-      overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_REAPPLY_DRAFT(application.apiId),
+  const openDetail = async (row) => {
+    const response = await loadDetail.submit({
+      overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DETAIL(row.id),
     })
-    const draftId = getResponseData(response)?.id
+    if (response?.data) setDetail(response.data)
+  }
+
+  const closeDetail = () => setDetail(null)
+
+  const refreshAfterAction = async () => {
+    closeDetail()
+    await Promise.all([
+      applications.fetch(),
+      pendingCount.fetch(),
+      approvedCount.fetch(),
+      rejectedCount.fetch(),
+      withdrawnCount.fetch(),
+      draftCount.fetch(),
+      expiredCount.fetch(),
+    ])
+  }
+
+  const handleDeleteDraft = async () => {
+    if (!detail) return
+    const response = await removeDraft.submit({
+      overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DELETE_DRAFT(detail.id),
+    })
+    if (response) await refreshAfterAction()
+  }
+
+  const handleWithdraw = async () => {
+    if (!detail) return
+    const response = await withdraw.submit({
+      overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(detail.id),
+    })
+    if (response) await refreshAfterAction()
+  }
+
+  const handleReapply = async () => {
+    if (!detail) return
+    const response = await reapply.submit({
+      overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_REAPPLY_DRAFT(detail.id),
+    })
+    const draftId = response?.data?.id ?? response?.data
     if (draftId) {
       navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
         state: { draftApplicationId: draftId },
@@ -190,255 +480,103 @@ const MyFasManagementPage = () => {
     }
   }
 
-  const editDraft = (application) => {
-    if (!application?.apiId) {
-      message.error(t('financial_assistance.message.application_id_missing'))
-      return
-    }
+  const fields = [
+    {
+      key: 'applicationNumber',
+      title: t('financial_assistance.field.application_number'),
+      sortable: true,
+      fixedColumn: true,
+      width: 220,
+    },
+    {
+      key: 'schemeName',
+      title: t('financial_assistance.field.scheme_name'),
+      sortable: true,
+      width: 280,
+    },
+    {
+      key: 'status',
+      title: t('financial_assistance.field.status'),
+      sortable: true,
+      width: 140,
+      render: (value) => <FasStatusTag status={value} />,
+    },
+    {
+      key: 'submittedAt',
+      title: t('financial_assistance.field.submitted_date'),
+      sortable: true,
+      width: 200,
+      render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
+    },
+  ]
 
-    navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
-      state: { draftApplicationId: application.apiId },
-    })
-  }
-
-  const deleteDraft = async (application) => {
-    const apiId = application?.apiId
-    if (apiId == null) {
-      message.error('Unable to delete this draft because its API id is missing.')
-      return
-    }
-
-    const isConfirmed = await confirm({
-      title: `Delete ${application.schemeName || application.id}?`,
-      description: 'This removes the draft application. You can still apply for this scheme again.',
-      confirmText: 'Delete',
-      confirmColor: 'error',
-    })
-
-    if (!isConfirmed) return
-
-    try {
-      const response = await deleteDraftSubmit.submit({
-        overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DELETE_DRAFT(apiId),
-      })
-      if (response) {
-        message.success('Draft application deleted successfully.')
-        setPage(1)
-        apiApplicationsQuery.fetch()
-      }
-    } catch {
-      // Errors handled globally by axios interceptor
-    }
-  }
-
-  const withdraw = async (application) => {
-    const apiId = application?.apiId
-    if (apiId == null) {
-      message.error('Unable to withdraw this application because its API id is missing.')
-      return
-    }
-
-    const isConfirmed = await confirm({
-      title: `Withdraw ${application.schemeName || application.id}?`,
-      description: 'The pending application will be withdrawn and the scheme will reappear in Apply if it is still available.',
-      confirmText: 'Withdraw',
-      confirmColor: 'error',
-    })
-
-    if (isConfirmed) {
-      try {
-        await withdrawSubmit.submit({
-          overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(apiId),
-        })
-        setPage(1)
-        apiApplicationsQuery.fetch()
-      } catch {
-        // Errors handled globally by axios interceptor
-      }
-    }
-  }
-
-  const viewApplicationDetail = async (application) => {
-    const detail = await loadApiApplicationDetail(application)
-    if (detail) setApiViewApplication(detail)
-  }
-
-  const updateSortChoice = (value) => {
-    setSortChoice(value)
-    setSort(
-      value === 'name'
-        ? { key: 'schemeName', direction: 'asc' }
-        : { key: 'submittedAt', direction: value === 'oldest' ? 'asc' : 'desc' }
-    )
+  const handleSortChange = (nextSort) => {
+    setSort(nextSort)
     setPage(1)
   }
 
   return (
-    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1600, margin: '0 auto' }}>
-      <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
-        My FAS Management
-      </Typography.Title>
+    <Card>
+      <Flex vertical gap={16}>
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {t('financial_assistance.management.title')}
+        </Typography.Title>
 
-      <Card styles={{ body: { padding: 'clamp(16px, 2vw, 24px)' } }}>
-        <Flex vertical gap={16}>
-          <Tabs
-            activeKey={activeTab}
-            onChange={(tab) => {
-              setActiveTab(tab)
-              setFilters((currentFilters) => ({ ...currentFilters, status: 'all' }))
-              setPage(1)
-            }}
-            items={applicationActivityTabOptions.map((tab) => ({
-              key: tab.value,
-              label: `${tab.label} (${activityCounts[tab.value] || 0})`,
-            }))}
-          />
-          <FasApplicationFilterSection
-            key={activeTab}
-            filters={filters}
-            loading={apiApplicationsQuery.loading}
-            searchTitle="Search by FAS or app no."
-            dateTitle="Submitted date"
-            showStatus={activeTab === FAS_APPLICATION_ACTIVITY_TAB.Inactive}
-            statusMode="single"
-            statusOptions={myFasApplicationStatusOptions}
-            showDateRange={false}
-            onFilter={handleFilter}
-            onReset={() => handleFilter(defaultFasApplicationFilters)}
-          />
-          <Flex justify="end">
-            <Select
-              value={sortChoice}
-              placeholder="Select sort order"
-              style={{ width: 180 }}
-              options={[
-                { value: 'newest', label: 'Newest' },
-                { value: 'oldest', label: 'Oldest' },
-                { value: 'name', label: 'Name A-Z' },
-              ]}
-              onChange={updateSortChoice}
-            />
-          </Flex>
-          <MyFasApplicationTableSection
-            applications={resolvedTableData.collection}
-            loading={
-              apiApplicationsQuery.loading ||
-              reapplyDraftSubmit.loading ||
-              withdrawSubmit.loading ||
-              deleteDraftSubmit.loading
-            }
-            sort={sort}
-            setSort={setSort}
-            onWithdraw={withdraw}
-            onView={viewApplicationDetail}
-            onEditDraft={editDraft}
-            onDeleteDraft={deleteDraft}
-            onApplyAgain={applyAgain}
-          />
-          <GenericTablePagination
-            totalCount={resolvedTableData.totalCount}
-            totalPage={resolvedTableData.totalPage}
-            page={page}
-            setPage={setPage}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-            loading={false}
-          />
-        </Flex>
-      </Card>
-
-      <ApprovedFasModal
-        application={viewApplication}
-        scheme={viewScheme}
-        open={!!viewApplication && !!viewScheme}
-        loading={detailLoading}
-        onClose={() => {
-          setApiViewApplication(null)
-        }}
-        onApplyAgain={(application) => {
-          setApiViewApplication(null)
-          applyAgain(application)
-        }}
-      />
-    </Flex>
-  )
-}
-
-const ApprovedFasModal = ({ application, scheme, open, loading, onClose, onApplyAgain }) => {
-  if (!application || !scheme) return null
-
-  const tier = scheme.tiers.find((item) => item.id === application.tierId)
-  const expired = isApprovedApplicationExpired(application)
-  const validFrom = application.validFrom || application.submittedAt || application.approvedAt
-
-  return (
-    <Modal title={scheme.name} open={open} footer={null} onCancel={onClose} width={560} confirmLoading={loading}>
-      <div className="fas-kv">
-        <div className="fas-kv-row">
-          <span>Application No.</span>
-          <strong>{application.id}</strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Tier</span>
-          <strong>{tier?.name || '-'}</strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Valid from</span>
-          <strong>{formatFasDate(validFrom)}</strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Duration</span>
-          <strong>{scheme.validityMonths || 12} months</strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Valid until</span>
-          <strong style={{ color: expired ? 'var(--fas-red)' : undefined }}>
-            {formatFasDate(application.endDate)}
-            {expired ? ' · Expired' : ''}
-          </strong>
-        </div>
-        <div className="fas-kv-row">
-          <span>Validity status</span>
-          <strong style={{ color: expired ? 'var(--fas-red)' : 'var(--fas-green)' }}>
-            {expired ? 'Invalid' : 'Valid'}
-          </strong>
-        </div>
-      </div>
-
-      <div className="fas-section-label" style={{ marginBottom: 7 }}>
-        Tier subsidy
-      </div>
-      <div className="fas-kv">
-        <div className="fas-kv-row">
-          <span>Subsidy</span>
-          <strong>{tier ? describeTierSubsidy(scheme, tier) : '-'}</strong>
-        </div>
-      </div>
-
-      <div className="fas-section-label" style={{ marginBottom: 7 }}>
-        Applied to courses
-      </div>
-      {application.courses?.length ? (
-        <ul className="fas-course-list">
-          {application.courses.map((course) => (
-            <li key={course}>{course}</li>
+        <Space wrap>
+          {statusTabs.map((status) => (
+            <Button
+              key={status}
+              type={activeStatus === status ? 'primary' : 'default'}
+              onClick={() => handleStatusChange(status)}
+            >
+              {getEnumLabelByValue(fasApplicationStatusOptions, status) || status} (
+              {countMap[status] ?? 0})
+            </Button>
           ))}
-        </ul>
-      ) : (
-        <div className="fas-muted" style={{ fontSize: 12.5 }}>
-          Not applied to any course yet.
-        </div>
-      )}
+        </Space>
 
-      <Flex justify="end" gap={8} style={{ marginTop: 16 }}>
-        {expired && (
-          <Button type="primary" onClick={() => onApplyAgain?.(application)}>
-            Apply again
-          </Button>
-        )}
-        <Button onClick={onClose}>Close</Button>
+        <MyFasFilterSection
+          filters={filters}
+          loading={applications.loading}
+          onFilter={handleFilter}
+          onReset={() => handleFilter(defaultFilters)}
+        />
+
+        <GenericTable
+          data={pageData.collection}
+          fields={fields}
+          rowKey="id"
+          sort={sort}
+          setSort={handleSortChange}
+          loading={applications.loading}
+          onRowClick={openDetail}
+        />
+
+        <GenericTablePagination
+          totalCount={pageData.totalCount}
+          totalPage={pageData.totalPage}
+          page={page}
+          setPage={setPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          loading={applications.loading}
+        />
       </Flex>
-    </Modal>
+
+      <MyFasApplicationDetailDialog
+        detail={detail}
+        loading={loadDetail.loading}
+        onClose={closeDetail}
+        onEditDraft={() =>
+          navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
+            state: { draftApplicationId: detail?.id },
+          })
+        }
+        onDeleteDraft={handleDeleteDraft}
+        onWithdraw={handleWithdraw}
+        onReapply={handleReapply}
+      />
+    </Card>
   )
 }
 

@@ -1,0 +1,65 @@
+.tuition-charge-card {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.tuition-charge-card:hover:not([aria-disabled='true']) {
+  transform: translateY(-2px);
+  border-color: var(--app-primary);
+  box-shadow: 0 8px 24px rgba(30, 58, 138, 0.14);
+}
+
+.tuition-charge-card--selected {
+  border-color: var(--app-primary);
+  background: var(--app-primary-soft-bg);
+  box-shadow: 0 6px 20px rgba(30, 58, 138, 0.14);
+}
+
+.tuition-charge-card:focus-visible {
+  outline: 2px solid var(--app-primary);
+  outline-offset: 2px;
+}
+
+.tuition-charge-card__selector .ant-checkbox-inner {
+  width: 18px;
+  height: 18px;
+}
+
+.tuition-charge-card__code {
+  align-self: center;
+}
+
+.tuition-charge-card__payment {
+  min-width: 190px;
+}
+
+.tuition-charge-card__installment-link {
+  height: auto;
+  padding: 0;
+  transition: transform 180ms ease;
+}
+
+.tuition-charge-card__installment-link:hover {
+  transform: scale(1.02);
+}
+
+.tuition-charge-card__divider {
+  width: auto;
+  min-width: 0;
+  margin: 0 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuition-charge-card,
+  .tuition-charge-card__installment-link {
+    transition: none;
+  }
+
+  .tuition-charge-card:hover:not([aria-disabled='true']),
+  .tuition-charge-card__installment-link:hover {
+    transform: none;
+  }
+}

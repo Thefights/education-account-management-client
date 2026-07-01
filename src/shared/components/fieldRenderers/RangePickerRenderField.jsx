@@ -37,7 +37,7 @@ const RangePickerRenderField = ({ field, values, setField }, ref) => {
   const toKey = to.key || 'toDate'
   const fromValue = getObjectValueFromStringPath(values, fromKey)
   const toValue = getObjectValueFromStringPath(values, toKey)
-  const valueType = field.valueType || 'date'
+  const valueType = field.valueType || 'language-datetime'
   const parseValue =
     field.parseValue ||
     (valueType === 'language-datetime' ? languageDateTimeParser : defaultDateParser)

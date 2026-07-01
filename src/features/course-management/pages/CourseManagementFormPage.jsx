@@ -404,7 +404,7 @@ const CourseManagementFormPage = () => {
             <Col xs={24} lg={12}>
               <FormSectionCard
                 title={t('course_management.field.total_fee_amount')}
-                icon={<DollarOutlined style={{ color: '#52c41a' }} />}
+                icon={<DollarOutlined style={{ color: token.colorSuccess }} />}
                 t={t}
               >
                 <Row gutter={16}>
@@ -424,7 +424,7 @@ const CourseManagementFormPage = () => {
             <Col xs={24} lg={12}>
               <FormSectionCard
                 title={t('course_management.title.important_dates')}
-                icon={<CalendarOutlined style={{ color: '#1677ff' }} />}
+                icon={<CalendarOutlined style={{ color: token.colorPrimary }} />}
                 t={t}
               >
                 <Row gutter={16}>
@@ -441,7 +441,7 @@ const CourseManagementFormPage = () => {
           {fasFields.length > 0 && (
             <FormSectionCard
               title={t('course_management.title.applicable_fas')}
-              icon={<GiftOutlined style={{ color: '#722ed1' }} />}
+              icon={<GiftOutlined style={{ color: token.colorInfo }} />}
               t={t}
             >
               {fasFields.map((field) => (
@@ -462,7 +462,7 @@ const CourseManagementFormPage = () => {
                   </Tag>
                 </Space>
               }
-              icon={<TeamOutlined style={{ color: '#722ed1' }} />}
+              icon={<TeamOutlined style={{ color: token.colorInfo }} />}
               t={t}
             >
               {studentFields.map((field) => (

@@ -1,12 +1,145 @@
 {
   "financial_assistance": {
+    "menu": {
+      "my_fas": "我的 FAS",
+      "apply": "申请",
+      "management": "管理"
+    },
+    "apply": {
+      "title": "申请财务援助",
+      "description": "查找符合条件的计划并提交支持信息。",
+      "application_title": "申请",
+      "application_description": "请上传所需文件并完成问题后再提交。",
+      "application_status": "申请状态",
+      "step_back_hint": "选择上方的前一步可返回并修改信息。",
+      "loading_draft": "正在加载草稿...",
+      "household_help": "我们将使用这些信息查找您可申请的计划。",
+      "household_summary": "家庭信息摘要",
+      "household_summary_help": "这些信息已用于查找匹配的援助计划。",
+      "finding_schemes": "正在查找符合条件的计划...",
+      "matching_household": "正在将家庭信息与有效计划进行匹配。",
+      "eligibility_checked": "资格已检查",
+      "eligible_schemes_available": "根据您的家庭信息，以下计划可供申请。",
+      "eligible_schemes": "符合条件的计划",
+      "compare_schemes": "申请前请比较可用的援助计划。",
+      "required_documents_help": "提交申请前请上传所有文件。",
+      "additional_questions_help": "请提供评估所需的其他信息。"
+    },
+    "management": {
+      "title": "我的 FAS 申请",
+      "search_label": "按申请编号、计划名称、账户编号或账户持有人姓名搜索",
+      "detail_title": "FAS 申请 {number}"
+    },
+    "step": {
+      "household_details": "家庭信息",
+      "select_scheme": "选择计划",
+      "application": "申请"
+    },
+    "field": {
+      "application_number": "申请编号",
+      "scheme": "计划",
+      "scheme_name": "计划名称",
+      "status": "状态",
+      "submitted_date": "提交日期",
+      "submitted_at": "提交时间",
+      "withdrawn_at": "撤回时间",
+      "approved_at": "批准时间",
+      "validity_end_date": "有效至",
+      "gross_household_income": "家庭总收入",
+      "household_income": "家庭收入",
+      "household_members": "家庭成员数",
+      "members": "成员",
+      "guardian": "监护人",
+      "guardian_nationality": "监护人国籍",
+      "income": "收入",
+      "per_capita_income": "人均收入",
+      "deduction": "扣减"
+    },
+    "section": {
+      "required_documents": "所需文件",
+      "additional_questions": "附加问题",
+      "assistance_tiers": "援助等级",
+      "why_eligible": "符合资格的原因",
+      "tier": "等级",
+      "documents": "文件",
+      "rejection_reason": "拒绝原因",
+      "application_note": "申请备注"
+    },
+    "action": {
+      "apply": "申请",
+      "apply_again": "再次申请",
+      "check_eligibility": "检查资格",
+      "delete_draft": "删除草稿",
+      "hide_details": "隐藏详情",
+      "replace_file": "替换",
+      "save_draft": "保存草稿",
+      "submit_application": "提交申请",
+      "upload_file": "上传文件",
+      "view": "查看",
+      "view_document": "查看文件",
+      "view_details": "查看详情",
+      "withdraw": "撤回",
+      "remove_document": "移除 {name}"
+    },
+    "status": {
+      "already_applied": "已申请",
+      "draft": "草稿",
+      "eligible": "符合条件",
+      "optional": "可选",
+      "required": "必填"
+    },
+    "filter": {
+      "all_statuses": "所有状态"
+    },
+    "text": {
+      "additional_questions_count": "{count} 个附加问题",
+      "answered_count": "已回答 {answered}/{total}",
+      "assistance_tiers_count": "{count} 个援助等级",
+      "available_count": "{count} 个可用",
+      "checking": "正在检查...",
+      "default_scheme_description": "面向符合条件学生的财务援助计划。",
+      "documents_uploaded": "已上传 {uploaded}/{total} 份文件",
+      "months": "{count} 个月",
+      "no_file_selected": "未选择文件",
+      "per_component_subsidy": "课程费 {course}，杂费 {misc}",
+      "required_documents_count": "{count} 份所需文件",
+      "required_questions_completed": "已完成 {completed}/{total} 个必填问题",
+      "scheme_matches_household": "此计划符合您的家庭信息。",
+      "template_file": "模板：{name}",
+      "uploaded_count": "已上传 {uploaded}/{total}",
+      "valid_for_months": "有效期 {count} 个月"
+    },
+    "placeholder": {
+      "enter_answer": "输入您的回答"
+    },
+    "empty": {
+      "no_additional_questions": "没有附加问题。",
+      "no_approved_tier": "没有已批准的等级。",
+      "no_documents": "没有文件。",
+      "no_documents_required": "无需文件。",
+      "no_eligible_schemes": "未找到符合条件的计划",
+      "no_eligible_schemes_help": "您的家庭信息目前不符合任何有效计划。",
+      "no_required_documents": "没有所需文件。",
+      "no_template_required": "无需模板"
+    },
     "message": {
       "application_id_missing": "无法找到此申请。",
       "application_submitted": "申请已提交：{name}",
+      "application_submitted_simple": "FAS 申请已提交。",
+      "application_withdrawn": "申请已撤回。",
+      "application_withdrawn_description": "此申请已撤回，不再处于审核中。",
       "attach_required_documents": "请上传所有必需文件（还剩 {count} 份）",
       "confirm_required_details": "请确认必填的申请信息",
       "duplicate_application": "您已为此计划提交了待审核或已批准的申请。",
+      "duplicate_application_active": "您已为此计划提交了待审核或仍有效的已批准申请。",
+      "document_required": "{name} 为必填项。",
+      "draft_deleted": "草稿已删除。",
+      "draft_saved": "草稿已保存。",
+      "gross_income_non_negative": "家庭总收入不能为负数。",
+      "gross_income_required": "家庭总收入为必填项。",
+      "household_member_positive": "家庭成员数必须大于 0。",
       "no_matching_tier": "输入的信息不符合此计划的任何资助等级",
+      "question_required": "{name} 为必填项。",
       "reapply_failed": "无法准备重新申请。",
       "submit_failed": "无法提交 FAS 申请"
     }

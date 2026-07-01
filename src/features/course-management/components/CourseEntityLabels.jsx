@@ -1,6 +1,12 @@
 import { Avatar, Space, Tag, Typography } from 'antd'
 
-const avatarColors = ['#1677ff', '#13c2c2', '#52c41a', '#722ed1', '#fa8c16', '#eb2f96']
+const avatarColors = [
+  'var(--app-primary)',
+  'var(--app-secondary)',
+  'var(--app-success)',
+  'var(--app-warning)',
+  'var(--app-error)',
+]
 
 const getAvatarColor = (text = '') => {
   const charSum = String(text)
@@ -71,7 +77,6 @@ export const CourseFasSchemeOptionLabel = ({ scheme }) => (
         )}
       </Space>
       <Typography.Text type="secondary" style={{ display: 'block', fontSize: 12 }}>
-        {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
         {scheme.durationInMonths || 0} months
       </Typography.Text>
     </div>

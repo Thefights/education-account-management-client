@@ -1,11 +1,19 @@
 import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
+import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
-const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
+const defaultFilters = {
+  Search: '',
+  Statuses: [],
+  Sort: 'createdAt desc',
+}
+
+const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
   const { t } = useTranslation()
+  const { studentTuitionFilterStatusOptions } = useEnum()
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(
     values,
@@ -20,32 +28,41 @@ const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
   const fields = useMemo(
     () => [
       {
-        key: 'search',
-        title: t('education_account.search'),
-        label: t('education_account.search_label'),
+        key: 'Search',
+        title: t('tuition-payment.filter.search_label'),
+        label: t('tuition-payment.filter.search_label'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,
       },
       {
-        key: 'statuses',
-        title: t('education_account.status'),
+        key: 'Statuses',
+        title: t('tuition-payment.filter.status'),
+        label: t('tuition-payment.filter.status'),
         type: 'multi-check-dropdown',
-        required: false,
-        options: [
-          { value: 'Active', label: t('education_account.active') },
-          { value: 'Extended', label: t('education_account.extended') },
-          { value: 'Closed', label: t('education_account.inactive') },
-        ],
+        options: studentTuitionFilterStatusOptions,
+        loading,
         placeholder: t('text.all'),
         selectAllText: t('general.select_all'),
         searchPlaceholder: t('general.input_keyword'),
         cancelText: t('general.cancel'),
         okText: t('general.ok'),
         selectedText: (count) => `${count} ${t('text.items')}`,
+        required: false,
+      },
+      {
+        key: 'Sort',
+        title: t('tuition-payment.filter.sort'),
+        label: t('tuition-payment.filter.sort'),
+        type: 'select',
+        options: [
+          { value: 'createdAt desc', label: t('tuition-payment.filter.newest') },
+          { value: 'createdAt asc', label: t('tuition-payment.filter.oldest') },
+        ],
+        required: false,
       },
     ],
-    [t]
+    [loading, studentTuitionFilterStatusOptions, t]
   )
 
   return (
@@ -54,16 +71,13 @@ const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
       values={values}
       renderField={renderField}
       reset={reset}
-      resetValues={{ search: '', statuses: [] }}
+      resetValues={defaultFilters}
       onReset={onReset}
       onFilter={onFilter}
-      cardProps={{
-        style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
-        styles: { body: { padding: 16 } },
-      }}
-      getFieldColProps={(_, index) => (index === 0 ? { xs: 24, md: 16 } : { xs: 24, md: 8 })}
+      loading={loading}
+      getFieldColProps={() => ({ xs: 24, md: 8 })}
     />
   )
 }
 
-export default EServiceAccountsFilterSection
+export default TuitionFilterSection

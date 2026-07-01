@@ -147,6 +147,7 @@ export const ApiUrls = {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',
     COURSES: '/account-holder/courses',
+    COURSE_DETAIL: (id) => `/account-holder/courses/${id}`,
     TUITION_SUMMARY: '/account-holder/tuition-summary',
     TUITION_CHARGES: '/account-holder/tuition-charges',
     FAS_AVAILABLE_SCHEMES: '/account-holder/fas-schemes/available',
@@ -160,7 +161,11 @@ export const ApiUrls = {
     FAS_APPLICATION_WITHDRAW: (id) => `/account-holder/fas-applications/withdraw/${id}`,
   },
   PAYMENT: {
-    INDEX: 'Payment/',
-    HANDLE: 'Payment/handle', 
+    FULL: '/payment/full',
+    INSTALLMENT_PLAN: '/payment/installment-plan',
+    INSTALLMENTS_DUE: '/payment/installments/due',
+    INSTALLMENTS_REMAINING: '/payment/installments/remaining',
+    SUCCESS: '/payment/success',
+    CANCEL: '/payment/cancel',
   },
 }
