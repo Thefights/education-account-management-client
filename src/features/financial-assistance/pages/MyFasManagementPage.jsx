@@ -13,6 +13,8 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
+import useTranslation from '@/shared/hooks/useTranslation'
+import { showSuccessToast } from '@/shared/utils/toastUtil'
 import { DeleteOutlined, EditOutlined, EyeOutlined, RedoOutlined, StopOutlined } from '@ant-design/icons'
 import {
   Button,
@@ -24,7 +26,6 @@ import {
   Select,
   Space,
   Typography,
-  message,
 } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -33,6 +34,7 @@ const FAS_APPLICATION_STATUS = EnumConfig.FasApplicationStatus
 
 const MyFasManagementPage = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { fasApplicationStatusOptions } = useEnum()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
@@ -66,28 +68,28 @@ const MyFasManagementPage = () => {
   }
   const mutate = async (request, successMessage) => {
     if (!request) return
-    message.success(successMessage)
+    showSuccessToast(successMessage)
     setDetail(null)
     await applications.fetch()
   }
 
   const fields = [
-    { key: 'applicationNumber', title: 'Application number', sortable: true },
-    { key: 'schemeName', title: 'Scheme name', sortable: true },
-    { key: 'status', title: 'Status', sortable: true, render: (value) => <FasStatusTag status={value} /> },
-    { key: 'submittedAt', title: 'Submitted date', sortable: true },
+    { key: 'applicationNumber', title: t('financial_assistance.field.application_number'), sortable: true },
+    { key: 'schemeName', title: t('financial_assistance.field.scheme_name'), sortable: true },
+    { key: 'status', title: t('financial_assistance.field.status'), sortable: true, render: (value) => <FasStatusTag status={value} /> },
+    { key: 'submittedAt', title: t('financial_assistance.field.submitted_date'), sortable: true },
     {
       key: 'actions',
       title: '',
       width: 60,
       render: (_, row) => {
         const actions = [
-          { title: 'View', icon: <EyeOutlined />, onClick: () => openDetail(row) },
+          { title: t('financial_assistance.action.view'), icon: <EyeOutlined />, onClick: () => openDetail(row) },
         ]
         if (row.status === FAS_APPLICATION_STATUS.Draft) {
           actions.push(
             {
-              title: 'Update',
+              title: t('button.update'),
               icon: <EditOutlined />,
               onClick: () =>
                 navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY), {
@@ -95,28 +97,28 @@ const MyFasManagementPage = () => {
                 }),
             },
             {
-              title: 'Delete draft',
+              title: t('financial_assistance.action.delete_draft'),
               icon: <DeleteOutlined />,
               onClick: async () =>
                 mutate(
                   await removeDraft.submit({
                     overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_DELETE_DRAFT(row.id),
                   }),
-                  'Draft deleted.'
+                  t('financial_assistance.message.draft_deleted')
                 ),
             }
           )
         }
         if (row.status === FAS_APPLICATION_STATUS.Pending) {
           actions.push({
-            title: 'Withdraw',
+            title: t('financial_assistance.action.withdraw'),
             icon: <StopOutlined />,
             onClick: async () =>
               mutate(
                 await withdraw.submit({
                   overrideUrl: ApiUrls.ACCOUNT_HOLDER.FAS_APPLICATION_WITHDRAW(row.id),
                 }),
-                'Application withdrawn.'
+                t('financial_assistance.message.application_withdrawn')
               ),
           })
         }
@@ -125,7 +127,7 @@ const MyFasManagementPage = () => {
           row.status === FAS_APPLICATION_STATUS.Expired
         ) {
           actions.push({
-            title: 'Apply again',
+            title: t('financial_assistance.action.apply_again'),
             icon: <RedoOutlined />,
             onClick: async () => {
               const response = await reapply.submit({
@@ -152,10 +154,10 @@ const MyFasManagementPage = () => {
   return (
     <Card>
       <Flex vertical gap={16}>
-        <Typography.Title level={4} style={{ margin: 0 }}>My FAS Applications</Typography.Title>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('financial_assistance.management.title')}</Typography.Title>
         <Flex gap={12} wrap="wrap">
           <div style={{ flex: 1, minWidth: 300 }}>
-            <Typography.Text>Search by application number or scheme name</Typography.Text>
+            <Typography.Text>{t('financial_assistance.management.search_label')}</Typography.Text>
             <SearchBar
               value={search}
               setValue={(value) => {
@@ -165,11 +167,11 @@ const MyFasManagementPage = () => {
             />
           </div>
           <div style={{ width: 220 }}>
-            <Typography.Text>Status</Typography.Text>
+            <Typography.Text>{t('financial_assistance.field.status')}</Typography.Text>
             <Select
               value={status}
               style={{ width: '100%' }}
-              options={[{ value: 'all', label: 'All statuses' }, ...fasApplicationStatusOptions]}
+              options={[{ value: 'all', label: t('financial_assistance.filter.all_statuses') }, ...fasApplicationStatusOptions]}
               onChange={(value) => {
                 setStatus(value)
                 setPage(1)
@@ -199,39 +201,39 @@ const MyFasManagementPage = () => {
         <Modal
           open
           width={800}
-          title={`FAS Application ${detail.applicationNumber || ''}`}
-          footer={<Button onClick={() => setDetail(null)}>Close</Button>}
+          title={t('financial_assistance.management.detail_title', { number: detail.applicationNumber || '' })}
+          footer={<Button onClick={() => setDetail(null)}>{t('button.close')}</Button>}
           onCancel={() => setDetail(null)}
           destroyOnHidden
         >
           <Descriptions bordered size="small" column={2}>
-            <Descriptions.Item label="Scheme">{detail.schemeName || detail.scheme?.schemeName}</Descriptions.Item>
-            <Descriptions.Item label="Status"><FasStatusTag status={detail.status} /></Descriptions.Item>
-            <Descriptions.Item label="Gross household income">{formatMoney(detail.grossHouseholdIncomeSnapshot)}</Descriptions.Item>
-            <Descriptions.Item label="Per-capita income">{formatMoney(detail.perCapitaIncomeSnapshot)}</Descriptions.Item>
-            <Descriptions.Item label="Guardian nationality">{detail.guardianNationalitySnapshot}</Descriptions.Item>
-            <Descriptions.Item label="Submitted at">{detail.createdAt || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.scheme')}>{detail.schemeName || detail.scheme?.schemeName}</Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.status')}><FasStatusTag status={detail.status} /></Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.gross_household_income')}>{formatMoney(detail.grossHouseholdIncomeSnapshot)}</Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.per_capita_income')}>{formatMoney(detail.perCapitaIncomeSnapshot)}</Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.guardian_nationality')}>{detail.guardianNationalitySnapshot}</Descriptions.Item>
+            <Descriptions.Item label={t('financial_assistance.field.submitted_at')}>{detail.createdAt || '-'}</Descriptions.Item>
           </Descriptions>
-          <Divider orientation="left">Tier</Divider>
+          <Divider orientation="left">{t('financial_assistance.section.tier')}</Divider>
           {approvedTier ? (
             <Typography.Paragraph>
               <strong>{approvedTier.tierName}:</strong> {formatTierRange(approvedTier)}
             </Typography.Paragraph>
           ) : (
-            <Typography.Text type="secondary">No approved tier.</Typography.Text>
+            <Typography.Text type="secondary">{t('financial_assistance.empty.no_approved_tier')}</Typography.Text>
           )}
-          <Divider orientation="left">Documents</Divider>
+          <Divider orientation="left">{t('financial_assistance.section.documents')}</Divider>
           <Space direction="vertical">
             {(detail.documents || []).map((document) => (
               <Typography.Text key={document.id || document.fileKey}>
                 {document.documentNameSnapshot}: {document.fileName}
               </Typography.Text>
             ))}
-            {!(detail.documents || []).length && <Typography.Text type="secondary">No documents.</Typography.Text>}
+            {!(detail.documents || []).length && <Typography.Text type="secondary">{t('financial_assistance.empty.no_documents')}</Typography.Text>}
           </Space>
           {detail.externalRejectionReason && (
             <>
-              <Divider orientation="left">Rejection reason</Divider>
+              <Divider orientation="left">{t('financial_assistance.section.rejection_reason')}</Divider>
               <Typography.Paragraph>{detail.externalRejectionReason || '-'}</Typography.Paragraph>
             </>
           )}

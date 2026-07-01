@@ -266,6 +266,13 @@ export const buildApplicationPayload = ({
 export const formatMoney = (value) =>
   value == null || value === '' ? '-' : formatCurrencyBasedOnCurrentLanguage(value)
 
+export const formatSubsidy = (value, type) => {
+  if (value == null || value === '') return '-'
+  return type === FasSubsidyType.Percent
+    ? `${value}%`
+    : formatCurrencyBasedOnCurrentLanguage(value)
+}
+
 export const formatTierRange = (tier) => {
   const parts = []
   if (

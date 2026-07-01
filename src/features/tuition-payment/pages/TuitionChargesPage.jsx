@@ -218,7 +218,7 @@ const TuitionChargesPage = () => {
                   <Typography.Text type="secondary">
                     {t('tuition-payment.hero.outstanding')}
                   </Typography.Text>
-                  <Typography.Title level={1} style={{ margin: 0 }}>
+                  <Typography.Title level={2} style={{ margin: 0, fontSize: 28 }}>
                     {formatCurrencyBasedOnCurrentLanguage(outstandingAmount)}
                   </Typography.Title>
                   <Typography.Text type="secondary">
@@ -248,6 +248,7 @@ const TuitionChargesPage = () => {
               prefix={<WalletOutlined />}
               title={t('tuition-payment.education_account_balance')}
               value={availableBalance}
+              styles={{ content: { fontSize: 24 } }}
               formatter={(value) => formatCurrencyBasedOnCurrentLanguage(value)}
             />
             <Typography.Text type="secondary">

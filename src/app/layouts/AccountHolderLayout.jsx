@@ -41,17 +41,17 @@ const AccountHolderLayout = () => {
               },
               {
                 key: 'my-fas',
-                label: 'My FAS',
+                label: t('financial_assistance.menu.my_fas'),
                 icon: FileProtectOutlined,
                 of: [
                   {
                     key: 'my-fas-apply',
-                    label: 'Apply',
+                    label: t('financial_assistance.menu.apply'),
                     url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
                   },
                   {
                     key: 'my-fas-management',
-                    label: 'Management',
+                    label: t('financial_assistance.menu.management'),
                     url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT),
                   },
                 ],

@@ -1,12 +1,138 @@
 {
   "financial_assistance": {
+    "menu": {
+      "my_fas": "My FAS",
+      "apply": "Apply",
+      "management": "Management"
+    },
+    "apply": {
+      "title": "Apply for Financial Assistance",
+      "description": "Find an eligible scheme and submit your supporting information.",
+      "application_title": "Application",
+      "application_description": "Upload the required documents and complete the questions before submitting.",
+      "application_status": "Application status",
+      "step_back_hint": "Select a previous step above to go back and make changes.",
+      "loading_draft": "Loading your draft...",
+      "household_help": "We use this information to find schemes you may apply for.",
+      "household_summary": "Household summary",
+      "household_summary_help": "These details were used to find matching assistance schemes.",
+      "finding_schemes": "Finding eligible schemes...",
+      "matching_household": "Matching your household information against active schemes.",
+      "eligibility_checked": "Eligibility checked",
+      "eligible_schemes_available": "Based on your household details, these schemes are available to apply for.",
+      "eligible_schemes": "Eligible schemes",
+      "compare_schemes": "Compare the available assistance before applying.",
+      "required_documents_help": "Upload every document before submitting your application.",
+      "additional_questions_help": "Provide any extra information needed for assessment."
+    },
+    "management": {
+      "title": "My FAS Applications",
+      "search_label": "Search by application number or scheme name",
+      "detail_title": "FAS Application {number}"
+    },
+    "step": {
+      "household_details": "Household details",
+      "select_scheme": "Select scheme",
+      "application": "Application"
+    },
+    "field": {
+      "application_number": "Application number",
+      "scheme": "Scheme",
+      "scheme_name": "Scheme name",
+      "status": "Status",
+      "submitted_date": "Submitted date",
+      "submitted_at": "Submitted at",
+      "gross_household_income": "Gross household income",
+      "household_income": "Household income",
+      "household_members": "Household members",
+      "members": "Members",
+      "guardian": "Guardian",
+      "guardian_nationality": "Guardian nationality",
+      "income": "Income",
+      "per_capita_income": "Per-capita income"
+    },
+    "section": {
+      "required_documents": "Required documents",
+      "additional_questions": "Additional questions",
+      "assistance_tiers": "Assistance tiers",
+      "why_eligible": "Why you are eligible",
+      "tier": "Tier",
+      "documents": "Documents",
+      "rejection_reason": "Rejection reason"
+    },
+    "action": {
+      "apply": "Apply",
+      "apply_again": "Apply again",
+      "check_eligibility": "Check eligibility",
+      "delete_draft": "Delete draft",
+      "hide_details": "Hide details",
+      "replace_file": "Replace",
+      "save_draft": "Save draft",
+      "submit_application": "Submit application",
+      "upload_file": "Upload file",
+      "view": "View",
+      "view_details": "View details",
+      "withdraw": "Withdraw",
+      "remove_document": "Remove {name}"
+    },
+    "status": {
+      "already_applied": "Already applied",
+      "draft": "Draft",
+      "eligible": "Eligible",
+      "optional": "Optional",
+      "required": "Required"
+    },
+    "filter": {
+      "all_statuses": "All statuses"
+    },
+    "text": {
+      "additional_questions_count": "{count} additional questions",
+      "answered_count": "{answered} of {total} answered",
+      "assistance_tiers_count": "{count} assistance tiers",
+      "available_count": "{count} available",
+      "checking": "Checking...",
+      "default_scheme_description": "Financial assistance for eligible students.",
+      "documents_uploaded": "{uploaded} of {total} documents uploaded",
+      "months": "{count} months",
+      "no_file_selected": "No file selected",
+      "per_component_subsidy": "Course {course}, Misc. {misc}",
+      "required_documents_count": "{count} required documents",
+      "required_questions_completed": "{completed} of {total} required questions completed",
+      "scheme_matches_household": "This scheme matches your household details.",
+      "template_file": "Template: {name}",
+      "uploaded_count": "{uploaded} of {total} uploaded",
+      "valid_for_months": "Valid for {count} months"
+    },
+    "placeholder": {
+      "enter_answer": "Enter your answer"
+    },
+    "empty": {
+      "no_additional_questions": "No additional questions.",
+      "no_approved_tier": "No approved tier.",
+      "no_documents": "No documents.",
+      "no_documents_required": "No documents are required.",
+      "no_eligible_schemes": "No eligible schemes found",
+      "no_eligible_schemes_help": "Your household information does not currently match an active scheme.",
+      "no_required_documents": "No required documents.",
+      "no_template_required": "No template required"
+    },
     "message": {
       "application_id_missing": "Unable to find this application.",
       "application_submitted": "Application submitted: {name}",
+      "application_submitted_simple": "FAS application submitted.",
+      "application_withdrawn": "Application withdrawn.",
       "attach_required_documents": "Attach all required documents ({count} left)",
       "confirm_required_details": "Confirm the required application details",
       "duplicate_application": "You already have a pending or approved application for this scheme.",
+      "duplicate_application_active": "You already have a pending or active approved application for this scheme.",
+      "document_required": "{name} is required.",
+      "draft_deleted": "Draft deleted.",
+      "draft_saved": "Draft saved.",
+      "gross_income_non_negative": "Gross household income cannot be negative.",
+      "gross_income_required": "Gross household income is required.",
+      "household_member_positive": "Household member count must be greater than 0.",
       "no_matching_tier": "The entered details do not match any tier for this scheme",
+      "question_required": "{name} is required.",
       "reapply_failed": "Unable to prepare this application for reapply.",
       "submit_failed": "Unable to submit the FAS application"
     }

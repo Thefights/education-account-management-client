@@ -1,12 +1,138 @@
 {
   "financial_assistance": {
+    "menu": {
+      "my_fas": "FAS của tôi",
+      "apply": "Nộp hồ sơ",
+      "management": "Quản lý"
+    },
+    "apply": {
+      "title": "Nộp hồ sơ hỗ trợ tài chính",
+      "description": "Tìm chương trình phù hợp và gửi thông tin hỗ trợ.",
+      "application_title": "Hồ sơ",
+      "application_description": "Tải tài liệu bắt buộc và hoàn tất câu hỏi trước khi nộp.",
+      "application_status": "Trạng thái hồ sơ",
+      "step_back_hint": "Chọn bước trước ở phía trên để quay lại và chỉnh sửa.",
+      "loading_draft": "Đang tải bản nháp...",
+      "household_help": "Chúng tôi dùng thông tin này để tìm chương trình bạn có thể nộp.",
+      "household_summary": "Tóm tắt hộ gia đình",
+      "household_summary_help": "Các thông tin này đã được dùng để tìm chương trình hỗ trợ phù hợp.",
+      "finding_schemes": "Đang tìm chương trình phù hợp...",
+      "matching_household": "Đang đối chiếu thông tin hộ gia đình với các chương trình đang hoạt động.",
+      "eligibility_checked": "Đã kiểm tra điều kiện",
+      "eligible_schemes_available": "Dựa trên thông tin hộ gia đình, bạn có thể nộp các chương trình này.",
+      "eligible_schemes": "Chương trình phù hợp",
+      "compare_schemes": "So sánh các chương trình hỗ trợ trước khi nộp.",
+      "required_documents_help": "Tải đầy đủ tài liệu trước khi nộp hồ sơ.",
+      "additional_questions_help": "Cung cấp thêm thông tin cần thiết cho việc xét duyệt."
+    },
+    "management": {
+      "title": "Hồ sơ FAS của tôi",
+      "search_label": "Tìm theo mã hồ sơ hoặc tên chương trình",
+      "detail_title": "Hồ sơ FAS {number}"
+    },
+    "step": {
+      "household_details": "Thông tin hộ gia đình",
+      "select_scheme": "Chọn chương trình",
+      "application": "Hồ sơ"
+    },
+    "field": {
+      "application_number": "Mã hồ sơ",
+      "scheme": "Chương trình",
+      "scheme_name": "Tên chương trình",
+      "status": "Trạng thái",
+      "submitted_date": "Ngày nộp",
+      "submitted_at": "Thời điểm nộp",
+      "gross_household_income": "Tổng thu nhập hộ gia đình",
+      "household_income": "Thu nhập hộ gia đình",
+      "household_members": "Số thành viên hộ gia đình",
+      "members": "Thành viên",
+      "guardian": "Người giám hộ",
+      "guardian_nationality": "Quốc tịch người giám hộ",
+      "income": "Thu nhập",
+      "per_capita_income": "Thu nhập bình quân đầu người"
+    },
+    "section": {
+      "required_documents": "Tài liệu bắt buộc",
+      "additional_questions": "Câu hỏi bổ sung",
+      "assistance_tiers": "Mức hỗ trợ",
+      "why_eligible": "Lý do phù hợp",
+      "tier": "Mức hỗ trợ",
+      "documents": "Tài liệu",
+      "rejection_reason": "Lý do từ chối"
+    },
+    "action": {
+      "apply": "Nộp",
+      "apply_again": "Nộp lại",
+      "check_eligibility": "Kiểm tra điều kiện",
+      "delete_draft": "Xóa bản nháp",
+      "hide_details": "Ẩn chi tiết",
+      "replace_file": "Thay thế",
+      "save_draft": "Lưu nháp",
+      "submit_application": "Nộp hồ sơ",
+      "upload_file": "Tải tệp lên",
+      "view": "Xem",
+      "view_details": "Xem chi tiết",
+      "withdraw": "Rút hồ sơ",
+      "remove_document": "Xóa {name}"
+    },
+    "status": {
+      "already_applied": "Đã có hồ sơ",
+      "draft": "Bản nháp",
+      "eligible": "Phù hợp",
+      "optional": "Không bắt buộc",
+      "required": "Bắt buộc"
+    },
+    "filter": {
+      "all_statuses": "Tất cả trạng thái"
+    },
+    "text": {
+      "additional_questions_count": "{count} câu hỏi bổ sung",
+      "answered_count": "Đã trả lời {answered}/{total}",
+      "assistance_tiers_count": "{count} mức hỗ trợ",
+      "available_count": "{count} chương trình",
+      "checking": "Đang kiểm tra...",
+      "default_scheme_description": "Chương trình hỗ trợ tài chính cho học sinh đủ điều kiện.",
+      "documents_uploaded": "Đã tải {uploaded}/{total} tài liệu",
+      "months": "{count} tháng",
+      "no_file_selected": "Chưa chọn tệp",
+      "per_component_subsidy": "Học phí {course}, phí khác {misc}",
+      "required_documents_count": "{count} tài liệu bắt buộc",
+      "required_questions_completed": "Đã hoàn tất {completed}/{total} câu hỏi bắt buộc",
+      "scheme_matches_household": "Chương trình này phù hợp với thông tin hộ gia đình của bạn.",
+      "template_file": "Mẫu: {name}",
+      "uploaded_count": "Đã tải {uploaded}/{total}",
+      "valid_for_months": "Có hiệu lực trong {count} tháng"
+    },
+    "placeholder": {
+      "enter_answer": "Nhập câu trả lời"
+    },
+    "empty": {
+      "no_additional_questions": "Không có câu hỏi bổ sung.",
+      "no_approved_tier": "Chưa có mức hỗ trợ được duyệt.",
+      "no_documents": "Không có tài liệu.",
+      "no_documents_required": "Không yêu cầu tài liệu.",
+      "no_eligible_schemes": "Không tìm thấy chương trình phù hợp",
+      "no_eligible_schemes_help": "Thông tin hộ gia đình hiện không khớp với chương trình đang hoạt động nào.",
+      "no_required_documents": "Không có tài liệu bắt buộc.",
+      "no_template_required": "Không yêu cầu mẫu"
+    },
     "message": {
       "application_id_missing": "Không tìm thấy hồ sơ này.",
       "application_submitted": "Đã nộp hồ sơ: {name}",
+      "application_submitted_simple": "Đã nộp hồ sơ FAS.",
+      "application_withdrawn": "Đã rút hồ sơ.",
       "attach_required_documents": "Vui lòng đính kèm đầy đủ tài liệu bắt buộc (còn {count})",
       "confirm_required_details": "Vui lòng xác nhận đầy đủ thông tin bắt buộc",
       "duplicate_application": "Bạn đã có hồ sơ đang chờ duyệt hoặc đã được duyệt cho chương trình này.",
+      "duplicate_application_active": "Bạn đã có hồ sơ đang chờ duyệt hoặc hồ sơ đã duyệt còn hiệu lực cho chương trình này.",
+      "document_required": "{name} là bắt buộc.",
+      "draft_deleted": "Đã xóa bản nháp.",
+      "draft_saved": "Đã lưu bản nháp.",
+      "gross_income_non_negative": "Tổng thu nhập hộ gia đình không được âm.",
+      "gross_income_required": "Tổng thu nhập hộ gia đình là bắt buộc.",
+      "household_member_positive": "Số thành viên hộ gia đình phải lớn hơn 0.",
       "no_matching_tier": "Thông tin đã nhập không khớp với bất kỳ mức hỗ trợ nào của chương trình",
+      "question_required": "{name} là bắt buộc.",
       "reapply_failed": "Không thể chuẩn bị hồ sơ để nộp lại.",
       "submit_failed": "Không thể nộp hồ sơ FAS"
     }

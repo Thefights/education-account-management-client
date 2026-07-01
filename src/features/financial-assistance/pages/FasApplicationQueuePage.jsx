@@ -23,7 +23,7 @@ const sortFields = {
   accountNumber: 'accountNumber',
   schemeName: 'schemeName',
   status: 'status',
-  submittedAt: 'submittedAt',
+  submittedAt: 'createdAt',
 }
 
 const FasApplicationQueuePage = () => {

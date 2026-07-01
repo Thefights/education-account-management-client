@@ -47,6 +47,22 @@ const TierOptionLabel = ({ tier }) => (
   </Flex>
 )
 
+const lowerFirst = (value) => (value ? `${value.charAt(0).toLowerCase()}${value.slice(1)}` : '')
+
+const buildRecommendationText = (tier, fallbackReason) => {
+  if (!tier) return fallbackReason || 'No recommendation reason provided.'
+
+  const reasons = formatFriendlyTierRanges(tier).map((range) => {
+    const [label, value] = range.split(': ')
+    if (label === 'Per capita') return `the student's per-capita income is ${lowerFirst(value)}`
+    if (label === 'Gross household') return `the household income is ${lowerFirst(value)}`
+    return lowerFirst(range)
+  })
+
+  if (!reasons.length) return fallbackReason || 'No recommendation reason provided.'
+  return `Suggested because ${reasons.join(' or ')}.`
+}
+
 const SectionHeader = ({ title, count, countLabel }) => (
   <Flex align="center" justify="space-between" gap={12} style={{ marginBottom: 8 }}>
     <Typography.Text strong>{title}</Typography.Text>
@@ -76,6 +92,7 @@ const FasApplicationReviewDialog = ({ detail, loading, onClose, onApprove, onRej
   const isOverride = canApprove && selectedTierId !== recommendedTier.id
   const selectedTier = tiers.find((tier) => tier.id === selectedTierId)
   const overrideHistory = detail.tierOverrideHistories?.at(-1)
+  const recommendedTierDetail = tiers.find((tier) => tier.id === recommendedTier?.id)
 
   const decisionPanelStyle = {
     padding: 16,
@@ -177,15 +194,17 @@ const FasApplicationReviewDialog = ({ detail, loading, onClose, onApprove, onRej
                       <Typography.Text strong>{recommendedTier.tierName}</Typography.Text>
                       <Tag color="blue">Recommended</Tag>
                     </Flex>
-                    {tiers
-                      .filter((tier) => tier.id === recommendedTier.id)
-                      .flatMap(formatFriendlyTierRanges)
-                      .map((range) => (
-                        <Typography.Text key={range} type="secondary">
-                          {range}
-                        </Typography.Text>
-                      ))}
-                    <Typography.Text>{recommendedTier.reason || 'No recommendation reason provided.'}</Typography.Text>
+                    {formatFriendlyTierRanges(recommendedTierDetail || recommendedTier).map((range) => (
+                      <Typography.Text key={range} type="secondary">
+                        {range}
+                      </Typography.Text>
+                    ))}
+                    <Typography.Text>
+                      {buildRecommendationText(
+                        recommendedTierDetail || recommendedTier,
+                        recommendedTier.reason
+                      )}
+                    </Typography.Text>
                   </Flex>
                 </Flex>
               </div>

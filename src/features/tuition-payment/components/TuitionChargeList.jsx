@@ -182,7 +182,7 @@ const TuitionChargeList = ({
                 </Flex>
                 <Flex vertical align="end" gap={4} className="tuition-charge-card__payment">
                   <Typography.Text type="secondary">{amountLabel}</Typography.Text>
-                  <Typography.Title level={2} style={{ margin: 0, fontWeight: 700 }}>
+                  <Typography.Title level={3} style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>
                     {formatCurrencyBasedOnCurrentLanguage(
                       showInstallments ? selectedDueAmount : charge.remainingAmount
                     )}
