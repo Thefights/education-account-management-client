@@ -109,7 +109,7 @@ const formatDatetimeToMMDDYYYY = (datetimeString) => {
   return `${hours}:${minutes}:${seconds} ${month}/${day}/${year}`
 }
 
-const formatDateToDDMMYYYY = (dateString) => {
+export const formatDateToDDMMYYYY = (dateString) => {
   if (!dateString) return ''
 
   const date = new Date(dateString)
