@@ -15,6 +15,7 @@
     "filter": {
       "search_label": "Search by course code or course name",
       "status": "Status",
+      "sort": "Sort",
       "newest": "Newest first",
       "oldest": "Oldest first"
     },
@@ -62,7 +63,7 @@
       "charges_not_eligible": "One or more selected charges are missing or are not eligible for this payment action.",
       "selected_charges": "Selected charges",
       "plan_months": "Payment plan",
-      "months": "{{count}} months",
+      "months": "{count} months",
       "due_today": "Due today",
       "payment_summary": "Payment summary",
       "available_balance": "Available education account balance",
@@ -71,7 +72,7 @@
       "online_payment": "Online payment",
       "confirm": "Confirm and pay",
       "missing_redirect": "The payment session did not return a checkout link.",
-      "unexpected_status": "Payment returned status {{status}}.",
+      "unexpected_status": "Payment returned status {status}.",
       "completed_description": "The payment was completed without an online checkout.",
       "payment_mode": "Payment mode",
       "total_amount": "Total amount",
@@ -91,7 +92,7 @@
       "missing_session": "Payment session is missing.",
       "succeeded": "Payment completed successfully.",
       "canceled": "Payment was canceled.",
-      "status": "Payment returned status {{status}}.",
+      "status": "Payment returned status {status}.",
       "failed": "Payment confirmation failed",
       "failed_description": "The payment session is preserved. Retry confirmation or return to the tuition list.",
       "retry": "Retry confirmation"

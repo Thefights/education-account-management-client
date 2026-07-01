@@ -15,6 +15,7 @@
     "filter": {
       "search_label": "Tìm theo mã khóa học hoặc tên khóa học",
       "status": "Trạng thái",
+      "sort": "Sắp xếp",
       "newest": "Mới nhất trước",
       "oldest": "Cũ nhất trước"
     },
@@ -62,7 +63,7 @@
       "charges_not_eligible": "Một hoặc nhiều khoản thu không tồn tại hoặc không phù hợp với hành động thanh toán này.",
       "selected_charges": "Các khoản đã chọn",
       "plan_months": "Kế hoạch thanh toán",
-      "months": "{{count}} tháng",
+      "months": "{count} tháng",
       "due_today": "Thanh toán hôm nay",
       "payment_summary": "Tóm tắt thanh toán",
       "available_balance": "Số dư tài khoản giáo dục khả dụng",
@@ -71,7 +72,7 @@
       "online_payment": "Thanh toán trực tuyến",
       "confirm": "Xác nhận và thanh toán",
       "missing_redirect": "Phiên thanh toán không trả về đường dẫn thanh toán.",
-      "unexpected_status": "Thanh toán trả về trạng thái {{status}}.",
+      "unexpected_status": "Thanh toán trả về trạng thái {status}.",
       "completed_description": "Thanh toán đã hoàn tất mà không cần chuyển đến cổng trực tuyến.",
       "payment_mode": "Phương thức thanh toán",
       "total_amount": "Tổng số tiền",
@@ -91,7 +92,7 @@
       "missing_session": "Thiếu phiên thanh toán.",
       "succeeded": "Thanh toán thành công.",
       "canceled": "Thanh toán đã bị hủy.",
-      "status": "Thanh toán trả về trạng thái {{status}}.",
+      "status": "Thanh toán trả về trạng thái {status}.",
       "failed": "Xác nhận thanh toán thất bại",
       "failed_description": "Phiên thanh toán vẫn được giữ nguyên. Hãy thử xác nhận lại hoặc quay về danh sách học phí.",
       "retry": "Thử xác nhận lại"

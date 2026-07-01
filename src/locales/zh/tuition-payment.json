@@ -15,6 +15,7 @@
     "filter": {
       "search_label": "按课程代码或课程名称搜索",
       "status": "状态",
+      "sort": "排序",
       "newest": "最新优先",
       "oldest": "最早优先"
     },
@@ -62,7 +63,7 @@
       "charges_not_eligible": "一个或多个所选收费不存在或不适用于此付款操作。",
       "selected_charges": "已选收费",
       "plan_months": "付款计划",
-      "months": "{{count}} 个月",
+      "months": "{count} 个月",
       "due_today": "今日应付",
       "payment_summary": "付款摘要",
       "available_balance": "可用教育账户余额",
@@ -71,7 +72,7 @@
       "online_payment": "在线支付",
       "confirm": "确认并支付",
       "missing_redirect": "付款会话未返回结账链接。",
-      "unexpected_status": "付款返回状态 {{status}}。",
+      "unexpected_status": "付款返回状态 {status}。",
       "completed_description": "付款已完成，无需在线结账。",
       "payment_mode": "付款模式",
       "total_amount": "总金额",
@@ -91,7 +92,7 @@
       "missing_session": "缺少付款会话。",
       "succeeded": "付款成功。",
       "canceled": "付款已取消。",
-      "status": "付款返回状态 {{status}}。",
+      "status": "付款返回状态 {status}。",
       "failed": "付款确认失败",
       "failed_description": "付款会话已保留。请重试确认或返回学费列表。",
       "retry": "重试确认"
