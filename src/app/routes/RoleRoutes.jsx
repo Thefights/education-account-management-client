@@ -17,6 +17,7 @@ import CourseManagementPage from '@/features/course-management/pages/CourseManag
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
+import FasSchemeCreatePage from '@/features/financial-assistance/pages/FasSchemeCreatePage'
 import FasSchemeManagementPage from '@/features/financial-assistance/pages/FasSchemeManagementPage'
 import MyFasApplyPage from '@/features/financial-assistance/pages/MyFasApplyPage'
 import MyFasManagementPage from '@/features/financial-assistance/pages/MyFasManagementPage'
@@ -167,6 +168,7 @@ const roleRouteGroups = [
     routes: [
       { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
       { path: routeUrls.FAS_ADMIN.SCHEMES, element: <FasSchemeManagementPage /> },
+      { path: routeUrls.FAS_ADMIN.SCHEME_CREATE, element: <FasSchemeCreatePage /> },
       { path: routeUrls.FAS_ADMIN.APPLICATIONS, element: <FasApplicationQueuePage /> },
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,

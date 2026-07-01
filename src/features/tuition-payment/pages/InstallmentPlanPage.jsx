@@ -7,12 +7,18 @@ import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { ArrowLeftOutlined, WarningOutlined } from '@ant-design/icons'
-import { Alert, Button, Card, Empty, Flex, Modal, Skeleton, Steps, Tag, Typography } from 'antd'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Button, Card, Empty, Flex, Select, Skeleton, Steps, Tag, Typography } from 'antd'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import {
+  compareChargeStatusThenInstallmentNumber,
+  compareInstallmentDueDateThenNumber,
+  isInstallmentDueForPayment,
+} from '../utils/chargeStatusSort'
 
 const PaymentAction = {
-  Next: 'next',
+  Due: 'due',
   Remaining: 'remaining',
 }
 
@@ -21,6 +27,7 @@ const InstallmentPlanPage = () => {
   const navigate = useNavigate()
   const { enrollmentId } = useParams()
   const parsedEnrollmentId = Number(enrollmentId)
+  const [installmentCount, setInstallmentCount] = useState(1)
   const charges = useFetch(
     Number.isInteger(parsedEnrollmentId) && parsedEnrollmentId > 0
       ? ApiUrls.ACCOUNT_HOLDER.TUITION_CHARGES
@@ -37,51 +44,41 @@ const InstallmentPlanPage = () => {
   const openCheckout = (action) => {
     const params = new URLSearchParams({ action })
     params.append('enrollmentIds', String(parsedEnrollmentId))
+    if (action === PaymentAction.Due) {
+      params.set(`installmentCount.${charge.chargeId}`, String(installmentCount))
+    }
     navigate(
       `${routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.CHECKOUT)}?${params.toString()}`
     )
   }
 
-  const confirmCheckout = (action) => {
-    if (!hasOverdue) {
-      openCheckout(action)
-      return
-    }
-    Modal.confirm({
-      title: t('tuition-payment.overdue.title'),
-      content: t('tuition-payment.overdue.description'),
-      okText: t('tuition-payment.overdue.continue'),
-      cancelText: t('general.cancel'),
-      onOk: () => openCheckout(action),
-    })
-  }
-
   if (charges.loading && !charges.data) return <Skeleton active paragraph={{ rows: 10 }} />
   if (!charge) return <Empty description={t('tuition-payment.installments.not_found')} />
 
-  const installments = [...charge.installments].sort(
-    (left, right) => left.installmentNumber - right.installmentNumber
-  )
+  const installments = [...charge.installments].sort(compareChargeStatusThenInstallmentNumber)
   const unpaidInstallments = installments.filter(
     (installment) => installment.status !== EnumConfig.ChargeStatus.Paid
   )
-  const nextInstallment = unpaidInstallments[0]
+  const unlockedInstallments = installments
+    .filter(isInstallmentDueForPayment)
+    .sort(compareInstallmentDueDateThenNumber)
+  const oldestDueInstallment = unlockedInstallments[0]
+  const selectedDueAmount = unlockedInstallments
+    .slice(0, installmentCount)
+    .reduce((total, installment) => total + Number(installment.amount), 0)
   const remainingInstallmentAmount = unpaidInstallments.reduce(
     (total, installment) => total + Number(installment.amount),
     0
-  )
-  const hasOverdue = installments.some(
-    (installment) => installment.status === EnumConfig.ChargeStatus.Overdue
   )
   const tuitionListRoute = routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX)
   const getStepStatus = (installment) => {
     if (installment.status === EnumConfig.ChargeStatus.Paid) return 'finish'
     if (installment.status === EnumConfig.ChargeStatus.Overdue) return 'error'
-    if (installment.id === nextInstallment?.id) return 'process'
+    if (installment.id === oldestDueInstallment?.id) return 'process'
     return 'wait'
   }
-  const currentStepIndex = nextInstallment
-    ? installments.findIndex((installment) => installment.id === nextInstallment.id)
+  const currentStepIndex = oldestDueInstallment
+    ? installments.findIndex((installment) => installment.id === oldestDueInstallment.id)
     : installments.length
 
   const tableFields = [
@@ -109,7 +106,11 @@ const InstallmentPlanPage = () => {
   return (
     <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1000, margin: '0 auto' }}>
       <Flex align="center" gap={8}>
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(tuitionListRoute)} />
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(tuitionListRoute)}
+        />
         <Flex vertical>
           <Typography.Title level={3} style={{ margin: 0 }}>
             {t('tuition-payment.installments.title')}
@@ -120,25 +121,34 @@ const InstallmentPlanPage = () => {
         </Flex>
       </Flex>
 
-      {hasOverdue && (
-        <Alert
-          showIcon
-          icon={<WarningOutlined />}
-          type="warning"
-          message={t('tuition-payment.overdue.title')}
-          description={t('tuition-payment.overdue.description')}
-        />
-      )}
-
       <Flex gap={12} wrap="wrap">
         <Card style={{ flex: '1 1 240px' }}>
           <Flex vertical gap={4}>
             <Typography.Text type="secondary">
-              {t('tuition-payment.installments.next_amount')}
+              {t('tuition-payment.installments.due_amount')}
             </Typography.Text>
             <Typography.Title level={4} style={{ margin: 0 }}>
-              {formatCurrencyBasedOnCurrentLanguage(nextInstallment?.amount ?? 0)}
+              {formatCurrencyBasedOnCurrentLanguage(selectedDueAmount)}
             </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontWeight: 500 }}>
+              {t('tuition-payment.charge.installments_to_pay')}
+            </Typography.Text>
+            <Select
+              aria-label={t('tuition-payment.charge.installments_to_pay')}
+              value={oldestDueInstallment ? installmentCount : undefined}
+              disabled={!oldestDueInstallment}
+              placeholder={t('tuition-payment.installments.none_due')}
+              options={unlockedInstallments.map((_, index) => ({
+                value: index + 1,
+                label: t(
+                  index === 0
+                    ? 'tuition-payment.charge.installment_count_one'
+                    : 'tuition-payment.charge.installment_count_many',
+                  { count: index + 1 }
+                ),
+              }))}
+              onChange={setInstallmentCount}
+            />
           </Flex>
         </Card>
         <Card style={{ flex: '1 1 240px' }}>
@@ -169,9 +179,7 @@ const InstallmentPlanPage = () => {
                 <Typography.Text type="secondary">
                   {formatDateBasedOnCurrentLanguage(installment.dueDate)}
                 </Typography.Text>
-                <Tag color={defaultChargeStatusStyle(installment.status)}>
-                  {installment.status}
-                </Tag>
+                <Tag color={defaultChargeStatusStyle(installment.status)}>{installment.status}</Tag>
               </Flex>
             ),
             status: getStepStatus(installment),
@@ -191,14 +199,14 @@ const InstallmentPlanPage = () => {
       <Flex justify="end" gap={8} wrap="wrap">
         <Button
           type="primary"
-          disabled={!unpaidInstallments.length}
-          onClick={() => confirmCheckout(PaymentAction.Next)}
+          disabled={!oldestDueInstallment}
+          onClick={() => openCheckout(PaymentAction.Due)}
         >
-          {t('tuition-payment.action.pay_next')}
+          {t('tuition-payment.action.pay_due')}
         </Button>
         <Button
           disabled={!unpaidInstallments.length}
-          onClick={() => confirmCheckout(PaymentAction.Remaining)}
+          onClick={() => openCheckout(PaymentAction.Remaining)}
         >
           {t('tuition-payment.action.pay_remaining')}
         </Button>

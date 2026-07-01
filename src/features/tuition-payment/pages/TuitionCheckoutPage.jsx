@@ -27,18 +27,22 @@ import {
 } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import {
+  compareInstallmentDueDateThenNumber,
+  isInstallmentDueForPayment,
+} from '../utils/chargeStatusSort'
 
 const PaymentAction = {
   Full: 'full',
   InstallmentPlan: 'installment-plan',
-  Next: 'next',
+  Due: 'due',
   Remaining: 'remaining',
 }
 
 const paymentEndpoints = {
   [PaymentAction.Full]: ApiUrls.PAYMENT.FULL,
   [PaymentAction.InstallmentPlan]: ApiUrls.PAYMENT.INSTALLMENT_PLAN,
-  [PaymentAction.Next]: ApiUrls.PAYMENT.INSTALLMENTS_NEXT,
+  [PaymentAction.Due]: ApiUrls.PAYMENT.INSTALLMENTS_DUE,
   [PaymentAction.Remaining]: ApiUrls.PAYMENT.INSTALLMENTS_REMAINING,
 }
 
@@ -56,21 +60,32 @@ const getPaymentFlowSteps = (t) => [
 const getUnpaidInstallments = (charge) =>
   charge.installments
     .filter((installment) => installment.status !== EnumConfig.ChargeStatus.Paid)
-    .sort((left, right) => left.installmentNumber - right.installmentNumber)
+    .sort(compareInstallmentDueDateThenNumber)
 
-const getPaymentTargetText = (charge, action, t) => {
+const getDueInstallments = (charge) =>
+  charge.installments.filter(isInstallmentDueForPayment).sort(compareInstallmentDueDateThenNumber)
+
+const getPaymentTargetText = (charge, action, installmentCounts, t) => {
   const unpaidInstallments = getUnpaidInstallments(charge)
   if (action === PaymentAction.Full) return t('tuition-payment.checkout.target_full_charge')
   if (action === PaymentAction.InstallmentPlan) {
     return t('tuition-payment.checkout.target_first_installment')
   }
-  if (action === PaymentAction.Next) {
-    const installment = unpaidInstallments[0]
-    return installment
-      ? t('tuition-payment.checkout.target_installment', {
-          number: installment.installmentNumber,
-          status: installment.status,
-        })
+  if (action === PaymentAction.Due) {
+    const dueInstallments = getDueInstallments(charge).slice(0, installmentCounts[charge.chargeId])
+    const firstInstallment = dueInstallments[0]
+    const lastInstallment = dueInstallments[dueInstallments.length - 1]
+    return firstInstallment
+      ? t(
+          dueInstallments.length === 1
+            ? 'tuition-payment.checkout.target_due_installment'
+            : 'tuition-payment.checkout.target_due_installments',
+          {
+            first: firstInstallment.installmentNumber,
+            last: lastInstallment.installmentNumber,
+            count: dueInstallments.length,
+          }
+        )
       : t('tuition-payment.charge.completed')
   }
   return t('tuition-payment.checkout.target_remaining_installments', {
@@ -96,7 +111,19 @@ const TuitionCheckoutPage = () => {
     [searchParams]
   )
   const endpoint = paymentEndpoints[action]
-  const targetsExistingPlan = action === PaymentAction.Next || action === PaymentAction.Remaining
+  const targetsExistingPlan = action === PaymentAction.Due || action === PaymentAction.Remaining
+  const installmentCounts = useMemo(() => {
+    const counts = {}
+    searchParams.forEach((value, key) => {
+      if (!key.startsWith('installmentCount.')) return
+      const chargeId = Number(key.slice('installmentCount.'.length))
+      const count = Number(value)
+      if (Number.isInteger(chargeId) && chargeId > 0 && Number.isInteger(count) && count > 0) {
+        counts[chargeId] = count
+      }
+    })
+    return counts
+  }, [searchParams])
   const [paymentPlanMonths, setPaymentPlanMonths] = useState({})
   const [creditBalanceApplied, setCreditBalanceApplied] = useState(0)
   const [completedPayment, setCompletedPayment] = useState(null)
@@ -129,19 +156,33 @@ const TuitionCheckoutPage = () => {
       charge.remainingAmount <= 0
     )
       return true
-    return targetsExistingPlan ? charge.installments.length === 0 : charge.installments.length > 0
+    if (!targetsExistingPlan) return charge.installments.length > 0
+    if (charge.installments.length === 0) return true
+    if (action !== PaymentAction.Due) return false
+    const installmentCount = installmentCounts[charge.chargeId]
+    return !installmentCount || installmentCount > getDueInstallments(charge).length
   })
 
-  const amountForCharge = useCallback((charge) => {
-    if (action === PaymentAction.Full) return Number(charge.remainingAmount)
-    if (action === PaymentAction.InstallmentPlan) {
-      const months = paymentPlanMonths[charge.chargeId] ?? 3
-      return getInstallmentPlanAmount(charge, months)
-    }
-    const unpaidInstallments = getUnpaidInstallments(charge)
-    if (action === PaymentAction.Next) return Number(unpaidInstallments[0]?.amount ?? 0)
-    return unpaidInstallments.reduce((total, installment) => total + Number(installment.amount), 0)
-  }, [action, paymentPlanMonths])
+  const amountForCharge = useCallback(
+    (charge) => {
+      if (action === PaymentAction.Full) return Number(charge.remainingAmount)
+      if (action === PaymentAction.InstallmentPlan) {
+        const months = paymentPlanMonths[charge.chargeId] ?? 3
+        return getInstallmentPlanAmount(charge, months)
+      }
+      const unpaidInstallments = getUnpaidInstallments(charge)
+      if (action === PaymentAction.Due) {
+        return getDueInstallments(charge)
+          .slice(0, installmentCounts[charge.chargeId])
+          .reduce((total, installment) => total + Number(installment.amount), 0)
+      }
+      return unpaidInstallments.reduce(
+        (total, installment) => total + Number(installment.amount),
+        0
+      )
+    },
+    [action, installmentCounts, paymentPlanMonths]
+  )
 
   const totalDueToday = selectedCharges.reduce(
     (total, charge) => total + amountForCharge(charge),
@@ -172,7 +213,7 @@ const TuitionCheckoutPage = () => {
       {
         key: 'paymentTarget',
         title: t('tuition-payment.checkout.payment_target'),
-        render: (_, charge) => getPaymentTargetText(charge, action, t),
+        render: (_, charge) => getPaymentTargetText(charge, action, installmentCounts, t),
       },
       {
         key: 'remainingAmount',
@@ -185,7 +226,7 @@ const TuitionCheckoutPage = () => {
         render: (_, charge) => formatCurrencyBasedOnCurrentLanguage(amountForCharge(charge)),
       },
     ],
-    [action, amountForCharge, t]
+    [action, amountForCharge, installmentCounts, t]
   )
 
   const renderPlanSelector = (charge) => {
@@ -238,19 +279,29 @@ const TuitionCheckoutPage = () => {
   const handleSubmit = async () => {
     if (!hasAllRequestedCharges || hasInvalidCharge || totalDueToday <= 0) return
 
-    const request =
-      action === PaymentAction.InstallmentPlan
-        ? {
-            Items: selectedCharges.map((charge) => ({
-              ChargeId: charge.chargeId,
-              PaymentPlanMonths: paymentPlanMonths[charge.chargeId] ?? 3,
-            })),
-            CreditBalanceApplied: appliedCreditBalance,
-          }
-        : {
-            ChargeIds: selectedCharges.map((charge) => charge.chargeId),
-            CreditBalanceApplied: appliedCreditBalance,
-          }
+    let request
+    if (action === PaymentAction.InstallmentPlan) {
+      request = {
+        Items: selectedCharges.map((charge) => ({
+          ChargeId: charge.chargeId,
+          PaymentPlanMonths: paymentPlanMonths[charge.chargeId] ?? 3,
+        })),
+        CreditBalanceApplied: appliedCreditBalance,
+      }
+    } else if (action === PaymentAction.Due) {
+      request = {
+        Items: selectedCharges.map((charge) => ({
+          ChargeId: charge.chargeId,
+          InstallmentCount: installmentCounts[charge.chargeId],
+        })),
+        CreditBalanceApplied: appliedCreditBalance,
+      }
+    } else {
+      request = {
+        ChargeIds: selectedCharges.map((charge) => charge.chargeId),
+        CreditBalanceApplied: appliedCreditBalance,
+      }
+    }
 
     const response = await payment.submit({ overrideData: request })
     const result = response?.data
@@ -325,13 +376,13 @@ const TuitionCheckoutPage = () => {
 
   return (
     <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1100, margin: '0 auto' }}>
-      <Steps
-        size="small"
-        current={1}
-        items={getPaymentFlowSteps(t)}
-      />
+      <Steps size="small" current={1} items={getPaymentFlowSteps(t)} />
       <Flex align="center" gap={8}>
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(tuitionListRoute)} />
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(tuitionListRoute)}
+        />
         <Typography.Title level={3} style={{ margin: 0 }}>
           {t(`tuition-payment.checkout.action.${action}`)}
         </Typography.Title>

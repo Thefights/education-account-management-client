@@ -146,8 +146,6 @@ export const EnumConfig = {
     GuardianNationality: 'GuardianNationality',
     GrossHouseholdIncome: 'GrossHouseholdIncome',
     PerCapitaIncome: 'PerCapitaIncome',
-    Nationality: 'StudentNationality',
-    ParentNationality: 'GuardianNationality',
   },
   FasConditionOperator: {
     Equal: 'Equal',
@@ -157,10 +155,8 @@ export const EnumConfig = {
     GreaterThan: 'GreaterThan',
     GreaterThanOrEqual: 'GreaterThanOrEqual',
     Between: 'Between',
-    Equals: 'Equal',
-    NotEquals: 'NotEqual',
   },
-  FasLogicalOperator: { All: 'And', Any: 'Or' },
+  FasLogicalOperator: { And: 'And', Or: 'Or' },
   FasApplicationStatus: {
     Pending: 'Pending',
     Approved: 'Approved',
@@ -169,7 +165,7 @@ export const EnumConfig = {
     Draft: 'Draft',
     Expired: 'Expired',
   },
-  FasGuardianNationality: { SingaporeCitizen: 'SingaporeCitizen', Other: 'Other' },
+  NationalityCategory: { SingaporeCitizen: 'SingaporeCitizen', Other: 'Other' },
   ScheduleTopupFrequency: { OneTime: 'OneTime', Monthly: 'Monthly', Yearly: 'Yearly' },
   ScheduleTopupStatus: { Active: 'Active', Inactive: 'Inactive', Completed: 'Completed' },
   StudentTuitionFilterStatus: {

@@ -153,7 +153,7 @@ export const ApiUrls = {
   PAYMENT: {
     FULL: '/payment/full',
     INSTALLMENT_PLAN: '/payment/installment-plan',
-    INSTALLMENTS_NEXT: '/payment/installments/next',
+    INSTALLMENTS_DUE: '/payment/installments/due',
     INSTALLMENTS_REMAINING: '/payment/installments/remaining',
     SUCCESS: '/payment/success',
     CANCEL: '/payment/cancel',

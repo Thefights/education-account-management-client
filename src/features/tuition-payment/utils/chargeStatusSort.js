@@ -11,10 +11,15 @@ export const compareChargeStatusThenInstallmentNumber = (left, right) =>
   getChargeStatusPriority(left.status) - getChargeStatusPriority(right.status) ||
   left.installmentNumber - right.installmentNumber
 
-export const isInstallmentUnlockedForNextPayment = (installment) => {
+export const isInstallmentDueForPayment = (installment) => {
   if (installment.status === EnumConfig.ChargeStatus.Paid) return false
-  if (installment.status === EnumConfig.ChargeStatus.Overdue) return true
-  return new Date(installment.dueDate).getTime() <= Date.now()
+  const dueDate = new Date(installment.dueDate)
+  if (Number.isNaN(dueDate.getTime())) return false
+  const now = new Date()
+  return (
+    Date.UTC(dueDate.getUTCFullYear(), dueDate.getUTCMonth(), dueDate.getUTCDate()) <=
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  )
 }
 
 export const compareInstallmentDueDateThenNumber = (left, right) =>

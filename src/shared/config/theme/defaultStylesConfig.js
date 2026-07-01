@@ -108,6 +108,21 @@ export const defaultTopupStatusStyle = (status) => {
   return map[status] || 'default'
 }
 
+export const defaultFasStatusStyle = (status) => {
+  const map = {
+    [EnumConfig.FasSchemeStatus.Active]: 'success',
+    [EnumConfig.FasSchemeStatus.Inactive]: 'default',
+    [EnumConfig.FasSchemeStatus.Draft]: 'warning',
+    [EnumConfig.FasApplicationStatus.Pending]: 'warning',
+    [EnumConfig.FasApplicationStatus.Approved]: 'success',
+    [EnumConfig.FasApplicationStatus.Rejected]: 'error',
+    [EnumConfig.FasApplicationStatus.Withdrawn]: 'default',
+    [EnumConfig.FasApplicationStatus.Expired]: 'error',
+  }
+
+  return map[status] || 'default'
+}
+
 export const defaultTopupExecutionSourceStyle = (source) => {
   const map = { System: 'blue', Schedule: 'purple', Manual: 'cyan' }
   return map[source] || 'default'

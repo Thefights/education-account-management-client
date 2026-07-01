@@ -7,11 +7,15 @@ import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { WalletOutlined } from '@ant-design/icons'
-import { Button, Card, Flex, Modal, Progress, Segmented, Skeleton, Statistic, Typography } from 'antd'
+import { Button, Card, Flex, Progress, Segmented, Skeleton, Statistic, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TuitionChargeList from '../components/TuitionChargeList'
 import TuitionFilterSection from '../components/TuitionFilterSection'
+import {
+  compareInstallmentDueDateThenNumber,
+  isInstallmentDueForPayment,
+} from '../utils/chargeStatusSort'
 
 const defaultFilters = {
   Search: '',
@@ -25,7 +29,7 @@ const TuitionChargeTab = {
 const PaymentAction = {
   Full: 'full',
   InstallmentPlan: 'installment-plan',
-  Next: 'next',
+  Due: 'due',
   Remaining: 'remaining',
 }
 
@@ -37,6 +41,7 @@ const TuitionChargesPage = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [selectedCharges, setSelectedCharges] = useState([])
+  const [installmentCounts, setInstallmentCounts] = useState({})
   const summary = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
 
   const queryParams = useMemo(
@@ -80,7 +85,23 @@ const TuitionChargesPage = () => {
     withPlanCountParams,
   ])
 
-  const resetSelection = () => setSelectedCharges([])
+  const resetSelection = () => {
+    setSelectedCharges([])
+    setInstallmentCounts({})
+  }
+  const updateSelection = (nextCharges) => {
+    setSelectedCharges(nextCharges)
+    setInstallmentCounts((current) =>
+      Object.fromEntries(
+        nextCharges
+          .filter((charge) => charge.installments.length > 0)
+          .map((charge) => [charge.chargeId, current[charge.chargeId] ?? 1])
+      )
+    )
+  }
+  const updateInstallmentCount = (charge, count) => {
+    setInstallmentCounts((current) => ({ ...current, [charge.chargeId]: count }))
+  }
   const applyFilters = (nextFilters) => {
     setFilters(nextFilters)
     setPage(1)
@@ -95,38 +116,41 @@ const TuitionChargesPage = () => {
   const openCheckout = (action) => {
     if (selectedCharges.length === 0) return
     const params = new URLSearchParams({ action })
-    selectedCharges.forEach((charge) => params.append('enrollmentIds', String(charge.enrollmentId)))
+    selectedCharges.forEach((charge) => {
+      params.append('enrollmentIds', String(charge.enrollmentId))
+      if (action === PaymentAction.Due) {
+        params.set(
+          `installmentCount.${charge.chargeId}`,
+          String(installmentCounts[charge.chargeId] ?? 1)
+        )
+      }
+    })
     navigate(
       `${routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.CHECKOUT)}?${params.toString()}`
     )
   }
 
-  const openInstallmentCheckout = (action) => {
-    const hasOverdueInstallment = selectedCharges.some((charge) =>
-      charge.installments.some(
-        (installment) => installment.status === EnumConfig.ChargeStatus.Overdue
-      )
-    )
-    if (!hasOverdueInstallment) {
-      openCheckout(action)
-      return
-    }
-    Modal.confirm({
-      title: t('tuition-payment.overdue.title'),
-      content: t('tuition-payment.overdue.description'),
-      okText: t('tuition-payment.overdue.continue'),
-      cancelText: t('general.cancel'),
-      onOk: () => openCheckout(action),
-    })
-  }
-
   const selectedCount = selectedCharges.length
+  const selectedPaymentAmount = selectedCharges.reduce((total, charge) => {
+    if (activeTab === TuitionChargeTab.WithoutPlan) return total + Number(charge.remainingAmount)
+    const installmentCount = installmentCounts[charge.chargeId] ?? 1
+    return (
+      total +
+      charge.installments
+        .filter(isInstallmentDueForPayment)
+        .sort(compareInstallmentDueDateThenNumber)
+        .slice(0, installmentCount)
+        .reduce((amount, installment) => amount + Number(installment.amount), 0)
+    )
+  }, 0)
   const data = summary.data
   const currentPagePayableCharges = (charges.data?.collection ?? []).filter(
     (charge) =>
       Boolean(charge.chargeId) &&
       charge.status !== EnumConfig.ChargeStatus.Paid &&
-      charge.remainingAmount > 0
+      charge.remainingAmount > 0 &&
+      (activeTab === TuitionChargeTab.WithoutPlan ||
+        charge.installments.some(isInstallmentDueForPayment))
   )
   const outstandingAmount = Number(data?.totalOutstandingAmount ?? 0)
   const availableBalance = Number(data?.educationAccountBalance ?? 0)
@@ -139,10 +163,10 @@ const TuitionChargesPage = () => {
         openCheckout(PaymentAction.Full)
         return
       }
-      openInstallmentCheckout(PaymentAction.Next)
+      openCheckout(PaymentAction.Due)
       return
     }
-    setSelectedCharges(currentPagePayableCharges)
+    updateSelection(currentPagePayableCharges)
   }
   const bulkActions =
     activeTab === TuitionChargeTab.WithoutPlan
@@ -154,7 +178,9 @@ const TuitionChargesPage = () => {
           },
           {
             key: PaymentAction.Full,
-            label: t('tuition-payment.action.pay_full'),
+            label: t('tuition-payment.action.pay_amount', {
+              amount: formatCurrencyBasedOnCurrentLanguage(selectedPaymentAmount),
+            }),
             type: 'primary',
             onClick: () => openCheckout(PaymentAction.Full),
           },
@@ -163,13 +189,15 @@ const TuitionChargesPage = () => {
           {
             key: PaymentAction.Remaining,
             label: t('tuition-payment.action.pay_remaining'),
-            onClick: () => openInstallmentCheckout(PaymentAction.Remaining),
+            onClick: () => openCheckout(PaymentAction.Remaining),
           },
           {
-            key: PaymentAction.Next,
-            label: t('tuition-payment.action.pay_next'),
+            key: PaymentAction.Due,
+            label: t('tuition-payment.action.pay_amount', {
+              amount: formatCurrencyBasedOnCurrentLanguage(selectedPaymentAmount),
+            }),
             type: 'primary',
-            onClick: () => openInstallmentCheckout(PaymentAction.Next),
+            onClick: () => openCheckout(PaymentAction.Due),
           },
         ]
 
@@ -261,7 +289,9 @@ const TuitionChargesPage = () => {
           charges={charges.data?.collection ?? []}
           loading={charges.loading}
           selectedCharges={selectedCharges}
-          onSelectionChange={setSelectedCharges}
+          onSelectionChange={updateSelection}
+          installmentCounts={installmentCounts}
+          onInstallmentCountChange={updateInstallmentCount}
           showInstallments={activeTab === TuitionChargeTab.WithPlan}
         />
         <GenericTablePagination
@@ -281,6 +311,8 @@ const TuitionChargesPage = () => {
         />
         <BulkActionBar
           selectedCount={selectedCount}
+          selectedLabel={t('tuition-payment.action.selected_charges', { count: selectedCount })}
+          clearLabel={t('tuition-payment.action.clear_selection')}
           actions={bulkActions}
           loading={charges.loading}
           onClear={resetSelection}

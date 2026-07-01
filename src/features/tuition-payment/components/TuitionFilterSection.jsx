@@ -75,7 +75,6 @@ const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
       onReset={onReset}
       onFilter={onFilter}
       loading={loading}
-      cardProps={{ loading }}
       getFieldColProps={() => ({ xs: 24, md: 8 })}
     />
   )

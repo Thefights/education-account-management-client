@@ -5,18 +5,25 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import EmptyRow from '@/shared/components/placeholders/EmptyRow'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { ArrowRightOutlined, CheckCircleFilled } from '@ant-design/icons'
 import {
   Button,
   Card,
   Checkbox,
   Divider,
   Flex,
+  Select,
   Skeleton,
   Tag,
   Tooltip,
   Typography,
 } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import '../styles/tuitionPayment.css'
+import {
+  compareInstallmentDueDateThenNumber,
+  isInstallmentDueForPayment,
+} from '../utils/chargeStatusSort'
 
 const getDisabledReasonKey = (charge) => {
   if (!charge.chargeId) return 'tuition-payment.charge.unavailable'
@@ -28,12 +35,16 @@ const getDisabledReasonKey = (charge) => {
 const canPayCharge = (charge) =>
   Boolean(charge.chargeId) &&
   charge.status !== EnumConfig.ChargeStatus.Paid &&
-  charge.remainingAmount > 0
+  charge.remainingAmount > 0 &&
+  (!charge.installments.length ||
+    charge.installments.some((installment) => isInstallmentDueForPayment(installment)))
 
-const DetailCell = ({ label, value }) => (
+const DetailCell = ({ label, value, children }) => (
   <Flex vertical gap={2} style={{ minWidth: 120 }}>
-    <Typography.Text type="secondary">{label}</Typography.Text>
-    <Typography.Text strong>{value}</Typography.Text>
+    <Typography.Text type="secondary" style={{ fontWeight: 500 }}>
+      {label}
+    </Typography.Text>
+    {children ?? <Typography.Text>{value}</Typography.Text>}
   </Flex>
 )
 
@@ -42,6 +53,8 @@ const TuitionChargeList = ({
   loading,
   selectedCharges,
   onSelectionChange,
+  installmentCounts,
+  onInstallmentCountChange,
   showInstallments,
 }) => {
   const { t } = useTranslation()
@@ -95,25 +108,44 @@ const TuitionChargeList = ({
       </Card>
       {charges.map((charge) => {
         const canPay = canPayCharge(charge)
-        const unpaidInstallments = charge.installments
-          .filter((installment) => installment.status !== EnumConfig.ChargeStatus.Paid)
-          .sort((left, right) => left.installmentNumber - right.installmentNumber)
-        const nextInstallment = unpaidInstallments[0]
+        const dueInstallments = charge.installments
+          .filter(isInstallmentDueForPayment)
+          .sort(compareInstallmentDueDateThenNumber)
+        const selectedInstallmentCount = Math.min(
+          installmentCounts[charge.chargeId] ?? 1,
+          dueInstallments.length
+        )
+        const selectedDueInstallments = dueInstallments.slice(0, selectedInstallmentCount)
+        const firstDueInstallment = dueInstallments[0]
+        const selectedDueAmount = selectedDueInstallments.reduce(
+          (total, installment) => total + Number(installment.amount),
+          0
+        )
         const hasFas = Boolean(charge.appliedFasSchemeName)
         const disabledReasonKey = getDisabledReasonKey(charge)
         const amountLabel = showInstallments
-          ? t('tuition-payment.charge.next_installment_amount')
+          ? t('tuition-payment.charge.due_payment')
           : t('tuition-payment.charge.remaining_amount')
+        const selected = isSelected(charge.chargeId)
 
         return (
           <Card
             key={charge.enrollmentId}
+            className={`tuition-charge-card${selected ? ' tuition-charge-card--selected' : ''}`}
             styles={{ body: { padding: 16 } }}
-            onClick={() => toggleCharge(charge, !isSelected(charge.chargeId))}
+            role="checkbox"
+            aria-checked={selected}
+            aria-disabled={!canPay}
+            tabIndex={canPay ? 0 : -1}
+            onClick={() => toggleCharge(charge, !selected)}
+            onKeyDown={(event) => {
+              if (event.target !== event.currentTarget) return
+              if (event.key !== 'Enter' && event.key !== ' ') return
+              event.preventDefault()
+              toggleCharge(charge, !selected)
+            }}
             style={{
               cursor: canPay ? 'pointer' : 'not-allowed',
-              borderColor: isSelected(charge.chargeId) ? 'var(--app-primary)' : undefined,
-              background: isSelected(charge.chargeId) ? 'var(--app-primary-soft-bg)' : undefined,
               opacity: canPay ? 1 : 0.72,
             }}
           >
@@ -123,7 +155,8 @@ const TuitionChargeList = ({
                   <Tooltip title={disabledReasonKey ? t(disabledReasonKey) : ''}>
                     <span>
                       <Checkbox
-                        checked={isSelected(charge.chargeId)}
+                        className="tuition-charge-card__selector"
+                        checked={selected}
                         disabled={!canPay}
                         onClick={(event) => event.stopPropagation()}
                         onChange={(event) => toggleCharge(charge, event.target.checked)}
@@ -135,22 +168,68 @@ const TuitionChargeList = ({
                       {charge.courseName}
                     </Typography.Title>
                     <Flex gap={8} wrap="wrap">
-                      <Tag>{charge.courseCode}</Tag>
+                      <Typography.Text type="secondary" className="tuition-charge-card__code">
+                        {charge.courseCode}
+                      </Typography.Text>
                       <Tag color={defaultChargeStatusStyle(charge.status)}>{charge.status}</Tag>
+                      {selected && (
+                        <Tag color="blue" icon={<CheckCircleFilled />}>
+                          {t('tuition-payment.charge.selected')}
+                        </Tag>
+                      )}
                     </Flex>
                   </Flex>
                 </Flex>
-                <Flex vertical align="end" gap={2}>
+                <Flex vertical align="end" gap={4} className="tuition-charge-card__payment">
                   <Typography.Text type="secondary">{amountLabel}</Typography.Text>
-                  <Typography.Title level={2} style={{ margin: 0 }}>
+                  <Typography.Title level={2} style={{ margin: 0, fontWeight: 700 }}>
                     {formatCurrencyBasedOnCurrentLanguage(
-                      nextInstallment?.amount ?? charge.remainingAmount
+                      showInstallments ? selectedDueAmount : charge.remainingAmount
                     )}
                   </Typography.Title>
+                  {showInstallments && (
+                    <Flex vertical align="end" gap={6} onClick={(event) => event.stopPropagation()}>
+                      <Typography.Text type="secondary" style={{ fontWeight: 500 }}>
+                        {t('tuition-payment.charge.installments_to_pay')}
+                      </Typography.Text>
+                      <Select
+                        aria-label={t('tuition-payment.charge.installments_to_pay')}
+                        value={selectedInstallmentCount}
+                        options={dueInstallments.map((_, index) => ({
+                          value: index + 1,
+                          label: t(
+                            index === 0
+                              ? 'tuition-payment.charge.installment_count_one'
+                              : 'tuition-payment.charge.installment_count_many',
+                            {
+                              count: index + 1,
+                            }
+                          ),
+                        }))}
+                        onChange={(count) => {
+                          onInstallmentCountChange(charge, count)
+                          if (!selected) toggleCharge(charge, true)
+                        }}
+                      />
+                      <Button
+                        type="link"
+                        className="tuition-charge-card__installment-link"
+                        onClick={() =>
+                          navigate(
+                            routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
+                              routeUrls.TUITION_PAYMENT.INSTALLMENTS(charge.enrollmentId)
+                            )
+                          )
+                        }
+                      >
+                        {t('tuition-payment.action.view_installments')} <ArrowRightOutlined />
+                      </Button>
+                    </Flex>
+                  )}
                 </Flex>
               </Flex>
 
-              <Divider style={{ margin: 0 }} />
+              <Divider className="tuition-charge-card__divider" />
 
               <Flex gap={24} wrap="wrap">
                 <DetailCell
@@ -178,34 +257,20 @@ const TuitionChargeList = ({
                   }
                 />
                 {showInstallments && (
-                  <DetailCell
-                    label={t('tuition-payment.charge.next_installment')}
-                    value={
-                      nextInstallment
-                        ? `${nextInstallment.installmentNumber}/${charge.installments.length} - ${nextInstallment.status}`
-                        : t('tuition-payment.charge.completed')
-                    }
-                  />
+                  <DetailCell label={t('tuition-payment.charge.current_installment')}>
+                    {firstDueInstallment ? (
+                      <Typography.Text>
+                        {t('tuition-payment.charge.installment_progress', {
+                          current: firstDueInstallment.installmentNumber,
+                          total: charge.installments.length,
+                        })}
+                      </Typography.Text>
+                    ) : (
+                      <Typography.Text>{t('tuition-payment.charge.completed')}</Typography.Text>
+                    )}
+                  </DetailCell>
                 )}
               </Flex>
-
-              {showInstallments && (
-                <Flex justify="end">
-                  <Button
-                    type="link"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      navigate(
-                        routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
-                          routeUrls.TUITION_PAYMENT.INSTALLMENTS(charge.enrollmentId)
-                        )
-                      )
-                    }}
-                  >
-                    {t('tuition-payment.action.view_installments')}
-                  </Button>
-                </Flex>
-              )}
             </Flex>
           </Card>
         )
