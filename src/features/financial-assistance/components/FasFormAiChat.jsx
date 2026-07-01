@@ -1,7 +1,6 @@
 import {
   CheckOutlined,
   CloseOutlined,
-  ReloadOutlined,
   RobotOutlined,
   SendOutlined,
   UserOutlined,
@@ -22,8 +21,10 @@ const getSchemeId = (scheme) => String(scheme?.apiId ?? scheme?.id ?? scheme?.sc
 const createSessionId = (schemeId) =>
   `fas-${schemeId}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`
 
+const getSessionStorageKey = (schemeId) => `dynamic-fas-session-${schemeId}`
+
 const getSessionId = (schemeId) => {
-  const key = `dynamic-fas-session-${schemeId}`
+  const key = getSessionStorageKey(schemeId)
   const existing = sessionStorage.getItem(key)
   if (existing) return existing
 
@@ -39,9 +40,9 @@ const FasFormAiChat = ({
   scheme,
   additionalAnswers,
   isSending,
-  isResetting,
   onSendMessage,
   onResetSession,
+  onResetSessionDuringUnload,
   onApplySuggestion,
   onApplyAllSuggestions,
 }) => {
@@ -57,6 +58,9 @@ const FasFormAiChat = ({
   const [reviewDecision, setReviewDecision] = useState('')
   const dismissedSuggestionsRef = useRef({})
   const messagesEndRef = useRef(null)
+  const resetSessionRef = useRef(onResetSession)
+  const resetSessionDuringUnloadRef = useRef(onResetSessionDuringUnload)
+  const hasRequestedResetRef = useRef(false)
 
   const questions = useMemo(
     () =>
@@ -135,6 +139,39 @@ const FasFormAiChat = ({
   }, [additionalAnswers, scheme, suggestions])
 
   const activeConfirmation = confirmationQueue[0] || null
+
+  useEffect(() => {
+    resetSessionRef.current = onResetSession
+  }, [onResetSession])
+
+  useEffect(() => {
+    resetSessionDuringUnloadRef.current = onResetSessionDuringUnload
+  }, [onResetSessionDuringUnload])
+
+  useEffect(() => {
+    const resetSessionSilently = (preferUnloadHandler = false) => {
+      if (hasRequestedResetRef.current || !sessionId) return
+
+      const resetSession =
+        preferUnloadHandler && resetSessionDuringUnloadRef.current
+          ? resetSessionDuringUnloadRef.current
+          : resetSessionRef.current
+
+      if (!resetSession) return
+
+      hasRequestedResetRef.current = true
+      Promise.resolve(resetSession(sessionId)).catch(() => {})
+      sessionStorage.removeItem(getSessionStorageKey(schemeId))
+    }
+
+    const handlePageHide = () => resetSessionSilently(true)
+    window.addEventListener('pagehide', handlePageHide)
+
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide)
+      resetSessionSilently(false)
+    }
+  }, [schemeId, sessionId])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
@@ -338,35 +375,6 @@ const FasFormAiChat = ({
     advanceConfirmation()
   }
 
-  const handleReset = async () => {
-    if (isSending || isResetting) return
-    setError('')
-
-    try {
-      const response = await onResetSession(sessionId)
-      if (!response) {
-        throw new Error('Could not reset the AI session.')
-      }
-      setMessages([
-        {
-          role: 'assistant',
-          content: 'The conversation has been reset. Your existing form answers were preserved.',
-        },
-        {
-          role: 'status',
-          content: 'Conversation reset. Form answers preserved.',
-        },
-      ])
-      setSuggestions({})
-      setAssistantState(null)
-      setConfirmationQueue([])
-      setLastFailedMessage('')
-      dismissedSuggestionsRef.current = {}
-    } catch (requestError) {
-      setError(requestError.message || 'Could not reset the AI session.')
-    }
-  }
-
   return (
     <>
       <div className="fas-ai-chat">
@@ -382,16 +390,6 @@ const FasFormAiChat = ({
               </span>
             </div>
           </div>
-          <Button
-            type="text"
-            size="small"
-            icon={<ReloadOutlined />}
-            loading={isResetting}
-            disabled={isSending}
-            onClick={handleReset}
-          >
-            Reset
-          </Button>
         </header>
 
         <div className="fas-ai-progress">
