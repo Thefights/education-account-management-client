@@ -28,8 +28,8 @@ const AdminManagementFilterSection = ({
   )
 
   const adminRoleOptions = useMemo(
-    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
-    [_enum.roleIdOptions]
+    () => _enum.roleOptions.filter((option) => option.value !== EnumConfig.RoleEnum.AccountHolder),
+    [_enum.roleOptions]
   )
   const fields = useMemo(
     () => [

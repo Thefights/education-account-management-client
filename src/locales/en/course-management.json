@@ -8,13 +8,14 @@
       "list_of_course": "List of Courses",
       "important_dates": "Important Dates",
       "applicable_fas": "Applicable FAS",
-      "fas_deduction": "Applicable FAS"
+      "fas_deduction": "Applicable FAS",
+      "manage_students": "Manage Students"
     },
     "section": {
       "basic_info": "Basic Information",
       "fees": "Fees & Payments",
       "schedule": "Schedule & Deadlines",
-      "initial_students": "Students"
+      "initial_students": "Manage Students"
     },
     "field": {
       "id": "ID",
@@ -40,7 +41,9 @@
       "publish": "Publish",
       "delete_selected": "Delete selected",
       "save_as_draft": "Save as Draft",
-      "manage_fas": "Add FAS"
+      "manage_fas": "Add FAS",
+      "add_students": "Add",
+      "add_selected_students": "Add {count} students"
     },
     "fas": {
       "per_component": "Per component",
@@ -49,6 +52,10 @@
     "label": {
       "search": "Search by course name, course code, or school name",
       "search_by_id": "Search by course name or ID"
+    },
+    "placeholder": {
+      "select_students": "Search and select students",
+      "select_fas_schemes": "Search and select FAS schemes"
     },
     "confirm": {
       "delete_title": "Delete course?",
@@ -64,7 +71,12 @@
     "message": {
       "update_conflict": "This course was changed by someone else. The latest data has been reloaded; please edit it again.",
       "publish_deadline_expired": "All selected courses must have a future enrollment deadline.",
-      "no_applicable_fas": "No FAS schemes are linked to this course."
+      "no_applicable_fas": "No FAS schemes are linked to this course.",
+      "no_selected_students": "No students added yet.",
+      "selected_students_count": "{count} students added.",
+      "number_of_students_count": "Number Of Students: {count}",
+      "no_pending_students": "Search and select students to add to this course.",
+      "pending_students_count": "{count} students will be added when you save."
     },
     "tab": {
       "upcoming": "Upcoming",

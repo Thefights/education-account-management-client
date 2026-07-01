@@ -8,13 +8,14 @@
       "list_of_course": "课程列表",
       "important_dates": "重要日期", 
       "applicable_fas": "适用FAS", 
-      "fas_deduction": "适用FAS" 
+      "fas_deduction": "适用FAS",
+      "manage_students": "管理学生"
     },
     "section": {
       "basic_info": "基本信息",
       "fees": "费用与付款",
       "schedule": "日程与截止日期",
-      "initial_students": "学生"
+      "initial_students": "管理学生"
     },
     "field": {
       "id": "ID",
@@ -36,11 +37,15 @@
       "applicable_fas": "适用FAS",
       "duration_in_months": "期限"
     },
-    "action": { "publish": "发布", "delete_selected": "删除所选", "save_as_draft": "保存为草稿", "manage_fas": "添加FAS" },
+    "action": { "publish": "发布", "delete_selected": "删除所选", "save_as_draft": "保存为草稿", "manage_fas": "添加FAS", "add_students": "添加", "add_selected_students": "添加 {count} 名学生" },
     "fas": { "per_component": "按费用项", "standard": "标准" },
     "label": {
       "search": "按课程名称、课程代码或学校名称搜索",
       "search_by_id": "按课程名称或 ID 搜索"
+    },
+    "placeholder": {
+      "select_students": "搜索并选择学生",
+      "select_fas_schemes": "搜索并选择FAS计划"
     },
     "confirm": {
       "delete_title": "删除课程？",
@@ -56,7 +61,12 @@
     "message": {
       "update_conflict": "该课程已被其他人修改。最新数据已重新加载，请重新编辑。",
       "publish_deadline_expired": "所有所选课程的报名确认截止时间必须在未来。",
-      "no_applicable_fas": "此课程尚未关联任何FAS计划。"
+      "no_applicable_fas": "此课程尚未关联任何FAS计划。",
+      "no_selected_students": "尚未添加学生。",
+      "selected_students_count": "已添加 {count} 名学生。",
+      "number_of_students_count": "学生人数：{count}",
+      "no_pending_students": "搜索并选择要添加到此课程的学生。",
+      "pending_students_count": "保存后将添加 {count} 名学生。"
     },
     "tab": {
       "upcoming": "即将开始",

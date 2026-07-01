@@ -31,6 +31,7 @@ const EnrollmentManagementTableSection = ({
   showGrossAmount = true,
   readOnly = false,
   allowWithdraw = false,
+  renderStudentName,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -79,6 +80,7 @@ const EnrollmentManagementTableSection = ({
       title: t('enrollment_management.field.full_name'),
       width: 200,
       sortable: true,
+      render: renderStudentName,
     },
     {
       key: 'citizenEmail',

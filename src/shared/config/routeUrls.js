@@ -22,6 +22,7 @@ export const routeUrls = {
 
   SCHOOL_MANAGEMENT: {
     INDEX: '/school-management',
+    DETAIL: (id = ':id') => `/school-management/${id}`,
   },
   ADMIN_MANAGEMENT: {
     INDEX: '/admin-management',
@@ -36,6 +37,9 @@ export const routeUrls = {
   },
   TUITION_PAYMENT: {
     INDEX: '/tuition-payment',
+  },
+  TRANSACTION_HISTORY: {
+    INDEX: '/transaction-history',
   },
 
   PAY: {

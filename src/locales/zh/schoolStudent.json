@@ -27,6 +27,7 @@
       "account_number": "账号",
       "nric": "NRIC",
       "full_name": "姓名",
+      "date_of_birth": "出生日期",
       "courses": "课程",
       "email": "电子邮件",
       "phone_number": "电话号码",

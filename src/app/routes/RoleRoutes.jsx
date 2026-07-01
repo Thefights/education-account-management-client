@@ -5,6 +5,7 @@ import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import ProtectedRoute from '@/app/routes/ProtectedRoute'
 import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
 import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePage'
+import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
 import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AdminProfilePage from '@/features/admin-profile/pages/AdminProfilePage'
@@ -23,6 +24,7 @@ import ManagementActionLogDetailPage from '@/features/management-action-log/page
 import ManagementActionLogManagementPage from '@/features/management-action-log/pages/ManagementActionLogManagementPage'
 import PageNotFound from '@/features/not-found/pages/PageNotFound'
 import RoleHomePage from '@/features/role-home/pages/RoleHomePage'
+import SchoolManagementDetailPage from '@/features/school-management/pages/SchoolManagementDetailPage'
 import SchoolManagementPage from '@/features/school-management/pages/SchoolManagementPage'
 import SchoolStudentManagementPage from '@/features/school-student-management/pages/SchoolStudentManagementPage'
 import SweepReportsPage from '@/features/sweep-reports/pages/SweepReportsPage'
@@ -45,6 +47,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.SCHOOL_MANAGEMENT.INDEX,
         element: <SchoolManagementPage />,
+      },
+      {
+        path: routeUrls.SCHOOL_MANAGEMENT.DETAIL(),
+        element: <SchoolManagementDetailPage />,
       },
       {
         path: routeUrls.ADMIN_MANAGEMENT.INDEX,
@@ -105,7 +111,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_EDIT(),
-        element: <TopupConfigurationFormPage type="system" mode="edit" />,
+        element: <TopupConfigurationDetailPage type="system" />,
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SYSTEM_DETAIL(),
@@ -117,7 +123,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_EDIT(),
-        element: <TopupConfigurationFormPage type="schedule" mode="edit" />,
+        element: <TopupConfigurationDetailPage type="schedule" />,
       },
       {
         path: routeUrls.TOPUP_MANAGEMENT.SCHEDULE_DETAIL(),
@@ -172,7 +178,7 @@ const roleRouteGroups = [
       },
       {
         path: routeUrls.COURSE_MANAGEMENT.EDIT(),
-        element: <CourseManagementFormPage />,
+        element: <CourseDetailPage />,
       },
       {
         path: routeUrls.COURSE_MANAGEMENT.DETAIL(),
@@ -192,6 +198,7 @@ const roleRouteGroups = [
       { path: routeUrls.MY_FAS.APPLY, element: <MyFasApplyPage /> },
       { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
+      { path: routeUrls.TRANSACTION_HISTORY.INDEX, element: <AccountTransactionHistoryPage /> },
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <AccountHolderCourseManagementPage />,
