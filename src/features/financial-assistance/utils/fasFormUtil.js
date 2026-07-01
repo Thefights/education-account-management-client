@@ -41,15 +41,15 @@ export const getConditionFormValue = (condition = {}) => {
   }
 }
 
-export const getConditionGroupFormValue = (group) => {
+export const getConditionGroupFormValue = (group, isRoot = true) => {
   if (!group) return createEmptyConditionRoot()
   const formValue = {
     logicalOperator: group.logicalOperator || FasLogicalOperator.Or,
     conditions: (group.conditions || []).map(getConditionFormValue),
-    groups: (group.groups || []).map(getConditionGroupFormValue),
+    groups: (group.groups || []).map((child) => getConditionGroupFormValue(child, false)),
   }
 
-  if (!formValue.groups.length && formValue.conditions.length) {
+  if (isRoot && !formValue.groups.length && formValue.conditions.length) {
     return {
       logicalOperator: FasLogicalOperator.Or,
       conditions: [],
@@ -57,7 +57,7 @@ export const getConditionGroupFormValue = (group) => {
     }
   }
 
-  if (!formValue.groups.length) formValue.groups = [createEmptyScenario()]
+  if (isRoot && !formValue.groups.length) formValue.groups = [createEmptyScenario()]
   return formValue
 }
 
@@ -79,15 +79,17 @@ export const serializeCondition = (condition, displayOrder) => {
   }
 }
 
-export const serializeConditionGroup = (group, displayOrder = 0) => {
-  const formValue = getConditionGroupFormValue(group)
+export const serializeConditionGroup = (group, displayOrder = 0, isRoot = true) => {
+  const formValue = getConditionGroupFormValue(group, isRoot)
   return {
     logicalOperator: formValue.logicalOperator,
     displayOrder,
     conditions: (formValue.conditions || []).map((condition, index) =>
       serializeCondition(condition, index)
     ),
-    groups: (formValue.groups || []).map((child, index) => serializeConditionGroup(child, index)),
+    groups: (formValue.groups || []).map((child, index) =>
+      serializeConditionGroup(child, index, false)
+    ),
   }
 }
 
@@ -333,17 +335,14 @@ export const validateTierConfiguration = (tiers) => {
   const validateRanges = (items, label) => {
     if (!items.length) return
     const sorted = [...items].sort((a, b) => a.min - b.min)
-    if (sorted[0].min !== 0) errors.push(`The first ${label} tier range must start at 0.`)
     for (let index = 0; index < sorted.length; index += 1) {
-      if (index > 0 && sorted[index].min !== sorted[index - 1].max) {
-        errors.push(`${label} ranges have a gap or overlap.`)
+      if (index > 0 && sorted[index - 1].max != null && sorted[index].min < sorted[index - 1].max) {
+        errors.push(`${label} ranges cannot overlap.`)
       }
       if (sorted[index].max == null && index !== sorted.length - 1) {
         errors.push(`Open-ended ${label} range must be final.`)
       }
     }
-    if (sorted[sorted.length - 1].max != null)
-      errors.push(`The final ${label} range must be open-ended.`)
   }
 
   validateRanges(ranges.pci, 'PCI')

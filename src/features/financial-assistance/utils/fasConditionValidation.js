@@ -14,16 +14,16 @@ const fieldLabels = {
 const isNationalityField = (field) =>
   field === FasConditionField.StudentNationality || field === FasConditionField.GuardianNationality
 
-const validateCondition = (condition) => {
+export const getConditionValidationErrors = (condition) => {
   const normalized = getConditionFormValue(condition)
-  const errors = []
+  const errors = {}
   if (isNationalityField(normalized.field)) {
     if (
       ![FasConditionOperator.Equal, FasConditionOperator.NotEqual].includes(normalized.operator)
     ) {
-      errors.push('Nationality only supports equal or not equal.')
+      errors.operator = 'Nationality only supports equal or not equal.'
     }
-    if (!normalized.nationality) errors.push('Nationality value is required.')
+    if (!normalized.nationality) errors.value = 'Nationality value is required.'
     return errors
   }
 
@@ -36,22 +36,31 @@ const validateCondition = (condition) => {
     FasConditionField.GrossHouseholdIncome,
     FasConditionField.PerCapitaIncome,
   ].includes(normalized.field)
-  if (!hasValue || !Number.isFinite(value))
-    errors.push(`${fieldLabels[normalized.field]} value is required.`)
-  if (isAge && (value < 16 || value > 30)) errors.push('Student age must be between 16 and 30.')
-  if (isIncome && value < 0) errors.push('Income cannot be negative.')
+  if (!hasValue || !Number.isFinite(value)) {
+    errors.value = `${fieldLabels[normalized.field]} value is required.`
+  } else if (isAge && (value < 16 || value > 30)) {
+    errors.value = 'Student age must be between 16 and 30.'
+  } else if (isIncome && value < 0) {
+    errors.value = 'Income cannot be negative.'
+  }
   if (normalized.operator === FasConditionOperator.Between) {
-    if (!hasUpper || !Number.isFinite(upper)) errors.push('Between upper value is required.')
-    if (upper < value)
-      errors.push('Between upper value must be greater than or equal to lower value.')
-    if (isAge && (upper < 16 || upper > 30)) errors.push('Student age must be between 16 and 30.')
-    if (isIncome && upper < 0) errors.push('Income cannot be negative.')
+    if (!hasUpper || !Number.isFinite(upper)) {
+      errors.valueTo = 'Between upper value is required.'
+    } else if (upper < value) {
+      errors.valueTo = 'Between upper value must be greater than or equal to lower value.'
+    } else if (isAge && (upper < 16 || upper > 30)) {
+      errors.valueTo = 'Student age must be between 16 and 30.'
+    } else if (isIncome && upper < 0) {
+      errors.valueTo = 'Income cannot be negative.'
+    }
   }
   return errors
 }
 
-export const getScenarioErrors = (scenario) => {
-  const errors = (scenario.conditions || []).flatMap(validateCondition)
+const getConditionErrors = (condition) => Object.values(getConditionValidationErrors(condition))
+
+export const getScenarioConflictErrors = (scenario) => {
+  const errors = []
   const equalityByField = new Map()
   ;(scenario.conditions || []).forEach((condition) => {
     const normalized = getConditionFormValue(condition)
@@ -66,4 +75,9 @@ export const getScenarioErrors = (scenario) => {
     equalityByField.set(normalized.field, value)
   })
   return [...new Set(errors)]
+}
+
+export const getScenarioErrors = (scenario) => {
+  const errors = (scenario.conditions || []).flatMap(getConditionErrors)
+  return [...new Set([...errors, ...getScenarioConflictErrors(scenario)])]
 }

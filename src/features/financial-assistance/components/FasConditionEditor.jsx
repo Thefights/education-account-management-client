@@ -4,7 +4,11 @@ import {
   getConditionFormValue,
   getConditionGroupFormValue,
 } from '@/features/financial-assistance/utils/fasFormUtil'
-import { getScenarioErrors } from '@/features/financial-assistance/utils/fasConditionValidation'
+import {
+  getConditionValidationErrors,
+  getScenarioConflictErrors,
+  getScenarioErrors,
+} from '@/features/financial-assistance/utils/fasConditionValidation'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import {
   formatCurrencyBasedOnCurrentLanguage,
@@ -33,6 +37,7 @@ const AGE_MAX = 30
 const FIELDS = EnumConfig.FasConditionField
 const OPERATORS = EnumConfig.FasConditionOperator
 const LOGICAL_OPERATORS = EnumConfig.FasLogicalOperator
+const FIELD_CONTROL_STYLE = { width: '100%', height: 40 }
 
 const nationalityOptions = [
   { value: EnumConfig.NationalityCategory.SingaporeCitizen, label: 'Singapore Citizen' },
@@ -155,8 +160,10 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
   const normalized = getConditionFormValue(condition)
   const isText = isNationalityField(normalized.field)
   const isBetween = !isText && normalized.operator === OPERATORS.Between
-  const rowErrors = showValidationErrors ? getScenarioErrors({ conditions: [normalized] }) : []
-  const hasError = rowErrors.length > 0
+  const validationErrors = showValidationErrors ? getConditionValidationErrors(normalized) : {}
+  const operatorError = validationErrors.operator
+  const valueError = validationErrors.value
+  const valueToError = validationErrors.valueTo
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
 
   return (
@@ -192,7 +199,7 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
             placeholder="Select field"
             value={normalized.field}
             options={getFieldOptions()}
-            style={{ width: '100%', height: 32 }}
+            style={FIELD_CONTROL_STYLE}
             onChange={(field) =>
               onChange({
                 ...normalized,
@@ -213,8 +220,8 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
             placeholder="Select operator"
             value={normalized.operator}
             options={getOperatorOptions(isText)}
-            status={hasError ? 'error' : undefined}
-            style={{ width: '100%', height: 32 }}
+            status={operatorError ? 'error' : undefined}
+            style={FIELD_CONTROL_STYLE}
             onChange={(operator) =>
               onChange({
                 ...normalized,
@@ -229,17 +236,17 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
             {isText ? (
               <Select
                 aria-label="Value"
-                status={hasError ? 'error' : undefined}
+                status={valueError ? 'error' : undefined}
                 value={normalized.nationality}
                 placeholder="Select value"
                 options={nationalityOptions}
-                style={{ width: '100%', height: 32 }}
+                style={FIELD_CONTROL_STYLE}
                 onChange={(nationality) => onChange({ ...normalized, nationality })}
               />
             ) : (
               <InputNumber
                 aria-label="Value"
-                status={hasError ? 'error' : undefined}
+                status={valueError ? 'error' : undefined}
                 value={normalized.valueNumber}
                 placeholder={isAgeField(normalized.field) ? `e.g. ${AGE_MIN}` : 'e.g. 100.00'}
                 min={isAgeField(normalized.field) ? AGE_MIN : 0}
@@ -247,35 +254,42 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
                 precision={isAgeField(normalized.field) ? 0 : 2}
                 prefix={isIncomeField(normalized.field) ? currencySymbol : undefined}
                 suffix={isAgeField(normalized.field) ? 'years' : undefined}
-                style={{ width: '100%', height: 32 }}
+                style={FIELD_CONTROL_STYLE}
                 onChange={(valueNumber) => onChange({ ...normalized, valueNumber })}
               />
+            )}
+            {valueError && (
+              <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                {valueError}
+              </Typography.Text>
             )}
           </Flex>
         </Col>
         {isBetween && (
           <Col xs={24} md={12} xl={6}>
-            <InputNumber
-              aria-label="To value"
-              status={hasError ? 'error' : undefined}
-              value={normalized.valueNumberTo}
-              placeholder={isAgeField(normalized.field) ? `e.g. ${AGE_MAX}` : 'e.g. 500.00'}
-              min={isAgeField(normalized.field) ? AGE_MIN : 0}
-              max={isAgeField(normalized.field) ? AGE_MAX : undefined}
-              precision={isAgeField(normalized.field) ? 0 : 2}
-              prefix={isIncomeField(normalized.field) ? currencySymbol : undefined}
-              suffix={isAgeField(normalized.field) ? 'years' : undefined}
-              style={{ width: '100%', height: 32 }}
-              onChange={(valueNumberTo) => onChange({ ...normalized, valueNumberTo })}
-            />
+            <Flex vertical gap={4}>
+              <InputNumber
+                aria-label="To value"
+                status={valueToError ? 'error' : undefined}
+                value={normalized.valueNumberTo}
+                placeholder={isAgeField(normalized.field) ? `e.g. ${AGE_MAX}` : 'e.g. 500.00'}
+                min={isAgeField(normalized.field) ? AGE_MIN : 0}
+                max={isAgeField(normalized.field) ? AGE_MAX : undefined}
+                precision={isAgeField(normalized.field) ? 0 : 2}
+                prefix={isIncomeField(normalized.field) ? currencySymbol : undefined}
+                suffix={isAgeField(normalized.field) ? 'years' : undefined}
+                style={FIELD_CONTROL_STYLE}
+                onChange={(valueNumberTo) => onChange({ ...normalized, valueNumberTo })}
+              />
+              {valueToError && (
+                <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                  {valueToError}
+                </Typography.Text>
+              )}
+            </Flex>
           </Col>
         )}
       </Row>
-      {hasError && (
-        <Typography.Text type="danger" style={{ display: 'block', marginTop: 8, fontSize: 12 }}>
-          {rowErrors[0]}
-        </Typography.Text>
-      )}
     </div>
   )
 }
@@ -334,6 +348,7 @@ const GroupEditor = ({
         <Button
           type="dashed"
           icon={<PlusOutlined />}
+          style={{ height: 40 }}
           onClick={() =>
             onChange({
               ...group,
@@ -345,8 +360,7 @@ const GroupEditor = ({
         >
           Add scenario condition
         </Button>
-        {!conditions.length && <Typography.Text type="danger">Condition is required.</Typography.Text>}
-        {!!errors.length && (
+        {showValidationErrors && !!errors.length && (
           <Alert
             type="error"
             showIcon
@@ -374,8 +388,10 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
     () => (group.groups?.length ? group.groups : [createEmptyScenario()]),
     [group.groups]
   )
-  const scenarioDiagnostics = scenarios.map((scenario) => getScenarioErrors(scenario))
-  const hasErrors = scenarioDiagnostics.some((errors) => errors.length)
+  const scenarioErrors = scenarios.map((scenario) => getScenarioErrors(scenario))
+  const scenarioConflictErrors = scenarios.map((scenario) => getScenarioConflictErrors(scenario))
+  const hasErrors = scenarioErrors.some((errors) => errors.length)
+  const hasCondition = scenarios.some((scenario) => (scenario.conditions || []).length)
   const emitScenarioRoot = (groups) =>
     onChange?.({
       ...group,
@@ -410,7 +426,7 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
             groupNumber={index + 1}
             token={token}
             canDelete={scenarios.length > 1}
-            errors={scenarioDiagnostics[index] || []}
+            errors={scenarioConflictErrors[index] || []}
             showValidationErrors={showValidationErrors}
             onChange={(nextScenario) => updateScenario(index, nextScenario)}
             onDelete={() =>
@@ -427,7 +443,7 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
       >
         Add scenario
       </Button>
-      {!hasErrors && (
+      {hasCondition && !hasErrors && (
         <div
           style={{
             padding: 16,

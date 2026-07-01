@@ -4,7 +4,6 @@ import {
   buildSchemePayload,
   createEmptyScheme,
   createEmptyTier,
-  formatTierRange,
   validateTierConfiguration,
 } from '@/features/financial-assistance/utils/fasFormUtil'
 import { ApiUrls } from '@/shared/api/apiUrls'
@@ -16,14 +15,19 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import { getCurrencySymbolBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { showErrorToast } from '@/shared/utils/toastUtil'
 import { maxLen, numberHigherThan } from '@/shared/utils/validateUtil'
-import { ArrowLeftOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import {
+  ArrowLeftOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons'
 import {
   Button,
   Card,
   Checkbox,
   Col,
-  Divider,
   Flex,
   Input,
   InputNumber,
@@ -31,53 +35,144 @@ import {
   Select,
   Space,
   Switch,
+  Tooltip,
   Typography,
   Upload,
-  message,
 } from 'antd'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const FAS_SUBSIDY_TYPE = EnumConfig.FasSubsidyType
 const FAS_TIER_INCOME_BASIS = EnumConfig.FasTierIncomeBasis
+const FIELD_CONTROL_STYLE = { width: '100%', height: 40 }
+const TEMPLATE_FILE_ACCEPT = '.pdf,.docx'
+const TEMPLATE_FILE_EXTENSIONS = new Set(['.pdf', '.docx'])
+const TEMPLATE_FILE_MIME_TYPES = new Set([
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+])
 
-const FormSection = ({ title, children }) => (
+const getFileExtension = (fileName = '') => {
+  const dotIndex = fileName.lastIndexOf('.')
+  return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : ''
+}
+
+const isAllowedTemplateFile = (file) => {
+  const extension = getFileExtension(file?.name)
+  return TEMPLATE_FILE_EXTENSIONS.has(extension) || TEMPLATE_FILE_MIME_TYPES.has(file?.type)
+}
+
+const TitleWithHelp = ({ title, help }) => (
+  <Flex align="center" gap={8}>
+    <Typography.Text strong>{title}</Typography.Text>
+    {help ? (
+      <Tooltip title={help}>
+        <QuestionCircleOutlined style={{ color: 'var(--ant-color-text-secondary)' }} />
+      </Tooltip>
+    ) : null}
+  </Flex>
+)
+
+const FormSection = ({ title, help, children }) => (
   <section
     style={{
-      paddingBlock: 20,
+      paddingBlock: 24,
       borderTop: '1px solid var(--app-border-color)',
     }}
   >
-    <Typography.Text strong style={{ display: 'block', marginBottom: 16 }}>
-      {title}
-    </Typography.Text>
+    <div style={{ marginBottom: 16 }}>
+      <TitleWithHelp title={title} help={help} />
+    </div>
     {children}
   </section>
 )
 
+const TierField = ({ label, help, children, minWidth = 160, flex = '1 1 160px' }) => (
+  <Flex vertical gap={6} style={{ minWidth, flex }}>
+    <Flex align="center" gap={6}>
+      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+        {label}
+      </Typography.Text>
+      {help ? (
+        <Tooltip title={help}>
+          <QuestionCircleOutlined
+            style={{ color: 'var(--ant-color-text-secondary)', fontSize: 12 }}
+          />
+        </Tooltip>
+      ) : null}
+    </Flex>
+    {children}
+  </Flex>
+)
+
+const usesPerCapitaRange = (tier) =>
+  tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaIncome ||
+  tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
+
+const usesGrossRange = (tier) =>
+  tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.GrossHouseholdIncome ||
+  tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
+
+const getDerivedTiers = (tiers) => {
+  let nextPerCapitaStart
+  let nextGrossStart
+
+  return tiers.map((tier) => {
+    const derived = { ...tier }
+
+    if (usesPerCapitaRange(tier)) {
+      derived.minPerCapitaIncome =
+        nextPerCapitaStart === undefined ? (tier.minPerCapitaIncome ?? 0) : nextPerCapitaStart
+      nextPerCapitaStart = tier.maxPerCapitaIncome ?? ''
+    } else {
+      derived.minPerCapitaIncome = ''
+      derived.maxPerCapitaIncome = ''
+    }
+
+    if (usesGrossRange(tier)) {
+      derived.minGrossHouseholdIncome =
+        nextGrossStart === undefined ? (tier.minGrossHouseholdIncome ?? 0) : nextGrossStart
+      nextGrossStart = tier.maxGrossHouseholdIncome ?? ''
+    } else {
+      derived.minGrossHouseholdIncome = ''
+      derived.maxGrossHouseholdIncome = ''
+    }
+
+    return derived
+  })
+}
+
 const TierEditor = ({ tiers, setTiers }) => {
   const { fasSubsidyTypeOptions, fasTierIncomeBasisOptions } = useEnum()
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
+  const derivedTiers = useMemo(() => getDerivedTiers(tiers), [tiers])
   const updateTier = (index, patch) =>
     setTiers((current) =>
       current.map((tier, tierIndex) => (tierIndex === index ? { ...tier, ...patch } : tier))
     )
+  const createNextTier = (current) => {
+    const next = createEmptyTier(current.length)
+    const previous = current[current.length - 1]
+    if (!previous) return next
+
+    next.tierIncomeBasis = previous.tierIncomeBasis
+    return next
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
-      {tiers.map((tier, index) => {
-        const usesPci =
-          tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaIncome ||
-          tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
-        const usesGross =
-          tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.GrossHouseholdIncome ||
-          tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
+      {derivedTiers.map((tier, index) => {
+        const usesPci = usesPerCapitaRange(tier)
+        const usesGross = usesGrossRange(tier)
+        const previousTier = derivedTiers[index - 1]
+        const isPerCapitaStartDerived = usesPci && previousTier && usesPerCapitaRange(previousTier)
+        const isGrossStartDerived = usesGross && previousTier && usesGrossRange(previousTier)
 
         return (
           <Card
             key={tier.id || index}
             size="small"
-            title={`${tier.tierName || `Tier ${index + 1}`} — ${formatTierRange(tier)}`}
+            title={tier.tierName || `Tier ${index + 1}`}
             extra={
               <Button
                 danger
@@ -90,130 +185,192 @@ const TierEditor = ({ tiers, setTiers }) => {
               />
             }
           >
-            <Flex gap={12} wrap="wrap">
-              <Input
-                value={tier.tierName}
-                style={{ width: 180 }}
-                placeholder="Tier name"
-                onChange={(event) => updateTier(index, { tierName: event.target.value })}
-              />
-              <Select
-                value={tier.tierIncomeBasis}
-                style={{ width: 280 }}
-                options={fasTierIncomeBasisOptions}
-                onChange={(tierIncomeBasis) => {
-                  const nextUsesPci =
-                    tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaIncome ||
-                    tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
-                  const nextUsesGross =
-                    tierIncomeBasis === FAS_TIER_INCOME_BASIS.GrossHouseholdIncome ||
-                    tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
-                  updateTier(index, {
-                    tierIncomeBasis,
-                    minPerCapitaIncome: nextUsesPci ? tier.minPerCapitaIncome : '',
-                    maxPerCapitaIncome: nextUsesPci ? tier.maxPerCapitaIncome : '',
-                    minGrossHouseholdIncome: nextUsesGross ? tier.minGrossHouseholdIncome : '',
-                    maxGrossHouseholdIncome: nextUsesGross ? tier.maxGrossHouseholdIncome : '',
-                  })
-                }}
-              />
-              <Select
-                value={tier.subsidyType}
-                style={{ width: 180 }}
-                options={fasSubsidyTypeOptions}
-                onChange={(subsidyType) => updateTier(index, { subsidyType })}
-              />
-              <Space>
-                <Typography.Text>Per component</Typography.Text>
-                <Switch
-                  checked={tier.isPerComponent}
-                  onChange={(isPerComponent) =>
-                    updateTier(index, {
-                      isPerComponent,
-                      subsidyValue: isPerComponent ? '' : tier.subsidyValue,
-                      courseFeeSubsidyValue: isPerComponent ? tier.courseFeeSubsidyValue : '',
-                      miscFeeSubsidyValue: isPerComponent ? tier.miscFeeSubsidyValue : '',
-                    })
-                  }
-                />
-              </Space>
-              {usesPci && (
-                <>
-                  <InputNumber
-                    value={tier.minPerCapitaIncome}
-                    min={0}
-                    prefix={currencySymbol}
-                    placeholder="Min PCI"
-                    onChange={(value) => updateTier(index, { minPerCapitaIncome: value })}
+            <Flex vertical gap={16}>
+              <Flex gap={12} wrap="wrap">
+                <TierField label="Tier name" minWidth={180}>
+                  <Input
+                    value={tier.tierName}
+                    placeholder="Tier name"
+                    style={FIELD_CONTROL_STYLE}
+                    onChange={(event) => updateTier(index, { tierName: event.target.value })}
                   />
-                  <InputNumber
-                    value={tier.maxPerCapitaIncome}
-                    min={0}
-                    prefix={currencySymbol}
-                    placeholder="Max PCI"
-                    onChange={(value) => updateTier(index, { maxPerCapitaIncome: value ?? '' })}
+                </TierField>
+                <TierField label="Income basis" minWidth={260} flex="1.5 1 260px">
+                  <Select
+                    value={tier.tierIncomeBasis}
+                    options={fasTierIncomeBasisOptions}
+                    style={FIELD_CONTROL_STYLE}
+                    onChange={(tierIncomeBasis) => updateTier(index, { tierIncomeBasis })}
                   />
-                </>
-              )}
-              {usesGross && (
-                <>
-                  <InputNumber
-                    value={tier.minGrossHouseholdIncome}
-                    min={0}
-                    prefix={currencySymbol}
-                    placeholder="Min gross income"
-                    onChange={(value) => updateTier(index, { minGrossHouseholdIncome: value })}
+                </TierField>
+                <TierField label="Subsidy type" minWidth={180}>
+                  <Select
+                    value={tier.subsidyType}
+                    options={fasSubsidyTypeOptions}
+                    style={FIELD_CONTROL_STYLE}
+                    onChange={(subsidyType) => updateTier(index, { subsidyType })}
                   />
-                  <InputNumber
-                    value={tier.maxGrossHouseholdIncome}
-                    min={0}
-                    prefix={currencySymbol}
-                    placeholder="Max gross income"
-                    onChange={(value) =>
-                      updateTier(index, { maxGrossHouseholdIncome: value ?? '' })
-                    }
-                  />
-                </>
-              )}
-              {tier.isPerComponent ? (
-                <>
-                  <InputNumber
-                    value={tier.courseFeeSubsidyValue}
-                    min={0}
-                    max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                    prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
-                    suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                    placeholder="Course fee subsidy"
-                    onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
-                  />
-                  <InputNumber
-                    value={tier.miscFeeSubsidyValue}
-                    min={0}
-                    max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                    prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
-                    suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                    placeholder="Misc fee subsidy"
-                    onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
-                  />
-                </>
-              ) : (
-                <InputNumber
-                  value={tier.subsidyValue}
-                  min={0}
-                  max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                  prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
-                  suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                  placeholder="Subsidy"
-                  onChange={(value) => updateTier(index, { subsidyValue: value })}
-                />
-              )}
+                </TierField>
+                <TierField
+                  label="Apply subsidy separately"
+                  help="Turn on to set different subsidy values for course fee and misc fee."
+                  minWidth={260}
+                  flex="1 1 260px"
+                >
+                  <Flex align="center" gap={8} wrap="wrap" style={{ minHeight: 40 }}>
+                    <Switch
+                      checked={tier.isPerComponent}
+                      onChange={(isPerComponent) =>
+                        updateTier(index, {
+                          isPerComponent,
+                          subsidyValue: isPerComponent ? '' : tier.subsidyValue,
+                          courseFeeSubsidyValue: isPerComponent ? tier.courseFeeSubsidyValue : '',
+                          miscFeeSubsidyValue: isPerComponent ? tier.miscFeeSubsidyValue : '',
+                        })
+                      }
+                    />
+                    <Typography.Text>Course fee and misc fee</Typography.Text>
+                  </Flex>
+                </TierField>
+              </Flex>
+              <Flex gap={12} wrap="wrap">
+                {usesPci && (
+                  <>
+                    <TierField
+                      label="From"
+                      help={
+                        isPerCapitaStartDerived
+                          ? 'Calculated from the previous tier.'
+                          : 'Set where this tier starts.'
+                      }
+                      minWidth={220}
+                    >
+                      <InputNumber
+                        value={tier.minPerCapitaIncome}
+                        min={0}
+                        prefix={currencySymbol}
+                        disabled={isPerCapitaStartDerived}
+                        style={FIELD_CONTROL_STYLE}
+                        onChange={(value) => updateTier(index, { minPerCapitaIncome: value ?? '' })}
+                      />
+                    </TierField>
+                    <TierField
+                      label="Up to"
+                      help="This value is not included in the tier. Leave the last tier empty for and above."
+                      minWidth={220}
+                    >
+                      <InputNumber
+                        value={tier.maxPerCapitaIncome}
+                        min={0}
+                        prefix={currencySymbol}
+                        placeholder="No limit"
+                        style={FIELD_CONTROL_STYLE}
+                        onChange={(value) => updateTier(index, { maxPerCapitaIncome: value ?? '' })}
+                      />
+                    </TierField>
+                  </>
+                )}
+                {usesGross && (
+                  <>
+                    <TierField
+                      label="From"
+                      help={
+                        isGrossStartDerived
+                          ? 'Calculated from the previous tier.'
+                          : 'Set where this tier starts.'
+                      }
+                      minWidth={240}
+                    >
+                      <InputNumber
+                        value={tier.minGrossHouseholdIncome}
+                        min={0}
+                        prefix={currencySymbol}
+                        disabled={isGrossStartDerived}
+                        style={FIELD_CONTROL_STYLE}
+                        onChange={(value) =>
+                          updateTier(index, { minGrossHouseholdIncome: value ?? '' })
+                        }
+                      />
+                    </TierField>
+                    <TierField
+                      label="Up to"
+                      help="This value is not included in the tier. Leave the last tier empty for and above."
+                      minWidth={240}
+                    >
+                      <InputNumber
+                        value={tier.maxGrossHouseholdIncome}
+                        min={0}
+                        prefix={currencySymbol}
+                        placeholder="No limit"
+                        style={FIELD_CONTROL_STYLE}
+                        onChange={(value) =>
+                          updateTier(index, { maxGrossHouseholdIncome: value ?? '' })
+                        }
+                      />
+                    </TierField>
+                  </>
+                )}
+                {tier.isPerComponent ? (
+                  <>
+                    <TierField label="Course fee subsidy">
+                      <InputNumber
+                        value={tier.courseFeeSubsidyValue}
+                        min={0}
+                        max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                        prefix={
+                          tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
+                            ? currencySymbol
+                            : undefined
+                        }
+                        suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                        placeholder="Value"
+                        style={FIELD_CONTROL_STYLE}
+                        onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
+                      />
+                    </TierField>
+                    <TierField label="Misc fee subsidy">
+                      <InputNumber
+                        value={tier.miscFeeSubsidyValue}
+                        min={0}
+                        max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                        prefix={
+                          tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
+                            ? currencySymbol
+                            : undefined
+                        }
+                        suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                        placeholder="Value"
+                        style={FIELD_CONTROL_STYLE}
+                        onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
+                      />
+                    </TierField>
+                  </>
+                ) : (
+                  <TierField label="Subsidy">
+                    <InputNumber
+                      value={tier.subsidyValue}
+                      min={0}
+                      max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                      prefix={
+                        tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
+                          ? currencySymbol
+                          : undefined
+                      }
+                      suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                      placeholder="Value"
+                      style={FIELD_CONTROL_STYLE}
+                      onChange={(value) => updateTier(index, { subsidyValue: value })}
+                    />
+                  </TierField>
+                )}
+              </Flex>
             </Flex>
           </Card>
         )
       })}
       <Button
         icon={<PlusOutlined />}
-        onClick={() => setTiers((current) => [...current, createEmptyTier(current.length)])}
+        onClick={() => setTiers((current) => [...current, createNextTier(current)])}
       >
         Add tier
       </Button>
@@ -222,49 +379,93 @@ const TierEditor = ({ tiers, setTiers }) => {
 }
 
 const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
-  <Space direction="vertical" style={{ width: '100%' }}>
+  <Space direction="vertical" size={12} style={{ width: '100%' }}>
+    <Typography.Text type="secondary">
+      Template files support PDF or Word format only (.pdf, .docx).
+    </Typography.Text>
+    {!documents.length && (
+      <Typography.Text type="secondary">
+        No documents required yet. Add one when applicants need to upload proof.
+      </Typography.Text>
+    )}
     {documents.map((document, index) => (
-      <Flex key={document.id || index} gap={8} align="center" wrap="wrap">
-        <Input
-          value={document.documentName}
-          style={{ width: 280 }}
-          placeholder="Document name"
-          onChange={(event) =>
-            setDocuments((current) =>
-              current.map((item, itemIndex) =>
-                itemIndex === index ? { ...item, documentName: event.target.value } : item
-              )
-            )
-          }
-        />
-        <Upload
-          maxCount={1}
-          showUploadList={false}
-          beforeUpload={(file) => {
-            setDocuments((current) =>
-              current.map((item, itemIndex) =>
-                itemIndex === index
-                  ? { ...item, templateFile: file, templateFileName: file.name }
-                  : item
-              )
-            )
-            return false
-          }}
-        >
-          <Button>Choose template file</Button>
-        </Upload>
-        <Typography.Text type="secondary">
-          {document.templateFileName || document.templateFileKey || 'No template'}
-        </Typography.Text>
-        <Button
-          danger
-          type="text"
-          icon={<DeleteOutlined />}
-          onClick={() =>
-            setDocuments((current) => current.filter((_, itemIndex) => itemIndex !== index))
-          }
-        />
-      </Flex>
+      <Card
+        key={document.id || index}
+        size="small"
+        title={`Document ${index + 1}`}
+        extra={
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            onClick={() =>
+              setDocuments((current) => current.filter((_, itemIndex) => itemIndex !== index))
+            }
+          />
+        }
+      >
+        <Row gutter={[16, 12]} align="bottom">
+          <Col xs={24} lg={14}>
+            <TierField label="Document name" minWidth="100%">
+              <Input
+                value={document.documentName}
+                style={FIELD_CONTROL_STYLE}
+                placeholder="e.g. Household income statement"
+                onChange={(event) =>
+                  setDocuments((current) =>
+                    current.map((item, itemIndex) =>
+                      itemIndex === index ? { ...item, documentName: event.target.value } : item
+                    )
+                  )
+                }
+              />
+            </TierField>
+          </Col>
+          <Col xs={24} lg={10}>
+            <TierField label="Template file" minWidth="100%">
+              <Flex align="center" gap={10} style={{ minHeight: 40, width: '100%', minWidth: 0 }}>
+                <Upload
+                  accept={TEMPLATE_FILE_ACCEPT}
+                  maxCount={1}
+                  showUploadList={false}
+                  beforeUpload={(file) => {
+                    if (!isAllowedTemplateFile(file)) {
+                      showErrorToast('Template file must be PDF or Word format (.pdf, .docx).')
+                      return Upload.LIST_IGNORE
+                    }
+
+                    setDocuments((current) =>
+                      current.map((item, itemIndex) =>
+                        itemIndex === index
+                          ? { ...item, templateFile: file, templateFileName: file.name }
+                          : item
+                      )
+                    )
+                    return false
+                  }}
+                >
+                  <Button style={{ height: 40 }}>Upload template</Button>
+                </Upload>
+                <Tooltip
+                  title={
+                    document.templateFileName || document.templateFileKey
+                      ? document.templateFileName || document.templateFileKey
+                      : undefined
+                  }
+                >
+                  <Typography.Text
+                    type="secondary"
+                    ellipsis
+                    style={{ flex: '1 1 0', minWidth: 0 }}
+                  >
+                    {document.templateFileName || document.templateFileKey || 'No template uploaded'}
+                  </Typography.Text>
+                </Tooltip>
+              </Flex>
+            </TierField>
+          </Col>
+        </Row>
+      </Card>
     ))}
     <Button
       icon={<PlusOutlined />}
@@ -287,41 +488,61 @@ const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
 )
 
 const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
-  <Space direction="vertical" style={{ width: '100%' }}>
+  <Space direction="vertical" size={12} style={{ width: '100%' }}>
+    {!questions.length && (
+      <Typography.Text type="secondary">
+        No extra questions yet. Add one when reviewers need more applicant details.
+      </Typography.Text>
+    )}
     {questions.map((question, index) => (
-      <Flex key={question.id || index} gap={8} align="center">
-        <Input
-          value={question.questionText}
-          placeholder="Question"
-          onChange={(event) =>
-            setQuestions((current) =>
-              current.map((item, itemIndex) =>
-                itemIndex === index ? { ...item, questionText: event.target.value } : item
-              )
-            )
-          }
-        />
-        <Checkbox
-          checked={question.isRequired}
-          onChange={(event) =>
-            setQuestions((current) =>
-              current.map((item, itemIndex) =>
-                itemIndex === index ? { ...item, isRequired: event.target.checked } : item
-              )
-            )
-          }
-        >
-          Required
-        </Checkbox>
-        <Button
-          danger
-          type="text"
-          icon={<DeleteOutlined />}
-          onClick={() =>
-            setQuestions((current) => current.filter((_, itemIndex) => itemIndex !== index))
-          }
-        />
-      </Flex>
+      <Card
+        key={question.id || index}
+        size="small"
+        title={`Question ${index + 1}`}
+        extra={
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            onClick={() =>
+              setQuestions((current) => current.filter((_, itemIndex) => itemIndex !== index))
+            }
+          />
+        }
+      >
+        <Flex gap={12} align="flex-end" wrap="wrap">
+          <TierField label="Question text" minWidth={320} flex="1 1 320px">
+            <Input
+              value={question.questionText}
+              style={FIELD_CONTROL_STYLE}
+              placeholder="e.g. Tell us about your financial circumstances"
+              onChange={(event) =>
+                setQuestions((current) =>
+                  current.map((item, itemIndex) =>
+                    itemIndex === index ? { ...item, questionText: event.target.value } : item
+                  )
+                )
+              }
+            />
+          </TierField>
+          <TierField label="Applicant must answer" minWidth={180} flex="0 0 180px">
+            <Flex align="center" style={{ minHeight: 40 }}>
+              <Checkbox
+                checked={question.isRequired}
+                onChange={(event) =>
+                  setQuestions((current) =>
+                    current.map((item, itemIndex) =>
+                      itemIndex === index ? { ...item, isRequired: event.target.checked } : item
+                    )
+                  )
+                }
+              >
+                Required
+              </Checkbox>
+            </Flex>
+          </TierField>
+        </Flex>
+      </Card>
     ))}
     <Button
       icon={<PlusOutlined />}
@@ -417,14 +638,15 @@ const FasSchemeCreatePage = () => {
 
   const handleSubmit = async () => {
     setSubmitted(true)
+    const derivedTiers = getDerivedTiers(tiers)
     const inputsValid = validateAll()
     const missingInput = hasRequiredMissing(basicFields)
     const conditionErrors = (conditionGroup?.groups || []).flatMap(getScenarioErrors)
-    const tierErrors = validateTierConfiguration(tiers)
+    const tierErrors = validateTierConfiguration(derivedTiers)
 
     if (conditionErrors.length) setShowConditionErrors(true)
     if (!inputsValid || missingInput || conditionErrors.length || tierErrors.length) {
-      if (tierErrors.length) message.error(tierErrors[0])
+      if (tierErrors.length) showErrorToast(tierErrors[0])
       return
     }
     setShowConditionErrors(false)
@@ -432,7 +654,7 @@ const FasSchemeCreatePage = () => {
     const payload = buildSchemePayload({
       ...values,
       rootConditionGroup: conditionGroup,
-      tiers,
+      tiers: derivedTiers,
       requiredDocuments,
       schemeCourses: (values.courseIds || []).map((courseId) => ({ courseId })),
       additionalQuestions,
@@ -443,25 +665,41 @@ const FasSchemeCreatePage = () => {
 
   return (
     <div style={{ padding: '20px 28px 28px' }}>
-      <Flex vertical gap={4}>
-        <Flex align="center" gap={12} wrap="wrap">
-          <Button aria-label="Back" icon={<ArrowLeftOutlined />} onClick={() => navigate(listRoute)} />
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            Create FAS scheme
-          </Typography.Title>
-        </Flex>
+      <Flex align="center" gap={12} wrap="wrap" style={{ marginBottom: 20 }}>
+        <Button aria-label="Back" icon={<ArrowLeftOutlined />} onClick={() => navigate(listRoute)} />
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          Create FAS scheme
+        </Typography.Title>
+      </Flex>
 
-        <FormSection title="Basic information">
+      <main>
+        <FormSection
+          title="Basic information"
+          help="Name the scheme, set the validity period, and optionally limit it to selected courses."
+        >
           <Row gutter={[16, 16]}>
             {basicFields.map((field) => (
-              <Col key={field.key} xs={24} md={field.key === 'description' || field.key === 'courseIds' ? 24 : 8}>
+              <Col
+                key={field.key}
+                xs={24}
+                md={
+                  field.key === 'description' || field.key === 'courseIds'
+                    ? 24
+                    : field.key === 'schemeName'
+                      ? 16
+                      : 8
+                }
+              >
                 {renderField(field)}
               </Col>
             ))}
           </Row>
         </FormSection>
 
-        <FormSection title="Eligibility conditions">
+        <FormSection
+          title="Eligibility conditions"
+          help="Build one or more scenarios. A student is eligible when any scenario matches."
+        >
           <FasConditionEditor
             value={conditionGroup}
             showValidationErrors={showConditionErrors}
@@ -472,31 +710,44 @@ const FasSchemeCreatePage = () => {
           />
         </FormSection>
 
-        <FormSection title="Tiers">
+        <FormSection
+          title="Tiers"
+          help="Build continuous income ranges. From is calculated automatically; only set the upper limit and subsidy."
+        >
           <TierEditor tiers={tiers} setTiers={setTiers} />
         </FormSection>
 
-        <FormSection title="Required documents">
-          <RequiredDocumentsEditor
-            documents={requiredDocuments}
-            setDocuments={setRequiredDocuments}
-          />
+        <FormSection
+          title="Required documents"
+          help="Add documents the applicant must upload before submission."
+        >
+          <RequiredDocumentsEditor documents={requiredDocuments} setDocuments={setRequiredDocuments} />
         </FormSection>
 
-        <FormSection title="Additional questions">
+        <FormSection
+          title="Additional questions"
+          help="Collect extra applicant details needed for review."
+        >
           <AdditionalQuestionsEditor
             questions={additionalQuestions}
             setQuestions={setAdditionalQuestions}
           />
         </FormSection>
+      </main>
 
-        <Divider style={{ margin: '20px 0 0' }} />
-        <Flex justify="flex-end" gap={8} style={{ paddingTop: 20 }}>
-          <Button onClick={() => navigate(listRoute)}>Cancel</Button>
-          <Button type="primary" onClick={handleSubmit} loading={save.loading}>
-            Create
-          </Button>
-        </Flex>
+      <Flex
+        justify="flex-end"
+        gap={8}
+        style={{
+          marginTop: 24,
+          paddingTop: 20,
+          borderTop: '1px solid var(--app-border-color)',
+        }}
+      >
+        <Button onClick={() => navigate(listRoute)}>Cancel</Button>
+        <Button type="primary" onClick={handleSubmit} loading={save.loading}>
+          Create
+        </Button>
       </Flex>
     </div>
   )

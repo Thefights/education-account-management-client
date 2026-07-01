@@ -223,11 +223,19 @@ const MultipleSelectDialog = ({
                 return (
                   <Flex
                     key={String(opt.value)}
-                    role="listitem"
+                    role="option"
+                    aria-selected={isSelected}
+                    tabIndex={opt.disabled ? -1 : 0}
                     align="flex-start"
                     gap={12}
+                    onClick={() => handleToggle(opt.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return
+                      event.preventDefault()
+                      handleToggle(opt.value)
+                    }}
                     style={{
-                      cursor: opt.disabled ? 'not-allowed' : 'default',
+                      cursor: opt.disabled ? 'not-allowed' : 'pointer',
                       padding: 12,
                       border: isSelected
                         ? '1px solid var(--ant-color-primary)'
@@ -243,6 +251,7 @@ const MultipleSelectDialog = ({
                     <Checkbox
                       checked={isSelected}
                       disabled={opt.disabled}
+                      onClick={(event) => event.stopPropagation()}
                       onChange={() => handleToggle(opt.value)}
                     />
                     <Flex flex={1} vertical style={{ minWidth: 0 }}>
