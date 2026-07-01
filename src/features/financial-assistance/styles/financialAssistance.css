@@ -1475,9 +1475,32 @@
   color: var(--fas-grey);
 }
 
+@media (max-width: 1200px) {
+  .fas-apply-detail-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 24px;
+  }
+
+  .fas-apply-step-card {
+    padding: 24px;
+  }
+}
+
 @media (max-width: 980px) {
+  .fas-apply-frame {
+    overflow: visible;
+  }
+
   .fas-apply-detail-layout {
     grid-template-columns: 1fr;
+    max-width: 860px;
+    gap: 24px;
+  }
+
+  .fas-apply-workflow {
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
   }
 
   .fas-apply-summary {
@@ -1485,8 +1508,8 @@
   }
 
   .fas-ai-shell {
-    min-height: 680px;
-    max-height: 760px;
+    min-height: 520px;
+    max-height: 640px;
   }
 }
 
@@ -1558,11 +1581,43 @@
   }
 
   .fas-ai-shell {
-    min-height: 620px;
+    min-height: min(500px, 68vh);
+    max-height: 68vh;
+    border-radius: 16px;
   }
 
   .fas-ai-chat-header {
     padding: 15px;
+  }
+
+  .fas-ai-scroll-area {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .fas-ai-message {
+    gap: 8px;
+  }
+
+  .fas-ai-message-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .fas-ai-bubble {
+    max-width: 82%;
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  .fas-ai-suggestions {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .fas-ai-suggestion-card {
+    padding: 11px;
   }
 
   .fas-ai-suggestion-actions {
@@ -1572,5 +1627,80 @@
 
   .fas-ai-suggestion-actions .ant-btn {
     width: 100%;
+  }
+
+  .fas-ai-composer-wrap {
+    padding: 10px;
+  }
+
+  body:has(.fas-ai-shell) .ant-float-btn {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .fas-apply-titlebar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fas-apply-step-head {
+    gap: 8px;
+  }
+
+  .fas-block-number {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .fas-ai-chat-header {
+    padding: 12px;
+  }
+
+  .fas-ai-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .fas-ai-progress {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: 6px;
+  }
+
+  .fas-ai-progress .ant-progress {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+
+  .fas-ai-bubble {
+    max-width: calc(100% - 42px);
+  }
+
+  .fas-ai-suggestion-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fas-ai-current-answer,
+  .fas-ai-proposed-answer {
+    padding: 9px;
+  }
+
+  .fas-ai-composer {
+    gap: 8px;
+  }
+
+  .fas-ai-composer .ant-input {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .fas-ai-composer .ant-btn {
+    width: 38px;
+    height: 38px;
   }
 }
