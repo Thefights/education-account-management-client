@@ -110,7 +110,7 @@ const SchemeFilters = ({ value, loading, onApply }) => {
 }
 
 const TierEditor = ({ scheme, setScheme, readOnly }) => {
-  const { fasTierIncomeBasisOptions } = useEnum()
+  const { fasSubsidyTypeOptions, fasTierIncomeBasisOptions } = useEnum()
   const updateTier = (index, patch) =>
     setScheme((current) => ({
       ...current,
@@ -179,6 +179,28 @@ const TierEditor = ({ scheme, setScheme, readOnly }) => {
                   })
                 }}
               />
+              <Select
+                value={tier.subsidyType}
+                disabled={readOnly}
+                style={{ width: 180 }}
+                options={fasSubsidyTypeOptions}
+                onChange={(subsidyType) => updateTier(index, { subsidyType })}
+              />
+              <Space>
+                <Typography.Text>Per component</Typography.Text>
+                <Switch
+                  checked={tier.isPerComponent}
+                  disabled={readOnly}
+                  onChange={(isPerComponent) =>
+                    updateTier(index, {
+                      isPerComponent,
+                      subsidyValue: isPerComponent ? '' : tier.subsidyValue,
+                      courseFeeSubsidyValue: isPerComponent ? tier.courseFeeSubsidyValue : '',
+                      miscFeeSubsidyValue: isPerComponent ? tier.miscFeeSubsidyValue : '',
+                    })
+                  }
+                />
+              </Space>
               {usesPci && (
                 <>
                   <InputNumber
@@ -219,13 +241,15 @@ const TierEditor = ({ scheme, setScheme, readOnly }) => {
                   />
                 </>
               )}
-              {scheme.isPerComponent ? (
+              {tier.isPerComponent ? (
                 <>
                   <InputNumber
                     value={tier.courseFeeSubsidyValue}
                     disabled={readOnly}
                     min={0}
-                    max={scheme.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                    max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                    prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? 'S$' : undefined}
+                    suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                     placeholder="Course fee subsidy"
                     onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
                   />
@@ -233,7 +257,9 @@ const TierEditor = ({ scheme, setScheme, readOnly }) => {
                     value={tier.miscFeeSubsidyValue}
                     disabled={readOnly}
                     min={0}
-                    max={scheme.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                    max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                    prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? 'S$' : undefined}
+                    suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                     placeholder="Misc fee subsidy"
                     onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
                   />
@@ -243,7 +269,9 @@ const TierEditor = ({ scheme, setScheme, readOnly }) => {
                   value={tier.subsidyValue}
                   disabled={readOnly}
                   min={0}
-                  max={scheme.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                  max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                  prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? 'S$' : undefined}
+                  suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                   placeholder="Subsidy"
                   onChange={(value) => updateTier(index, { subsidyValue: value })}
                 />
@@ -270,7 +298,6 @@ const TierEditor = ({ scheme, setScheme, readOnly }) => {
 }
 
 const SchemeDialog = ({ open, scheme, setScheme, readOnly, loading, courseOptions, onClose, onSave }) => {
-  const { fasSubsidyTypeOptions } = useEnum()
   return (
   <Modal
     open={open}
@@ -299,21 +326,6 @@ const SchemeDialog = ({ open, scheme, setScheme, readOnly, loading, courseOption
           addonAfter="months"
           onChange={(durationInMonths) => setScheme((current) => ({ ...current, durationInMonths }))}
         />
-        <Select
-          value={scheme.subsidyType}
-          disabled={readOnly}
-          style={{ width: 180 }}
-          options={fasSubsidyTypeOptions}
-          onChange={(subsidyType) => setScheme((current) => ({ ...current, subsidyType }))}
-        />
-        <Space>
-          <Typography.Text>Per component</Typography.Text>
-          <Switch
-            checked={scheme.isPerComponent}
-            disabled={readOnly}
-            onChange={(isPerComponent) => setScheme((current) => ({ ...current, isPerComponent }))}
-          />
-        </Space>
       </Flex>
       <Input.TextArea
         value={scheme.description}
@@ -529,7 +541,7 @@ const FasSchemeManagementPage = () => {
     if (!scheme.schemeName?.trim()) return message.error('Scheme name is required.')
     const conditionErrors = (scheme.rootConditionGroup?.groups || []).flatMap(getScenarioErrors)
     if (conditionErrors.length) return message.error(conditionErrors[0])
-    const tierErrors = validateTierConfiguration(scheme.tiers, scheme.subsidyType)
+    const tierErrors = validateTierConfiguration(scheme.tiers)
     if (tierErrors.length) return message.error(tierErrors[0])
     const payload = buildSchemePayload(scheme)
     const response = scheme.id

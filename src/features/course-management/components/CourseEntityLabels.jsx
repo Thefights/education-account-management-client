@@ -71,7 +71,6 @@ export const CourseFasSchemeOptionLabel = ({ scheme }) => (
         )}
       </Space>
       <Typography.Text type="secondary" style={{ display: 'block', fontSize: 12 }}>
-        {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
         {scheme.durationInMonths || 0} months
       </Typography.Text>
     </div>

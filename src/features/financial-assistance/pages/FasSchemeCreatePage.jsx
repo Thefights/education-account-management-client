@@ -55,8 +55,8 @@ const FormSection = ({ title, children }) => (
   </section>
 )
 
-const TierEditor = ({ tiers, setTiers, subsidyType }) => {
-  const { fasTierIncomeBasisOptions } = useEnum()
+const TierEditor = ({ tiers, setTiers }) => {
+  const { fasSubsidyTypeOptions, fasTierIncomeBasisOptions } = useEnum()
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const updateTier = (index, patch) =>
     setTiers((current) =>
@@ -117,6 +117,12 @@ const TierEditor = ({ tiers, setTiers, subsidyType }) => {
                   })
                 }}
               />
+              <Select
+                value={tier.subsidyType}
+                style={{ width: 180 }}
+                options={fasSubsidyTypeOptions}
+                onChange={(subsidyType) => updateTier(index, { subsidyType })}
+              />
               <Space>
                 <Typography.Text>Per component</Typography.Text>
                 <Switch
@@ -174,18 +180,18 @@ const TierEditor = ({ tiers, setTiers, subsidyType }) => {
                   <InputNumber
                     value={tier.courseFeeSubsidyValue}
                     min={0}
-                    max={subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                    prefix={subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
-                    suffix={subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                    max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                    prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
+                    suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                     placeholder="Course fee subsidy"
                     onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
                   />
                   <InputNumber
                     value={tier.miscFeeSubsidyValue}
                     min={0}
-                    max={subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                    prefix={subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
-                    suffix={subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                    max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                    prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
+                    suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                     placeholder="Misc fee subsidy"
                     onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
                   />
@@ -194,9 +200,9 @@ const TierEditor = ({ tiers, setTiers, subsidyType }) => {
                 <InputNumber
                   value={tier.subsidyValue}
                   min={0}
-                  max={subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                  prefix={subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
-                  suffix={subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                  max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                  prefix={tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount ? currencySymbol : undefined}
+                  suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                   placeholder="Subsidy"
                   onChange={(value) => updateTier(index, { subsidyValue: value })}
                 />
@@ -333,13 +339,11 @@ const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
 
 const FasSchemeCreatePage = () => {
   const navigate = useNavigate()
-  const _enum = useEnum()
   const initialScheme = useMemo(() => createEmptyScheme(), [])
   const { values, handleChange, setField, registerRef, validateAll } = useForm({
     schemeName: initialScheme.schemeName,
     description: initialScheme.description,
     durationInMonths: initialScheme.durationInMonths,
-    subsidyType: initialScheme.subsidyType,
     courseIds: [],
   })
   const [submitted, setSubmitted] = useState(false)
@@ -386,13 +390,6 @@ const FasSchemeCreatePage = () => {
         props: { addonAfter: 'months' },
       },
       {
-        key: 'subsidyType',
-        title: 'Subsidy type',
-        type: 'select',
-        options: _enum.fasSubsidyTypeOptions,
-        placeholder: 'Select subsidy type',
-      },
-      {
         key: 'description',
         title: 'Description',
         required: false,
@@ -415,7 +412,7 @@ const FasSchemeCreatePage = () => {
         },
       },
     ],
-    [_enum.fasSubsidyTypeOptions, courseOptions, courses.loading]
+    [courseOptions, courses.loading]
   )
 
   const handleSubmit = async () => {
@@ -423,7 +420,7 @@ const FasSchemeCreatePage = () => {
     const inputsValid = validateAll()
     const missingInput = hasRequiredMissing(basicFields)
     const conditionErrors = (conditionGroup?.groups || []).flatMap(getScenarioErrors)
-    const tierErrors = validateTierConfiguration(tiers, values.subsidyType)
+    const tierErrors = validateTierConfiguration(tiers)
 
     if (conditionErrors.length) setShowConditionErrors(true)
     if (!inputsValid || missingInput || conditionErrors.length || tierErrors.length) {
@@ -476,7 +473,7 @@ const FasSchemeCreatePage = () => {
         </FormSection>
 
         <FormSection title="Tiers">
-          <TierEditor tiers={tiers} setTiers={setTiers} subsidyType={values.subsidyType} />
+          <TierEditor tiers={tiers} setTiers={setTiers} />
         </FormSection>
 
         <FormSection title="Required documents">

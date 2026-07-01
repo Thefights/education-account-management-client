@@ -95,6 +95,7 @@ const getTierFormValue = (tier = {}, index = 0) => ({
   id: tier.id ?? `tier-${index}`,
   tierName: tier.tierName ?? tier.name ?? `Tier ${index + 1}`,
   tierIncomeBasis: tier.tierIncomeBasis || FasTierIncomeBasis.PerCapitaIncome,
+  subsidyType: tier.subsidyType || FasSubsidyType.Percent,
   minPerCapitaIncome: tier.minPerCapitaIncome ?? '',
   maxPerCapitaIncome: tier.maxPerCapitaIncome ?? '',
   minGrossHouseholdIncome: tier.minGrossHouseholdIncome ?? '',
@@ -110,6 +111,7 @@ export const createEmptyTier = (index = 0) => ({
   id: `tier-${Date.now()}-${index}`,
   tierName: `Tier ${index + 1}`,
   tierIncomeBasis: FasTierIncomeBasis.PerCapitaIncome,
+  subsidyType: FasSubsidyType.Percent,
   minPerCapitaIncome: index === 0 ? 0 : '',
   maxPerCapitaIncome: '',
   minGrossHouseholdIncome: '',
@@ -126,7 +128,6 @@ export const createEmptyScheme = () => ({
   schemeName: '',
   description: '',
   durationInMonths: 12,
-  subsidyType: FasSubsidyType.Percent,
   status: FasSchemeStatus.Draft,
   rootConditionGroup: createEmptyConditionRoot(),
   tiers: [createEmptyTier(0)],
@@ -165,12 +166,11 @@ export const buildSchemePayload = (scheme) => ({
   schemeName: scheme.schemeName,
   description: scheme.description || '',
   durationInMonths: Number(scheme.durationInMonths || 0),
-  subsidyType: scheme.subsidyType,
-  isPerComponent: (scheme.tiers || []).some((tier) => Boolean(tier.isPerComponent)),
   rootConditionGroup: serializeConditionGroup(scheme.rootConditionGroup),
   tiers: (scheme.tiers || []).map((tier, index) => ({
     tierName: tier.tierName || `Tier ${index + 1}`,
     tierIncomeBasis: tier.tierIncomeBasis,
+    subsidyType: tier.subsidyType,
     isPerComponent: Boolean(tier.isPerComponent),
     minPerCapitaIncome: nullableNumber(tier.minPerCapitaIncome),
     maxPerCapitaIncome: nullableNumber(tier.maxPerCapitaIncome),
@@ -246,7 +246,7 @@ export const formatTierRange = (tier) => {
   return parts.join(' OR ')
 }
 
-export const validateTierConfiguration = (tiers, subsidyType) => {
+export const validateTierConfiguration = (tiers) => {
   const errors = []
   const ranges = { pci: [], gross: [] }
 
@@ -313,7 +313,7 @@ export const validateTierConfiguration = (tiers, subsidyType) => {
     values.forEach((value) => {
       if (value === '' || value == null || Number(value) <= 0)
         errors.push(`${label}: subsidy must be greater than 0.`)
-      if (subsidyType === FasSubsidyType.Percent && Number(value) > 100)
+      if (tier.subsidyType === FasSubsidyType.Percent && Number(value) > 100)
         errors.push(`${label}: percent subsidy cannot exceed 100.`)
     })
     if (tier.isPerComponent && tier.subsidyValue !== '' && tier.subsidyValue != null) {
