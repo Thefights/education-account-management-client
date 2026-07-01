@@ -1,6 +1,12 @@
 import { Avatar, Space, Tag, Typography } from 'antd'
 
-const avatarColors = ['#1677ff', '#13c2c2', '#52c41a', '#722ed1', '#fa8c16', '#eb2f96']
+const avatarColors = [
+  'var(--app-primary)',
+  'var(--app-secondary)',
+  'var(--app-success)',
+  'var(--app-warning)',
+  'var(--app-error)',
+]
 
 const getAvatarColor = (text = '') => {
   const charSum = String(text)

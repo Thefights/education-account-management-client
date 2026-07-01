@@ -1,15 +1,17 @@
 import useTranslation from '@/shared/hooks/useTranslation'
 import { InboxOutlined } from '@ant-design/icons'
-import { Space, Typography } from 'antd'
+import { Space, Typography, theme } from 'antd'
 
 const EmptyBox = ({
 	title,
 	description,
-	icon = <InboxOutlined style={{ fontSize: 120, color: '#bfbfbf' }} />,
+	icon,
 	buttons,
 	minHeight = 200,
 }) => {
 	const { t } = useTranslation()
+	const { token } = theme.useToken()
+	const emptyIcon = icon || <InboxOutlined style={{ fontSize: 120, color: token.colorTextDisabled }} />
 
 	return (
 		<div
@@ -18,10 +20,10 @@ const EmptyBox = ({
 				justifyContent: 'center',
 				alignItems: 'center',
 				minHeight,
-				color: '#8c8c8c',
+				color: token.colorTextDisabled,
 			}}
 		>
-			{icon}
+			{emptyIcon}
 			<Space orientation='vertical' style={{ textAlign: 'left' }} size='small'>
 				<Typography.Title level={4} style={{ marginBottom: 0, fontWeight: 600 }}>
 					{title || t('text.placeholder.no_data')}

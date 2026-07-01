@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --app-bg: #f3f8fd;
-  --app-header-bg: #ffffff;
-  --app-sider-bg: #eaf4ff;
-  --app-sider-text: #334155;
-  --app-sider-text-muted: #7b8da4;
-  --app-sider-border: #dce9f6;
-  --app-sider-hover-bg: rgba(40, 120, 227, 0.08);
-  --app-sider-active-bg: #d5e9ff;
-  --app-sider-active-text: #175cb8;
-  --app-border-color: #e2eaf3;
-  --app-card-shadow: 0 10px 30px rgba(39, 88, 130, 0.07);
-  --app-shell-shadow: 0 4px 18px rgba(36, 76, 112, 0.04);
+  --app-bg: #f1f5f9;
+  --app-header-bg: rgba(255, 255, 255, 0.88);
+  --app-sider-bg: #eef6ff;
+  --app-sider-text: #0f172a;
+  --app-sider-text-muted: #475569;
+  --app-sider-border: #d7e3f3;
+  --app-sider-hover-bg: rgba(30, 58, 138, 0.08);
+  --app-sider-active-bg: #ddebff;
+  --app-sider-active-text: #1d4ed8;
+  --app-border-color: #d7e3f3;
+  --app-card-shadow: 0 16px 38px rgba(15, 23, 42, 0.09);
+  --app-shell-shadow: 0 8px 26px rgba(15, 23, 42, 0.06);
 
   line-height: 1.5;
   font-weight: 400;
@@ -73,7 +73,7 @@ a {
 
 .withdrawn-enrollment-row > .ant-table-cell {
   background: rgba(148, 163, 184, 0.12) !important;
-  color: #94a3b8 !important;
+  color: var(--app-text-disabled) !important;
 }
 
 .withdrawn-enrollment-row a,
@@ -82,13 +82,13 @@ a {
 }
 
 .ant-card {
-  border-color: rgba(221, 231, 245, 0.92);
+  border-color: var(--app-border-color);
   box-shadow: var(--app-card-shadow);
 }
 
 .ant-layout-header {
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(221, 231, 245, 0.72);
+  border-bottom: 1px solid var(--app-border-color);
 }
 
 .ant-layout-sider {
@@ -231,7 +231,7 @@ a {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #b8c9e8;
+  background: var(--app-primary-soft-border);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {

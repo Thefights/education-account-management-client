@@ -138,6 +138,7 @@ export const ApiUrls = {
     PROFILE: '/account-holder/profile',
     TRANSACTIONS: '/transaction-history/account-holder/current',
     COURSES: '/account-holder/courses',
+    COURSE_DETAIL: (id) => `/account-holder/courses/${id}`,
     TUITION_SUMMARY: '/account-holder/tuition-summary',
     TUITION_CHARGES: '/account-holder/tuition-charges',
     FAS_AVAILABLE_SCHEMES: '/account-holder/fas-schemes/available',

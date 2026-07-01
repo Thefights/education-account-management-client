@@ -428,7 +428,7 @@ export default function useFieldRenderer(
             display: 'grid',
             gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
             border: '1px solid',
-            borderColor: showError ? '#ff4d4f' : '#d9d9d9',
+            borderColor: showError ? token.colorError : token.colorBorder,
             borderRadius: 6,
             overflow: 'hidden',
           }}

@@ -58,7 +58,7 @@ const EServiceAccountsFilterSection = ({ filters, onFilter, onReset }) => {
       onReset={onReset}
       onFilter={onFilter}
       cardProps={{
-        style: { boxShadow: 'none', background: 'var(--app-filter-bg, #f8fbfe)' },
+        style: { boxShadow: 'none', background: 'var(--app-filter-bg)' },
         styles: { body: { padding: 16 } },
       }}
       getFieldColProps={(_, index) => (index === 0 ? { xs: 24, md: 16 } : { xs: 24, md: 8 })}

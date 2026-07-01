@@ -7,21 +7,21 @@ import { Slide, ToastContainer } from 'react-toastify'
 
 const dashboardDrawerPalette = {
   background: lightPalette.background.sider,
-  text: '#263B5E',
-  textMuted: '#6B778C',
-  border: '#D9E0EA',
-  hoverBg: 'rgba(37, 99, 235, 0.07)',
-  activeBg: '#E2E8F0',
+  text: lightPalette.text.primary,
+  textMuted: lightPalette.text.secondary,
+  border: lightPalette.divider,
+  hoverBg: 'rgba(30, 58, 138, 0.08)',
+  activeBg: '#DDEBFF',
   activeText: lightPalette.primary.dark,
 }
 
 const darkDashboardDrawerPalette = {
   background: darkPalette.background.sider,
-  text: '#E8F0F8',
-  textMuted: '#91A5B9',
-  border: 'rgba(137, 171, 204, 0.14)',
-  hoverBg: 'rgba(106, 168, 247, 0.09)',
-  activeBg: 'rgba(106, 168, 247, 0.17)',
+  text: darkPalette.text.primary,
+  textMuted: darkPalette.text.secondary,
+  border: 'rgba(148, 163, 184, 0.18)',
+  hoverBg: 'rgba(59, 130, 246, 0.12)',
+  activeBg: 'rgba(59, 130, 246, 0.2)',
   activeText: darkPalette.primary.light,
 }
 
@@ -34,8 +34,8 @@ const setCssVariables = (palette, isDark) => {
     '--app-header-bg': palette.background.header || palette.background.paper,
     '--app-paper-bg': palette.background.paper,
     '--app-elevated-bg': isDark ? palette.background.paper : '#FFFFFF',
-    '--app-subtle-bg': isDark ? palette.background.lightGray : '#F6F8FB',
-    '--app-muted-bg': isDark ? palette.grey[100] : '#EEF2F7',
+    '--app-subtle-bg': isDark ? palette.background.lightGray : '#EEF6FF',
+    '--app-muted-bg': isDark ? palette.grey[100] : '#E8F1FF',
     '--app-control-bg': isDark ? palette.background.paper : 'rgba(255, 255, 255, 0.96)',
     '--app-table-bg': isDark ? palette.background.paper : 'rgba(255, 255, 255, 0.94)',
     '--app-table-row-bg': isDark ? palette.background.paper : '#FFFFFF',
@@ -66,13 +66,13 @@ const setCssVariables = (palette, isDark) => {
     '--app-error': palette.error.main,
     '--app-error-soft-bg': palette.error.softBg,
     '--app-error-soft-border': palette.error.softBorder,
-    '--app-filter-bg': isDark ? palette.grey[100] : '#F6F8FB',
+    '--app-filter-bg': isDark ? palette.grey[100] : '#EEF6FF',
     '--app-card-shadow': isDark
-      ? '0 12px 34px rgba(2, 8, 20, 0.28)'
-      : '0 14px 36px rgba(51, 65, 85, 0.09)',
+      ? '0 12px 34px rgba(2, 6, 23, 0.32)'
+      : '0 16px 38px rgba(15, 23, 42, 0.09)',
     '--app-shell-shadow': isDark
-      ? '0 8px 24px rgba(2, 8, 20, 0.18)'
-      : '0 8px 26px rgba(51, 65, 85, 0.07)',
+      ? '0 8px 24px rgba(2, 6, 23, 0.26)'
+      : '0 8px 26px rgba(15, 23, 42, 0.06)',
   }
 
   Object.entries(variables).forEach(([name, value]) => root.style.setProperty(name, value))

@@ -19,10 +19,10 @@ export const platformLightTheme = {
     colorBgLayout: lightPalette.background.default,
     colorBgContainer: lightPalette.background.paper,
     colorBgElevated: '#FFFFFF',
-    colorFillSecondary: '#EEF2F7',
-    colorFillTertiary: '#F6F8FB',
+    colorFillSecondary: '#EEF6FF',
+    colorFillTertiary: '#F8FAFC',
     colorLink: lightPalette.primary.main,
-    colorLinkHover: lightPalette.secondary.dark,
+    colorLinkHover: lightPalette.primary.dark,
 
     borderRadius: 8,
     borderRadiusLG: 12,
@@ -42,14 +42,14 @@ export const platformLightTheme = {
 
     Card: {
       colorBorderSecondary: lightPalette.divider,
-      boxShadowTertiary: '0 14px 36px rgba(51, 65, 85, 0.09)',
+      boxShadowTertiary: '0 16px 38px rgba(15, 23, 42, 0.09)',
       paddingLG: 20,
     },
 
     Button: {
       borderRadius: 8,
       controlHeight: 40,
-      primaryShadow: '0 10px 22px rgba(37, 99, 235, 0.24)',
+      primaryShadow: '0 10px 22px rgba(30, 58, 138, 0.24)',
       defaultHoverBorderColor: lightPalette.primary.light,
       defaultHoverColor: lightPalette.primary.dark,
     },
@@ -58,14 +58,14 @@ export const platformLightTheme = {
       borderRadius: 8,
       controlHeight: 40,
       activeBorderColor: lightPalette.primary.main,
-      activeShadow: '0 0 0 3px rgba(37, 99, 235, 0.13)',
+      activeShadow: '0 0 0 3px rgba(30, 58, 138, 0.13)',
     },
 
     Select: {
       borderRadius: 8,
       controlHeight: 40,
       activeBorderColor: lightPalette.primary.main,
-      activeOutlineColor: 'rgba(37, 99, 235, 0.13)',
+      activeOutlineColor: 'rgba(30, 58, 138, 0.13)',
     },
 
     Pagination: {
@@ -76,10 +76,10 @@ export const platformLightTheme = {
 
     Table: {
       borderColor: lightPalette.divider,
-      headerBg: '#EEF2F7',
-      headerColor: '#263B5E',
+      headerBg: '#E8F1FF',
+      headerColor: '#0F172A',
       headerSplitColor: 'transparent',
-      rowHoverBg: '#F6F8FB',
+      rowHoverBg: '#F3F8FF',
     },
 
     Tag: {
@@ -130,19 +130,19 @@ export const platformDarkTheme = {
     Button: {
       borderRadius: 10,
       controlHeight: 40,
-      primaryShadow: '0 6px 18px rgba(67, 135, 223, 0.2)',
+      primaryShadow: '0 6px 18px rgba(59, 130, 246, 0.24)',
     },
 
     Input: {
       borderRadius: 10,
       controlHeight: 40,
-      activeShadow: '0 0 0 3px rgba(106, 168, 247, 0.14)',
+      activeShadow: '0 0 0 3px rgba(59, 130, 246, 0.16)',
     },
 
     Select: {
       borderRadius: 10,
       controlHeight: 40,
-      activeOutlineColor: 'rgba(106, 168, 247, 0.14)',
+      activeOutlineColor: 'rgba(59, 130, 246, 0.16)',
     },
 
     Pagination: {
@@ -153,7 +153,7 @@ export const platformDarkTheme = {
 
     Table: {
       borderColor: darkPalette.divider,
-      headerBg: '#1B2A3A',
+      headerBg: '#273449',
       headerSplitColor: 'transparent',
       rowHoverBg: darkPalette.primary.softBg,
     },

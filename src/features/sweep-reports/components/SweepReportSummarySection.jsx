@@ -1,8 +1,10 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Card, Col, Row, Statistic } from 'antd'
+import { Card, Col, Row, Statistic, theme } from 'antd'
 
 const SweepReportSummarySection = ({ report }) => {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
+
   return (
     <>
       <Row gutter={[16, 16]}>
@@ -11,7 +13,7 @@ const SweepReportSummarySection = ({ report }) => {
             <Statistic
               title={t('batch_report.created_successfully', 'Created')}
               value={report.accountsCreatedSuccessfully}
-              valueStyle={{ color: '#0E8845' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -20,7 +22,7 @@ const SweepReportSummarySection = ({ report }) => {
             <Statistic
               title={t('batch_report.extended', 'Extended')}
               value={report.accountsExtended}
-              valueStyle={{ color: '#1677ff' }}
+              valueStyle={{ color: token.colorPrimary }}
             />
           </Card>
         </Col>
@@ -29,7 +31,7 @@ const SweepReportSummarySection = ({ report }) => {
             <Statistic
               title={t('batch_report.closed', 'Closed')}
               value={report.accountsClosed}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: token.colorWarning }}
             />
           </Card>
         </Col>
@@ -38,7 +40,7 @@ const SweepReportSummarySection = ({ report }) => {
             <Statistic
               title={t('batch_report.failed', 'Failed')}
               value={report.accountsFailedManualHandling}
-              valueStyle={{ color: '#C8102E' }}
+              valueStyle={{ color: token.colorError }}
             />
           </Card>
         </Col>

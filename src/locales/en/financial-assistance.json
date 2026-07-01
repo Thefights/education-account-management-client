@@ -27,7 +27,7 @@
     },
     "management": {
       "title": "My FAS Applications",
-      "search_label": "Search by application number or scheme name",
+      "search_label": "Search by application number, scheme name, account number, or account holder name",
       "detail_title": "FAS Application {number}"
     },
     "step": {
@@ -42,6 +42,9 @@
       "status": "Status",
       "submitted_date": "Submitted date",
       "submitted_at": "Submitted at",
+      "withdrawn_at": "Withdrawn at",
+      "approved_at": "Approved at",
+      "validity_end_date": "Valid until",
       "gross_household_income": "Gross household income",
       "household_income": "Household income",
       "household_members": "Household members",
@@ -49,7 +52,8 @@
       "guardian": "Guardian",
       "guardian_nationality": "Guardian nationality",
       "income": "Income",
-      "per_capita_income": "Per-capita income"
+      "per_capita_income": "Per-capita income",
+      "deduction": "Deduction"
     },
     "section": {
       "required_documents": "Required documents",
@@ -58,7 +62,8 @@
       "why_eligible": "Why you are eligible",
       "tier": "Tier",
       "documents": "Documents",
-      "rejection_reason": "Rejection reason"
+      "rejection_reason": "Rejection reason",
+      "application_note": "Application note"
     },
     "action": {
       "apply": "Apply",
@@ -71,6 +76,7 @@
       "submit_application": "Submit application",
       "upload_file": "Upload file",
       "view": "View",
+      "view_document": "View document",
       "view_details": "View details",
       "withdraw": "Withdraw",
       "remove_document": "Remove {name}"
@@ -121,6 +127,7 @@
       "application_submitted": "Application submitted: {name}",
       "application_submitted_simple": "FAS application submitted.",
       "application_withdrawn": "Application withdrawn.",
+      "application_withdrawn_description": "This application was withdrawn and is no longer under review.",
       "attach_required_documents": "Attach all required documents ({count} left)",
       "confirm_required_details": "Confirm the required application details",
       "duplicate_application": "You already have a pending or approved application for this scheme.",

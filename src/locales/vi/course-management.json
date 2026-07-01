@@ -9,7 +9,9 @@
       "important_dates": "Các ngày quan trọng",
       "applicable_fas": "FAS áp dụng",
       "fas_deduction": "FAS áp dụng",
-      "manage_students": "Quản lý học sinh"
+      "manage_students": "Quản lý học sinh",
+      "payment_summary": "Tóm tắt thanh toán",
+      "financial_assistance": "Hỗ trợ tài chính"
     },
     "section": {
       "basic_info": "Thông tin cơ bản",
@@ -35,7 +37,14 @@
       "enrollment_count": "Số lượng học sinh",
       "initial_students": "Học sinh",
       "applicable_fas": "FAS áp dụng",
-      "duration_in_months": "Thời hạn"
+      "duration_in_months": "Thời hạn",
+      "course_period": "Thời gian khóa học",
+      "gross_amount": "Tổng trước hỗ trợ",
+      "fas_deduction_amount": "Khoản trừ FAS",
+      "total_to_pay": "Số tiền cần đóng",
+      "applied_fas": "FAS đang áp dụng",
+      "approved_tier": "Mức hỗ trợ đã duyệt",
+      "deduction": "Khoản hỗ trợ"
     },
     "action": {
       "publish": "Phát hành",
@@ -43,15 +52,16 @@
       "save_as_draft": "Lưu nháp",
       "manage_fas": "Thêm FAS",
       "add_students": "Thêm",
-      "add_selected_students": "Thêm {count} học sinh"
+      "add_selected_students": "Thêm {count} học sinh",
+      "back_to_courses": "Quay lại khóa học"
     },
     "fas": {
       "per_component": "Theo từng khoản phí",
       "standard": "Tiêu chuẩn"
     },
     "label": {
-      "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường",
-      "search_by_id": "Tìm theo tên khóa học hoặc ID"
+      "search": "Tìm theo tên khóa học hoặc mã khóa học",
+      "search_by_id": "Tìm theo tên khóa học hoặc mã khóa học"
     },
     "placeholder": {
       "select_students": "Tìm và chọn học sinh",
@@ -76,7 +86,9 @@
       "selected_students_count": "Đã thêm {count} học sinh.",
       "number_of_students_count": "Số lượng học sinh: {count}",
       "no_pending_students": "Tìm và chọn học sinh để thêm vào khóa học này.",
-      "pending_students_count": "{count} học sinh sẽ được thêm khi lưu."
+      "pending_students_count": "{count} học sinh sẽ được thêm khi lưu.",
+      "total_to_pay_hint": "Tổng phí sau khi trừ FAS đã được duyệt.",
+      "no_applied_fas": "Hiện chưa có FAS nào giảm phí cho khóa học này."
     },
     "tab": {
       "upcoming": "Sắp diễn ra",

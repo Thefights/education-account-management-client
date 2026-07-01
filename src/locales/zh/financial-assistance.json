@@ -27,7 +27,7 @@
     },
     "management": {
       "title": "我的 FAS 申请",
-      "search_label": "按申请编号或计划名称搜索",
+      "search_label": "按申请编号、计划名称、账户编号或账户持有人姓名搜索",
       "detail_title": "FAS 申请 {number}"
     },
     "step": {
@@ -42,6 +42,9 @@
       "status": "状态",
       "submitted_date": "提交日期",
       "submitted_at": "提交时间",
+      "withdrawn_at": "撤回时间",
+      "approved_at": "批准时间",
+      "validity_end_date": "有效至",
       "gross_household_income": "家庭总收入",
       "household_income": "家庭收入",
       "household_members": "家庭成员数",
@@ -49,7 +52,8 @@
       "guardian": "监护人",
       "guardian_nationality": "监护人国籍",
       "income": "收入",
-      "per_capita_income": "人均收入"
+      "per_capita_income": "人均收入",
+      "deduction": "扣减"
     },
     "section": {
       "required_documents": "所需文件",
@@ -58,7 +62,8 @@
       "why_eligible": "符合资格的原因",
       "tier": "等级",
       "documents": "文件",
-      "rejection_reason": "拒绝原因"
+      "rejection_reason": "拒绝原因",
+      "application_note": "申请备注"
     },
     "action": {
       "apply": "申请",
@@ -71,6 +76,7 @@
       "submit_application": "提交申请",
       "upload_file": "上传文件",
       "view": "查看",
+      "view_document": "查看文件",
       "view_details": "查看详情",
       "withdraw": "撤回",
       "remove_document": "移除 {name}"
@@ -121,6 +127,7 @@
       "application_submitted": "申请已提交：{name}",
       "application_submitted_simple": "FAS 申请已提交。",
       "application_withdrawn": "申请已撤回。",
+      "application_withdrawn_description": "此申请已撤回，不再处于审核中。",
       "attach_required_documents": "请上传所有必需文件（还剩 {count} 份）",
       "confirm_required_details": "请确认必填的申请信息",
       "duplicate_application": "您已为此计划提交了待审核或已批准的申请。",

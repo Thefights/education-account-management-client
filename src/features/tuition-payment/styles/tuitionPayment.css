@@ -9,13 +9,13 @@
 .tuition-charge-card:hover:not([aria-disabled='true']) {
   transform: translateY(-2px);
   border-color: var(--app-primary);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 24px rgba(30, 58, 138, 0.14);
 }
 
 .tuition-charge-card--selected {
   border-color: var(--app-primary);
   background: var(--app-primary-soft-bg);
-  box-shadow: 0 6px 20px rgba(22, 119, 255, 0.14);
+  box-shadow: 0 6px 20px rgba(30, 58, 138, 0.14);
 }
 
 .tuition-charge-card:focus-visible {

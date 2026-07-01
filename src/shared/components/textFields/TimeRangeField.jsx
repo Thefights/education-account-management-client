@@ -1,5 +1,5 @@
 import { ArrowRightOutlined } from '@ant-design/icons'
-import { Col, Row, Space } from 'antd'
+import { Col, Row, Space, theme } from 'antd'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import ValidationTextField from './ValidationTextField'
 
@@ -48,6 +48,7 @@ const TimeRangeField = (
 	const dateRef = useRef()
 	const fromRef = useRef()
 	const toRef = useRef()
+	const { token } = theme.useToken()
 
 	useImperativeHandle(ref, () => ({
 		validate: () => {
@@ -93,7 +94,7 @@ const TimeRangeField = (
 					/>
 				</Col>
 				<Col style={{ marginBottom: 24 }}>
-					<ArrowRightOutlined style={{ color: '#666' }} />
+					<ArrowRightOutlined style={{ color: token.colorTextSecondary }} />
 				</Col>
 				<Col flex={1}>
 					<ValidationTextField

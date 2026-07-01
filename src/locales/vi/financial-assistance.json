@@ -27,7 +27,7 @@
     },
     "management": {
       "title": "Hồ sơ FAS của tôi",
-      "search_label": "Tìm theo mã hồ sơ hoặc tên chương trình",
+      "search_label": "Tìm theo mã hồ sơ, tên chương trình, số tài khoản hoặc tên chủ tài khoản",
       "detail_title": "Hồ sơ FAS {number}"
     },
     "step": {
@@ -42,6 +42,9 @@
       "status": "Trạng thái",
       "submitted_date": "Ngày nộp",
       "submitted_at": "Thời điểm nộp",
+      "withdrawn_at": "Thời điểm rút",
+      "approved_at": "Thời điểm duyệt",
+      "validity_end_date": "Có hiệu lực đến",
       "gross_household_income": "Tổng thu nhập hộ gia đình",
       "household_income": "Thu nhập hộ gia đình",
       "household_members": "Số thành viên hộ gia đình",
@@ -49,7 +52,8 @@
       "guardian": "Người giám hộ",
       "guardian_nationality": "Quốc tịch người giám hộ",
       "income": "Thu nhập",
-      "per_capita_income": "Thu nhập bình quân đầu người"
+      "per_capita_income": "Thu nhập bình quân đầu người",
+      "deduction": "Khoản hỗ trợ"
     },
     "section": {
       "required_documents": "Tài liệu bắt buộc",
@@ -58,7 +62,8 @@
       "why_eligible": "Lý do phù hợp",
       "tier": "Mức hỗ trợ",
       "documents": "Tài liệu",
-      "rejection_reason": "Lý do từ chối"
+      "rejection_reason": "Lý do từ chối",
+      "application_note": "Ghi chú hồ sơ"
     },
     "action": {
       "apply": "Nộp",
@@ -71,6 +76,7 @@
       "submit_application": "Nộp hồ sơ",
       "upload_file": "Tải tệp lên",
       "view": "Xem",
+      "view_document": "Xem tài liệu",
       "view_details": "Xem chi tiết",
       "withdraw": "Rút hồ sơ",
       "remove_document": "Xóa {name}"
@@ -121,6 +127,7 @@
       "application_submitted": "Đã nộp hồ sơ: {name}",
       "application_submitted_simple": "Đã nộp hồ sơ FAS.",
       "application_withdrawn": "Đã rút hồ sơ.",
+      "application_withdrawn_description": "Hồ sơ này đã được rút và không còn trong quá trình xét duyệt.",
       "attach_required_documents": "Vui lòng đính kèm đầy đủ tài liệu bắt buộc (còn {count})",
       "confirm_required_details": "Vui lòng xác nhận đầy đủ thông tin bắt buộc",
       "duplicate_application": "Bạn đã có hồ sơ đang chờ duyệt hoặc đã được duyệt cho chương trình này.",
