@@ -5,7 +5,7 @@ import {
   SendOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { Alert, Button, Input, Modal, Progress, Spin, Tag, Tooltip } from 'antd'
+import { Alert, Button, Input, Modal, Progress, Spin, Tag, Tooltip, theme } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 const INITIAL_MESSAGE = {
@@ -56,6 +56,7 @@ const FasFormAiChat = ({
   const [error, setError] = useState('')
   const [lastFailedMessage, setLastFailedMessage] = useState('')
   const [reviewDecision, setReviewDecision] = useState('')
+  const { token } = theme.useToken()
   const dismissedSuggestionsRef = useRef({})
   const messagesEndRef = useRef(null)
   const resetSessionRef = useRef(onResetSession)
@@ -377,7 +378,7 @@ const FasFormAiChat = ({
 
   return (
     <>
-      <div className="fas-ai-chat">
+      <div className="fas-ai-chat" style={{ background: token.colorBgLayout }}>
         <header className="fas-ai-chat-header">
           <div className="fas-ai-identity">
             <span className="fas-ai-avatar">
@@ -392,7 +393,7 @@ const FasFormAiChat = ({
           </div>
         </header>
 
-        <div className="fas-ai-progress">
+        <div className="fas-ai-progress" style={{ background: token.colorBgElevated, borderBottomColor: token.colorBorderSecondary }}>
           <span>Required answers</span>
           <Progress
             percent={progress.total ? (progress.completed / progress.total) * 100 : 100}
@@ -423,7 +424,7 @@ const FasFormAiChat = ({
                   <span className="fas-ai-message-avatar">
                     {chatMessage.role === 'assistant' ? <RobotOutlined /> : <UserOutlined />}
                   </span>
-                  <div className="fas-ai-bubble">{chatMessage.content}</div>
+                  <div className="fas-ai-bubble" style={{ background: token.colorBgElevated, color: token.colorText, borderColor: token.colorBorderSecondary }}>{chatMessage.content}</div>
                 </div>
               )
             )}
@@ -433,7 +434,7 @@ const FasFormAiChat = ({
                 <span className="fas-ai-message-avatar">
                   <RobotOutlined />
                 </span>
-                <div className="fas-ai-bubble fas-ai-typing" aria-label="AI is processing">
+                <div className="fas-ai-bubble fas-ai-typing" aria-label="AI is processing" style={{ background: token.colorBgElevated, borderColor: token.colorBorderSecondary, color: token.colorTextSecondary }}>
                   <Spin size="small" />
                   <span>Typing...</span>
                 </div>
@@ -442,7 +443,7 @@ const FasFormAiChat = ({
           </div>
 
           {isReviewRequired && (
-            <section className="fas-ai-suggestions" aria-label="AI suggestions">
+            <section className="fas-ai-suggestions" aria-label="AI suggestions" style={{ background: token.colorBgLayout, borderColor: token.colorBorderSecondary }}>
               <div className="fas-ai-suggestions-head">
                 <div>
                   <span className="fas-ai-kicker">Ready for review</span>
@@ -458,7 +459,7 @@ const FasFormAiChat = ({
               <div className="fas-ai-suggestion-list">
                 {pendingUpdate && (
                   <article
-                    className="fas-ai-suggestion-card"
+                    className="fas-ai-suggestion-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary }}
                     key={`pending-${pendingUpdate.questionId}`}
                   >
                     <div className="fas-ai-suggestion-meta">
@@ -466,11 +467,11 @@ const FasFormAiChat = ({
                       <Tag color="gold">Confirmation required</Tag>
                     </div>
                     <h5>{pendingUpdate.questionText}</h5>
-                    <div className="fas-ai-current-answer">
+                    <div className="fas-ai-current-answer" style={{ background: token.colorBgLayout }}>
                       <span>Current answer</span>
                       <p>{pendingUpdate.currentValue || 'No current answer'}</p>
                     </div>
-                    <div className="fas-ai-proposed-answer">
+                    <div className="fas-ai-proposed-answer" style={{ background: token.colorBgLayout }}>
                       <span>Proposed update</span>
                       <p>{pendingUpdate.newValue}</p>
                     </div>
@@ -502,19 +503,19 @@ const FasFormAiChat = ({
                   const currentValue = String(additionalAnswers?.[questionId] || '').trim()
 
                   return (
-                    <article className="fas-ai-suggestion-card" key={questionId}>
+                    <article className="fas-ai-suggestion-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary }} key={questionId}>
                       <div className="fas-ai-suggestion-meta">
                         <span>Question {questionNumberMap[questionId]}</span>
                         <Tag color="gold">Awaiting review</Tag>
                       </div>
                       <h5>{question?.questionText}</h5>
                       {currentValue && currentValue !== value && (
-                        <div className="fas-ai-current-answer">
+                        <div className="fas-ai-current-answer" style={{ background: token.colorBgLayout }}>
                           <span>Current answer</span>
                           <p>{currentValue}</p>
                         </div>
                       )}
-                      <div className="fas-ai-proposed-answer">
+                      <div className="fas-ai-proposed-answer" style={{ background: token.colorBgLayout }}>
                         <span>AI suggestion</span>
                         <p>{value}</p>
                       </div>
@@ -565,7 +566,7 @@ const FasFormAiChat = ({
           <div ref={messagesEndRef} />
         </div>
 
-        <footer className="fas-ai-composer-wrap">
+        <footer className="fas-ai-composer-wrap" style={{ background: token.colorBgElevated, borderTopColor: token.colorBorderSecondary }}>
           <Tooltip
             title={
               isComposerLocked
@@ -625,7 +626,7 @@ const FasFormAiChat = ({
               <span>Current answer</span>
               <p>{activeConfirmation.currentValue}</p>
             </div>
-            <div className="is-new">
+            <div className="is-new" style={{ background: token.colorBgLayout }}>
               <span>New AI suggestion</span>
               <p>{activeConfirmation.newValue}</p>
             </div>
