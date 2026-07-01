@@ -3,6 +3,8 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { Form } from 'antd'
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 
+const singaporePhoneRegex = /^\+65[689]\d{7}$/
+
 const PhoneRenderField = ({ field, value, onChange, size = 'middle' }, ref) => {
   const { t } = useTranslation()
   const [error, setError] = useState('')
@@ -17,6 +19,11 @@ const PhoneRenderField = ({ field, value, onChange, size = 'middle' }, ref) => {
 
     if (value.length > 16) {
       setError(t('auth.error.phone_max_length'))
+      return false
+    }
+
+    if (!singaporePhoneRegex.test(value)) {
+      setError(t('auth.error.phone_singapore'))
       return false
     }
 
