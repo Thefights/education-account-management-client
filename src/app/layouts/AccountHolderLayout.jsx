@@ -1,7 +1,12 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BookOutlined, CreditCardOutlined, FileProtectOutlined } from '@ant-design/icons'
+import {
+  BookOutlined,
+  CreditCardOutlined,
+  FileProtectOutlined,
+  HistoryOutlined,
+} from '@ant-design/icons'
 
 import ChatbotWidget from '@/shared/components/ChatbotWidget/ChatbotWidget'
 
@@ -11,6 +16,14 @@ const AccountHolderLayout = () => {
     <>
       <RoleDashboardLayout
         homeUrl={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER()}
+        userMenuItems={[
+          {
+            key: 'transaction-history',
+            label: t('transaction.title'),
+            icon: <HistoryOutlined />,
+            url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TRANSACTION_HISTORY.INDEX),
+          },
+        ]}
         menuSections={[
           {
             items: [

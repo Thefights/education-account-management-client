@@ -4,13 +4,6 @@ export const EnumConfig = {
     Inactive: 'Inactive',
   },
 
-  RoleId: {
-    SystemAdmin: 1,
-    FinanceAdmin: 2,
-    SchoolAdmin: 3,
-    AccountHolder: 4,
-  },
-
   ProductAssignmentRole: {
     Student: 'Student',
     Staff: 'Staff',

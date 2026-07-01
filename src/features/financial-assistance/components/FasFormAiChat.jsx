@@ -1,12 +1,11 @@
 import {
   CheckOutlined,
   CloseOutlined,
-  ReloadOutlined,
   RobotOutlined,
   SendOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { Alert, Button, Input, Modal, Progress, Spin, Tag } from 'antd'
+import { Alert, Button, Input, Modal, Progress, Spin, Tag, Tooltip } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 const INITIAL_MESSAGE = {
@@ -22,8 +21,10 @@ const getSchemeId = (scheme) => String(scheme?.apiId ?? scheme?.id ?? scheme?.sc
 const createSessionId = (schemeId) =>
   `fas-${schemeId}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`
 
+const getSessionStorageKey = (schemeId) => `dynamic-fas-session-${schemeId}`
+
 const getSessionId = (schemeId) => {
-  const key = `dynamic-fas-session-${schemeId}`
+  const key = getSessionStorageKey(schemeId)
   const existing = sessionStorage.getItem(key)
   if (existing) return existing
 
@@ -39,9 +40,9 @@ const FasFormAiChat = ({
   scheme,
   additionalAnswers,
   isSending,
-  isResetting,
   onSendMessage,
   onResetSession,
+  onResetSessionDuringUnload,
   onApplySuggestion,
   onApplyAllSuggestions,
 }) => {
@@ -52,11 +53,14 @@ const FasFormAiChat = ({
   const [suggestions, setSuggestions] = useState({})
   const [assistantState, setAssistantState] = useState(null)
   const [confirmationQueue, setConfirmationQueue] = useState([])
-  const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const [lastFailedMessage, setLastFailedMessage] = useState('')
+  const [reviewDecision, setReviewDecision] = useState('')
   const dismissedSuggestionsRef = useRef({})
   const messagesEndRef = useRef(null)
+  const resetSessionRef = useRef(onResetSession)
+  const resetSessionDuringUnloadRef = useRef(onResetSessionDuringUnload)
+  const hasRequestedResetRef = useRef(false)
 
   const questions = useMemo(
     () =>
@@ -86,10 +90,38 @@ const FasFormAiChat = ({
     [scheme]
   )
 
+  const questionNumberMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (scheme?.additionalQuestions || []).map((question, index) => [
+          getQuestionId(question),
+          index + 1,
+        ])
+      ),
+    [scheme]
+  )
+
   const visibleSuggestions = useMemo(
     () => Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
     [questionMap, suggestions]
   )
+
+  const pendingUpdate = useMemo(() => {
+    const questionId = String(assistantState?.pending_update_question_id || '')
+    const field = assistantState?.questions?.[questionId]
+
+    if (!questionId || field?.status !== 'pending_update' || !field.pending_value) return null
+
+    return {
+      questionId,
+      questionText: field.question_text || questionMap[questionId]?.questionText,
+      currentValue: String(field.value || additionalAnswers?.[questionId] || ''),
+      newValue: String(field.pending_value),
+    }
+  }, [additionalAnswers, assistantState, questionMap])
+
+  const isReviewRequired = visibleSuggestions.length > 0 || Boolean(pendingUpdate)
+  const isComposerLocked = isReviewRequired
 
   const progress = useMemo(() => {
     const requiredQuestions = (scheme?.additionalQuestions || []).filter(
@@ -109,8 +141,45 @@ const FasFormAiChat = ({
   const activeConfirmation = confirmationQueue[0] || null
 
   useEffect(() => {
+    resetSessionRef.current = onResetSession
+  }, [onResetSession])
+
+  useEffect(() => {
+    resetSessionDuringUnloadRef.current = onResetSessionDuringUnload
+  }, [onResetSessionDuringUnload])
+
+  useEffect(() => {
+    const resetSessionSilently = (preferUnloadHandler = false) => {
+      if (hasRequestedResetRef.current || !sessionId) return
+
+      const resetSession =
+        preferUnloadHandler && resetSessionDuringUnloadRef.current
+          ? resetSessionDuringUnloadRef.current
+          : resetSessionRef.current
+
+      if (!resetSession) return
+
+      hasRequestedResetRef.current = true
+      Promise.resolve(resetSession(sessionId)).catch(() => {})
+      sessionStorage.removeItem(getSessionStorageKey(schemeId))
+    }
+
+    const handlePageHide = () => resetSessionSilently(true)
+    window.addEventListener('pagehide', handlePageHide)
+
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide)
+      resetSessionSilently(false)
+    }
+  }, [schemeId, sessionId])
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [isSending, messages, suggestions])
+
+  const addStatusMessage = (message) => {
+    setMessages((current) => [...current, { role: 'status', content: message }])
+  }
 
   const currentAnswers = () =>
     Object.fromEntries(
@@ -120,17 +189,27 @@ const FasFormAiChat = ({
       ])
     )
 
-  const handleSend = async (event, quickText, { appendUserMessage = true } = {}) => {
+  const handleSend = async (
+    event,
+    quickText,
+    { appendUserMessage = true, allowDuringReview = false, suppressAssistantMessage = false } = {}
+  ) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
-    if (!messageText || isSending || !questions.length) return
+    if (
+      !messageText ||
+      isSending ||
+      !questions.length ||
+      (isComposerLocked && !allowDuringReview)
+    ) {
+      return null
+    }
 
     if (appendUserMessage) {
       setMessages((current) => [...current, { role: 'user', content: messageText }])
     }
     setInputValue('')
     setError('')
-    setStatus('')
 
     try {
       const response = await onSendMessage({
@@ -145,7 +224,16 @@ const FasFormAiChat = ({
         throw new Error('Could not connect to the AI service.')
       }
 
-      setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
+      const responsePendingQuestionId = String(
+        response.assistant_state?.pending_update_question_id || ''
+      )
+      const responsePendingField = response.assistant_state?.questions?.[responsePendingQuestionId]
+      const isPendingConfirmation =
+        responsePendingField?.status === 'pending_update' && responsePendingField.pending_value
+
+      if (!suppressAssistantMessage && !isPendingConfirmation && response.reply) {
+        setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
+      }
       setAssistantState(response.assistant_state || null)
 
       const nextSuggestions = Object.fromEntries(
@@ -156,10 +244,42 @@ const FasFormAiChat = ({
       )
       setSuggestions(nextSuggestions)
       setLastFailedMessage('')
+      return response
     } catch (requestError) {
       setError(requestError.message || 'Could not connect to the AI service.')
-      setLastFailedMessage(messageText)
+      setLastFailedMessage(appendUserMessage ? messageText : '')
+      return null
     }
+  }
+
+  const submitPendingDecision = async (decision) => {
+    if (!pendingUpdate || reviewDecision || isSending) return
+
+    setReviewDecision(decision)
+    const response = await handleSend(undefined, decision === 'approve' ? 'Yes' : 'No', {
+      appendUserMessage: false,
+      allowDuringReview: true,
+      suppressAssistantMessage: true,
+    })
+
+    if (response) {
+      if (decision === 'approve') {
+        onApplySuggestion(pendingUpdate.questionId, pendingUpdate.newValue)
+        setSuggestions((current) => {
+          const next = { ...current }
+          delete next[pendingUpdate.questionId]
+          return next
+        })
+        delete dismissedSuggestionsRef.current[pendingUpdate.questionId]
+      }
+
+      addStatusMessage(
+        decision === 'approve'
+          ? 'Updated answer applied.'
+          : 'Kept the current answer. The proposed update was dismissed.'
+      )
+    }
+    setReviewDecision('')
   }
 
   const removeSuggestion = (questionId) => {
@@ -174,7 +294,7 @@ const FasFormAiChat = ({
     onApplySuggestion(questionId, value)
     removeSuggestion(questionId)
     delete dismissedSuggestionsRef.current[questionId]
-    setStatus('Suggestion applied. The application has not been submitted.')
+    addStatusMessage('Answer applied.')
   }
 
   const requiresConfirmation = (questionId, value) => {
@@ -202,7 +322,7 @@ const FasFormAiChat = ({
   const rejectSuggestion = (questionId, value) => {
     dismissedSuggestionsRef.current[questionId] = value
     removeSuggestion(questionId)
-    setStatus('Suggestion dismissed. The form was not changed.')
+    addStatusMessage('Suggestion dismissed. The form was not changed.')
   }
 
   const handleApplyAll = () => {
@@ -232,11 +352,11 @@ const FasFormAiChat = ({
 
     if (conflicts.length) {
       setConfirmationQueue(conflicts)
-      setStatus(
+      addStatusMessage(
         `Applied ${Object.keys(answersToApply).length} suggestions. ${conflicts.length} need confirmation.`
       )
     } else {
-      setStatus(`Applied ${Object.keys(answersToApply).length} suggestions.`)
+      addStatusMessage(`Applied ${Object.keys(answersToApply).length} suggestions.`)
     }
   }
 
@@ -251,34 +371,8 @@ const FasFormAiChat = ({
   }
 
   const keepCurrentAnswer = () => {
-    setStatus('Kept the current answer. The suggestion is still available for review.')
+    addStatusMessage('Kept the current answer. The suggestion is still available for review.')
     advanceConfirmation()
-  }
-
-  const handleReset = async () => {
-    if (isSending || isResetting) return
-    setError('')
-
-    try {
-      const response = await onResetSession(sessionId)
-      if (!response) {
-        throw new Error('Could not reset the AI session.')
-      }
-      setMessages([
-        {
-          role: 'assistant',
-          content: 'The conversation has been reset. Your existing form answers were preserved.',
-        },
-      ])
-      setSuggestions({})
-      setAssistantState(null)
-      setConfirmationQueue([])
-      setLastFailedMessage('')
-      dismissedSuggestionsRef.current = {}
-      setStatus('Conversation reset without changing the form.')
-    } catch (requestError) {
-      setError(requestError.message || 'Could not reset the AI session.')
-    }
   }
 
   return (
@@ -296,16 +390,6 @@ const FasFormAiChat = ({
               </span>
             </div>
           </div>
-          <Button
-            type="text"
-            size="small"
-            icon={<ReloadOutlined />}
-            loading={isResetting}
-            disabled={isSending}
-            onClick={handleReset}
-          >
-            Reset
-          </Button>
         </header>
 
         <div className="fas-ai-progress">
@@ -322,17 +406,27 @@ const FasFormAiChat = ({
 
         <div className="fas-ai-scroll-area">
           <div className="fas-ai-messages" aria-live="polite">
-            {messages.map((chatMessage, index) => (
-              <div
-                className={`fas-ai-message ${chatMessage.role}`}
-                key={`${chatMessage.role}-${index}`}
-              >
-                <span className="fas-ai-message-avatar">
-                  {chatMessage.role === 'assistant' ? <RobotOutlined /> : <UserOutlined />}
-                </span>
-                <div className="fas-ai-bubble">{chatMessage.content}</div>
-              </div>
-            ))}
+            {messages.map((chatMessage, index) =>
+              chatMessage.role === 'status' ? (
+                <Alert
+                  className="fas-ai-status-alert"
+                  key={`${chatMessage.role}-${index}`}
+                  type="success"
+                  showIcon
+                  message={chatMessage.content}
+                />
+              ) : (
+                <div
+                  className={`fas-ai-message ${chatMessage.role}`}
+                  key={`${chatMessage.role}-${index}`}
+                >
+                  <span className="fas-ai-message-avatar">
+                    {chatMessage.role === 'assistant' ? <RobotOutlined /> : <UserOutlined />}
+                  </span>
+                  <div className="fas-ai-bubble">{chatMessage.content}</div>
+                </div>
+              )
+            )}
 
             {isSending && (
               <div className="fas-ai-message assistant">
@@ -347,7 +441,7 @@ const FasFormAiChat = ({
             )}
           </div>
 
-          {visibleSuggestions.length > 0 && (
+          {isReviewRequired && (
             <section className="fas-ai-suggestions" aria-label="AI suggestions">
               <div className="fas-ai-suggestions-head">
                 <div>
@@ -362,6 +456,47 @@ const FasFormAiChat = ({
               </div>
 
               <div className="fas-ai-suggestion-list">
+                {pendingUpdate && (
+                  <article
+                    className="fas-ai-suggestion-card"
+                    key={`pending-${pendingUpdate.questionId}`}
+                  >
+                    <div className="fas-ai-suggestion-meta">
+                      <span>Question {questionNumberMap[pendingUpdate.questionId]}</span>
+                      <Tag color="gold">Confirmation required</Tag>
+                    </div>
+                    <h5>{pendingUpdate.questionText}</h5>
+                    <div className="fas-ai-current-answer">
+                      <span>Current answer</span>
+                      <p>{pendingUpdate.currentValue || 'No current answer'}</p>
+                    </div>
+                    <div className="fas-ai-proposed-answer">
+                      <span>Proposed update</span>
+                      <p>{pendingUpdate.newValue}</p>
+                    </div>
+                    <div className="fas-ai-suggestion-actions">
+                      <Button
+                        size="small"
+                        icon={<CloseOutlined />}
+                        loading={reviewDecision === 'dismiss'}
+                        disabled={Boolean(reviewDecision)}
+                        onClick={() => submitPendingDecision('dismiss')}
+                      >
+                        Dismiss
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<CheckOutlined />}
+                        loading={reviewDecision === 'approve'}
+                        disabled={Boolean(reviewDecision)}
+                        onClick={() => submitPendingDecision('approve')}
+                      >
+                        Approve answer
+                      </Button>
+                    </div>
+                  </article>
+                )}
                 {visibleSuggestions.map(([questionId, value]) => {
                   const question = questionMap[questionId]
                   const currentValue = String(additionalAnswers?.[questionId] || '').trim()
@@ -369,7 +504,7 @@ const FasFormAiChat = ({
                   return (
                     <article className="fas-ai-suggestion-card" key={questionId}>
                       <div className="fas-ai-suggestion-meta">
-                        <span>Question {questionId}</span>
+                        <span>Question {questionNumberMap[questionId]}</span>
                         <Tag color="gold">Awaiting review</Tag>
                       </div>
                       <h5>{question?.questionText}</h5>
@@ -407,7 +542,6 @@ const FasFormAiChat = ({
             </section>
           )}
 
-          {status && <Alert type="success" showIcon message={status} closable />}
           {error && (
             <Alert
               type="error"
@@ -432,25 +566,38 @@ const FasFormAiChat = ({
         </div>
 
         <footer className="fas-ai-composer-wrap">
-          <div className="fas-ai-composer">
-            <Input
-              aria-label="Message FAS Form Assistant"
-              value={inputValue}
-              placeholder="Describe your circumstances..."
-              disabled={isSending || !questions.length}
-              onChange={(event) => setInputValue(event.target.value)}
-              onPressEnter={handleSend}
-            />
-            <Button
-              type="primary"
-              shape="circle"
-              aria-label="Send message"
-              icon={<SendOutlined />}
-              loading={isSending}
-              disabled={!inputValue.trim() || isSending || !questions.length}
-              onClick={handleSend}
-            />
-          </div>
+          <Tooltip
+            title={
+              isComposerLocked
+                ? 'Please approve or dismiss the suggested answers before continuing the chat.'
+                : null
+            }
+            placement="top"
+          >
+            <div className={`fas-ai-composer${isComposerLocked ? ' is-review-locked' : ''}`}>
+              <Input
+                aria-label="Message FAS Form Assistant"
+                value={inputValue}
+                placeholder={
+                  isComposerLocked
+                    ? 'Review the suggested answers to continue...'
+                    : 'Describe your circumstances...'
+                }
+                disabled={isSending || !questions.length || isComposerLocked}
+                onChange={(event) => setInputValue(event.target.value)}
+                onPressEnter={handleSend}
+              />
+              <Button
+                type="primary"
+                shape="circle"
+                aria-label="Send message"
+                icon={<SendOutlined />}
+                loading={isSending}
+                disabled={!inputValue.trim() || isSending || !questions.length || isComposerLocked}
+                onClick={handleSend}
+              />
+            </div>
+          </Tooltip>
         </footer>
       </div>
 

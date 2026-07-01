@@ -1,9 +1,9 @@
-/** System administrator page for managing schools. */
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericImportSection from '@/shared/components/dialogs/commons/GenericImportSection'
 import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
@@ -12,6 +12,7 @@ import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import SchoolManagementFilterSection from '../components/SchoolManagementFilterSection'
 import SchoolManagementFormSection from '../components/SchoolManagementFormSection'
 import SchoolManagementTableSection from '../components/SchoolManagementTableSection'
@@ -22,15 +23,14 @@ const defaultFilters = { search: '', statuses: [] }
 const SchoolManagementPage = () => {
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
+  const navigate = useNavigate()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [openCreate, setOpenCreate] = useState(false)
-  const [openUpdate, setOpenUpdate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
-  const [selectedRow, setSelectedRow] = useState({})
   const [selectedIds, setSelectedIds] = useState([])
 
   const queryParams = useMemo(
@@ -41,10 +41,6 @@ const SchoolManagementPage = () => {
   const createSchool = useAxiosSubmit({
     url: ApiUrls.SCHOOL_MANAGEMENT.INDEX,
     method: 'POST',
-  })
-  const updateSchool = useAxiosSubmit({
-    url: ApiUrls.SCHOOL_MANAGEMENT.DETAIL(selectedRow.id),
-    method: 'PUT',
   })
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.SCHOOL_MANAGEMENT.UPDATE_STATUS,
@@ -136,12 +132,9 @@ const SchoolManagementPage = () => {
           setSort={setSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onCreate={() => setOpenCreate(true)}
-          onEdit={(row) => {
-            setSelectedRow(row)
-            setOpenUpdate(true)
-          }}
-
+          onDetail={(row) =>
+            navigate(routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SCHOOL_MANAGEMENT.DETAIL(row.id)))
+          }
         />
         <GenericTablePagination
           totalCount={schools.data?.totalCount}
@@ -183,11 +176,7 @@ const SchoolManagementPage = () => {
       <SchoolManagementFormSection
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
-        openUpdate={openUpdate}
-        setOpenUpdate={setOpenUpdate}
-        selectedRow={selectedRow}
         onCreateSubmit={createSchool.submit}
-        onUpdateSubmit={updateSchool.submit}
         refetch={schools.fetch}
       />
       <GenericImportSection

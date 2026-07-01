@@ -24,10 +24,6 @@ export const defaultRoleStyle = (role) => {
     [EnumConfig.RoleEnum.FinanceAdmin]: 'green',
     [EnumConfig.RoleEnum.SchoolAdmin]: 'blue',
     [EnumConfig.RoleEnum.AccountHolder]: 'default',
-    [EnumConfig.RoleId.SystemAdmin]: 'processing',
-    [EnumConfig.RoleId.FinanceAdmin]: 'green',
-    [EnumConfig.RoleId.SchoolAdmin]: 'blue',
-    [EnumConfig.RoleId.AccountHolder]: 'default',
   }
 
   return map[role] || 'default'

@@ -59,15 +59,11 @@ const AdminManagementDetailPage = () => {
     [admin, statusLabel]
   )
   const adminRoleOptions = useMemo(
-    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
-    [_enum.roleIdOptions]
+    () => _enum.roleOptions.filter((option) => option.value !== EnumConfig.RoleEnum.AccountHolder),
+    [_enum.roleOptions]
   )
   const fields = useMemo(
     () => [
-      {
-        key: 'staffCode',
-        label: t('admin_management.field.staff_code'),
-      },
       {
         key: 'fullName',
         label: t('admin_management.field.full_name'),
@@ -82,16 +78,6 @@ const AdminManagementDetailPage = () => {
         render: (value) =>
           value ? (
             <Tag color={defaultRoleStyle(value)}>{roleLabel}</Tag>
-          ) : (
-            renderEmptyFallback(null)
-          ),
-      },
-      {
-        key: 'status',
-        label: t('admin_management.field.status'),
-        render: (value) =>
-          value ? (
-            <Tag color={defaultAuthAccountStatusStyle(value)}>{statusLabel}</Tag>
           ) : (
             renderEmptyFallback(null)
           ),
@@ -115,6 +101,20 @@ const AdminManagementDetailPage = () => {
         render: (value) => (
           <MaskedNric value={value} label={t('admin_management.field.azure_object_id')} code />
         ),
+      },
+      {
+        key: 'staffCode',
+        label: t('admin_management.field.staff_code'),
+      },
+      {
+        key: 'status',
+        label: t('admin_management.field.status'),
+        render: (value) =>
+          value ? (
+            <Tag color={defaultAuthAccountStatusStyle(value)}>{statusLabel}</Tag>
+          ) : (
+            renderEmptyFallback(null)
+          ),
       },
       {
         key: 'createdAt',
@@ -168,10 +168,11 @@ const AdminManagementDetailPage = () => {
       type: 'phone',
       placeholder: 'e.g. 91234567',
     },
-    ...(values.role === EnumConfig.RoleId.SchoolAdmin
+    ...(values.role === EnumConfig.RoleEnum.SchoolAdmin
       ? [
           {
             key: 'schoolId',
+            viewKey: 'schoolName',
             title: t('admin_management.field.school'),
             type: 'select',
             options: schools.options,
@@ -188,37 +189,6 @@ const AdminManagementDetailPage = () => {
       : []),
   ]
 
-  const getDisabledFields = ({ values }) => [
-    {
-      key: 'staffCode',
-      title: t('admin_management.field.staff_code'),
-      required: false,
-      props: { disabled: true },
-    },
-    {
-      key: 'statusDisplay',
-      title: t('admin_management.field.status'),
-      required: false,
-      props: { disabled: true },
-    },
-    ...(values.role !== EnumConfig.RoleId.SchoolAdmin
-      ? [
-          {
-            key: 'schoolName',
-            title: t('admin_management.field.school'),
-            required: false,
-            props: { disabled: true },
-          },
-        ]
-      : []),
-    {
-      key: 'createdAtDisplay',
-      title: t('audit_log.field.created_at'),
-      required: false,
-      props: { disabled: true },
-    },
-  ]
-
   const handleSave = async ({ values }) => {
     const response = await updateAdmin.submit({
       overrideData: {
@@ -229,7 +199,7 @@ const AdminManagementDetailPage = () => {
         email: values.email,
         phoneNumber: values.phoneNumber,
         schoolId:
-          values.role === EnumConfig.RoleId.SchoolAdmin &&
+          values.role === EnumConfig.RoleEnum.SchoolAdmin &&
           values.schoolId !== '' &&
           values.schoolId != null
             ? Number(values.schoolId)
@@ -252,7 +222,6 @@ const AdminManagementDetailPage = () => {
       edit={{
         initialValues,
         fields: getEditableFields,
-        disabledFields: getDisabledFields,
         loading: updateAdmin.loading,
         onSubmit: handleSave,
       }}

@@ -4,6 +4,7 @@
     "title": {
       "management": "Quản lý trường",
       "create": "Tạo trường",
+      "detail": "Chi tiết trường",
       "update": "Cập nhật trường"
     },
     "field": {

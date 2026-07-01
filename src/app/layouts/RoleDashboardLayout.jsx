@@ -8,7 +8,11 @@ import { Layout } from 'antd'
 import { useContext, useMemo, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
-const RoleDashboardLayout = ({ homeUrl = '/', menuSections = [] }) => {
+const RoleDashboardLayout = ({
+  homeUrl = '/',
+  menuSections = [],
+  userMenuItems: extraUserMenuItems = [],
+}) => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const authContext = useContext(AuthContext)
   const { t } = useTranslation()
@@ -20,8 +24,9 @@ const RoleDashboardLayout = ({ homeUrl = '/', menuSections = [] }) => {
         icon: <UserOutlined />,
         url: `${homeUrl}${routeUrls.PROFILE.INDEX}`,
       },
+      ...extraUserMenuItems,
     ],
-    [homeUrl, t]
+    [extraUserMenuItems, homeUrl, t]
   )
 
   return (

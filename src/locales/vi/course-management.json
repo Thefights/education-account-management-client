@@ -8,13 +8,14 @@
       "list_of_course": "Danh sách khóa học",
       "important_dates": "Các ngày quan trọng",
       "applicable_fas": "FAS áp dụng",
-      "fas_deduction": "FAS áp dụng"
+      "fas_deduction": "FAS áp dụng",
+      "manage_students": "Quản lý học sinh"
     },
     "section": {
       "basic_info": "Thông tin cơ bản",
       "fees": "Học phí & Thanh toán",
       "schedule": "Lịch trình & Thời hạn",
-      "initial_students": "Học sinh"
+      "initial_students": "Quản lý học sinh"
     },
     "field": {
       "id": "ID",
@@ -40,7 +41,9 @@
       "publish": "Phát hành",
       "delete_selected": "Xóa đã chọn",
       "save_as_draft": "Lưu nháp",
-      "manage_fas": "Thêm FAS"
+      "manage_fas": "Thêm FAS",
+      "add_students": "Thêm",
+      "add_selected_students": "Thêm {count} học sinh"
     },
     "fas": {
       "per_component": "Theo từng khoản phí",
@@ -49,6 +52,10 @@
     "label": {
       "search": "Tìm theo tên khóa học, mã khóa học hoặc tên trường",
       "search_by_id": "Tìm theo tên khóa học hoặc ID"
+    },
+    "placeholder": {
+      "select_students": "Tìm và chọn học sinh",
+      "select_fas_schemes": "Tìm và chọn FAS"
     },
     "confirm": {
       "delete_title": "Xóa khóa học?",
@@ -64,7 +71,12 @@
     "message": {
       "update_conflict": "Khóa học đã được người khác thay đổi. Dữ liệu mới nhất đã được tải lại; vui lòng sửa lại.",
       "publish_deadline_expired": "Tất cả khóa học được chọn phải có hạn chốt enrollment trong tương lai.",
-      "no_applicable_fas": "Chưa có chương trình FAS nào được liên kết với khóa học này."
+      "no_applicable_fas": "Chưa có chương trình FAS nào được liên kết với khóa học này.",
+      "no_selected_students": "Chưa thêm học sinh nào.",
+      "selected_students_count": "Đã thêm {count} học sinh.",
+      "number_of_students_count": "Số lượng học sinh: {count}",
+      "no_pending_students": "Tìm và chọn học sinh để thêm vào khóa học này.",
+      "pending_students_count": "{count} học sinh sẽ được thêm khi lưu."
     },
     "tab": {
       "upcoming": "Sắp diễn ra",

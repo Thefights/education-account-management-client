@@ -23,7 +23,9 @@ import {
   isApprovedApplicationExpired,
 } from '@/features/financial-assistance/utils/fasRules'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import { getAccessToken } from '@/shared/api/authTokenStore'
 import { routeUrls } from '@/shared/config/routeUrls'
+import { envConfig } from '@/shared/config/envConfig'
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useTranslation from '@/shared/hooks/useTranslation'
@@ -185,6 +187,32 @@ const buildFasAutoFillRequest = (payload) => ({
     .filter(([, value]) => typeof value === 'string' && value.trim())
     .map(([Key, Value]) => ({ Key, Value })),
 })
+
+const getAbsoluteApiUrl = (path) => {
+  const baseUrl = envConfig.api.baseUrl || window.location.origin
+  return new URL(path, baseUrl).toString()
+}
+
+const resetFasAutoFillSessionSilently = (sessionId, { keepalive = false } = {}) => {
+  if (!sessionId) return undefined
+
+  const formData = new FormData()
+  formData.append('SessionId', sessionId)
+
+  const accessToken = getAccessToken()
+  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined
+
+  return fetch(getAbsoluteApiUrl(ApiUrls.AI_CHAT.FAS_AUTO_FILL_RESET_SESSION), {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+    keepalive,
+    headers,
+  }).catch(() => {})
+}
+
+const resetFasAutoFillSessionDuringUnload = (sessionId) =>
+  resetFasAutoFillSessionSilently(sessionId, { keepalive: true })
 
 const buildAttachedDocsFromApplication = (application) =>
   Object.fromEntries(
@@ -1062,7 +1090,6 @@ const ApplyForm = ({
                   isAiEnabled={isAiEnabled}
                   isStatusLoading={aiStatusQuery.loading}
                   isSending={fasAutoFillSubmit.loading}
-                  isResetting={fasAutoFillResetSubmit.loading}
                   onSendMessage={(payload) =>
                     fasAutoFillSubmit.submit({
                       overrideData: buildFasAutoFillRequest(payload),
@@ -1073,6 +1100,7 @@ const ApplyForm = ({
                       overrideData: { SessionId: sessionId },
                     })
                   }
+                  onResetSessionDuringUnload={resetFasAutoFillSessionDuringUnload}
                   onApplySuggestion={(qId, value) => {
                     onAdditionalAnswersChange((current) => ({
                       ...current,
