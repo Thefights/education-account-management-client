@@ -290,7 +290,7 @@ const FasApplicationQueuePage = () => {
     [queryParams]
   )
   const detailSubmit = useAxiosSubmit({ method: 'GET' })
-  const approveSubmit = useAxiosSubmit({ method: 'POST' })
+  const approveSubmit = useAxiosSubmit({ method: 'POST', contentType: 'json' })
   const rejectSubmit = useAxiosSubmit({ method: 'POST' })
 
   const applicationPage = useMemo(

@@ -6,6 +6,11 @@
       "logout": "Logout"
     }
   },
+  "notification": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all as read",
+    "empty": "No notifications"
+  },
   "sidebar": {
     "items": {
       "home": "Home"
