@@ -1,5 +1,4 @@
 import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
-import { EnumConfig } from '@/shared/config/enumConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
@@ -8,7 +7,7 @@ import { useMemo } from 'react'
 
 const defaultFilters = {
   Search: '',
-  Status: EnumConfig.StudentTuitionFilterStatus.All,
+  Statuses: [],
   Sort: 'createdAt desc',
 }
 
@@ -37,17 +36,18 @@ const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
         reserveLabelSpace: true,
       },
       {
-        key: 'Status',
+        key: 'Statuses',
         title: t('tuition-payment.filter.status'),
         label: t('tuition-payment.filter.status'),
-        type: 'select',
-        options: [
-          {
-            value: EnumConfig.StudentTuitionFilterStatus.All,
-            label: t('tuition-payment.status.All'),
-          },
-          ...studentTuitionFilterStatusOptions,
-        ],
+        type: 'multi-check-dropdown',
+        options: studentTuitionFilterStatusOptions,
+        loading,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        cancelText: t('general.cancel'),
+        okText: t('general.ok'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
         required: false,
       },
       {
@@ -62,7 +62,7 @@ const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
         required: false,
       },
     ],
-    [studentTuitionFilterStatusOptions, t]
+    [loading, studentTuitionFilterStatusOptions, t]
   )
 
   return (
@@ -75,6 +75,7 @@ const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
       onReset={onReset}
       onFilter={onFilter}
       loading={loading}
+      cardProps={{ loading }}
       getFieldColProps={() => ({ xs: 24, md: 8 })}
     />
   )

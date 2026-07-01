@@ -58,10 +58,10 @@
     },
     "payment_plan_months": {
       "full": "Full",
-      "three_months": "3mo",
-      "six_months": "6mo",
-      "nine_months": "9mo",
-      "twelve_months": "12mo"
+      "three_months": "3 months",
+      "six_months": "6 months",
+      "nine_months": "9 months",
+      "twelve_months": "12 months"
     }
   }
 }

@@ -8,7 +8,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { ArrowLeftOutlined, WarningOutlined } from '@ant-design/icons'
-import { Alert, Button, Card, Empty, Flex, Modal, Skeleton, Tag, Typography } from 'antd'
+import { Alert, Button, Card, Empty, Flex, Modal, Skeleton, Steps, Tag, Typography } from 'antd'
 import { useNavigate, useParams } from 'react-router-dom'
 
 const PaymentAction = {
@@ -27,7 +27,6 @@ const InstallmentPlanPage = () => {
       : '',
     {
       EnrollmentIds: [parsedEnrollmentId],
-      Status: EnumConfig.StudentTuitionFilterStatus.All,
       IsInstallment: true,
       Page: 1,
       PageSize: 1,
@@ -66,9 +65,24 @@ const InstallmentPlanPage = () => {
   const unpaidInstallments = installments.filter(
     (installment) => installment.status !== EnumConfig.ChargeStatus.Paid
   )
+  const nextInstallment = unpaidInstallments[0]
+  const remainingInstallmentAmount = unpaidInstallments.reduce(
+    (total, installment) => total + Number(installment.amount),
+    0
+  )
   const hasOverdue = installments.some(
     (installment) => installment.status === EnumConfig.ChargeStatus.Overdue
   )
+  const tuitionListRoute = routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX)
+  const getStepStatus = (installment) => {
+    if (installment.status === EnumConfig.ChargeStatus.Paid) return 'finish'
+    if (installment.status === EnumConfig.ChargeStatus.Overdue) return 'error'
+    if (installment.id === nextInstallment?.id) return 'process'
+    return 'wait'
+  }
+  const currentStepIndex = nextInstallment
+    ? installments.findIndex((installment) => installment.id === nextInstallment.id)
+    : installments.length
 
   const tableFields = [
     {
@@ -95,7 +109,7 @@ const InstallmentPlanPage = () => {
   return (
     <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1000, margin: '0 auto' }}>
       <Flex align="center" gap={8}>
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
+        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(tuitionListRoute)} />
         <Flex vertical>
           <Typography.Title level={3} style={{ margin: 0 }}>
             {t('tuition-payment.installments.title')}
@@ -116,6 +130,55 @@ const InstallmentPlanPage = () => {
         />
       )}
 
+      <Flex gap={12} wrap="wrap">
+        <Card style={{ flex: '1 1 240px' }}>
+          <Flex vertical gap={4}>
+            <Typography.Text type="secondary">
+              {t('tuition-payment.installments.next_amount')}
+            </Typography.Text>
+            <Typography.Title level={4} style={{ margin: 0 }}>
+              {formatCurrencyBasedOnCurrentLanguage(nextInstallment?.amount ?? 0)}
+            </Typography.Title>
+          </Flex>
+        </Card>
+        <Card style={{ flex: '1 1 240px' }}>
+          <Flex vertical gap={4}>
+            <Typography.Text type="secondary">
+              {t('tuition-payment.installments.remaining_amount')}
+            </Typography.Text>
+            <Typography.Title level={4} style={{ margin: 0 }}>
+              {formatCurrencyBasedOnCurrentLanguage(remainingInstallmentAmount)}
+            </Typography.Title>
+          </Flex>
+        </Card>
+      </Flex>
+
+      <Card title={t('tuition-payment.installments.timeline')}>
+        <Steps
+          responsive
+          current={currentStepIndex}
+          items={installments.map((installment) => ({
+            title: t('tuition-payment.installments.step_title', {
+              number: installment.installmentNumber,
+            }),
+            description: (
+              <Flex vertical gap={2}>
+                <Typography.Text>
+                  {formatCurrencyBasedOnCurrentLanguage(installment.amount)}
+                </Typography.Text>
+                <Typography.Text type="secondary">
+                  {formatDateBasedOnCurrentLanguage(installment.dueDate)}
+                </Typography.Text>
+                <Tag color={defaultChargeStatusStyle(installment.status)}>
+                  {installment.status}
+                </Tag>
+              </Flex>
+            ),
+            status: getStepStatus(installment),
+          }))}
+        />
+      </Card>
+
       <Card>
         <GenericTable
           rowKey="id"
@@ -127,17 +190,17 @@ const InstallmentPlanPage = () => {
 
       <Flex justify="end" gap={8} wrap="wrap">
         <Button
-          disabled={!unpaidInstallments.length}
-          onClick={() => confirmCheckout(PaymentAction.Remaining)}
-        >
-          {t('tuition-payment.action.pay_remaining')}
-        </Button>
-        <Button
           type="primary"
           disabled={!unpaidInstallments.length}
           onClick={() => confirmCheckout(PaymentAction.Next)}
         >
           {t('tuition-payment.action.pay_next')}
+        </Button>
+        <Button
+          disabled={!unpaidInstallments.length}
+          onClick={() => confirmCheckout(PaymentAction.Remaining)}
+        >
+          {t('tuition-payment.action.pay_remaining')}
         </Button>
       </Flex>
     </Flex>

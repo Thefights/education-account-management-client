@@ -2,11 +2,13 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
+import { defaultChargeStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/toastUtil'
 import { ArrowLeftOutlined, BankOutlined, WalletOutlined } from '@ant-design/icons'
 import {
@@ -18,8 +20,9 @@ import {
   Flex,
   InputNumber,
   Result,
-  Select,
   Skeleton,
+  Steps,
+  Tag,
   Typography,
 } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
@@ -43,10 +46,40 @@ const PaymentSessionStatus = {
   Succeeded: 'Succeeded',
 }
 
+const getPaymentFlowSteps = (t) => [
+  { title: t('tuition-payment.flow.charges') },
+  { title: t('tuition-payment.flow.summary') },
+  { title: t('tuition-payment.flow.payment') },
+  { title: t('tuition-payment.flow.completed') },
+]
+
 const getUnpaidInstallments = (charge) =>
   charge.installments
     .filter((installment) => installment.status !== EnumConfig.ChargeStatus.Paid)
     .sort((left, right) => left.installmentNumber - right.installmentNumber)
+
+const getPaymentTargetText = (charge, action, t) => {
+  const unpaidInstallments = getUnpaidInstallments(charge)
+  if (action === PaymentAction.Full) return t('tuition-payment.checkout.target_full_charge')
+  if (action === PaymentAction.InstallmentPlan) {
+    return t('tuition-payment.checkout.target_first_installment')
+  }
+  if (action === PaymentAction.Next) {
+    const installment = unpaidInstallments[0]
+    return installment
+      ? t('tuition-payment.checkout.target_installment', {
+          number: installment.installmentNumber,
+          status: installment.status,
+        })
+      : t('tuition-payment.charge.completed')
+  }
+  return t('tuition-payment.checkout.target_remaining_installments', {
+    count: unpaidInstallments.length,
+  })
+}
+
+const getInstallmentPlanAmount = (charge, months) =>
+  Math.round((Number(charge.remainingAmount) / months) * 100) / 100
 
 const TuitionCheckoutPage = () => {
   const { t } = useTranslation()
@@ -71,7 +104,6 @@ const TuitionCheckoutPage = () => {
   const chargeQuery = useMemo(
     () => ({
       EnrollmentIds: enrollmentIds,
-      Status: EnumConfig.StudentTuitionFilterStatus.All,
       IsInstallment: targetsExistingPlan,
       Sort: 'createdAt desc',
       Page: 1,
@@ -86,6 +118,7 @@ const TuitionCheckoutPage = () => {
   )
   const summary = useFetch(ApiUrls.ACCOUNT_HOLDER.TUITION_SUMMARY)
   const payment = useAxiosSubmit({ url: endpoint ?? '', method: 'POST' })
+  const planOptions = paymentPlanOptions.filter((opt) => opt.value !== 1)
 
   const selectedCharges = charges.data?.collection ?? []
   const hasAllRequestedCharges = selectedCharges.length === new Set(enrollmentIds).size
@@ -103,7 +136,7 @@ const TuitionCheckoutPage = () => {
     if (action === PaymentAction.Full) return Number(charge.remainingAmount)
     if (action === PaymentAction.InstallmentPlan) {
       const months = paymentPlanMonths[charge.chargeId] ?? 3
-      return Math.round((Number(charge.remainingAmount) / months) * 100) / 100
+      return getInstallmentPlanAmount(charge, months)
     }
     const unpaidInstallments = getUnpaidInstallments(charge)
     if (action === PaymentAction.Next) return Number(unpaidInstallments[0]?.amount ?? 0)
@@ -120,44 +153,87 @@ const TuitionCheckoutPage = () => {
   const onlineAmount = Math.max(totalDueToday - appliedCreditBalance, 0)
 
   const requestInvalid = !hasAllRequestedCharges || hasInvalidCharge
+  const tuitionListRoute = routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX)
 
   const chargeTableFields = useMemo(
     () => [
       { key: 'courseName', title: t('tuition-payment.charge.course') },
       { key: 'courseCode', title: t('tuition-payment.charge.course_code') },
       {
+        key: 'paymentDueDate',
+        title: t('tuition-payment.charge.due_date'),
+        render: (value) => formatDateBasedOnCurrentLanguage(value),
+      },
+      {
+        key: 'status',
+        title: t('tuition-payment.installments.status'),
+        render: (value) => <Tag color={defaultChargeStatusStyle(value)}>{value}</Tag>,
+      },
+      {
+        key: 'paymentTarget',
+        title: t('tuition-payment.checkout.payment_target'),
+        render: (_, charge) => getPaymentTargetText(charge, action, t),
+      },
+      {
         key: 'remainingAmount',
         title: t('tuition-payment.charge.remaining_amount'),
         render: (value) => formatCurrencyBasedOnCurrentLanguage(value),
       },
-      ...(action === PaymentAction.InstallmentPlan
-        ? [
-            {
-              key: 'chargeId',
-              title: t('tuition-payment.checkout.plan_months'),
-              render: (_, charge) => (
-                <Select
-                  value={paymentPlanMonths[charge.chargeId] ?? 3}
-                  options={paymentPlanOptions.filter((opt) => opt.value !== 1)}
-                  onChange={(month) =>
-                    setPaymentPlanMonths((current) => ({
-                      ...current,
-                      [charge.chargeId]: month,
-                    }))
-                  }
-                />
-              ),
-            },
-          ]
-        : []),
       {
         key: 'enrollmentId',
         title: t('tuition-payment.checkout.due_today'),
         render: (_, charge) => formatCurrencyBasedOnCurrentLanguage(amountForCharge(charge)),
       },
     ],
-    [action, amountForCharge, paymentPlanMonths, paymentPlanOptions, t]
+    [action, amountForCharge, t]
   )
+
+  const renderPlanSelector = (charge) => {
+    const selectedMonth = paymentPlanMonths[charge.chargeId] ?? 3
+    return (
+      <Card key={charge.enrollmentId} size="small">
+        <Flex vertical gap={14}>
+          <Flex justify="space-between" align="start" gap={12} wrap="wrap">
+            <Flex vertical gap={2}>
+              <Typography.Text strong>{charge.courseName}</Typography.Text>
+              <Typography.Text type="secondary">{charge.courseCode}</Typography.Text>
+            </Flex>
+            <Typography.Text strong>
+              {formatCurrencyBasedOnCurrentLanguage(charge.remainingAmount)}
+            </Typography.Text>
+          </Flex>
+          <Flex gap={8} wrap="wrap">
+            {planOptions.map((option) => {
+              const selected = option.value === selectedMonth
+              return (
+                <Button
+                  key={option.value}
+                  type={selected ? 'primary' : 'default'}
+                  onClick={() =>
+                    setPaymentPlanMonths((current) => ({
+                      ...current,
+                      [charge.chargeId]: option.value,
+                    }))
+                  }
+                >
+                  <Flex vertical gap={2} align="center">
+                    <Typography.Text>{option.label}</Typography.Text>
+                    <Typography.Text type={selected ? undefined : 'secondary'}>
+                      {t('tuition-payment.checkout.per_month', {
+                        amount: formatCurrencyBasedOnCurrentLanguage(
+                          getInstallmentPlanAmount(charge, option.value)
+                        ),
+                      })}
+                    </Typography.Text>
+                  </Flex>
+                </Button>
+              )
+            })}
+          </Flex>
+        </Flex>
+      </Card>
+    )
+  }
 
   const handleSubmit = async () => {
     if (!hasAllRequestedCharges || hasInvalidCharge || totalDueToday <= 0) return
@@ -205,17 +281,31 @@ const TuitionCheckoutPage = () => {
 
   if (completedPayment) {
     return (
-      <Result
-        status="success"
-        title={t('tuition-payment.callback.succeeded')}
-        subTitle={t('tuition-payment.checkout.completed_description')}
-        extra={[
-          <Descriptions key="payment" bordered size="small" column={1}>
+      <Flex vertical gap={18} style={{ width: '100%', maxWidth: 980, margin: '0 auto' }}>
+        <Steps size="small" current={3} items={getPaymentFlowSteps(t)} />
+        <Card>
+          <Result
+            status="success"
+            title={t('tuition-payment.callback.success_title')}
+            subTitle={t('tuition-payment.checkout.completed_description')}
+            extra={[
+              <Button
+                key="back"
+                type="primary"
+                onClick={() => navigate(tuitionListRoute, { replace: true })}
+              >
+                {t('tuition-payment.action.back_to_charges')}
+              </Button>,
+            ]}
+          />
+          <Descriptions bordered size="small" column={1}>
             <Descriptions.Item label={t('tuition-payment.checkout.payment_mode')}>
               {completedPayment.paymentMode}
             </Descriptions.Item>
             <Descriptions.Item label={t('tuition-payment.checkout.total_amount')}>
-              {formatCurrencyBasedOnCurrentLanguage(completedPayment.totalAmount)}
+              <Typography.Text strong>
+                {formatCurrencyBasedOnCurrentLanguage(completedPayment.totalAmount)}
+              </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item label={t('tuition-payment.checkout.wallet_amount')}>
               {formatCurrencyBasedOnCurrentLanguage(completedPayment.walletAmount)}
@@ -223,20 +313,9 @@ const TuitionCheckoutPage = () => {
             <Descriptions.Item label={t('tuition-payment.checkout.online_amount')}>
               {formatCurrencyBasedOnCurrentLanguage(completedPayment.onlineAmount)}
             </Descriptions.Item>
-          </Descriptions>,
-          <Button
-            key="back"
-            type="primary"
-            onClick={() =>
-              navigate(routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX), {
-                replace: true,
-              })
-            }
-          >
-            {t('tuition-payment.action.back_to_charges')}
-          </Button>,
-        ]}
-      />
+          </Descriptions>
+        </Card>
+      </Flex>
     )
   }
 
@@ -246,8 +325,13 @@ const TuitionCheckoutPage = () => {
 
   return (
     <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1100, margin: '0 auto' }}>
+      <Steps
+        size="small"
+        current={1}
+        items={getPaymentFlowSteps(t)}
+      />
       <Flex align="center" gap={8}>
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
+        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(tuitionListRoute)} />
         <Typography.Title level={3} style={{ margin: 0 }}>
           {t(`tuition-payment.checkout.action.${action}`)}
         </Typography.Title>
@@ -261,13 +345,25 @@ const TuitionCheckoutPage = () => {
         </Card>
       )}
 
-      <Card title={t('tuition-payment.checkout.selected_charges')}>
-        <GenericTable
-          rowKey="chargeId"
-          data={selectedCharges}
-          fields={chargeTableFields}
-          loading={charges.loading}
-        />
+      <Card
+        title={
+          action === PaymentAction.InstallmentPlan
+            ? t('tuition-payment.checkout.choose_plan')
+            : t('tuition-payment.checkout.selected_charges')
+        }
+      >
+        {action === PaymentAction.InstallmentPlan ? (
+          <Flex vertical gap={12}>
+            {selectedCharges.map(renderPlanSelector)}
+          </Flex>
+        ) : (
+          <GenericTable
+            rowKey="enrollmentId"
+            data={selectedCharges}
+            fields={chargeTableFields}
+            loading={charges.loading}
+          />
+        )}
       </Card>
 
       <Card title={t('tuition-payment.checkout.payment_summary')}>
@@ -287,12 +383,26 @@ const TuitionCheckoutPage = () => {
             style={{ width: '100%' }}
             onChange={(value) => setCreditBalanceApplied(value ?? 0)}
           />
+          <Flex justify="space-between" align="center" gap={8} wrap="wrap">
+            <Typography.Text type="secondary">
+              {t('tuition-payment.checkout.max_balance', {
+                amount: formatCurrencyBasedOnCurrentLanguage(maxCreditBalance),
+              })}
+            </Typography.Text>
+            <Button
+              size="small"
+              disabled={maxCreditBalance <= 0 || appliedCreditBalance === maxCreditBalance}
+              onClick={() => setCreditBalanceApplied(maxCreditBalance)}
+            >
+              {t('tuition-payment.checkout.use_max_balance')}
+            </Button>
+          </Flex>
           <Divider style={{ margin: 0 }} />
           <Flex justify="space-between">
             <Typography.Text>{t('tuition-payment.checkout.total_due_today')}</Typography.Text>
-            <Typography.Text strong>
+            <Typography.Title level={4} style={{ margin: 0 }}>
               {formatCurrencyBasedOnCurrentLanguage(totalDueToday)}
-            </Typography.Text>
+            </Typography.Title>
           </Flex>
           <Flex justify="space-between">
             <Typography.Text>{t('tuition-payment.checkout.from_balance')}</Typography.Text>
@@ -314,7 +424,9 @@ const TuitionCheckoutPage = () => {
             disabled={requestInvalid || totalDueToday <= 0}
             onClick={handleSubmit}
           >
-            {t('tuition-payment.checkout.confirm')}
+            {t('tuition-payment.checkout.pay_amount', {
+              amount: formatCurrencyBasedOnCurrentLanguage(totalDueToday),
+            })}
           </Button>
         </Flex>
       </Card>

@@ -10,7 +10,21 @@
     "selected": "Đã chọn {count} khoản",
     "tabs": {
       "without_plan": "Khoản thu chưa đăng ký trả góp",
-      "with_plan": "Khoản thu đã đăng ký trả góp"
+      "with_plan": "Khoản thu đã đăng ký trả góp",
+      "without_plan_count": "Chưa trả góp ({count})",
+      "with_plan_count": "Trả góp ({count})"
+    },
+    "hero": {
+      "outstanding": "Cần thanh toán",
+      "invoice_attention": "{count} hóa đơn cần xử lý",
+      "pay_now": "Thanh toán ngay",
+      "balance_coverage": "Có thể chi trả {percent}% tổng cần thanh toán"
+    },
+    "flow": {
+      "charges": "Khoản thu",
+      "summary": "Tóm tắt",
+      "payment": "Thanh toán",
+      "completed": "Hoàn tất"
     },
     "filter": {
       "search_label": "Tìm theo mã khóa học hoặc tên khóa học",
@@ -37,6 +51,10 @@
       "no_fas": "Không áp dụng FAS",
       "fas_subsidy": "Trợ cấp FAS",
       "next_installment": "Kỳ tiếp theo",
+      "next_installment_amount": "Số tiền kỳ tiếp theo",
+      "unavailable": "Khoản thu không khả dụng",
+      "already_paid": "Khoản thu này đã được thanh toán",
+      "no_payable_balance": "Không còn số dư cần thanh toán",
       "completed": "Đã hoàn tất"
     },
     "action": {
@@ -45,7 +63,8 @@
       "pay_next": "Thanh toán kỳ tiếp theo",
       "pay_remaining": "Thanh toán tất cả kỳ còn lại",
       "view_installments": "Xem các kỳ thanh toán",
-      "back_to_charges": "Quay lại danh sách"
+      "back_to_charges": "Quay lại danh sách",
+      "select_all_payable": "Chọn tất cả khoản có thể thanh toán"
     },
     "overdue": {
       "title": "Có kỳ thanh toán quá hạn",
@@ -62,15 +81,25 @@
       "invalid_request": "Yêu cầu thanh toán không hợp lệ",
       "charges_not_eligible": "Một hoặc nhiều khoản thu không tồn tại hoặc không phù hợp với hành động thanh toán này.",
       "selected_charges": "Các khoản đã chọn",
+      "choose_plan": "Chọn kế hoạch",
+      "payment_target": "Mục tiêu thanh toán",
+      "target_full_charge": "Toàn bộ khoản thu",
+      "target_first_installment": "Kỳ đầu tiên",
+      "target_installment": "Kỳ {number} - {status}",
+      "target_remaining_installments": "{count} kỳ còn lại",
       "plan_months": "Kế hoạch thanh toán",
       "months": "{count} tháng",
+      "per_month": "{amount}/tháng",
       "due_today": "Thanh toán hôm nay",
       "payment_summary": "Tóm tắt thanh toán",
       "available_balance": "Số dư tài khoản giáo dục khả dụng",
       "total_due_today": "Tổng thanh toán hôm nay",
       "from_balance": "Từ tài khoản giáo dục",
       "online_payment": "Thanh toán trực tuyến",
+      "use_max_balance": "Dùng tối đa",
+      "max_balance": "Tối đa {amount}",
       "confirm": "Xác nhận và thanh toán",
+      "pay_amount": "Thanh toán {amount}",
       "missing_redirect": "Phiên thanh toán không trả về đường dẫn thanh toán.",
       "unexpected_status": "Thanh toán trả về trạng thái {status}.",
       "completed_description": "Thanh toán đã hoàn tất mà không cần chuyển đến cổng trực tuyến.",
@@ -85,7 +114,11 @@
       "number": "Kỳ",
       "amount": "Số tiền",
       "due_date": "Ngày đến hạn",
-      "status": "Trạng thái"
+      "status": "Trạng thái",
+      "next_amount": "Kỳ tiếp theo",
+      "remaining_amount": "Các kỳ còn lại",
+      "timeline": "Tiến trình thanh toán",
+      "step_title": "Kỳ {number}"
     },
     "callback": {
       "processing": "Đang xác nhận thanh toán",
@@ -95,7 +128,12 @@
       "status": "Thanh toán trả về trạng thái {status}.",
       "failed": "Xác nhận thanh toán thất bại",
       "failed_description": "Phiên thanh toán vẫn được giữ nguyên. Hãy thử xác nhận lại hoặc quay về danh sách học phí.",
-      "retry": "Thử xác nhận lại"
+      "retry": "Thử xác nhận lại",
+      "success_title": "Thanh toán hoàn tất",
+      "success_description": "Khoản thanh toán học phí đã được xác nhận và số dư khoản thu đã được cập nhật.",
+      "cancel_title": "Thanh toán đã hủy",
+      "cancel_description": "Không có khoản thu học phí hoặc số dư tài khoản giáo dục nào bị thay đổi cho phiên này.",
+      "view_transactions": "Xem lịch sử giao dịch"
     }
   }
 }
