@@ -55,6 +55,7 @@ const FasFormAiChat = ({
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const [lastFailedMessage, setLastFailedMessage] = useState('')
+  const [reviewDecision, setReviewDecision] = useState('')
   const dismissedSuggestionsRef = useRef({})
   const messagesEndRef = useRef(null)
 
@@ -101,7 +102,23 @@ const FasFormAiChat = ({
     () => Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
     [questionMap, suggestions]
   )
-  const isReviewRequired = visibleSuggestions.length > 0
+
+  const pendingUpdate = useMemo(() => {
+    const questionId = String(assistantState?.pending_update_question_id || '')
+    const field = assistantState?.questions?.[questionId]
+
+    if (!questionId || field?.status !== 'pending_update' || !field.pending_value) return null
+
+    return {
+      questionId,
+      questionText: field.question_text || questionMap[questionId]?.questionText,
+      currentValue: String(field.value || additionalAnswers?.[questionId] || ''),
+      newValue: String(field.pending_value),
+    }
+  }, [additionalAnswers, assistantState, questionMap])
+
+  const isReviewRequired = visibleSuggestions.length > 0 || Boolean(pendingUpdate)
+  const isComposerLocked = isReviewRequired
 
   const progress = useMemo(() => {
     const requiredQuestions = (scheme?.additionalQuestions || []).filter(
@@ -132,10 +149,21 @@ const FasFormAiChat = ({
       ])
     )
 
-  const handleSend = async (event, quickText, { appendUserMessage = true } = {}) => {
+  const handleSend = async (
+    event,
+    quickText,
+    { appendUserMessage = true, allowDuringReview = false } = {}
+  ) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
-    if (!messageText || isSending || !questions.length || isReviewRequired) return
+    if (
+      !messageText ||
+      isSending ||
+      !questions.length ||
+      (isComposerLocked && !allowDuringReview)
+    ) {
+      return null
+    }
 
     if (appendUserMessage) {
       setMessages((current) => [...current, { role: 'user', content: messageText }])
@@ -157,7 +185,17 @@ const FasFormAiChat = ({
         throw new Error('Could not connect to the AI service.')
       }
 
-      setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
+      const responsePendingQuestionId = String(
+        response.assistant_state?.pending_update_question_id || ''
+      )
+      const responsePendingField =
+        response.assistant_state?.questions?.[responsePendingQuestionId]
+      const isPendingConfirmation =
+        responsePendingField?.status === 'pending_update' && responsePendingField.pending_value
+
+      if (!isPendingConfirmation && response.reply) {
+        setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
+      }
       setAssistantState(response.assistant_state || null)
 
       const nextSuggestions = Object.fromEntries(
@@ -168,10 +206,41 @@ const FasFormAiChat = ({
       )
       setSuggestions(nextSuggestions)
       setLastFailedMessage('')
+      return response
     } catch (requestError) {
       setError(requestError.message || 'Could not connect to the AI service.')
-      setLastFailedMessage(messageText)
+      setLastFailedMessage(appendUserMessage ? messageText : '')
+      return null
     }
+  }
+
+  const submitPendingDecision = async (decision) => {
+    if (!pendingUpdate || reviewDecision || isSending) return
+
+    setReviewDecision(decision)
+    const response = await handleSend(undefined, decision === 'approve' ? 'Yes' : 'No', {
+      appendUserMessage: false,
+      allowDuringReview: true,
+    })
+
+    if (response) {
+      if (decision === 'approve') {
+        onApplySuggestion(pendingUpdate.questionId, pendingUpdate.newValue)
+        setSuggestions((current) => {
+          const next = { ...current }
+          delete next[pendingUpdate.questionId]
+          return next
+        })
+        delete dismissedSuggestionsRef.current[pendingUpdate.questionId]
+      }
+
+      setStatus(
+        decision === 'approve'
+          ? 'Updated answer applied. Not submitted.'
+          : 'Kept the current answer. The proposed update was dismissed.'
+      )
+    }
+    setReviewDecision('')
   }
 
   const removeSuggestion = (questionId) => {
@@ -359,7 +428,7 @@ const FasFormAiChat = ({
             )}
           </div>
 
-          {visibleSuggestions.length > 0 && (
+          {isReviewRequired && (
             <section className="fas-ai-suggestions" aria-label="AI suggestions">
               <div className="fas-ai-suggestions-head">
                 <div>
@@ -374,6 +443,44 @@ const FasFormAiChat = ({
               </div>
 
               <div className="fas-ai-suggestion-list">
+                {pendingUpdate && (
+                  <article className="fas-ai-suggestion-card" key={`pending-${pendingUpdate.questionId}`}>
+                    <div className="fas-ai-suggestion-meta">
+                      <span>Question {questionNumberMap[pendingUpdate.questionId]}</span>
+                      <Tag color="gold">Confirmation required</Tag>
+                    </div>
+                    <h5>{pendingUpdate.questionText}</h5>
+                    <div className="fas-ai-current-answer">
+                      <span>Current answer</span>
+                      <p>{pendingUpdate.currentValue || 'No current answer'}</p>
+                    </div>
+                    <div className="fas-ai-proposed-answer">
+                      <span>Proposed update</span>
+                      <p>{pendingUpdate.newValue}</p>
+                    </div>
+                    <div className="fas-ai-suggestion-actions">
+                      <Button
+                        size="small"
+                        icon={<CloseOutlined />}
+                        loading={reviewDecision === 'dismiss'}
+                        disabled={Boolean(reviewDecision)}
+                        onClick={() => submitPendingDecision('dismiss')}
+                      >
+                        Dismiss
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<CheckOutlined />}
+                        loading={reviewDecision === 'approve'}
+                        disabled={Boolean(reviewDecision)}
+                        onClick={() => submitPendingDecision('approve')}
+                      >
+                        Approve answer
+                      </Button>
+                    </div>
+                  </article>
+                )}
                 {visibleSuggestions.map(([questionId, value]) => {
                   const question = questionMap[questionId]
                   const currentValue = String(additionalAnswers?.[questionId] || '').trim()
@@ -455,22 +562,22 @@ const FasFormAiChat = ({
         <footer className="fas-ai-composer-wrap">
           <Tooltip
             title={
-              isReviewRequired
+              isComposerLocked
                 ? 'Please approve or dismiss the suggested answers before continuing the chat.'
                 : null
             }
             placement="top"
           >
-            <div className={`fas-ai-composer${isReviewRequired ? ' is-review-locked' : ''}`}>
+            <div className={`fas-ai-composer${isComposerLocked ? ' is-review-locked' : ''}`}>
               <Input
                 aria-label="Message FAS Form Assistant"
                 value={inputValue}
                 placeholder={
-                  isReviewRequired
+                  isComposerLocked
                     ? 'Review the suggested answers to continue...'
                     : 'Describe your circumstances...'
                 }
-                disabled={isSending || !questions.length || isReviewRequired}
+                disabled={isSending || !questions.length || isComposerLocked}
                 onChange={(event) => setInputValue(event.target.value)}
                 onPressEnter={handleSend}
               />
@@ -481,7 +588,7 @@ const FasFormAiChat = ({
                 icon={<SendOutlined />}
                 loading={isSending}
                 disabled={
-                  !inputValue.trim() || isSending || !questions.length || isReviewRequired
+                  !inputValue.trim() || isSending || !questions.length || isComposerLocked
                 }
                 onClick={handleSend}
               />
