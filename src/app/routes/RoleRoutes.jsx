@@ -168,6 +168,12 @@ const roleRouteGroups = [
     Layout: SchoolAdminLayout,
     routes: [
       { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
+      {
+        path: routeUrls.FAS_ADMIN.INDEX,
+        element: (
+          <Navigate replace to={routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.FAS_ADMIN.SCHEMES)} />
+        ),
+      },
       { path: routeUrls.FAS_ADMIN.SCHEMES, element: <FasSchemeManagementPage /> },
       { path: routeUrls.FAS_ADMIN.SCHEME_CREATE, element: <FasSchemeCreatePage /> },
       { path: routeUrls.FAS_ADMIN.SCHEME_DETAIL(), element: <FasSchemeDetailPage /> },
@@ -199,6 +205,10 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.AccountHolder,
     Layout: AccountHolderLayout,
     routes: [
+      {
+        path: routeUrls.MY_FAS.INDEX,
+        element: <Navigate replace to={routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY)} />,
+      },
       { path: routeUrls.MY_FAS.APPLY, element: <MyFasApplyPage /> },
       { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },

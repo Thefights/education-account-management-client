@@ -73,6 +73,7 @@ export const routeUrls = {
     HISTORY_DETAIL: (id = ':id') => `/topup-management/history/${id}`,
   },
   FAS_ADMIN: {
+    INDEX: '/fas',
     SCHEMES: '/fas/schemes',
     SCHEME_CREATE: '/fas/schemes/create',
     SCHEME_DETAIL: (id = ':id') => `/fas/schemes/${id}`,
@@ -85,6 +86,7 @@ export const routeUrls = {
   },
   PROFILE: { INDEX: '/profile' },
   MY_FAS: {
+    INDEX: '/fas',
     APPLY: '/fas/apply',
     MANAGEMENT: '/fas/management',
   },

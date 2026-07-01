@@ -12,7 +12,9 @@ const defaultRouteByRole = {
   [EnumConfig.RoleEnum.SchoolAdmin]: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(
     routeUrls.COURSE_MANAGEMENT.INDEX
   ),
-  [EnumConfig.RoleEnum.AccountHolder]: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.APPLY),
+  [EnumConfig.RoleEnum.AccountHolder]: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
+    routeUrls.COURSE_MANAGEMENT.INDEX
+  ),
 }
 
 const RoleHomePage = ({ role }) => {
