@@ -1,5 +1,5 @@
-import useTranslation from '@/shared/hooks/useTranslation'
 import { useLocalStorage } from '@/shared/hooks/useStorage'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { CloseOutlined } from '@ant-design/icons'
 import { Button, Flex, Space, Typography, theme } from 'antd'
 
@@ -33,7 +33,14 @@ const getBarStyle = (token, isDark) => ({
   boxShadow: isDark ? '0 16px 40px rgba(2, 8, 20, 0.46)' : token.boxShadowSecondary,
 })
 
-const BulkActionBar = ({ selectedCount = 0, actions = [], loading = false, onClear }) => {
+const BulkActionBar = ({
+  selectedCount = 0,
+  selectedLabel,
+  clearLabel,
+  actions = [],
+  loading = false,
+  onClear,
+}) => {
   const { t } = useTranslation()
   const { token } = theme.useToken()
   const [themeMode] = useLocalStorage('theme', 'light')
@@ -51,10 +58,10 @@ const BulkActionBar = ({ selectedCount = 0, actions = [], loading = false, onCle
     >
       <Space size={8}>
         <Typography.Text strong>
-          {selectedCount} {t('text.selected').toLowerCase()}
+          {selectedLabel ?? `${selectedCount} ${t('text.selected').toLowerCase()}`}
         </Typography.Text>
         <Button type="text" size="small" icon={<CloseOutlined />} onClick={onClear}>
-          {t('button.clear')}
+          {clearLabel ?? t('button.clear')}
         </Button>
       </Space>
       <Space wrap>

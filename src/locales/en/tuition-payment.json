@@ -52,6 +52,10 @@
       "fas_subsidy": "FAS subsidy",
       "next_installment": "Next installment",
       "next_installment_amount": "Next installment amount",
+      "next_payment": "Next payment",
+      "current_installment": "Current installment",
+      "installment_progress": "Installment {current} of {total}",
+      "selected": "Selected",
       "unavailable": "Charge is unavailable",
       "already_paid": "This charge is already paid",
       "no_payable_balance": "No payable balance",
@@ -64,12 +68,10 @@
       "pay_remaining": "Pay all remaining",
       "view_installments": "View installments",
       "back_to_charges": "Back to charges",
-      "select_all_payable": "Select all payable charges"
-    },
-    "overdue": {
-      "title": "Overdue installment",
-      "description": "This selection contains an overdue installment. Review the amount before continuing.",
-      "continue": "Continue"
+      "select_all_payable": "Select all payable charges",
+      "selected_charges": "{count} charges selected",
+      "clear_selection": "Clear selection",
+      "pay_amount": "Pay {amount}"
     },
     "checkout": {
       "action": {

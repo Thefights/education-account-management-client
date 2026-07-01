@@ -52,6 +52,10 @@
       "fas_subsidy": "Trợ cấp FAS",
       "next_installment": "Kỳ tiếp theo",
       "next_installment_amount": "Số tiền kỳ tiếp theo",
+      "next_payment": "Khoản thanh toán tiếp theo",
+      "current_installment": "Kỳ thanh toán hiện tại",
+      "installment_progress": "Kỳ {current} trên {total}",
+      "selected": "Đã chọn",
       "unavailable": "Khoản thu không khả dụng",
       "already_paid": "Khoản thu này đã được thanh toán",
       "no_payable_balance": "Không còn số dư cần thanh toán",
@@ -64,12 +68,10 @@
       "pay_remaining": "Thanh toán tất cả kỳ còn lại",
       "view_installments": "Xem các kỳ thanh toán",
       "back_to_charges": "Quay lại danh sách",
-      "select_all_payable": "Chọn tất cả khoản có thể thanh toán"
-    },
-    "overdue": {
-      "title": "Có kỳ thanh toán quá hạn",
-      "description": "Lựa chọn này có kỳ thanh toán quá hạn. Hãy kiểm tra số tiền trước khi tiếp tục.",
-      "continue": "Tiếp tục"
+      "select_all_payable": "Chọn tất cả khoản có thể thanh toán",
+      "selected_charges": "Đã chọn {count} khoản thu",
+      "clear_selection": "Bỏ chọn tất cả",
+      "pay_amount": "Thanh toán {amount}"
     },
     "checkout": {
       "action": {

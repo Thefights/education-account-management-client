@@ -52,6 +52,10 @@
       "fas_subsidy": "FAS 补贴",
       "next_installment": "下一期",
       "next_installment_amount": "下一期金额",
+      "next_payment": "下一笔付款",
+      "current_installment": "当前分期",
+      "installment_progress": "第 {current} 期，共 {total} 期",
+      "selected": "已选择",
       "unavailable": "收费不可用",
       "already_paid": "此收费已付款",
       "no_payable_balance": "没有待支付余额",
@@ -64,12 +68,10 @@
       "pay_remaining": "支付所有剩余期数",
       "view_installments": "查看分期",
       "back_to_charges": "返回收费列表",
-      "select_all_payable": "选择所有可支付收费"
-    },
-    "overdue": {
-      "title": "存在逾期分期",
-      "description": "所选项目包含逾期分期。请在继续前检查金额。",
-      "continue": "继续"
+      "select_all_payable": "选择所有可支付收费",
+      "selected_charges": "已选择 {count} 项收费",
+      "clear_selection": "清除选择",
+      "pay_amount": "支付 {amount}"
     },
     "checkout": {
       "action": {
