@@ -3,23 +3,23 @@ import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 
-const defaultFilters = { batchDateFrom: '', batchDateTo: '' }
+const defaultFilters = { dateFrom: '', dateTo: '' }
 
-const SweepReportFilterSection = ({ filters, loading, onFilter, onReset }) => {
+const SweepReportFilterSection = ({ dateRange, loading, onFilter, onReset }) => {
   const { t } = useTranslation()
   const { values, handleChange, reset, setField, registerRef, validateAll, resetValidation } =
-    useForm(filters)
+    useForm(dateRange || defaultFilters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
 
   const handleReset = () => {
-    reset(defaultFilters)
+    const resetDateRange = onReset?.()
+    reset(resetDateRange || defaultFilters)
     resetValidation()
-    onReset?.()
   }
 
   const handleFilter = () => {
     if (!validateAll()) return
-    onFilter?.(values)
+    onFilter?.(values.dateFrom && values.dateTo ? values : defaultFilters)
   }
 
   const fields = [
@@ -27,8 +27,8 @@ const SweepReportFilterSection = ({ filters, loading, onFilter, onReset }) => {
       key: 'batchDateRange',
       title: t('batch_report.batch_date'),
       type: 'range-picker',
-      from: { key: 'batchDateFrom' },
-      to: { key: 'batchDateTo' },
+      from: { key: 'dateFrom' },
+      to: { key: 'dateTo' },
       required: false,
       colProps: { xs: 24, md: 12, xl: 6 },
     },
