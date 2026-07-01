@@ -38,6 +38,9 @@ export const routeUrls = {
   TUITION_PAYMENT: {
     INDEX: '/tuition-payment',
   },
+  TRANSACTION_HISTORY: {
+    INDEX: '/transaction-history',
+  },
 
   PAY: {
     INDEX: '/pay',

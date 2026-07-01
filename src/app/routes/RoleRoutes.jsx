@@ -5,6 +5,7 @@ import SystemAdminLayout from '@/app/layouts/SystemAdminLayout'
 import ProtectedRoute from '@/app/routes/ProtectedRoute'
 import AccountHolderCourseManagementPage from '@/features/account-holder-course-management/pages/AccountHolderCourseManagementPage'
 import AccountProfilePage from '@/features/account-holder/pages/AccountProfilePage'
+import AccountTransactionHistoryPage from '@/features/account-holder/pages/AccountTransactionHistoryPage'
 import AdminManagementDetailPage from '@/features/admin-management/pages/AdminManagementDetailPage'
 import AdminManagementPage from '@/features/admin-management/pages/AdminManagementPage'
 import AdminProfilePage from '@/features/admin-profile/pages/AdminProfilePage'
@@ -197,6 +198,7 @@ const roleRouteGroups = [
       { path: routeUrls.MY_FAS.APPLY, element: <MyFasApplyPage /> },
       { path: routeUrls.MY_FAS.MANAGEMENT, element: <MyFasManagementPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AccountProfilePage /> },
+      { path: routeUrls.TRANSACTION_HISTORY.INDEX, element: <AccountTransactionHistoryPage /> },
       {
         path: routeUrls.COURSE_MANAGEMENT.INDEX,
         element: <AccountHolderCourseManagementPage />,

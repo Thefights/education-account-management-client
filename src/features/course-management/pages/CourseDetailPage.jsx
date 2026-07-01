@@ -1,9 +1,17 @@
-import AssignStudentsDialog from '@/features/enrollment-management/components/AssignStudentsDialog'
 import EnrollmentManagementFilterSection from '@/features/enrollment-management/components/EnrollmentManagementFilterSection'
 import EnrollmentManagementTableSection from '@/features/enrollment-management/components/EnrollmentManagementTableSection'
+import {
+  CompactEntityLabel,
+  CourseFasSchemeOptionLabel,
+  CourseStudentOptionLabel,
+  CourseStudentTableLabel,
+} from '@/features/course-management/components/CourseEntityLabels'
+import CourseStudentPicker from '@/features/course-management/components/CourseStudentPicker'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import axiosConfig from '@/shared/api/axiosClient'
 import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
+import InlineAsyncMultiSelect from '@/shared/components/generals/InlineAsyncMultiSelect'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useConfirm from '@/shared/hooks/useConfirm'
@@ -43,27 +51,6 @@ const formatCount = (value) => (value == null ? 0 : Number(value).toLocaleString
 
 const defaultFilters = { search: '', chargeStatuses: [] }
 
-const getFasSchemeOptionLabel = (scheme) => (
-  <Space
-    direction="vertical"
-    size={2}
-    style={{ width: '100%' }}
-    onClick={(e) => e.stopPropagation()}
-  >
-    <Space size={6} wrap>
-      <Typography.Text strong>{scheme.schemeName}</Typography.Text>
-      {scheme.schemeCode && <Typography.Text code>{scheme.schemeCode}</Typography.Text>}
-      {scheme.status && (
-        <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>{scheme.status}</Tag>
-      )}
-    </Space>
-    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-      {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
-      {scheme.durationInMonths || 0} months
-    </Typography.Text>
-  </Space>
-)
-
 const CourseDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -78,8 +65,9 @@ const CourseDetailPage = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [selectedIds, setSelectedIds] = useState([])
-  const [openAssign, setOpenAssign] = useState(false)
   const [fasOptionCache, setFasOptionCache] = useState({})
+  const [studentDetailCache, setStudentDetailCache] = useState({})
+  const [studentIdsToAdd, setStudentIdsToAdd] = useState([])
   const [editing, setEditing] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -89,15 +77,15 @@ const CourseDetailPage = () => {
     url: ApiUrls.COURSE_MANAGEMENT.DETAIL(id),
     method: 'PUT',
   })
+  const assignStudents = useAxiosSubmit({
+    url: ApiUrls.COURSE_MANAGEMENT.ENROLLMENTS(id),
+    method: 'POST',
+  })
   const removeSelectedEnrollments = useAxiosSubmit({
     url: ApiUrls.ENROLLMENT_MANAGEMENT.DELETE_SELECTED,
     method: 'DELETE',
   })
   const withdrawEnrollment = useAxiosSubmit({ method: 'PUT' })
-  const { submit: fetchFasOptions } = useAxiosSubmit({
-    url: ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX,
-    method: 'GET',
-  })
 
   const canManageEnrollments = course?.status === 'Draft' || course?.status === 'Enrolling'
   const canUpdate = canManageEnrollments
@@ -112,6 +100,26 @@ const CourseDetailPage = () => {
   )
 
   const enrollments = useFetch(ApiUrls.ENROLLMENT_MANAGEMENT.INDEX, queryParams, [queryParams])
+  const enrollmentRows = useMemo(
+    () => enrollments.data?.collection || [],
+    [enrollments.data?.collection]
+  )
+  const editingStudentRows = useMemo(
+    () =>
+      enrollmentRows.map((enrollment) => {
+        const student = studentDetailCache[String(enrollment.schoolStudentId)] || {}
+        return {
+          id: enrollment.schoolStudentId,
+          accountNumber: student.accountNumber || enrollment.accountNumber,
+          nric: student.nric || enrollment.citizenNric,
+          fullName: student.fullName || enrollment.citizenFullName,
+          email: student.email || enrollment.citizenEmail,
+          phoneNumber: student.phoneNumber || enrollment.citizenPhoneNumber,
+          dateOfBirth: student.dateOfBirth,
+        }
+      }),
+    [enrollmentRows, studentDetailCache]
+  )
   const selectedFasOptions = useMemo(
     () => {
       const schemesById = {
@@ -123,7 +131,7 @@ const CourseDetailPage = () => {
       }
       return Object.values(schemesById).map((scheme) => ({
         value: scheme.id,
-        label: getFasSchemeOptionLabel(scheme),
+        label: <CourseFasSchemeOptionLabel scheme={scheme} />,
         searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
       }))
     },
@@ -160,6 +168,37 @@ const CourseDetailPage = () => {
     reset(initialValues)
     resetValidation()
   }, [editing, initialValues, reset, resetValidation])
+
+  useEffect(() => {
+    if (!editing || !enrollmentRows.length) return undefined
+
+    const missingStudentIds = enrollmentRows
+      .map((enrollment) => enrollment.schoolStudentId)
+      .filter((studentId) => studentId && !studentDetailCache[String(studentId)])
+
+    if (!missingStudentIds.length) return undefined
+
+    let active = true
+    Promise.all(
+      missingStudentIds.map(async (studentId) => {
+        const response = await axiosConfig.get(ApiUrls.SCHOOL_STUDENT_MANAGEMENT.DETAIL(studentId))
+        return response?.data
+      })
+    )
+      .then((students) => {
+        if (!active) return
+        setStudentDetailCache((current) =>
+          Object.fromEntries([
+            ...Object.entries(current),
+            ...students.filter(Boolean).map((student) => [String(student.id), student]),
+          ])
+        )
+      })
+
+    return () => {
+      active = false
+    }
+  }, [editing, enrollmentRows, studentDetailCache])
 
   const clearSelection = () => setSelectedIds([])
 
@@ -204,15 +243,10 @@ const CourseDetailPage = () => {
     await courseData.fetch()
   }
 
-  const handleAssigned = async () => {
-    await enrollments.fetch()
-    await courseData.fetch()
-  }
-
   const loadFasOptions = useCallback(
     async ({ search, page, pageSize }) => {
-      const response = await fetchFasOptions({
-        overrideParam: { search, page, pageSize },
+      const response = await axiosConfig.get(ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX, {
+        params: { search, page, pageSize },
       })
       const result = response?.data
       const schemes = result?.collection || []
@@ -225,30 +259,63 @@ const CourseDetailPage = () => {
       return {
         options: schemes.map((scheme) => ({
           value: scheme.id,
-          label: getFasSchemeOptionLabel(scheme),
+          label: <CourseFasSchemeOptionLabel scheme={scheme} />,
           searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
         })),
         totalCount: result?.totalCount || 0,
       }
     },
-    [fetchFasOptions]
+    []
+  )
+
+  const loadStudentOptions = useCallback(
+    async ({ search, page, pageSize }) => {
+      const response = await axiosConfig.get(ApiUrls.COURSE_MANAGEMENT.ELIGIBLE_STUDENTS(id), {
+        params: { search, page, pageSize },
+      })
+      const result = response?.data
+      const students = result?.collection || []
+      setStudentDetailCache((current) =>
+        Object.fromEntries([
+          ...Object.entries(current),
+          ...students.map((student) => [String(student.id), student]),
+        ])
+      )
+      return {
+        options: students.map((student) => ({
+          value: student.id,
+          label: <CourseStudentOptionLabel student={student} />,
+          searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
+        })),
+        totalCount: result?.totalCount || 0,
+      }
+    },
+    [id]
   )
 
   const fasField = useMemo(
     () => ({
       key: 'fasSchemeIds',
       title: t('course_management.title.applicable_fas'),
-      type: 'select',
-      multiple: true,
+      type: 'custom',
       required: false,
-      placeholder: 'Select one or more FAS schemes',
-      options: selectedFasOptions,
-      loadOptions: loadFasOptions,
-      renderOptionValue: (value) =>
-        fasOptionCache[String(value)]?.schemeName ||
-        (course?.applicableFasSchemes || []).find((scheme) => String(scheme.id) === String(value))
-          ?.schemeName ||
-        String(value),
+      render: ({ value, onChange }) => (
+        <InlineAsyncMultiSelect
+          value={value}
+          onChange={onChange}
+          placeholder={t('course_management.placeholder.select_fas_schemes')}
+          options={selectedFasOptions}
+          loadOptions={loadFasOptions}
+          renderSelectedLabel={(selectedValue) => {
+            const scheme =
+              fasOptionCache[String(selectedValue)] ||
+              (course?.applicableFasSchemes || []).find(
+                (item) => String(item.id) === String(selectedValue)
+              )
+            return <CompactEntityLabel name={scheme?.schemeName || String(selectedValue)} />
+          }}
+        />
+      ),
     }),
     [course?.applicableFasSchemes, fasOptionCache, loadFasOptions, selectedFasOptions, t]
   )
@@ -336,6 +403,7 @@ const CourseDetailPage = () => {
     reset(initialValues)
     resetValidation()
     setSubmitted(false)
+    setStudentIdsToAdd([])
     setEditing(true)
   }
 
@@ -343,6 +411,7 @@ const CourseDetailPage = () => {
     reset(initialValues)
     resetValidation()
     setSubmitted(false)
+    setStudentIdsToAdd([])
     setEditing(false)
   }
 
@@ -366,7 +435,16 @@ const CourseDetailPage = () => {
     })
     if (!response) return
 
+    if (studentIdsToAdd.length) {
+      const assignResponse = await assignStudents.submit({
+        overrideData: { schoolStudentIds: studentIdsToAdd },
+      })
+      if (!assignResponse) return
+    }
+
     await courseData.fetch()
+    await enrollments.fetch()
+    setStudentIdsToAdd([])
     setSubmitted(false)
     setEditing(false)
   }
@@ -427,7 +505,6 @@ const CourseDetailPage = () => {
                       </Typography.Title>
                     )}
                   </div>
-                  {renderStatus(course.status)}
                 </Space>
                 <Space separator={<Divider orientation="vertical" />} style={{ color: '#595959' }}>
                   <Space>
@@ -437,6 +514,7 @@ const CourseDetailPage = () => {
                   <Typography.Text type="secondary">
                     {t('course_management.field.id')}: #{course.id}
                   </Typography.Text>
+                  {renderStatus(course.status)}
                 </Space>
               </Space>
               {canUpdate &&
@@ -445,7 +523,7 @@ const CourseDetailPage = () => {
                     <Button
                       icon={<CloseOutlined />}
                       onClick={handleCancelEdit}
-                      disabled={updateCourse.loading}
+                      disabled={updateCourse.loading || assignStudents.loading}
                     >
                       {t('button.cancel')}
                     </Button>
@@ -453,7 +531,7 @@ const CourseDetailPage = () => {
                       type="primary"
                       icon={<SaveOutlined />}
                       onClick={handleSaveEdit}
-                      loading={updateCourse.loading}
+                      loading={updateCourse.loading || assignStudents.loading}
                     >
                       {t('button.save')}
                     </Button>
@@ -564,7 +642,7 @@ const CourseDetailPage = () => {
             >
               <div style={{ minHeight: 40 }}>
                 {editing ? (
-                  <div style={{ maxWidth: 520 }}>{renderEditField('fasSchemeIds')}</div>
+                  <div>{renderEditField('fasSchemeIds')}</div>
                 ) : course.applicableFasSchemes?.length ? (
                   <Space wrap>
                     {course.applicableFasSchemes.map((scheme) => (
@@ -589,61 +667,72 @@ const CourseDetailPage = () => {
           <Flex justify="space-between" align="center" wrap="wrap" gap={16}>
             <Space align="baseline">
               <Typography.Title level={4} style={{ margin: 0 }}>
-                {t(
-                  canManageEnrollments
-                    ? 'enrollment_management.action.manage_students'
-                    : 'enrollment_management.action.view_students'
-                )}
+                {t('course_management.title.manage_students')}
               </Typography.Title>
               <Tag color="blue" style={{ borderRadius: 12 }}>
-                {formatCount(course?.enrollmentCount)}{' '}
-                {t('course_management.field.enrollment_count')}
+                {t('course_management.message.number_of_students_count', {
+                  count: formatCount(
+                    Number(course?.enrollmentCount || 0) + (editing ? studentIdsToAdd.length : 0)
+                  ),
+                })}
               </Tag>
             </Space>
-
-            {!readOnly && (
-              <Space>
-                <Button type="primary" onClick={() => setOpenAssign(true)}>
-                  {t('enrollment_management.title.assign_students')}
-                </Button>
-              </Space>
-            )}
           </Flex>
 
-          <EnrollmentManagementFilterSection
-            filters={filters}
-            loading={enrollments.loading}
-            onFilter={handleFilter}
-            onReset={() => handleFilter(defaultFilters)}
-            showCourse={false}
-          />
+          {editing ? (
+            <CourseStudentPicker
+              value={studentIdsToAdd}
+              onChange={setStudentIdsToAdd}
+              options={Object.values(studentDetailCache)
+                .filter((student) => student?.id)
+                .map((student) => ({
+                  value: student.id,
+                  label: <CourseStudentOptionLabel student={student} />,
+                  searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
+                }))}
+              loadOptions={loadStudentOptions}
+              getStudentById={(studentId) => studentDetailCache[String(studentId)]}
+              baseStudents={editingStudentRows}
+              loading={enrollments.loading}
+            />
+          ) : (
+            <>
+              <EnrollmentManagementFilterSection
+                filters={filters}
+                loading={enrollments.loading}
+                onFilter={handleFilter}
+                onReset={() => handleFilter(defaultFilters)}
+                showCourse={false}
+              />
 
-          <EnrollmentManagementTableSection
-            enrollments={enrollments.data?.collection}
-            loading={enrollments.loading || mutationLoading}
-            sort={sort}
-            setSort={handleSort}
-            selectedIds={selectedIds}
-            setSelectedIds={setSelectedIds}
+              <EnrollmentManagementTableSection
+                enrollments={enrollments.data?.collection}
+                loading={enrollments.loading || mutationLoading}
+                sort={sort}
+                setSort={handleSort}
+                selectedIds={selectedIds}
+                setSelectedIds={setSelectedIds}
+                onWithdraw={handleWithdraw}
+                showCourse={false}
+                showGrossAmount={false}
+                readOnly={readOnly}
+                allowWithdraw={allowWithdraw}
+                renderStudentName={(name) => <CourseStudentTableLabel name={name} />}
+              />
 
-            onWithdraw={handleWithdraw}
-            showCourse={false}
-            showGrossAmount={false}
-            readOnly={readOnly}
-            allowWithdraw={allowWithdraw}
-          />
+              <GenericTablePagination
+                totalCount={enrollments.data?.totalCount}
+                totalPage={enrollments.data?.totalPage}
+                page={page}
+                setPage={handlePage}
+                pageSize={pageSize}
+                setPageSize={handlePageSize}
+                loading={enrollments.loading}
+              />
+            </>
+          )}
 
-          <GenericTablePagination
-            totalCount={enrollments.data?.totalCount}
-            totalPage={enrollments.data?.totalPage}
-            page={page}
-            setPage={handlePage}
-            pageSize={pageSize}
-            setPageSize={handlePageSize}
-            loading={enrollments.loading}
-          />
-
-          {!readOnly && (
+          {!readOnly && !editing && (
             <BulkActionBar
               selectedCount={selectedIds.length}
               loading={mutationLoading}
@@ -662,12 +751,6 @@ const CourseDetailPage = () => {
         </Flex>
       </Card>
 
-      <AssignStudentsDialog
-        open={openAssign}
-        onClose={() => setOpenAssign(false)}
-        fixedCourse={course}
-        onAssigned={handleAssigned}
-      />
     </Flex>
   )
 }
