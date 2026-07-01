@@ -6,7 +6,7 @@ import {
   SendOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { Alert, Button, Input, Modal, Progress, Spin, Tag } from 'antd'
+import { Alert, Button, Input, Modal, Progress, Spin, Tag, Tooltip } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 const INITIAL_MESSAGE = {
@@ -86,10 +86,22 @@ const FasFormAiChat = ({
     [scheme]
   )
 
+  const questionNumberMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (scheme?.additionalQuestions || []).map((question, index) => [
+          getQuestionId(question),
+          index + 1,
+        ])
+      ),
+    [scheme]
+  )
+
   const visibleSuggestions = useMemo(
     () => Object.entries(suggestions).filter(([questionId]) => Boolean(questionMap[questionId])),
     [questionMap, suggestions]
   )
+  const isReviewRequired = visibleSuggestions.length > 0
 
   const progress = useMemo(() => {
     const requiredQuestions = (scheme?.additionalQuestions || []).filter(
@@ -123,7 +135,7 @@ const FasFormAiChat = ({
   const handleSend = async (event, quickText, { appendUserMessage = true } = {}) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
-    if (!messageText || isSending || !questions.length) return
+    if (!messageText || isSending || !questions.length || isReviewRequired) return
 
     if (appendUserMessage) {
       setMessages((current) => [...current, { role: 'user', content: messageText }])
@@ -174,7 +186,7 @@ const FasFormAiChat = ({
     onApplySuggestion(questionId, value)
     removeSuggestion(questionId)
     delete dismissedSuggestionsRef.current[questionId]
-    setStatus('Suggestion applied. The application has not been submitted.')
+    setStatus('Answer applied. Not submitted.')
   }
 
   const requiresConfirmation = (questionId, value) => {
@@ -275,7 +287,7 @@ const FasFormAiChat = ({
       setConfirmationQueue([])
       setLastFailedMessage('')
       dismissedSuggestionsRef.current = {}
-      setStatus('Conversation reset without changing the form.')
+      setStatus('Conversation reset. Form answers preserved.')
     } catch (requestError) {
       setError(requestError.message || 'Could not reset the AI session.')
     }
@@ -369,7 +381,7 @@ const FasFormAiChat = ({
                   return (
                     <article className="fas-ai-suggestion-card" key={questionId}>
                       <div className="fas-ai-suggestion-meta">
-                        <span>Question {questionId}</span>
+                        <span>Question {questionNumberMap[questionId]}</span>
                         <Tag color="gold">Awaiting review</Tag>
                       </div>
                       <h5>{question?.questionText}</h5>
@@ -407,7 +419,16 @@ const FasFormAiChat = ({
             </section>
           )}
 
-          {status && <Alert type="success" showIcon message={status} closable />}
+          {status && (
+            <Alert
+              className="fas-ai-status-alert"
+              type="success"
+              showIcon
+              message={status}
+              closable
+              onClose={() => setStatus('')}
+            />
+          )}
           {error && (
             <Alert
               type="error"
@@ -432,25 +453,40 @@ const FasFormAiChat = ({
         </div>
 
         <footer className="fas-ai-composer-wrap">
-          <div className="fas-ai-composer">
-            <Input
-              aria-label="Message FAS Form Assistant"
-              value={inputValue}
-              placeholder="Describe your circumstances..."
-              disabled={isSending || !questions.length}
-              onChange={(event) => setInputValue(event.target.value)}
-              onPressEnter={handleSend}
-            />
-            <Button
-              type="primary"
-              shape="circle"
-              aria-label="Send message"
-              icon={<SendOutlined />}
-              loading={isSending}
-              disabled={!inputValue.trim() || isSending || !questions.length}
-              onClick={handleSend}
-            />
-          </div>
+          <Tooltip
+            title={
+              isReviewRequired
+                ? 'Please approve or dismiss the suggested answers before continuing the chat.'
+                : null
+            }
+            placement="top"
+          >
+            <div className={`fas-ai-composer${isReviewRequired ? ' is-review-locked' : ''}`}>
+              <Input
+                aria-label="Message FAS Form Assistant"
+                value={inputValue}
+                placeholder={
+                  isReviewRequired
+                    ? 'Review the suggested answers to continue...'
+                    : 'Describe your circumstances...'
+                }
+                disabled={isSending || !questions.length || isReviewRequired}
+                onChange={(event) => setInputValue(event.target.value)}
+                onPressEnter={handleSend}
+              />
+              <Button
+                type="primary"
+                shape="circle"
+                aria-label="Send message"
+                icon={<SendOutlined />}
+                loading={isSending}
+                disabled={
+                  !inputValue.trim() || isSending || !questions.length || isReviewRequired
+                }
+                onClick={handleSend}
+              />
+            </div>
+          </Tooltip>
         </footer>
       </div>
 

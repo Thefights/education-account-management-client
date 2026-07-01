@@ -1238,10 +1238,10 @@
 }
 
 .fas-ai-suggestions {
-  border: 1px solid #dbe5ff;
-  border-radius: 14px;
-  padding: 12px;
-  background: linear-gradient(180deg, #f7f9ff 0%, #f8fafc 100%);
+  border: 1px solid #dbe7fb;
+  border-radius: 16px;
+  padding: 13px;
+  background: linear-gradient(160deg, #f8fbff 0%, #f5f8ff 100%);
 }
 
 .fas-ai-suggestions-head,
@@ -1257,7 +1257,7 @@
   display: block;
   margin-bottom: 2px;
   color: var(--fas-primary);
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1266,27 +1266,31 @@
 .fas-ai-suggestions-head h4 {
   margin: 0;
   color: var(--fas-ink);
-  font-size: 13px;
+  font-size: 13.5px;
 }
 
 .fas-ai-suggestion-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .fas-ai-suggestion-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.035);
+  border: 1px solid #dce5f1;
+  border-left: 3px solid var(--fas-primary);
+  border-radius: 13px;
+  padding: 13px 13px 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 7px 20px rgba(30, 64, 175, 0.07);
 }
 
 .fas-ai-suggestion-meta > span:first-child {
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: var(--fas-primary-soft);
   color: var(--fas-primary);
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1294,21 +1298,25 @@
 
 .fas-ai-suggestion-meta .ant-tag {
   margin-inline-end: 0;
+  border: 0;
   border-radius: 999px;
+  padding: 2px 8px;
+  background: #fff7df;
+  color: #b7791f;
   font-size: 9.5px;
 }
 
 .fas-ai-suggestion-card h5 {
-  margin: 8px 0;
+  margin: 11px 1px;
   color: var(--fas-ink);
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 12.5px;
+  line-height: 1.5;
 }
 
 .fas-ai-current-answer,
 .fas-ai-proposed-answer {
-  border-radius: 9px;
-  padding: 9px 10px;
+  border-radius: 10px;
+  padding: 10px 11px;
 }
 
 .fas-ai-current-answer {
@@ -1318,7 +1326,7 @@
 
 .fas-ai-proposed-answer {
   border: 1px solid var(--app-primary-soft-border);
-  background: var(--fas-primary-soft);
+  background: linear-gradient(135deg, var(--fas-primary-soft), #f4f8ff);
 }
 
 .fas-ai-current-answer > span,
@@ -1337,13 +1345,72 @@
 .fas-ai-confirmation p {
   margin: 0;
   color: #334155;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.55;
 }
 
 .fas-ai-suggestion-actions {
   justify-content: flex-end;
-  margin-top: 10px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1f7;
+}
+
+.fas-ai-suggestion-actions .ant-btn {
+  min-height: 30px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.fas-ai-suggestion-actions .ant-btn-primary {
+  border: 0;
+  background: linear-gradient(135deg, var(--app-primary), var(--app-secondary));
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+.fas-ai-status-alert.ant-alert {
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid #d7e8d1;
+  border-left: 3px solid #52c41a;
+  border-radius: 9px;
+  padding: 5px 8px;
+  background: #f8fcf5;
+  box-shadow: 0 3px 10px rgba(46, 125, 50, 0.05);
+}
+
+.fas-ai-status-alert .ant-alert-icon {
+  margin-top: 0;
+  margin-inline-end: 7px;
+  font-size: 13px;
+}
+
+.fas-ai-status-alert.ant-alert .ant-alert-section,
+.fas-ai-status-alert.ant-alert .ant-alert-content {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.fas-ai-status-alert.ant-alert .ant-alert-title,
+.fas-ai-status-alert.ant-alert .ant-alert-message {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #355b2b !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+}
+
+.fas-ai-status-alert .ant-alert-close-icon {
+  margin-inline-start: 6px;
+  padding: 2px;
+  color: #789070;
+  font-size: 10px;
 }
 
 .fas-ai-composer-wrap {
@@ -1356,6 +1423,25 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.fas-ai-composer.is-review-locked {
+  cursor: not-allowed;
+}
+
+.fas-ai-composer.is-review-locked .ant-input,
+.fas-ai-composer.is-review-locked .ant-btn {
+  pointer-events: none;
+}
+
+.fas-ai-composer.is-review-locked .ant-input-disabled {
+  border-color: #f2d48a;
+  background: #fffbeb;
+  color: #8a6d1d;
+}
+
+.fas-ai-composer.is-review-locked .ant-input-disabled::placeholder {
+  color: #9a7b24;
 }
 
 .fas-ai-composer .ant-input {
