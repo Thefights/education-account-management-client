@@ -799,7 +799,7 @@ const ApplyForm = ({
 
   return (
     <div className="fas-page fas-page-account">
-      <div className="fas-frame">
+      <div className="fas-frame fas-apply-frame">
         <div className="fas-bar fas-apply-titlebar">
           <button className="fas-back-button" type="button" onClick={onBack}>
             <ArrowLeftOutlined />
