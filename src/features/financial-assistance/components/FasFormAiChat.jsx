@@ -52,7 +52,6 @@ const FasFormAiChat = ({
   const [suggestions, setSuggestions] = useState({})
   const [assistantState, setAssistantState] = useState(null)
   const [confirmationQueue, setConfirmationQueue] = useState([])
-  const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const [lastFailedMessage, setLastFailedMessage] = useState('')
   const [reviewDecision, setReviewDecision] = useState('')
@@ -141,6 +140,10 @@ const FasFormAiChat = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [isSending, messages, suggestions])
 
+  const addStatusMessage = (message) => {
+    setMessages((current) => [...current, { role: 'status', content: message }])
+  }
+
   const currentAnswers = () =>
     Object.fromEntries(
       questions.map((question) => [
@@ -152,7 +155,7 @@ const FasFormAiChat = ({
   const handleSend = async (
     event,
     quickText,
-    { appendUserMessage = true, allowDuringReview = false } = {}
+    { appendUserMessage = true, allowDuringReview = false, suppressAssistantMessage = false } = {}
   ) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
@@ -170,7 +173,6 @@ const FasFormAiChat = ({
     }
     setInputValue('')
     setError('')
-    setStatus('')
 
     try {
       const response = await onSendMessage({
@@ -188,12 +190,11 @@ const FasFormAiChat = ({
       const responsePendingQuestionId = String(
         response.assistant_state?.pending_update_question_id || ''
       )
-      const responsePendingField =
-        response.assistant_state?.questions?.[responsePendingQuestionId]
+      const responsePendingField = response.assistant_state?.questions?.[responsePendingQuestionId]
       const isPendingConfirmation =
         responsePendingField?.status === 'pending_update' && responsePendingField.pending_value
 
-      if (!isPendingConfirmation && response.reply) {
+      if (!suppressAssistantMessage && !isPendingConfirmation && response.reply) {
         setMessages((current) => [...current, { role: 'assistant', content: response.reply }])
       }
       setAssistantState(response.assistant_state || null)
@@ -221,6 +222,7 @@ const FasFormAiChat = ({
     const response = await handleSend(undefined, decision === 'approve' ? 'Yes' : 'No', {
       appendUserMessage: false,
       allowDuringReview: true,
+      suppressAssistantMessage: true,
     })
 
     if (response) {
@@ -234,9 +236,9 @@ const FasFormAiChat = ({
         delete dismissedSuggestionsRef.current[pendingUpdate.questionId]
       }
 
-      setStatus(
+      addStatusMessage(
         decision === 'approve'
-          ? 'Updated answer applied. Not submitted.'
+          ? 'Updated answer applied.'
           : 'Kept the current answer. The proposed update was dismissed.'
       )
     }
@@ -255,7 +257,7 @@ const FasFormAiChat = ({
     onApplySuggestion(questionId, value)
     removeSuggestion(questionId)
     delete dismissedSuggestionsRef.current[questionId]
-    setStatus('Answer applied. Not submitted.')
+    addStatusMessage('Answer applied.')
   }
 
   const requiresConfirmation = (questionId, value) => {
@@ -283,7 +285,7 @@ const FasFormAiChat = ({
   const rejectSuggestion = (questionId, value) => {
     dismissedSuggestionsRef.current[questionId] = value
     removeSuggestion(questionId)
-    setStatus('Suggestion dismissed. The form was not changed.')
+    addStatusMessage('Suggestion dismissed. The form was not changed.')
   }
 
   const handleApplyAll = () => {
@@ -313,11 +315,11 @@ const FasFormAiChat = ({
 
     if (conflicts.length) {
       setConfirmationQueue(conflicts)
-      setStatus(
+      addStatusMessage(
         `Applied ${Object.keys(answersToApply).length} suggestions. ${conflicts.length} need confirmation.`
       )
     } else {
-      setStatus(`Applied ${Object.keys(answersToApply).length} suggestions.`)
+      addStatusMessage(`Applied ${Object.keys(answersToApply).length} suggestions.`)
     }
   }
 
@@ -332,7 +334,7 @@ const FasFormAiChat = ({
   }
 
   const keepCurrentAnswer = () => {
-    setStatus('Kept the current answer. The suggestion is still available for review.')
+    addStatusMessage('Kept the current answer. The suggestion is still available for review.')
     advanceConfirmation()
   }
 
@@ -350,13 +352,16 @@ const FasFormAiChat = ({
           role: 'assistant',
           content: 'The conversation has been reset. Your existing form answers were preserved.',
         },
+        {
+          role: 'status',
+          content: 'Conversation reset. Form answers preserved.',
+        },
       ])
       setSuggestions({})
       setAssistantState(null)
       setConfirmationQueue([])
       setLastFailedMessage('')
       dismissedSuggestionsRef.current = {}
-      setStatus('Conversation reset. Form answers preserved.')
     } catch (requestError) {
       setError(requestError.message || 'Could not reset the AI session.')
     }
@@ -403,17 +408,27 @@ const FasFormAiChat = ({
 
         <div className="fas-ai-scroll-area">
           <div className="fas-ai-messages" aria-live="polite">
-            {messages.map((chatMessage, index) => (
-              <div
-                className={`fas-ai-message ${chatMessage.role}`}
-                key={`${chatMessage.role}-${index}`}
-              >
-                <span className="fas-ai-message-avatar">
-                  {chatMessage.role === 'assistant' ? <RobotOutlined /> : <UserOutlined />}
-                </span>
-                <div className="fas-ai-bubble">{chatMessage.content}</div>
-              </div>
-            ))}
+            {messages.map((chatMessage, index) =>
+              chatMessage.role === 'status' ? (
+                <Alert
+                  className="fas-ai-status-alert"
+                  key={`${chatMessage.role}-${index}`}
+                  type="success"
+                  showIcon
+                  message={chatMessage.content}
+                />
+              ) : (
+                <div
+                  className={`fas-ai-message ${chatMessage.role}`}
+                  key={`${chatMessage.role}-${index}`}
+                >
+                  <span className="fas-ai-message-avatar">
+                    {chatMessage.role === 'assistant' ? <RobotOutlined /> : <UserOutlined />}
+                  </span>
+                  <div className="fas-ai-bubble">{chatMessage.content}</div>
+                </div>
+              )
+            )}
 
             {isSending && (
               <div className="fas-ai-message assistant">
@@ -444,7 +459,10 @@ const FasFormAiChat = ({
 
               <div className="fas-ai-suggestion-list">
                 {pendingUpdate && (
-                  <article className="fas-ai-suggestion-card" key={`pending-${pendingUpdate.questionId}`}>
+                  <article
+                    className="fas-ai-suggestion-card"
+                    key={`pending-${pendingUpdate.questionId}`}
+                  >
                     <div className="fas-ai-suggestion-meta">
                       <span>Question {questionNumberMap[pendingUpdate.questionId]}</span>
                       <Tag color="gold">Confirmation required</Tag>
@@ -526,16 +544,6 @@ const FasFormAiChat = ({
             </section>
           )}
 
-          {status && (
-            <Alert
-              className="fas-ai-status-alert"
-              type="success"
-              showIcon
-              message={status}
-              closable
-              onClose={() => setStatus('')}
-            />
-          )}
           {error && (
             <Alert
               type="error"
@@ -587,9 +595,7 @@ const FasFormAiChat = ({
                 aria-label="Send message"
                 icon={<SendOutlined />}
                 loading={isSending}
-                disabled={
-                  !inputValue.trim() || isSending || !questions.length || isComposerLocked
-                }
+                disabled={!inputValue.trim() || isSending || !questions.length || isComposerLocked}
                 onClick={handleSend}
               />
             </div>

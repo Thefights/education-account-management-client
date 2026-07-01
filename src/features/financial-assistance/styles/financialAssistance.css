@@ -1406,13 +1406,6 @@
   white-space: nowrap !important;
 }
 
-.fas-ai-status-alert .ant-alert-close-icon {
-  margin-inline-start: 6px;
-  padding: 2px;
-  color: #789070;
-  font-size: 10px;
-}
-
 .fas-ai-composer-wrap {
   border-top: 1px solid var(--app-border-color);
   padding: 12px;
