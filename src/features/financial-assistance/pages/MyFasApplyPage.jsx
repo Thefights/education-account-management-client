@@ -41,7 +41,7 @@ import {
   UpOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { Button, Checkbox, Input, InputNumber, Select, Upload, message } from 'antd'
+import { Button, Checkbox, Input, InputNumber, Select, Upload, message, theme } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FasFormAiChat from '@/features/financial-assistance/components/FasFormAiChat'
@@ -651,6 +651,7 @@ const ApplyForm = ({
 }) => {
   const [submitting, setSubmitting] = useState(false)
   const [isDeclared, setIsDeclared] = useState(false)
+  const { token } = theme.useToken()
   const [isAiBlockedByRequest, setIsAiBlockedByRequest] = useState(false)
   const { t } = useTranslation()
   const submitApplication = useAxiosSubmit({
@@ -824,7 +825,7 @@ const ApplyForm = ({
                 </div>
               </div>
 
-              <section className="fas-apply-step-card">
+              <section className="fas-apply-step-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary, color: token.colorText }}>
                 <div className="fas-apply-step-head">
                   <span className="fas-block-number">1</span>
                   <div>
@@ -836,7 +837,7 @@ const ApplyForm = ({
                 <PersonalInfoFields profile={profile} />
               </section>
 
-              <section className="fas-apply-step-card">
+              <section className="fas-apply-step-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary, color: token.colorText }}>
                 <div className="fas-apply-step-head">
                   <span className="fas-block-number">2</span>
                   <div>
@@ -854,7 +855,7 @@ const ApplyForm = ({
               </section>
 
               {scheme.additionalQuestions?.length > 0 && (
-                <section className="fas-apply-step-card">
+                <section className="fas-apply-step-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary, color: token.colorText }}>
                   <div className="fas-apply-step-head">
                     <span className="fas-block-number">3</span>
                     <div>
@@ -924,7 +925,7 @@ const ApplyForm = ({
                 </section>
               )}
 
-              <section className="fas-apply-step-card">
+              <section className="fas-apply-step-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary, color: token.colorText }}>
                 <div className="fas-apply-step-head">
                   <span className="fas-block-number">
                     {scheme.additionalQuestions?.length > 0 ? '4' : '3'}
@@ -988,7 +989,7 @@ const ApplyForm = ({
               </section>
 
               <section
-                className="fas-apply-step-card"
+                className="fas-apply-step-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary, color: token.colorText }}
                 style={{
                   marginTop: '24px',
                   backgroundColor: 'transparent',
@@ -1082,7 +1083,7 @@ const ApplyForm = ({
             </div>
 
             <aside className="fas-apply-summary">
-              <div className="fas-summary-card fas-ai-shell">
+              <div className="fas-summary-card fas-ai-shell" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary, color: token.colorText }}>
                 <FasFormAiChat
                   key={getSchemeLookupIds(scheme).join(':')}
                   scheme={scheme}
