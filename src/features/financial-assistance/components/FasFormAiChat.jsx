@@ -202,11 +202,7 @@ const FasFormAiChat = ({
   ) => {
     event?.preventDefault?.()
     const messageText = String(quickText ?? inputValue).trim()
-    if (
-      !messageText ||
-      isComposerBlocked ||
-      (isComposerLocked && !allowDuringReview)
-    ) {
+    if (!messageText || isComposerBlocked || (isComposerLocked && !allowDuringReview)) {
       return null
     }
 
@@ -489,6 +485,7 @@ const FasFormAiChat = ({
       gap: 12px;
       max-height: 430px;
       min-height: 220px;
+      overflow-x: hidden;
       overflow-y: auto;
       padding: 14px;
     }
@@ -533,16 +530,43 @@ const FasFormAiChat = ({
       display: flex;
       flex-direction: column;
       gap: 12px;
+      min-width: 0;
       padding: 12px;
     }
 
     .fas-ai-suggestions-head,
-    .fas-ai-suggestion-meta,
-    .fas-ai-suggestion-actions {
+    .fas-ai-suggestion-meta {
       align-items: center;
       display: flex;
       gap: 8px;
       justify-content: space-between;
+      min-width: 0;
+    }
+
+    .fas-ai-suggestions-head,
+    .fas-ai-suggestion-meta {
+      flex-wrap: wrap;
+    }
+
+    .fas-ai-suggestion-actions {
+      align-items: stretch;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .fas-ai-suggestion-actions .ant-btn {
+      flex: 1 1 120px;
+      min-width: 0;
+    }
+
+    .fas-ai-suggestion-actions .ant-btn > span:not(.anticon) {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .fas-ai-kicker {
@@ -579,6 +603,7 @@ const FasFormAiChat = ({
       display: flex;
       flex-direction: column;
       gap: 10px;
+      min-width: 0;
       padding: 12px;
     }
 
@@ -600,6 +625,7 @@ const FasFormAiChat = ({
     .fas-ai-proposed-answer,
     .fas-ai-confirmation .is-new {
       border-radius: ${token.borderRadius}px;
+      min-width: 0;
       padding: 10px;
     }
 
@@ -652,7 +678,13 @@ const FasFormAiChat = ({
           </div>
         </header>
 
-        <div className="fas-ai-progress" style={{ background: token.colorBgElevated, borderBottomColor: token.colorBorderSecondary }}>
+        <div
+          className="fas-ai-progress"
+          style={{
+            background: token.colorBgElevated,
+            borderBottomColor: token.colorBorderSecondary,
+          }}
+        >
           <span>Required answers</span>
           <Progress
             percent={progress.total ? (progress.completed / progress.total) * 100 : 100}
@@ -701,7 +733,16 @@ const FasFormAiChat = ({
                   <span className="fas-ai-message-avatar">
                     {chatMessage.role === 'assistant' ? <RobotOutlined /> : <UserOutlined />}
                   </span>
-                  <div className="fas-ai-bubble" style={{ background: token.colorBgElevated, color: token.colorText, borderColor: token.colorBorderSecondary }}>{chatMessage.content}</div>
+                  <div
+                    className="fas-ai-bubble"
+                    style={{
+                      background: token.colorBgElevated,
+                      color: token.colorText,
+                      borderColor: token.colorBorderSecondary,
+                    }}
+                  >
+                    {chatMessage.content}
+                  </div>
                 </div>
               )
             )}
@@ -711,7 +752,15 @@ const FasFormAiChat = ({
                 <span className="fas-ai-message-avatar">
                   <RobotOutlined />
                 </span>
-                <div className="fas-ai-bubble fas-ai-typing" aria-label="AI is processing" style={{ background: token.colorBgElevated, borderColor: token.colorBorderSecondary, color: token.colorTextSecondary }}>
+                <div
+                  className="fas-ai-bubble fas-ai-typing"
+                  aria-label="AI is processing"
+                  style={{
+                    background: token.colorBgElevated,
+                    borderColor: token.colorBorderSecondary,
+                    color: token.colorTextSecondary,
+                  }}
+                >
                   <Spin size="small" />
                   <span>Typing...</span>
                 </div>
@@ -720,7 +769,11 @@ const FasFormAiChat = ({
           </div>
 
           {isReviewRequired && (
-            <section className="fas-ai-suggestions" aria-label="AI suggestions" style={{ background: token.colorBgLayout, borderColor: token.colorBorderSecondary }}>
+            <section
+              className="fas-ai-suggestions"
+              aria-label="AI suggestions"
+              style={{ background: token.colorBgLayout, borderColor: token.colorBorderSecondary }}
+            >
               <div className="fas-ai-suggestions-head">
                 <div>
                   <span className="fas-ai-kicker">Ready for review</span>
@@ -736,7 +789,11 @@ const FasFormAiChat = ({
               <div className="fas-ai-suggestion-list">
                 {pendingUpdate && (
                   <article
-                    className="fas-ai-suggestion-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary }}
+                    className="fas-ai-suggestion-card"
+                    style={{
+                      background: token.colorBgContainer,
+                      borderColor: token.colorBorderSecondary,
+                    }}
                     key={`pending-${pendingUpdate.questionId}`}
                   >
                     <div className="fas-ai-suggestion-meta">
@@ -744,11 +801,17 @@ const FasFormAiChat = ({
                       <Tag color="gold">Confirmation required</Tag>
                     </div>
                     <h5>{pendingUpdate.questionText}</h5>
-                    <div className="fas-ai-current-answer" style={{ background: token.colorBgLayout }}>
+                    <div
+                      className="fas-ai-current-answer"
+                      style={{ background: token.colorBgLayout }}
+                    >
                       <span>Current answer</span>
                       <p>{pendingUpdate.currentValue || 'No current answer'}</p>
                     </div>
-                    <div className="fas-ai-proposed-answer" style={{ background: token.colorBgLayout }}>
+                    <div
+                      className="fas-ai-proposed-answer"
+                      style={{ background: token.colorBgLayout }}
+                    >
                       <span>Proposed update</span>
                       <p>{pendingUpdate.newValue}</p>
                     </div>
@@ -770,7 +833,7 @@ const FasFormAiChat = ({
                         disabled={Boolean(reviewDecision)}
                         onClick={() => submitPendingDecision('approve')}
                       >
-                        Approve answer
+                        Approve
                       </Button>
                     </div>
                   </article>
@@ -780,19 +843,32 @@ const FasFormAiChat = ({
                   const currentValue = String(additionalAnswers?.[questionId] || '').trim()
 
                   return (
-                    <article className="fas-ai-suggestion-card" style={{ background: token.colorBgContainer, borderColor: token.colorBorderSecondary }} key={questionId}>
+                    <article
+                      className="fas-ai-suggestion-card"
+                      style={{
+                        background: token.colorBgContainer,
+                        borderColor: token.colorBorderSecondary,
+                      }}
+                      key={questionId}
+                    >
                       <div className="fas-ai-suggestion-meta">
                         <span>Question {questionNumberMap[questionId]}</span>
                         <Tag color="gold">Awaiting review</Tag>
                       </div>
                       <h5>{question?.questionText}</h5>
                       {currentValue && currentValue !== value && (
-                        <div className="fas-ai-current-answer" style={{ background: token.colorBgLayout }}>
+                        <div
+                          className="fas-ai-current-answer"
+                          style={{ background: token.colorBgLayout }}
+                        >
                           <span>Current answer</span>
                           <p>{currentValue}</p>
                         </div>
                       )}
-                      <div className="fas-ai-proposed-answer" style={{ background: token.colorBgLayout }}>
+                      <div
+                        className="fas-ai-proposed-answer"
+                        style={{ background: token.colorBgLayout }}
+                      >
                         <span>AI suggestion</span>
                         <p>{value}</p>
                       </div>
@@ -810,7 +886,7 @@ const FasFormAiChat = ({
                           icon={<CheckOutlined />}
                           onClick={() => applySuggestion(questionId, value)}
                         >
-                          Approve answer
+                          Approve
                         </Button>
                       </div>
                     </article>
@@ -843,7 +919,10 @@ const FasFormAiChat = ({
           <div ref={messagesEndRef} />
         </div>
 
-        <footer className="fas-ai-composer-wrap" style={{ background: token.colorBgElevated, borderTopColor: token.colorBorderSecondary }}>
+        <footer
+          className="fas-ai-composer-wrap"
+          style={{ background: token.colorBgElevated, borderTopColor: token.colorBorderSecondary }}
+        >
           <Tooltip
             title={
               isComposerLocked
