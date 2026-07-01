@@ -75,6 +75,7 @@ export const routeUrls = {
   FAS_ADMIN: {
     SCHEMES: '/fas/schemes',
     SCHEME_CREATE: '/fas/schemes/create',
+    SCHEME_DETAIL: (id = ':id') => `/fas/schemes/${id}`,
     APPLICATIONS: '/fas/applications',
   },
   LEGACY_TOPUP: {

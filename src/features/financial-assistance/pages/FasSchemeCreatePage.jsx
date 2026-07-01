@@ -4,6 +4,7 @@ import {
   buildSchemePayload,
   createEmptyScheme,
   createEmptyTier,
+  getDerivedTiers,
   validateTierConfiguration,
 } from '@/features/financial-assistance/utils/fasFormUtil'
 import { ApiUrls } from '@/shared/api/apiUrls'
@@ -73,7 +74,7 @@ const TitleWithHelp = ({ title, help }) => (
   </Flex>
 )
 
-const FormSection = ({ title, help, children }) => (
+export const FormSection = ({ title, help, children }) => (
   <section
     style={{
       paddingBlock: 24,
@@ -113,36 +114,7 @@ const usesGrossRange = (tier) =>
   tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.GrossHouseholdIncome ||
   tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
 
-const getDerivedTiers = (tiers) => {
-  let nextPerCapitaStart
-  let nextGrossStart
-
-  return tiers.map((tier) => {
-    const derived = { ...tier }
-
-    if (usesPerCapitaRange(tier)) {
-      derived.minPerCapitaIncome =
-        nextPerCapitaStart === undefined ? (tier.minPerCapitaIncome ?? 0) : nextPerCapitaStart
-      nextPerCapitaStart = tier.maxPerCapitaIncome ?? ''
-    } else {
-      derived.minPerCapitaIncome = ''
-      derived.maxPerCapitaIncome = ''
-    }
-
-    if (usesGrossRange(tier)) {
-      derived.minGrossHouseholdIncome =
-        nextGrossStart === undefined ? (tier.minGrossHouseholdIncome ?? 0) : nextGrossStart
-      nextGrossStart = tier.maxGrossHouseholdIncome ?? ''
-    } else {
-      derived.minGrossHouseholdIncome = ''
-      derived.maxGrossHouseholdIncome = ''
-    }
-
-    return derived
-  })
-}
-
-const TierEditor = ({ tiers, setTiers }) => {
+export const TierEditor = ({ tiers, setTiers }) => {
   const { fasSubsidyTypeOptions, fasTierIncomeBasisOptions } = useEnum()
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const derivedTiers = useMemo(() => getDerivedTiers(tiers), [tiers])
@@ -378,7 +350,7 @@ const TierEditor = ({ tiers, setTiers }) => {
   )
 }
 
-const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
+export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
   <Space direction="vertical" size={12} style={{ width: '100%' }}>
     <Typography.Text type="secondary">
       Template files support PDF or Word format only (.pdf, .docx).
@@ -487,7 +459,7 @@ const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
   </Space>
 )
 
-const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
+export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
   <Space direction="vertical" size={12} style={{ width: '100%' }}>
     {!questions.length && (
       <Typography.Text type="secondary">

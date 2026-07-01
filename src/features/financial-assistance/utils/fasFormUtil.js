@@ -125,6 +125,43 @@ export const createEmptyTier = (index = 0) => ({
   displayOrder: index + 1,
 })
 
+const usesPerCapitaRange = (tier) =>
+  tier.tierIncomeBasis === FasTierIncomeBasis.PerCapitaIncome ||
+  tier.tierIncomeBasis === FasTierIncomeBasis.PerCapitaOrGrossHouseholdIncome
+
+const usesGrossRange = (tier) =>
+  tier.tierIncomeBasis === FasTierIncomeBasis.GrossHouseholdIncome ||
+  tier.tierIncomeBasis === FasTierIncomeBasis.PerCapitaOrGrossHouseholdIncome
+
+export const getDerivedTiers = (tiers) => {
+  let nextPerCapitaStart
+  let nextGrossStart
+
+  return tiers.map((tier) => {
+    const derived = { ...tier }
+
+    if (usesPerCapitaRange(tier)) {
+      derived.minPerCapitaIncome =
+        nextPerCapitaStart === undefined ? (tier.minPerCapitaIncome ?? 0) : nextPerCapitaStart
+      nextPerCapitaStart = tier.maxPerCapitaIncome ?? ''
+    } else {
+      derived.minPerCapitaIncome = ''
+      derived.maxPerCapitaIncome = ''
+    }
+
+    if (usesGrossRange(tier)) {
+      derived.minGrossHouseholdIncome =
+        nextGrossStart === undefined ? (tier.minGrossHouseholdIncome ?? 0) : nextGrossStart
+      nextGrossStart = tier.maxGrossHouseholdIncome ?? ''
+    } else {
+      derived.minGrossHouseholdIncome = ''
+      derived.maxGrossHouseholdIncome = ''
+    }
+
+    return derived
+  })
+}
+
 export const createEmptyScheme = () => ({
   id: null,
   schemeName: '',
