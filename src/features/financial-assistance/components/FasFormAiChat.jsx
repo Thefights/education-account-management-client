@@ -380,8 +380,263 @@ const FasFormAiChat = ({
     advanceConfirmation()
   }
 
+  const componentStyles = `
+    .fas-ai-chat {
+      border: 1px solid ${token.colorBorderSecondary};
+      border-radius: ${token.borderRadiusLG}px;
+      color: ${token.colorText};
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      line-height: 1.45;
+      min-height: 420px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .fas-ai-chat-header {
+      align-items: center;
+      border-bottom: 1px solid ${token.colorBorderSecondary};
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 16px;
+    }
+
+    .fas-ai-identity,
+    .fas-ai-message,
+    .fas-ai-composer {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .fas-ai-avatar,
+    .fas-ai-message-avatar {
+      align-items: center;
+      background: ${token.colorPrimaryBg};
+      border: 1px solid ${token.colorPrimaryBorder};
+      border-radius: 999px;
+      color: ${token.colorPrimary};
+      display: inline-flex;
+      flex: 0 0 auto;
+      justify-content: center;
+    }
+
+    .fas-ai-avatar {
+      font-size: 17px;
+      height: 34px;
+      width: 34px;
+    }
+
+    .fas-ai-message-avatar {
+      font-size: 13px;
+      height: 26px;
+      width: 26px;
+    }
+
+    .fas-ai-title-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .fas-ai-title-row strong {
+      color: ${token.colorText};
+      font-size: 14px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fas-ai-presence {
+      align-items: center;
+      color: ${token.colorTextSecondary};
+      display: inline-flex;
+      font-size: 12px;
+      gap: 6px;
+    }
+
+    .fas-ai-presence i {
+      background: ${isAiUnavailable ? token.colorWarning : token.colorSuccess};
+      border-radius: 50%;
+      display: inline-block;
+      height: 7px;
+      width: 7px;
+    }
+
+    .fas-ai-progress {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: auto minmax(64px, 1fr) auto;
+      padding: 12px 16px;
+    }
+
+    .fas-ai-progress span,
+    .fas-ai-progress strong {
+      color: ${token.colorTextSecondary};
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .fas-ai-scroll-area {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 430px;
+      min-height: 220px;
+      overflow-y: auto;
+      padding: 14px;
+    }
+
+    .fas-ai-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .fas-ai-message.user {
+      flex-direction: row-reverse;
+    }
+
+    .fas-ai-bubble {
+      border: 1px solid ${token.colorBorderSecondary};
+      border-radius: ${token.borderRadiusLG}px;
+      flex: 1;
+      max-width: 100%;
+      padding: 10px 12px;
+      word-break: break-word;
+    }
+
+    .fas-ai-message.user .fas-ai-bubble {
+      background: ${token.colorPrimaryBg} !important;
+      border-color: ${token.colorPrimaryBorder} !important;
+    }
+
+    .fas-ai-typing {
+      align-items: center;
+      display: inline-flex;
+      gap: 8px;
+    }
+
+    .fas-ai-status-alert {
+      font-size: 13px;
+    }
+
+    .fas-ai-suggestions {
+      border: 1px solid ${token.colorBorderSecondary};
+      border-radius: ${token.borderRadiusLG}px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .fas-ai-suggestions-head,
+    .fas-ai-suggestion-meta,
+    .fas-ai-suggestion-actions {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .fas-ai-kicker {
+      color: ${token.colorPrimary};
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .fas-ai-suggestions h4,
+    .fas-ai-suggestion-card h5,
+    .fas-ai-current-answer p,
+    .fas-ai-proposed-answer p {
+      margin: 0;
+    }
+
+    .fas-ai-suggestions h4 {
+      color: ${token.colorText};
+      font-size: 14px;
+      margin-top: 2px;
+    }
+
+    .fas-ai-suggestion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fas-ai-suggestion-card {
+      border: 1px solid ${token.colorBorderSecondary};
+      border-radius: ${token.borderRadiusLG}px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .fas-ai-suggestion-meta span,
+    .fas-ai-current-answer span,
+    .fas-ai-proposed-answer span,
+    .fas-ai-confirmation span {
+      color: ${token.colorTextSecondary};
+      font-size: 12px;
+    }
+
+    .fas-ai-suggestion-card h5 {
+      color: ${token.colorText};
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .fas-ai-current-answer,
+    .fas-ai-proposed-answer,
+    .fas-ai-confirmation .is-new {
+      border-radius: ${token.borderRadius}px;
+      padding: 10px;
+    }
+
+    .fas-ai-current-answer p,
+    .fas-ai-proposed-answer p,
+    .fas-ai-confirmation p {
+      color: ${token.colorText};
+      font-size: 13px;
+    }
+
+    .fas-ai-composer-wrap {
+      border-top: 1px solid ${token.colorBorderSecondary};
+      padding: 12px;
+    }
+
+    .fas-ai-composer .ant-input {
+      min-width: 0;
+    }
+
+    .fas-ai-composer .ant-btn {
+      flex: 0 0 auto;
+    }
+
+    .fas-ai-confirmation {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .fas-ai-confirm-question {
+      font-weight: 700;
+    }
+  `
+
   return (
     <>
+      <style>{componentStyles}</style>
       <div className="fas-ai-chat" style={{ background: token.colorBgLayout }}>
         <header className="fas-ai-chat-header">
           <div className="fas-ai-identity">
