@@ -1,7 +1,7 @@
 {
   "school_management": {
     "menu_label": "学校管理",
-    "title": { "management": "学校管理", "create": "创建学校", "update": "更新学校" },
+    "title": { "management": "学校管理", "create": "创建学校", "detail": "学校详情", "update": "更新学校" },
     "field": {
       "id": "ID",
       "school_name": "学校名称",

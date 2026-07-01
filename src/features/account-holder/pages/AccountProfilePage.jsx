@@ -2,9 +2,10 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { formatDateToDDMMYYYY } from '@/shared/utils/formatDateUtil'
 import { BankOutlined, UserOutlined } from '@ant-design/icons'
 import { Card, Descriptions, Flex, Grid, Skeleton, Statistic, Typography, theme } from 'antd'
-import AccountTransactionHistoryPage from './AccountTransactionHistoryPage'
 
 const AccountProfilePage = () => {
   const { t } = useTranslation()
@@ -21,11 +22,15 @@ const AccountProfilePage = () => {
     },
     { key: 'name', label: t('account_profile.name'), children: data?.name },
     { key: 'nric', label: t('account_profile.nric'), children: <MaskedNric value={data?.nric} /> },
-    { key: 'dateOfBirth', label: t('account_profile.date_of_birth'), children: data?.dateOfBirth },
+    {
+      key: 'dateOfBirth',
+      label: t('account_profile.date_of_birth'),
+      children: formatDateToDDMMYYYY(data?.dateOfBirth),
+    },
     {
       key: 'expectedClosingDate',
       label: t('education_account.expected_closing_date'),
-      children: data?.expectedClosingDate,
+      children: formatDateToDDMMYYYY(data?.expectedClosingDate),
     },
     { key: 'email', label: t('account_profile.email'), children: data?.email },
     { key: 'phoneNumber', label: t('account_profile.phone'), children: data?.phoneNumber },
@@ -89,7 +94,7 @@ const AccountProfilePage = () => {
               <Statistic
                 title={t('account_profile.balance')}
                 value={data?.balance}
-                precision={2}
+                formatter={(value) => formatCurrencyBasedOnCurrentLanguage(value)}
                 valueStyle={{ color: token.colorPrimary, fontWeight: 700, fontSize: 30 }}
               />
             </Flex>
@@ -111,7 +116,6 @@ const AccountProfilePage = () => {
               contentStyle={{ color: token.colorText, fontWeight: 600 }}
             />
           </Card>
-          <AccountTransactionHistoryPage />
         </>
       )}
     </Flex>

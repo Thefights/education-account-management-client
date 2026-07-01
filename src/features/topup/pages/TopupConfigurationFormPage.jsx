@@ -7,12 +7,11 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { localDateTimeToIso, toLocalPickerValue } from '@/shared/utils/dateTimeUtil'
+import { localDateTimeToIso } from '@/shared/utils/dateTimeUtil'
 import { getCurrencySymbolBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { maxLen, numberHigherThan } from '@/shared/utils/validateUtil'
 import { ArrowLeftOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Flex, Row, Skeleton, Tooltip, Typography, theme } from 'antd'
-import dayjs from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import TopupRuleConditionsField from '../components/TopupRuleConditionsField'
@@ -22,24 +21,7 @@ import {
   normalizeTopupConditionGroup,
   serializeTopupConditionGroup,
 } from '../utils/topupRuleFormUtil'
-
-const getScheduleExecutionAt = (data = {}) => {
-  if (data.oneTimeExecutionAt) return toLocalPickerValue(data.oneTimeExecutionAt)
-
-  const [hour = 0, minute = 0, second = 0] = String(data.executionTime || '00:00:00')
-    .split(':')
-    .map((value) => Number(value))
-  const now = dayjs()
-  const month = Number(data.executeAtMonth) || now.month() + 1
-  const day = Number(data.executeAtDay) || now.date()
-
-  return dayjs()
-    .month(month - 1)
-    .date(day)
-    .hour(hour)
-    .minute(minute)
-    .second(second)
-}
+import { getScheduleExecutionAt } from '../utils/topupScheduleUtil'
 
 const TitleWithHelp = ({ title, help }) => {
   const { token } = theme.useToken()

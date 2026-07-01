@@ -157,7 +157,7 @@ const CourseManagementPage = () => {
     await courses.fetch()
     const duplicateId = response?.data?.id
     if (duplicateId) {
-      navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(duplicateId)))
+      navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(duplicateId)))
     }
   }
 
@@ -189,9 +189,6 @@ const CourseManagementPage = () => {
           setSort={handleSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-          onEdit={(row) =>
-            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.EDIT(row.id)))
-          }
           onDuplicate={handleDuplicate}
           onDetail={(row) =>
             navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(row.id)))

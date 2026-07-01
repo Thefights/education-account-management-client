@@ -1,4 +1,12 @@
+import {
+  CompactEntityLabel,
+  CourseFasSchemeOptionLabel,
+  CourseStudentOptionLabel,
+} from '@/features/course-management/components/CourseEntityLabels'
+import CourseStudentPicker from '@/features/course-management/components/CourseStudentPicker'
 import { ApiUrls } from '@/shared/api/apiUrls'
+import axiosConfig from '@/shared/api/axiosClient'
+import InlineAsyncMultiSelect from '@/shared/components/generals/InlineAsyncMultiSelect'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
@@ -24,38 +32,6 @@ import { Button, Card, Col, Flex, Row, Space, Tag, Typography, message, theme } 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-const getStudentLabel = (student) => (
-  <div
-    style={{ display: 'flex', alignItems: 'center', gap: 4 }}
-    onClick={(e) => e.stopPropagation()}
-  >
-    {student.fullName && <span>{student.fullName}</span>}
-    {student.fullName && student.accountNumber && <span>&middot;</span>}
-    {student.accountNumber && <span>{student.accountNumber}</span>}
-  </div>
-)
-
-const getFasSchemeLabel = (scheme) => (
-  <Space
-    direction="vertical"
-    size={2}
-    style={{ width: '100%' }}
-    onClick={(e) => e.stopPropagation()}
-  >
-    <Space size={6} wrap>
-      <Typography.Text strong>{scheme.schemeName}</Typography.Text>
-      {scheme.schemeCode && <Typography.Text code>{scheme.schemeCode}</Typography.Text>}
-      {scheme.status && (
-        <Tag color={scheme.status === 'Active' ? 'green' : 'default'}>{scheme.status}</Tag>
-      )}
-    </Space>
-    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-      {scheme.subsidyType || '-'} · {scheme.isPerComponent ? 'Per component' : 'Standard'} ·{' '}
-      {scheme.durationInMonths || 0} months
-    </Typography.Text>
-  </Space>
-)
-
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
   courseFeeAmount: course.courseFeeAmount ?? 0,
@@ -73,7 +49,7 @@ const FormSectionCard = ({ titleKey, title, icon, children, t }) => (
     title={
       <Space>
         {icon}
-        <span>{title || t(`course_management.section.${titleKey}`)}</span>
+        {title || <span>{t(`course_management.section.${titleKey}`)}</span>}
       </Space>
     }
     size="small"
@@ -90,6 +66,8 @@ const getAmount = (value) => Number(value || 0)
 
 const computeGstAmount = (courseFeeAmount, miscFeeAmount) =>
   Math.round((getAmount(courseFeeAmount) + getAmount(miscFeeAmount)) * TAX_RATE * 100) / 100
+
+const getArrayLength = (value) => (Array.isArray(value) ? value.length : 0)
 
 const CourseManagementFormPage = () => {
   const { id } = useParams()
@@ -108,14 +86,6 @@ const CourseManagementFormPage = () => {
   const save = useAxiosSubmit({
     url: isEdit ? ApiUrls.COURSE_MANAGEMENT.DETAIL(id) : ApiUrls.COURSE_MANAGEMENT.INDEX,
     method: isEdit ? 'PUT' : 'POST',
-  })
-  const fetchStudentOptions = useAxiosSubmit({
-    url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
-    method: 'GET',
-  })
-  const fetchFasOptions = useAxiosSubmit({
-    url: ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX,
-    method: 'GET',
   })
   const publishCourse = useAxiosSubmit({
     url: ApiUrls.COURSE_MANAGEMENT.PUBLISH,
@@ -148,55 +118,49 @@ const CourseManagementFormPage = () => {
     queueMicrotask(() => setSubmitted(false))
   }, [course.data, isEdit, reset, resetValidation])
 
-  const loadStudentOptions = useCallback(
-    async ({ search, page, pageSize }) => {
-      const response = await fetchStudentOptions.submit({
-        overrideParam: { search, page, pageSize },
-      })
-      const result = response?.data
-      const students = (result?.collection || []).filter((student) => student.status === 'Active')
-      setStudentOptionCache((current) =>
-        Object.fromEntries([
-          ...Object.entries(current),
-          ...students.map((student) => [String(student.id), student]),
-        ])
-      )
-      return {
-        options: students.map((student) => ({
-          value: student.id,
-          label: getStudentLabel(student),
-          searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
-        })),
-        totalCount: result?.totalCount || 0,
-      }
-    },
-    [fetchStudentOptions.submit]
-  )
+  const loadStudentOptions = useCallback(async ({ search, page, pageSize }) => {
+    const response = await axiosConfig.get(ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX, {
+      params: { search, page, pageSize },
+    })
+    const result = response?.data
+    const students = (result?.collection || []).filter((student) => student.status === 'Active')
+    setStudentOptionCache((current) =>
+      Object.fromEntries([
+        ...Object.entries(current),
+        ...students.map((student) => [String(student.id), student]),
+      ])
+    )
+    return {
+      options: students.map((student) => ({
+        value: student.id,
+        label: <CourseStudentOptionLabel student={student} />,
+        searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
+      })),
+      totalCount: result?.totalCount || 0,
+    }
+  }, [])
 
-  const loadFasOptions = useCallback(
-    async ({ search, page, pageSize }) => {
-      const response = await fetchFasOptions.submit({
-        overrideParam: { search, page, pageSize },
-      })
-      const result = response?.data
-      const schemes = result?.collection || []
-      setFasOptionCache((current) =>
-        Object.fromEntries([
-          ...Object.entries(current),
-          ...schemes.map((scheme) => [String(scheme.id), scheme]),
-        ])
-      )
-      return {
-        options: schemes.map((scheme) => ({
-          value: scheme.id,
-          label: getFasSchemeLabel(scheme),
-          searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
-        })),
-        totalCount: result?.totalCount || 0,
-      }
-    },
-    [fetchFasOptions.submit]
-  )
+  const loadFasOptions = useCallback(async ({ search, page, pageSize }) => {
+    const response = await axiosConfig.get(ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX, {
+      params: { search, page, pageSize },
+    })
+    const result = response?.data
+    const schemes = result?.collection || []
+    setFasOptionCache((current) =>
+      Object.fromEntries([
+        ...Object.entries(current),
+        ...schemes.map((scheme) => [String(scheme.id), scheme]),
+      ])
+    )
+    return {
+      options: schemes.map((scheme) => ({
+        value: scheme.id,
+        label: <CourseFasSchemeOptionLabel scheme={scheme} />,
+        searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+      })),
+      totalCount: result?.totalCount || 0,
+    }
+  }, [])
 
   const fields = useMemo(() => {
     const amountProps = { min: 0, precision: 2, prefix: currencySymbol }
@@ -269,39 +233,50 @@ const CourseManagementFormPage = () => {
         : [
             {
               key: 'schoolStudentIds',
-              title: t('course_management.field.initial_students'),
-              type: 'select',
-              multiple: true,
+              title: null,
+              type: 'custom',
               required: false,
-              placeholder: 'Select one or more students',
-              options: Object.values(studentOptionCache).map((student) => ({
-                value: student.id,
-                label: getStudentLabel(student),
-                searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
-              })),
-              loadOptions: loadStudentOptions,
-              renderOptionValue: (value) => studentOptionCache[String(value)]?.fullName || String(value),
+              render: ({ value, onChange }) => (
+                <CourseStudentPicker
+                  value={value}
+                  onChange={onChange}
+                  options={Object.values(studentOptionCache).map((student) => ({
+                    value: student.id,
+                    label: <CourseStudentOptionLabel student={student} />,
+                    searchKey: `${student.fullName} ${student.nric} ${student.email} ${student.phoneNumber} ${student.accountNumber}`,
+                  }))}
+                  loadOptions={loadStudentOptions}
+                  getStudentById={(studentId) => studentOptionCache[String(studentId)]}
+                />
+              ),
             },
           ]),
       {
         key: 'fasSchemeIds',
-        title: t('course_management.field.applicable_fas'),
-        type: 'select',
-        multiple: true,
+        title: null,
+        type: 'custom',
         required: false,
-        placeholder: 'Select one or more FAS schemes',
-        options: fasSchemes.map((scheme) => ({
-          value: scheme.id,
-          label: getFasSchemeLabel(scheme),
-          searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
-        })),
-        loadOptions: loadFasOptions,
-        renderOptionValue: (value) =>
-          fasOptionCache[String(value)]?.schemeName ||
-          (course.data?.applicableFasSchemes || []).find(
-            (scheme) => String(scheme.id) === String(value)
-          )?.schemeName ||
-          String(value),
+        render: ({ value, onChange }) => (
+          <InlineAsyncMultiSelect
+            value={value}
+            onChange={onChange}
+            placeholder={t('course_management.placeholder.select_fas_schemes')}
+            options={fasSchemes.map((scheme) => ({
+              value: scheme.id,
+              label: <CourseFasSchemeOptionLabel scheme={scheme} />,
+              searchKey: `${scheme.schemeCode} ${scheme.schemeName}`,
+            }))}
+            loadOptions={loadFasOptions}
+            renderSelectedLabel={(value) => {
+              const scheme =
+                fasOptionCache[String(value)] ||
+                (course.data?.applicableFasSchemes || []).find(
+                  (item) => String(item.id) === String(value)
+                )
+              return <CompactEntityLabel name={scheme?.schemeName || String(value)} />
+            }}
+          />
+        ),
       },
     ]
   }, [
@@ -477,7 +452,16 @@ const CourseManagementFormPage = () => {
 
           {studentFields.length > 0 && (
             <FormSectionCard
-              titleKey="initial_students"
+              title={
+                <Space align="center">
+                  <span>{t('course_management.title.manage_students')}</span>
+                  <Tag color="blue" style={{ borderRadius: 12 }}>
+                    {t('course_management.message.number_of_students_count', {
+                      count: getArrayLength(values.schoolStudentIds),
+                    })}
+                  </Tag>
+                </Space>
+              }
               icon={<TeamOutlined style={{ color: '#722ed1' }} />}
               t={t}
             >

@@ -1,10 +1,8 @@
-import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { EditOutlined } from '@ant-design/icons'
 
 const SchoolManagementTableSection = ({
   schools,
@@ -13,7 +11,7 @@ const SchoolManagementTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
-  onEdit,
+  onDetail,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -55,16 +53,6 @@ const SchoolManagementTableSection = ({
       sortable: true,
       render: formatDatetimeStringBasedOnCurrentLanguage,
     },
-    {
-      key: 'actions',
-      title: '',
-      width: 70,
-      render: (_, row) => (
-        <ActionMenu
-          actions={[{ title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit(row) }]}
-        />
-      ),
-    },
   ]
 
   return (
@@ -78,6 +66,7 @@ const SchoolManagementTableSection = ({
       canSelectRows
       selectedRows={selectedIds}
       setSelectedRows={setSelectedIds}
+      onRowClick={onDetail}
     />
   )
 }

@@ -19,7 +19,7 @@ const initialValues = {
 const toPayload = (values) => ({
   ...values,
   schoolId:
-    values.role === EnumConfig.RoleId.SchoolAdmin &&
+    values.role === EnumConfig.RoleEnum.SchoolAdmin &&
     values.schoolId !== '' &&
     values.schoolId != null
       ? Number(values.schoolId)
@@ -39,8 +39,8 @@ const AdminManagementFormSection = ({
   const _enum = useEnum()
   const [currentRole, setCurrentRole] = useState('')
   const adminRoleOptions = useMemo(
-    () => _enum.roleIdOptions.filter((option) => option.value !== EnumConfig.RoleId.AccountHolder),
-    [_enum.roleIdOptions]
+    () => _enum.roleOptions.filter((option) => option.value !== EnumConfig.RoleEnum.AccountHolder),
+    [_enum.roleOptions]
   )
   const fields = useMemo(
     () => [
@@ -86,7 +86,7 @@ const AdminManagementFormSection = ({
         placeholder: 'e.g. 91234567',
         required: false,
       },
-      ...(currentRole === EnumConfig.RoleId.SchoolAdmin
+      ...(currentRole === EnumConfig.RoleEnum.SchoolAdmin
         ? [
             {
               key: 'schoolId',

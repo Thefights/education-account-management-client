@@ -16,25 +16,6 @@ export default function useEnum() {
       },
     ],
 
-    roleIdOptions: [
-      {
-        value: EnumConfig.RoleId.SystemAdmin,
-        label: t('enum.role.system_admin'),
-      },
-      {
-        value: EnumConfig.RoleId.FinanceAdmin,
-        label: t('enum.role.finance_admin'),
-      },
-      {
-        value: EnumConfig.RoleId.SchoolAdmin,
-        label: t('enum.role.school_admin'),
-      },
-      {
-        value: EnumConfig.RoleId.AccountHolder,
-        label: t('enum.role.account_holder'),
-      },
-    ],
-
     schoolStatusOptions: [
       { value: EnumConfig.SchoolStatus.Active, label: t('enum.school_status.active') },
       { value: EnumConfig.SchoolStatus.Inactive, label: t('enum.school_status.inactive') },
