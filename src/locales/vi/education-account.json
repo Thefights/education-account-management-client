@@ -15,6 +15,28 @@
     "amount": "Số tiền",
     "balance_before": "Số dư trước",
     "balance_after": "Số dư sau",
-    "created_at": "Ngày tạo"
+    "created_at": "Ngày tạo",
+    "receipt": {
+      "action": "Hóa đơn",
+      "view": "Xem hóa đơn",
+      "title": "Hóa đơn thanh toán",
+      "system_name": "Hệ thống Quản lý Tài khoản Giáo dục",
+      "system_receipt": "Hóa đơn chính thức được tạo bởi hệ thống",
+      "paid_at": "Thời gian thanh toán",
+      "payment_method": "Phương thức thanh toán",
+      "paid_by": "Người thanh toán",
+      "nric": "NRIC",
+      "account_number": "Tài khoản giáo dục",
+      "external_reference": "Mã tham chiếu ngoài",
+      "course": "Khóa học",
+      "school": "Trường",
+      "installment": "Kỳ thanh toán",
+      "full_payment": "Thanh toán toàn bộ",
+      "total_paid": "Tổng đã thanh toán",
+      "payment_methods": {
+        "EducationBalance": "Số dư tín dụng giáo dục",
+        "OnlinePayment": "Thẻ trực tuyến"
+      }
+    }
   }
 }

@@ -28,6 +28,28 @@
     "amount": "Amount",
     "balance_before": "Balance before",
     "balance_after": "Balance after",
-    "created_at": "Created at"
+    "created_at": "Created at",
+    "receipt": {
+      "action": "Receipt",
+      "view": "View receipt",
+      "title": "Payment receipt",
+      "system_name": "Education Account Management System",
+      "system_receipt": "Official system-generated receipt",
+      "paid_at": "Paid at",
+      "payment_method": "Payment method",
+      "paid_by": "Paid by",
+      "nric": "NRIC",
+      "account_number": "Education account",
+      "external_reference": "External reference",
+      "course": "Course",
+      "school": "School",
+      "installment": "Installment",
+      "full_payment": "Full payment",
+      "total_paid": "Total paid",
+      "payment_methods": {
+        "EducationBalance": "Education credit balance",
+        "OnlinePayment": "Online card"
+      }
+    }
   }
 }

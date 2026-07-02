@@ -33,8 +33,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
-  courseFeeAmount: course.courseFeeAmount ?? 0,
-  miscFeeAmount: course.miscFeeAmount ?? 0,
+  courseFeeAmount: course.courseFeeAmount ?? null,
+  miscFeeAmount: course.miscFeeAmount ?? null,
   enrollmentDeadline: toLocalDateTimeInput(course.enrollmentDeadline),
   startDate: toLocalDateTimeInput(course.startDate),
   endDate: toLocalDateTimeInput(course.endDate),
