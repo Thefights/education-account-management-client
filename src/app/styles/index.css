@@ -226,6 +226,47 @@ a {
   line-height: 1;
 }
 
+/* Keep multi-selection controls visually distinct from radio buttons. */
+.ant-checkbox .ant-checkbox-inner {
+  border-radius: 3px !important;
+}
+
+/* Semantic tags need stronger contrast on light surfaces across the application. */
+.ant-tag-success,
+.ant-tag-green {
+  color: var(--app-success-text) !important;
+  font-weight: 650;
+  background: var(--app-success-soft-bg) !important;
+  border-color: var(--app-success-soft-border) !important;
+}
+
+.ant-tag-warning,
+.ant-tag-orange,
+.ant-tag-gold {
+  color: var(--app-warning-text) !important;
+  font-weight: 650;
+  background: var(--app-warning-soft-bg) !important;
+  border-color: var(--app-warning-soft-border) !important;
+}
+
+.ant-tag-error,
+.ant-tag-red,
+.ant-tag-volcano {
+  color: var(--app-error-text) !important;
+  font-weight: 650;
+  background: var(--app-error-soft-bg) !important;
+  border-color: var(--app-error-soft-border) !important;
+}
+
+.ant-tag-processing,
+.ant-tag-blue,
+.ant-tag-cyan {
+  color: var(--app-info-text) !important;
+  font-weight: 650;
+  background: var(--app-secondary-soft-bg) !important;
+  border-color: var(--app-secondary-soft-border) !important;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

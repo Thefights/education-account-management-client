@@ -6,6 +6,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
@@ -18,15 +19,16 @@ import TopupScheduleTableSection from '../components/TopupScheduleTableSection'
 
 const defaultFilters = { name: '', frequencies: [], statuses: [], createdFrom: '', createdTo: '' }
 const defaultSort = { key: 'id', direction: 'desc' }
+const listStateKey = 'topup-schedules:list-state'
 
 const TopupSchedulesPage = () => {
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
   const navigate = useNavigate()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState(defaultSort)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, defaultSort)
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [selectedIds, setSelectedIds] = useState([])
   const queryParams = useMemo(
     () => ({
@@ -95,14 +97,25 @@ const TopupSchedulesPage = () => {
     setPageSize(value)
     clearSelection()
   }
-  const handleChangeStatus = async (status) => {
+  const handleChangeStatus = async (status, schedule) => {
     const isActive = status === EnumConfig.ScheduleTopupStatus.Active
-    const actionMeta = isActive ? activateMeta : deactivateMeta
+    const actionMeta = schedule
+      ? {
+          hasActionable:
+            schedule.status !== status &&
+            schedule.status !== EnumConfig.ScheduleTopupStatus.Completed,
+          actionableIds: [schedule.id],
+        }
+      : isActive
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
       title: isActive ? t('button.activate') : t('button.deactivate'),
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
+      description: t('text.status_update_selection_description', {
+        count: schedule ? 1 : selectedIds.length,
+      }),
       confirmColor: isActive ? 'primary' : 'error',
       confirmText: isActive ? t('button.activate') : t('button.deactivate'),
     })
@@ -180,6 +193,7 @@ const TopupSchedulesPage = () => {
           )
         }
         onDelete={handleDelete}
+        onChangeStatus={handleChangeStatus}
       />
       <GenericTablePagination
         totalCount={schedules.data?.totalCount}
@@ -199,14 +213,15 @@ const TopupSchedulesPage = () => {
             key: 'activate',
             label: t('button.activate'),
             icon: <CheckCircleOutlined />,
-            disabled: hasCompletedSelection || !activateMeta.hasActionable,
+            hidden: !activateMeta.hasActionable,
+            disabled: hasCompletedSelection,
             onClick: () => handleChangeStatus(EnumConfig.ScheduleTopupStatus.Active),
           },
           {
             key: 'deactivate',
             label: t('button.deactivate'),
             icon: <StopOutlined />,
-            disabled: !deactivateMeta.hasActionable,
+            hidden: !deactivateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.ScheduleTopupStatus.Inactive),
           },
           {

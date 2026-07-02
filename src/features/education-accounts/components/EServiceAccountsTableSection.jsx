@@ -1,6 +1,9 @@
+import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDateToDDMMYYYY } from '@/shared/utils/formatDateUtil'
+import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
 import { Tag } from 'antd'
 import { useMemo } from 'react'
 
@@ -18,6 +21,7 @@ const EServiceAccountsTableSection = ({
   selectedIds,
   setSelectedIds,
   onDetail,
+  onChangeStatus,
 }) => {
   const { t } = useTranslation()
   const fields = useMemo(
@@ -44,8 +48,31 @@ const EServiceAccountsTableSection = ({
         sortable: true,
         render: formatDateToDDMMYYYY,
       },
+      {
+        key: 'actions',
+        title: '',
+        width: 70,
+        render: (_, row) => (
+          <ActionMenu
+            actions={[
+              {
+                title: t('button.activate'),
+                icon: <CheckCircleOutlined />,
+                hidden: row.status === EnumConfig.EducationAccountStatus.Active,
+                onClick: () => onChangeStatus?.(1, row),
+              },
+              {
+                title: t('button.deactivate'),
+                icon: <StopOutlined />,
+                hidden: row.status === EnumConfig.EducationAccountStatus.Closed,
+                onClick: () => onChangeStatus?.(3, row),
+              },
+            ]}
+          />
+        ),
+      },
     ],
-    [t]
+    [t, onChangeStatus]
   )
 
   return (

@@ -16,7 +16,11 @@
     },
     "hero": {
       "outstanding": "Cần thanh toán",
+      "amount_you_owe": "Số tiền đang nợ",
+      "account_balance": "Số dư tài khoản",
+      "action_needed": "Cần xử lý",
       "invoice_attention": "{count} hóa đơn cần xử lý",
+      "available_in_account": "Khả dụng trong tài khoản giáo dục",
       "pay_now": "Thanh toán ngay",
       "balance_coverage": "Có thể chi trả {percent}% tổng cần thanh toán"
     },
@@ -28,6 +32,7 @@
     },
     "filter": {
       "search_label": "Tìm theo mã khóa học hoặc tên khóa học",
+      "year": "Năm",
       "status": "Trạng thái",
       "sort": "Sắp xếp",
       "newest": "Mới nhất trước",
@@ -37,7 +42,8 @@
       "All": "Tất cả",
       "Due": "Đến hạn",
       "Overdue": "Quá hạn",
-      "Paid": "Đã thanh toán"
+      "Paid": "Đã thanh toán",
+      "Upcoming": "Sắp tới"
     },
     "charge": {
       "course": "Khóa học",
@@ -74,12 +80,34 @@
       "clear_selection": "Bỏ chọn tất cả",
       "pay_amount": "Thanh toán {amount}"
     },
+    "timeline": {
+      "empty_month": "Không có khoản phải trả trong tháng này",
+      "select_month": "Chọn tất cả khoản có thể thanh toán trong tháng {month}",
+      "obligations_count": "{count} khoản",
+      "installment": "kỳ trả góp",
+      "payment_type": "Hình thức",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "full_payment": "Thanh toán toàn bộ",
+      "previous_overdue": "Có {count} kỳ trước đang quá hạn",
+      "payable_in_days": "Có thể thanh toán sau {count} ngày",
+      "show_future_months": "Hiện {count} tháng tương lai",
+      "future_months_hint": "{count} khoản sắp tới đang được ẩn để màn hình dễ theo dõi hơn",
+      "hide_future_months": "Ẩn các tháng tương lai",
+      "pay_selected": "Thanh toán khoản đã chọn",
+      "debt_warning_title": "Có kỳ thanh toán trước đang quá hạn",
+      "debt_warning_description": "Khóa học này còn các kỳ trước chưa thanh toán. Bạn có thể thêm chúng hoặc tiếp tục chỉ với kỳ đang chọn.",
+      "add_overdue": "Thêm khoản quá hạn",
+      "continue_current": "Tiếp tục",
+      "installment_number": "Kỳ {number}"
+    },
     "checkout": {
       "action": {
         "full": "Thanh toán toàn bộ",
         "installment-plan": "Tạo kế hoạch trả góp",
         "due": "Thanh toán các kỳ đến hạn",
-        "remaining": "Thanh toán tất cả kỳ còn lại"
+        "remaining": "Thanh toán tất cả kỳ còn lại",
+        "obligations": "Thanh toán các khoản đã chọn"
       },
       "invalid_request": "Yêu cầu thanh toán không hợp lệ",
       "charges_not_eligible": "Một hoặc nhiều khoản thu không tồn tại hoặc không phù hợp với hành động thanh toán này.",

@@ -58,14 +58,18 @@ const setCssVariables = (palette, isDark) => {
     '--app-secondary-soft-bg': palette.secondary.softBg,
     '--app-secondary-soft-border': palette.secondary.softBorder,
     '--app-success': palette.success.main,
+    '--app-success-text': isDark ? palette.success.light : palette.success.dark,
     '--app-success-soft-bg': palette.success.softBg,
     '--app-success-soft-border': palette.success.softBorder,
     '--app-warning': palette.warning.main,
+    '--app-warning-text': isDark ? palette.warning.light : palette.warning.dark,
     '--app-warning-soft-bg': palette.warning.softBg,
     '--app-warning-soft-border': palette.warning.softBorder,
     '--app-error': palette.error.main,
+    '--app-error-text': isDark ? palette.error.light : palette.error.dark,
     '--app-error-soft-bg': palette.error.softBg,
     '--app-error-soft-border': palette.error.softBorder,
+    '--app-info-text': isDark ? palette.info.light : palette.info.dark,
     '--app-filter-bg': isDark ? palette.grey[100] : '#EEF6FF',
     '--app-card-shadow': isDark
       ? '0 12px 34px rgba(2, 6, 23, 0.32)'

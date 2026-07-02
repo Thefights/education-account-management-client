@@ -10,6 +10,7 @@ import {
   formatCurrencyBasedOnCurrentLanguage,
   getCurrencySymbolBasedOnCurrentLanguage,
 } from '@/shared/utils/formatCurrencyUtil'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import {
   CheckCircleOutlined,
   DownloadOutlined,
@@ -468,6 +469,7 @@ const ManualTopupPage = ({ embedded = false }) => {
                   }}
                   placeholder="e.g. 100.00"
                   style={{ width: '100%', maxWidth: 300 }}
+                  onFocus={selectInputNumberTextOnFocus}
                 />
               </Form.Item>
 

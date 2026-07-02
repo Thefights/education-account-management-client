@@ -8,6 +8,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -21,15 +22,16 @@ import SchoolManagementTableSection from '../components/SchoolManagementTableSec
 import SchoolManagementToolbarSection from '../components/SchoolManagementToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
+const listStateKey = 'school-management:list-state'
 
 const SchoolManagementPage = () => {
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
   const navigate = useNavigate()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, { key: 'id', direction: 'desc' })
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [openCreate, setOpenCreate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
@@ -84,15 +86,27 @@ const SchoolManagementPage = () => {
     setSelectedIds([])
   }
 
-  const handleChangeStatus = async (status) => {
-    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+  const handleChangeStatus = async (status, school) => {
+    const isActivate = status === 1
+    const actionMeta = school
+      ? {
+          hasActionable:
+            school.status !==
+            (isActivate ? EnumConfig.SchoolStatus.Active : EnumConfig.SchoolStatus.Inactive),
+          actionableIds: [school.id],
+        }
+      : isActivate
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
-      title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
-      confirmColor: status === 1 ? 'primary' : 'error',
-      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+      title: isActivate ? t('button.activate') : t('button.deactivate'),
+      description: t('text.status_update_selection_description', {
+        count: school ? 1 : selectedIds.length,
+      }),
+      confirmColor: isActivate ? 'primary' : 'error',
+      confirmText: isActivate ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
@@ -174,6 +188,7 @@ const SchoolManagementPage = () => {
             navigate(routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SCHOOL_MANAGEMENT.DETAIL(row.id)))
           }
           onDelete={handleDelete}
+          onChangeStatus={handleChangeStatus}
         />
         <GenericTablePagination
           totalCount={schools.data?.totalCount}
@@ -193,7 +208,7 @@ const SchoolManagementPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
-              disabled: !activateMeta.hasActionable,
+              hidden: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -201,7 +216,7 @@ const SchoolManagementPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
-              disabled: !deactivateMeta.hasActionable,
+              hidden: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(2),
             },
             {

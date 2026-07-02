@@ -15,6 +15,7 @@ import {
   formatCurrencyBasedOnCurrentLanguage,
   getCurrencySymbolBasedOnCurrentLanguage,
 } from '@/shared/utils/formatCurrencyUtil'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import { ApartmentOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import {
   Alert,
@@ -304,6 +305,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
                     : undefined
                 }
                 style={FIELD_CONTROL_STYLE}
+                onFocus={
+                  isIncomeField(normalized.field) ? selectInputNumberTextOnFocus : undefined
+                }
                 onChange={(valueNumber) => onChange({ ...normalized, valueNumber })}
               />
             )}
@@ -336,6 +340,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
                     : undefined
                 }
                 style={FIELD_CONTROL_STYLE}
+                onFocus={
+                  isIncomeField(normalized.field) ? selectInputNumberTextOnFocus : undefined
+                }
                 onChange={(valueNumberTo) => onChange({ ...normalized, valueNumberTo })}
               />
               {valueToError && (

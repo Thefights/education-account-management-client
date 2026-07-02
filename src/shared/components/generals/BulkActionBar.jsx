@@ -65,7 +65,7 @@ const BulkActionBar = ({
         </Button>
       </Space>
       <Space wrap>
-        {actions.map((action) => {
+        {actions.filter((action) => !action.hidden).map((action) => {
           const variant = getActionVariant(action)
 
           return (

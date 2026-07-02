@@ -1,10 +1,10 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { EllipsisOutlined } from '@ant-design/icons'
+import { MoreOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Tooltip } from 'antd'
 
 /**
  * @param {Object} props
- * @param {Array<{title?: string, icon?: ReactNode, disabled?: boolean, onClick?: () => void | Promise<void>}>} props.actions
+ * @param {Array<{title?: string, icon?: ReactNode, disabled?: boolean, hidden?: boolean, onClick?: () => void | Promise<void>}>} props.actions
  * @param {string} props.menuTooltip
  */
 const ActionMenu = ({ actions = [], menuTooltip }) => {
@@ -14,9 +14,11 @@ const ActionMenu = ({ actions = [], menuTooltip }) => {
 		await a.onClick?.()
 	}
 
-	if (actions.length === 0) return null
+	const visibleActions = actions.filter((action) => !action.hidden)
 
-	const items = actions.map((a, idx) => ({
+	if (visibleActions.length === 0) return null
+
+	const items = visibleActions.map((a, idx) => ({
 		key: idx,
 		label: a.title,
 		icon: a.icon,
@@ -30,7 +32,7 @@ const ActionMenu = ({ actions = [], menuTooltip }) => {
 				<Button
 					type='text'
 					size='small'
-					icon={<EllipsisOutlined />}
+					icon={<MoreOutlined />}
 					style={{ cursor: 'pointer' }}
 				/>
 			</Dropdown>

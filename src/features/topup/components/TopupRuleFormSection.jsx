@@ -3,6 +3,7 @@ import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDi
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import { Form, InputNumber, Skeleton } from 'antd'
 import { useMemo } from 'react'
 import {
@@ -70,6 +71,7 @@ const TopupRuleFormSection = ({
               prefix="S$"
               placeholder="e.g. 100.00"
               style={{ width: '100%' }}
+              onFocus={selectInputNumberTextOnFocus}
             />
           </Form.Item>
         ),
