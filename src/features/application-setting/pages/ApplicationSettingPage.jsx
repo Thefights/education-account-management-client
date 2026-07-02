@@ -2,8 +2,9 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Alert, Button, Card, Flex, InputNumber, Skeleton, Switch, Typography, theme } from 'antd'
+import { Alert, Button, Card, Flex, InputNumber, Skeleton, Switch, Typography, theme, Tabs } from 'antd'
 import { useMemo, useState } from 'react'
+import AiDocumentTableSection from './components/AiDocumentTableSection'
 
 const ApplicationSettingPage = () => {
   const { t } = useTranslation()
@@ -67,79 +68,97 @@ const ApplicationSettingPage = () => {
             }
           />
         ) : hasSetting ? (
-          <Flex vertical gap={16}>
-            <Flex
-              align="center"
-              justify="space-between"
-              gap={24}
-              style={{
-                padding: 20,
-                border: `1px solid ${token.colorBorderSecondary}`,
-                borderRadius: token.borderRadiusLG,
-                background: token.colorFillAlter,
-              }}
-            >
-              <div>
-                <Typography.Text strong>
-                  {t('application_setting.ai_feature_label')}
-                </Typography.Text>
-                <br />
-                <Typography.Text type="secondary">
-                  {t(
-                    formValues.isAiFeatureEnabled
-                      ? 'application_setting.enabled_description'
-                      : 'application_setting.disabled_description'
-                  )}
-                </Typography.Text>
-              </div>
-              <Switch
-                checked={formValues.isAiFeatureEnabled}
-                checkedChildren={t('application_setting.enabled')}
-                unCheckedChildren={t('application_setting.disabled')}
-                onChange={(checked) => setField('isAiFeatureEnabled', checked)}
-                disabled={updateSetting.loading}
-              />
-            </Flex>
+          <Tabs
+            defaultActiveKey="1"
+            items={[
+              {
+                label: 'General Settings',
+                key: '1',
+                children: (
+                  <Flex gap={16} wrap="wrap" style={{ marginTop: 16 }}>
+                    <Flex vertical gap={8} style={{ minWidth: 220, flex: '1 1 220px' }}>
+                      <Typography.Text strong>{t('application_setting.tax_rate_label')}</Typography.Text>
+                      <InputNumber
+                        value={formValues.taxRate}
+                        min={0}
+                        max={1}
+                        step={0.0001}
+                        precision={4}
+                        placeholder="e.g. 0.09"
+                        style={{ width: '100%' }}
+                        onChange={(value) => setField('taxRate', value ?? 0)}
+                        disabled={updateSetting.loading}
+                      />
+                      <Typography.Text type="secondary">
+                        {t('application_setting.tax_rate_description')}
+                      </Typography.Text>
+                    </Flex>
 
-            <Flex gap={16} wrap="wrap">
-              <Flex vertical gap={8} style={{ minWidth: 220, flex: '1 1 220px' }}>
-                <Typography.Text strong>{t('application_setting.tax_rate_label')}</Typography.Text>
-                <InputNumber
-                  value={formValues.taxRate}
-                  min={0}
-                  max={1}
-                  step={0.0001}
-                  precision={4}
-                  placeholder="e.g. 0.09"
-                  style={{ width: '100%' }}
-                  onChange={(value) => setField('taxRate', value ?? 0)}
-                  disabled={updateSetting.loading}
-                />
-                <Typography.Text type="secondary">
-                  {t('application_setting.tax_rate_description')}
-                </Typography.Text>
-              </Flex>
+                    <Flex vertical gap={8} style={{ minWidth: 220, flex: '1 1 220px' }}>
+                      <Typography.Text strong>
+                        {t('application_setting.installment_due_day_label')}
+                      </Typography.Text>
+                      <InputNumber
+                        value={formValues.installmentDueDay}
+                        min={1}
+                        max={28}
+                        precision={0}
+                        placeholder="e.g. 15"
+                        style={{ width: '100%' }}
+                        onChange={(value) => setField('installmentDueDay', value ?? 1)}
+                        disabled={updateSetting.loading}
+                      />
+                      <Typography.Text type="secondary">
+                        {t('application_setting.installment_due_day_description')}
+                      </Typography.Text>
+                    </Flex>
+                  </Flex>
+                ),
+              },
+              {
+                label: 'AI Settings',
+                key: '2',
+                children: (
+                  <Flex vertical gap={24} style={{ marginTop: 16 }}>
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      gap={24}
+                      style={{
+                        padding: 20,
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        borderRadius: token.borderRadiusLG,
+                        background: token.colorFillAlter,
+                      }}
+                    >
+                      <div>
+                        <Typography.Text strong>
+                          {t('application_setting.ai_feature_label')}
+                        </Typography.Text>
+                        <br />
+                        <Typography.Text type="secondary">
+                          {t(
+                            formValues.isAiFeatureEnabled
+                              ? 'application_setting.enabled_description'
+                              : 'application_setting.disabled_description'
+                          )}
+                        </Typography.Text>
+                      </div>
+                      <Switch
+                        checked={formValues.isAiFeatureEnabled}
+                        checkedChildren={t('application_setting.enabled')}
+                        unCheckedChildren={t('application_setting.disabled')}
+                        onChange={(checked) => setField('isAiFeatureEnabled', checked)}
+                        disabled={updateSetting.loading}
+                      />
+                    </Flex>
 
-              <Flex vertical gap={8} style={{ minWidth: 220, flex: '1 1 220px' }}>
-                <Typography.Text strong>
-                  {t('application_setting.installment_due_day_label')}
-                </Typography.Text>
-                <InputNumber
-                  value={formValues.installmentDueDay}
-                  min={1}
-                  max={28}
-                  precision={0}
-                  placeholder="e.g. 15"
-                  style={{ width: '100%' }}
-                  onChange={(value) => setField('installmentDueDay', value ?? 1)}
-                  disabled={updateSetting.loading}
-                />
-                <Typography.Text type="secondary">
-                  {t('application_setting.installment_due_day_description')}
-                </Typography.Text>
-              </Flex>
-            </Flex>
-          </Flex>
+                    <AiDocumentTableSection />
+                  </Flex>
+                ),
+              }
+            ]}
+          />
         ) : null}
 
         <Button
