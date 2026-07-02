@@ -11,9 +11,10 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { getEnumLabelByValue } from '@/shared/utils/handleStringUtil'
-import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
-import { Card, Flex, Tag, Typography } from 'antd'
+import { ArrowDownOutlined, ArrowUpOutlined, EyeOutlined } from '@ant-design/icons'
+import { Button, Card, Flex, Tag, Typography } from 'antd'
 import { useMemo, useState } from 'react'
+import TransactionReceiptDialog from './TransactionReceiptDialog'
 
 const defaultFilters = { search: '', types: [], directions: [], createdFrom: '', createdTo: '' }
 
@@ -24,6 +25,7 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
   const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [selectedTransaction, setSelectedTransaction] = useState(null)
   const params = useMemo(
     () => ({ ...filters, sort: `${sort.key} ${sort.direction}`, page, pageSize }),
     [filters, page, pageSize, sort]
@@ -146,6 +148,17 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
         sortable: true,
         render: formatDatetimeStringBasedOnCurrentLanguage,
       },
+      {
+        key: 'receipt',
+        title: t('transaction.receipt.action'),
+        width: 130,
+        render: (receipt, row) =>
+          receipt ? (
+            <Button type="link" icon={<EyeOutlined />} onClick={() => setSelectedTransaction(row)}>
+              {t('transaction.receipt.view')}
+            </Button>
+          ) : null,
+      },
     ],
     [
       t,
@@ -200,6 +213,10 @@ const TransactionHistorySection = ({ url, pageMode = false }) => {
           pageSize={pageSize}
           setPageSize={setPageSize}
           loading={transactions.loading}
+        />
+        <TransactionReceiptDialog
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
         />
       </Flex>
     </Card>

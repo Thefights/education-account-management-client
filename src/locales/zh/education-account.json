@@ -15,6 +15,35 @@
     "amount": "金额",
     "balance_before": "变更前余额",
     "balance_after": "变更后余额",
-    "created_at": "创建时间"
+    "created_at": "创建时间",
+    "receipt": {
+      "action": "收据",
+      "view": "查看收据",
+      "title": "付款收据",
+      "system_name": "教育账户管理系统",
+      "system_receipt": "系统生成的正式收据",
+      "paid_at": "付款时间",
+      "payment_method": "付款方式",
+      "paid_by": "付款人",
+      "nric": "NRIC",
+      "account_number": "教育账户",
+      "external_reference": "外部参考号",
+      "course": "课程",
+      "school": "学校",
+      "installment": "分期",
+      "full_payment": "全额付款",
+      "total_paid": "付款总额",
+      "paid": "已付款",
+      "copy_code": "复制交易代码",
+      "copied": "交易代码已复制",
+      "thank_you": "感谢您的付款。",
+      "keep_record": "请保留此收据以备查阅。这是由系统生成的正式收据。",
+      "download_pdf": "下载 PDF",
+      "signature_note": "这是计算机生成的收据，无需签名。",
+      "payment_methods": {
+        "EducationBalance": "教育信贷余额",
+        "OnlinePayment": "在线银行卡"
+      }
+    }
   }
 }
