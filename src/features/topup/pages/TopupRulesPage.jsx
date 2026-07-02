@@ -7,6 +7,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Flex } from 'antd'
 import { useMemo, useState } from 'react'
@@ -38,6 +39,24 @@ const TopupRulesPage = () => {
     [sort, filters, page, pageSize]
   )
   const rules = useFetch(ApiUrls.SYSTEM_TOPUP.INDEX, queryParams, [queryParams])
+  const activateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: rules.data?.collection,
+        selectedIds,
+        targetStatus: EnumConfig.SystemTopupStatus.Active,
+      }),
+    [rules.data?.collection, selectedIds]
+  )
+  const deactivateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: rules.data?.collection,
+        selectedIds,
+        targetStatus: EnumConfig.SystemTopupStatus.Inactive,
+      }),
+    [rules.data?.collection, selectedIds]
+  )
   const updateStatus = useAxiosSubmit({
     url: ApiUrls.SYSTEM_TOPUP.UPDATE_STATUS,
     method: 'PUT',
@@ -68,15 +87,18 @@ const TopupRulesPage = () => {
   }
   const handleChangeStatus = async (status) => {
     const isActive = status === EnumConfig.SystemTopupStatus.Active
+    const actionMeta = isActive ? activateMeta : deactivateMeta
+    if (!actionMeta.hasActionable) return
+
     const reason = await confirmReason({
       title: isActive ? t('button.activate') : t('button.deactivate'),
-      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      description: t('text.status_update_selection_description', { count: selectedIds.length }),
       confirmColor: isActive ? 'primary' : 'error',
       confirmText: isActive ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
-      overrideData: { ids: selectedIds, status, reason },
+      overrideData: { ids: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
     clearSelection()
@@ -147,12 +169,14 @@ const TopupRulesPage = () => {
             key: 'activate',
             label: t('button.activate'),
             icon: <CheckCircleOutlined />,
+            disabled: !activateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.SystemTopupStatus.Active),
           },
           {
             key: 'deactivate',
             label: t('button.deactivate'),
             icon: <StopOutlined />,
+            disabled: !deactivateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.SystemTopupStatus.Inactive),
           },
           {

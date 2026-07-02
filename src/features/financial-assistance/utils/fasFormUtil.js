@@ -1,4 +1,5 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
+import { getTranslation } from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 
 const {
@@ -9,6 +10,9 @@ const {
   FasSubsidyType,
   FasTierIncomeBasis,
 } = EnumConfig
+
+const t = getTranslation
+const tierName = (index) => t('financial_assistance.admin.text.tier_number', { number: index + 1 })
 
 export const createEmptyCondition = () => ({
   field: FasConditionField.StudentAge,
@@ -95,7 +99,7 @@ export const serializeConditionGroup = (group, displayOrder = 0, isRoot = true) 
 
 const getTierFormValue = (tier = {}, index = 0) => ({
   id: tier.id ?? `tier-${index}`,
-  tierName: tier.tierName ?? tier.name ?? `Tier ${index + 1}`,
+  tierName: tier.tierName ?? tier.name ?? tierName(index),
   tierIncomeBasis: tier.tierIncomeBasis || FasTierIncomeBasis.PerCapitaIncome,
   subsidyType: tier.subsidyType || FasSubsidyType.Percent,
   minPerCapitaIncome: tier.minPerCapitaIncome ?? '',
@@ -111,7 +115,7 @@ const getTierFormValue = (tier = {}, index = 0) => ({
 
 export const createEmptyTier = (index = 0) => ({
   id: `tier-${Date.now()}-${index}`,
-  tierName: `Tier ${index + 1}`,
+  tierName: tierName(index),
   tierIncomeBasis: FasTierIncomeBasis.PerCapitaIncome,
   subsidyType: FasSubsidyType.Percent,
   minPerCapitaIncome: index === 0 ? 0 : '',
@@ -207,7 +211,7 @@ export const buildSchemePayload = (scheme) => ({
   durationInMonths: Number(scheme.durationInMonths || 0),
   rootConditionGroup: serializeConditionGroup(scheme.rootConditionGroup),
   tiers: (scheme.tiers || []).map((tier, index) => ({
-    tierName: tier.tierName || `Tier ${index + 1}`,
+    tierName: tier.tierName || tierName(index),
     tierIncomeBasis: tier.tierIncomeBasis,
     subsidyType: tier.subsidyType,
     isPerComponent: Boolean(tier.isPerComponent),
@@ -295,23 +299,33 @@ export const formatTierRange = (tier) => {
 const formatFriendlyIncomeRange = (min, max) => {
   const minimum = Number(min || 0)
   if (max == null || max === '') {
-    return `${formatCurrencyBasedOnCurrentLanguage(minimum)} and above`
+    return t('financial_assistance.admin.text.amount_and_above', {
+      amount: formatCurrencyBasedOnCurrentLanguage(minimum),
+    })
   }
   const maximum = formatCurrencyBasedOnCurrentLanguage(max)
-  if (minimum === 0) return `Below ${maximum}`
-  return `${formatCurrencyBasedOnCurrentLanguage(minimum)} – below ${maximum}`
+  if (minimum === 0) {
+    return t('financial_assistance.admin.text.below_amount', { amount: maximum })
+  }
+  return t('financial_assistance.admin.text.amount_to_below_amount', {
+    min: formatCurrencyBasedOnCurrentLanguage(minimum),
+    max: maximum,
+  })
 }
 
 export const formatFriendlyTierRanges = (tier) => {
   const ranges = []
   if (usesPerCapitaRange(tier)) {
     ranges.push(
-      `Per capita: ${formatFriendlyIncomeRange(tier.minPerCapitaIncome, tier.maxPerCapitaIncome)}`
+      `${t('financial_assistance.enum.income_basis.per_capita_income')}: ${formatFriendlyIncomeRange(
+        tier.minPerCapitaIncome,
+        tier.maxPerCapitaIncome
+      )}`
     )
   }
   if (usesGrossRange(tier)) {
     ranges.push(
-      `Gross household: ${formatFriendlyIncomeRange(
+      `${t('financial_assistance.enum.income_basis.gross_household_income')}: ${formatFriendlyIncomeRange(
         tier.minGrossHouseholdIncome,
         tier.maxGrossHouseholdIncome
       )}`
@@ -325,19 +339,21 @@ export const validateTierConfiguration = (tiers) => {
   const ranges = { pci: [], gross: [] }
 
   tiers.forEach((tier, index) => {
-    const label = tier.tierName || `Tier ${index + 1}`
+    const label = tier.tierName || tierName(index)
     const checkRange = (min, max, rangeLabel) => {
-      if (min === '' || min == null) errors.push(`${label}: ${rangeLabel} minimum is required.`)
+      if (min === '' || min == null) {
+        errors.push(t('financial_assistance.admin.message.range_min_required', { label, range: rangeLabel }))
+      }
       if (Number(min) < 0 || Number(max) < 0)
-        errors.push(`${label}: ${rangeLabel} cannot be negative.`)
+        errors.push(t('financial_assistance.admin.message.range_non_negative', { label, range: rangeLabel }))
       if (max !== '' && max != null && Number(min) >= Number(max)) {
-        errors.push(`${label}: ${rangeLabel} maximum must be greater than minimum.`)
+        errors.push(t('financial_assistance.admin.message.range_max_gt_min', { label, range: rangeLabel }))
       }
     }
     if (tier.tierIncomeBasis === FasTierIncomeBasis.PerCapitaIncome) {
       checkRange(tier.minPerCapitaIncome, tier.maxPerCapitaIncome, 'PCI')
       if (tier.minGrossHouseholdIncome !== '' || tier.maxGrossHouseholdIncome !== '')
-        errors.push(`${label}: gross range must be empty.`)
+        errors.push(t('financial_assistance.admin.message.gross_range_empty', { label }))
       ranges.pci.push({
         min: Number(tier.minPerCapitaIncome),
         max:
@@ -350,7 +366,7 @@ export const validateTierConfiguration = (tiers) => {
     if (tier.tierIncomeBasis === FasTierIncomeBasis.GrossHouseholdIncome) {
       checkRange(tier.minGrossHouseholdIncome, tier.maxGrossHouseholdIncome, 'gross')
       if (tier.minPerCapitaIncome !== '' || tier.maxPerCapitaIncome !== '')
-        errors.push(`${label}: PCI range must be empty.`)
+        errors.push(t('financial_assistance.admin.message.pci_range_empty', { label }))
       ranges.gross.push({
         min: Number(tier.minGrossHouseholdIncome),
         max:
@@ -386,21 +402,19 @@ export const validateTierConfiguration = (tiers) => {
       : [tier.subsidyValue]
     values.forEach((value) => {
       if (value === '' || value == null || Number(value) <= 0)
-        errors.push(`${label}: subsidy must be greater than 0.`)
+        errors.push(t('financial_assistance.admin.message.subsidy_positive', { label }))
       if (tier.subsidyType === FasSubsidyType.Percent && Number(value) > 100)
-        errors.push(`${label}: percent subsidy cannot exceed 100.`)
+        errors.push(t('financial_assistance.admin.message.percent_subsidy_max', { label }))
     })
     if (tier.isPerComponent && tier.subsidyValue !== '' && tier.subsidyValue != null) {
-      errors.push(`${label}: subsidy must be empty when per-component subsidy is enabled.`)
+      errors.push(t('financial_assistance.admin.message.subsidy_empty_when_component_enabled', { label }))
     }
     if (
       !tier.isPerComponent &&
       ((tier.courseFeeSubsidyValue !== '' && tier.courseFeeSubsidyValue != null) ||
         (tier.miscFeeSubsidyValue !== '' && tier.miscFeeSubsidyValue != null))
     ) {
-      errors.push(
-        `${label}: component subsidies must be empty when per-component subsidy is disabled.`
-      )
+      errors.push(t('financial_assistance.admin.message.component_subsidy_empty_when_disabled', { label }))
     }
   })
 
@@ -409,10 +423,10 @@ export const validateTierConfiguration = (tiers) => {
     const sorted = [...items].sort((a, b) => a.min - b.min)
     for (let index = 0; index < sorted.length; index += 1) {
       if (index > 0 && sorted[index - 1].max != null && sorted[index].min < sorted[index - 1].max) {
-        errors.push(`${label} ranges cannot overlap.`)
+        errors.push(t('financial_assistance.admin.message.ranges_cannot_overlap', { label }))
       }
       if (sorted[index].max == null && index !== sorted.length - 1) {
-        errors.push(`Open-ended ${label} range must be final.`)
+        errors.push(t('financial_assistance.admin.message.open_ended_range_final', { label }))
       }
     }
   }

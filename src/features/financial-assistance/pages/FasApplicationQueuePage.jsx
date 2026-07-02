@@ -6,6 +6,7 @@ import { GenericTablePagination } from '@/shared/components/generals/GenericPagi
 import GenericTable from '@/shared/components/tables/GenericTable'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { Card, Flex, Typography } from 'antd'
 import { useMemo, useState } from 'react'
@@ -27,6 +28,7 @@ const sortFields = {
 }
 
 const FasApplicationQueuePage = () => {
+  const { t } = useTranslation()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
   const [page, setPage] = useState(1)
@@ -65,19 +67,19 @@ const FasApplicationQueuePage = () => {
   }
 
   const fields = [
-    { key: 'applicationNumber', title: 'Application number', sortable: true },
-    { key: 'accountNumber', title: 'Account number', sortable: true },
-    { key: 'accountName', title: 'Account name', sortable: true },
-    { key: 'schemeName', title: 'Scheme name', sortable: true },
+    { key: 'applicationNumber', title: t('financial_assistance.field.application_number'), sortable: true },
+    { key: 'accountNumber', title: t('financial_assistance.admin.field.account_number'), sortable: true },
+    { key: 'accountName', title: t('financial_assistance.admin.field.account_name'), sortable: true },
+    { key: 'schemeName', title: t('financial_assistance.field.scheme_name'), sortable: true },
     {
       key: 'status',
-      title: 'Status',
+      title: t('financial_assistance.field.status'),
       sortable: true,
       render: (value) => <FasStatusTag status={value} />,
     },
     {
       key: 'submittedAt',
-      title: 'Submitted date',
+      title: t('financial_assistance.field.submitted_date'),
       sortable: true,
       render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value),
     },
@@ -89,7 +91,7 @@ const FasApplicationQueuePage = () => {
     <Card>
       <Flex vertical gap={16}>
         <Typography.Title level={4} style={{ margin: 0 }}>
-          FAS Application Queue
+          {t('financial_assistance.admin.application_queue.title')}
         </Typography.Title>
         <FasApplicationQueueFilterSection
           filters={filters}

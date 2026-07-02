@@ -11,8 +11,8 @@
     "tabs": {
       "without_plan": "Charge No Installment Plan",
       "with_plan": "Charge with Installment Plans",
-      "without_plan_count": "No installment ({count})",
-      "with_plan_count": "Installments ({count})"
+      "without_plan_count": "Full payment fees ({count})",
+      "with_plan_count": "Monthly payment fees ({count})"
     },
     "hero": {
       "outstanding": "Outstanding",
@@ -123,7 +123,18 @@
       "none_due": "No installments due",
       "remaining_amount": "Remaining installments",
       "timeline": "Payment timeline",
-      "step_title": "Installment {number}"
+      "timeline_overview": "Overview of your installment schedule",
+      "step_title": "Installment {number}",
+      "summary_prefix": "You have",
+      "due_count": "{count} installments due",
+      "summary_and": "and",
+      "overdue_count": "{count} overdue.",
+      "legend": {
+        "overdue": "Overdue",
+        "due": "Due",
+        "upcoming": "Upcoming",
+        "paid": "Paid"
+      }
     },
     "callback": {
       "processing": "Confirming payment",

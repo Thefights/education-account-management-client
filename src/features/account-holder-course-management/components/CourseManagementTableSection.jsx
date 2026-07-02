@@ -3,6 +3,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { Tag } from 'antd'
 
 const CourseManagementTableSection = ({ courses, loading, sort, setSort, onCourseClick }) => {
   const { t } = useTranslation()
@@ -44,6 +45,27 @@ const CourseManagementTableSection = ({ courses, loading, sort, setSort, onCours
       width: 180,
       sortable: true,
       render: (value) => formatDatetimeStringBasedOnCurrentLanguage(value) || '-',
+    },
+    {
+      key: 'enrollmentStatus',
+      title: t('course_management.field.note'),
+      width: 240,
+      render: (value) =>
+        value === 'Withdrawn' ? (
+          <Tag
+            color="warning"
+            style={{
+              marginInlineEnd: 0,
+              whiteSpace: 'normal',
+              lineHeight: 1.35,
+              padding: '4px 8px',
+            }}
+          >
+            {t('course_management.message.withdrawn_course_note')}
+          </Tag>
+        ) : (
+          '-'
+        ),
     },
   ]
 

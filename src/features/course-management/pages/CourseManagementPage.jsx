@@ -117,16 +117,7 @@ const CourseManagementPage = () => {
       return
     }
 
-    const reason = await confirmReason({
-      title: t('course_management.confirm.publish_title'),
-      description: t('course_management.confirm.publish_description', {
-        count: selectedCourses.length,
-      }),
-      confirmText: t('course_management.action.publish'),
-    })
-    if (!reason) return
-
-    const response = await publishCourses.submit({ overrideData: { ids: selectedIds, reason } })
+    const response = await publishCourses.submit({ overrideData: { ids: selectedIds } })
     if (!response) return
     clearSelection()
     await courses.fetch()

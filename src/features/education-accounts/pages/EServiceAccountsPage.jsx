@@ -6,12 +6,14 @@ import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import NricInput from '@/shared/components/textFields/NricInput'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import { manualEducationAccountTestNrics } from '@/shared/config/manualEducationAccountTestNrics'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { minLen } from '@/shared/utils/validateUtil'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
@@ -95,6 +97,24 @@ const EServiceAccountsPage = () => {
     [t]
   )
   const accounts = useFetch(ApiUrls.EDUCATION_ACCOUNT.INDEX, queryParams, [queryParams])
+  const activateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: accounts.data?.collection,
+        selectedIds,
+        targetStatus: EnumConfig.EducationAccountStatus.Active,
+      }),
+    [accounts.data?.collection, selectedIds]
+  )
+  const deactivateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: accounts.data?.collection,
+        selectedIds,
+        targetStatus: EnumConfig.EducationAccountStatus.Closed,
+      }),
+    [accounts.data?.collection, selectedIds]
+  )
 
   const openCreateDialog = (initialValues = { nric: '', reason: '' }) => {
     setCreateInitialValues(initialValues)
@@ -124,15 +144,18 @@ const EServiceAccountsPage = () => {
   }
 
   const handleChangeStatus = async (status) => {
+    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+    if (!actionMeta.hasActionable) return
+
     const reason = await confirmReason({
       title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      description: t('text.status_update_selection_description', { count: selectedIds.length }),
       confirmColor: status === 1 ? 'primary' : 'error',
       confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
-      overrideData: { ids: selectedIds, status, reason },
+      overrideData: { ids: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
     setSelectedIds([])
@@ -214,6 +237,7 @@ const EServiceAccountsPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
+              disabled: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -221,6 +245,7 @@ const EServiceAccountsPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
+              disabled: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(3),
             },
           ]}
