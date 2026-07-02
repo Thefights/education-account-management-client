@@ -29,6 +29,13 @@ export const ApiUrls = {
     FAS_AUTO_FILL_RESET_SESSION: '/ai-chat/fas-auto-fill/reset-session',
   },
 
+  AI_DOCUMENT_MANAGEMENT: {
+    INDEX: '/ai-document-management',
+    UPLOAD: '/ai-document-management/upload',
+    DELETE: (id) => `/ai-document-management/${id}`,
+    DOWNLOAD: (docId, fileName) => `/ai-document-management/${docId}/download?fileName=${encodeURIComponent(fileName)}`,
+  },
+
   AUDIT_LOG: {
     MANAGEMENT: {
       INDEX: '/audit-log-management',

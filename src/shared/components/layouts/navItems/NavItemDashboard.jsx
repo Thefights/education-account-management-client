@@ -27,6 +27,7 @@ const NavItemDashboard = ({
 
   const active =
     item.url === location.pathname ||
+    (item.matchPrefix && location.pathname.startsWith(item.matchPrefix)) ||
     children.some(
       (child) =>
         child.url === location.pathname ||
@@ -144,7 +145,7 @@ const NavItemDashboard = ({
         <span
           style={{
             display: 'flex',
-            fontSize: 18,
+            fontSize: 24,
             flexShrink: 0,
           }}
         >

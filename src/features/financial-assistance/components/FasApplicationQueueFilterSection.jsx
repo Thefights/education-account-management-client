@@ -2,6 +2,7 @@ import GenericFilterSection from '@/shared/components/filters/GenericFilterSecti
 import useEnum from '@/shared/hooks/useEnum'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
 const emptyFasApplicationQueueFilters = {
@@ -12,15 +13,16 @@ const emptyFasApplicationQueueFilters = {
 }
 
 const FasApplicationQueueFilterSection = ({ filters, loading, onFilter, onReset }) => {
-  const { fasApplicationStatusOptions } = useEnum()
+  const { fasAdminApplicationStatusOptions } = useEnum()
+  const { t } = useTranslation()
   const { values, handleChange, setField, registerRef, reset } = useForm(filters)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
   const fields = useMemo(
     () => [
       {
         key: 'search',
-        title: 'Search by application number, account number, account name, or scheme name',
-        label: 'Search by application number, account number, account name, or scheme name',
+        title: t('financial_assistance.admin.application_queue.search_label'),
+        label: t('financial_assistance.admin.application_queue.search_label'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,
@@ -28,30 +30,31 @@ const FasApplicationQueueFilterSection = ({ filters, loading, onFilter, onReset 
       },
       {
         key: 'statuses',
-        title: 'Status',
+        title: t('financial_assistance.field.status'),
         type: 'multi-check-dropdown',
-        options: fasApplicationStatusOptions,
+        options: fasAdminApplicationStatusOptions,
         required: false,
-        placeholder: 'All',
-        selectAllText: 'Select all',
-        searchPlaceholder: 'Input keyword',
-        cancelText: 'Cancel',
-        okText: 'OK',
-        selectedText: (count) => `${count} items`,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
         colProps: { xs: 24, sm: 12, lg: 5 },
       },
       {
         key: 'submittedRange',
-        title: 'Submitted date',
+        title: t('financial_assistance.field.submitted_date'),
         type: 'range-picker',
         required: false,
         from: { key: 'submittedFrom' },
         to: { key: 'submittedTo' },
-        placeholder: ['From date', 'To date'],
+        placeholder: [
+          t('financial_assistance.placeholder.from_date'),
+          t('financial_assistance.placeholder.to_date'),
+        ],
         colProps: { xs: 24, sm: 12, lg: 7 },
       },
     ],
-    [fasApplicationStatusOptions]
+    [fasAdminApplicationStatusOptions, t]
   )
 
   return (

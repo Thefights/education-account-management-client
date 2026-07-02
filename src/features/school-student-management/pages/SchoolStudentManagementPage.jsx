@@ -3,10 +3,12 @@ import GenericImportSection from '@/shared/components/dialogs/commons/GenericImp
 import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Card, Flex, Typography } from 'antd'
@@ -36,6 +38,25 @@ const SchoolStudentManagementPage = () => {
   )
 
   const getStudents = useFetch(ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX, queryParams, [queryParams])
+  const studentRecords = getStudents.data?.collection || getStudents.data || []
+  const activateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: studentRecords,
+        selectedIds,
+        targetStatus: EnumConfig.SchoolStudentStatus.Active,
+      }),
+    [studentRecords, selectedIds]
+  )
+  const deactivateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: studentRecords,
+        selectedIds,
+        targetStatus: EnumConfig.SchoolStudentStatus.Inactive,
+      }),
+    [studentRecords, selectedIds]
+  )
 
   const createStudent = useAxiosSubmit({
     url: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.INDEX,
@@ -69,15 +90,18 @@ const SchoolStudentManagementPage = () => {
   }
 
   const handleChangeStatus = async (status) => {
+    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+    if (!actionMeta.hasActionable) return
+
     const reason = await confirmReason({
       title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      description: t('text.status_update_selection_description', { count: selectedIds.length }),
       confirmColor: status === 1 ? 'primary' : 'error',
       confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
-      overrideData: { listIds: selectedIds, status, reason },
+      overrideData: { listIds: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
     setSelectedIds([])
@@ -132,7 +156,7 @@ const SchoolStudentManagementPage = () => {
           onReset={() => handleFilter(defaultFilters)}
         />
         <SchoolStudentTableSection
-          students={getStudents.data?.collection || getStudents.data || []}
+          students={studentRecords}
           loading={getStudents.loading || deleteStudent.loading}
           sort={sort}
           setSort={setSort}
@@ -158,6 +182,7 @@ const SchoolStudentManagementPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
+              disabled: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -165,6 +190,7 @@ const SchoolStudentManagementPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
+              disabled: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(2),
             },
             {

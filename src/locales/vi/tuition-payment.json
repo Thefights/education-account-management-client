@@ -11,8 +11,8 @@
     "tabs": {
       "without_plan": "Khoản thu chưa đăng ký trả góp",
       "with_plan": "Khoản thu đã đăng ký trả góp",
-      "without_plan_count": "Chưa trả góp ({count})",
-      "with_plan_count": "Trả góp ({count})"
+      "without_plan_count": "Khoản phí thanh toán toàn bộ ({count})",
+      "with_plan_count": "Khoản phí thanh toán hằng tháng ({count})"
     },
     "hero": {
       "outstanding": "Cần thanh toán",
@@ -123,7 +123,18 @@
       "none_due": "Chưa có kỳ đến hạn",
       "remaining_amount": "Các kỳ còn lại",
       "timeline": "Tiến trình thanh toán",
-      "step_title": "Kỳ {number}"
+      "timeline_overview": "Tổng quan lịch thanh toán trả góp",
+      "step_title": "Kỳ {number}",
+      "summary_prefix": "Bạn có",
+      "due_count": "{count} kỳ đến hạn",
+      "summary_and": "và",
+      "overdue_count": "{count} kỳ quá hạn.",
+      "legend": {
+        "overdue": "Quá hạn",
+        "due": "Đến hạn",
+        "upcoming": "Sắp tới",
+        "paid": "Đã thanh toán"
+      }
     },
     "callback": {
       "processing": "Đang xác nhận thanh toán",

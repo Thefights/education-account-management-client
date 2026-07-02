@@ -89,6 +89,7 @@
     "select_options": "Select options",
     "selected": "Selected",
     "singapore_time": "Singapore time",
+    "status_update_selection_description": "{count} selected. Only selected items that need this status change will be updated. Items already in the target status will remain unchanged.",
     "total": "Total"
   },
   "tooltip": {

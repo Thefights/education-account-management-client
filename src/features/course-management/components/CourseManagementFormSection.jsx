@@ -10,8 +10,8 @@ import { useMemo } from 'react'
 
 const initialValues = {
   courseName: '',
-  courseFeeAmount: '0',
-  miscFeeAmount: '0',
+  courseFeeAmount: '',
+  miscFeeAmount: '',
   enrollmentDeadline: '',
   startDate: '',
   endDate: '',
@@ -19,8 +19,8 @@ const initialValues = {
 
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
-  courseFeeAmount: String(course.courseFeeAmount ?? 0),
-  miscFeeAmount: String(course.miscFeeAmount ?? 0),
+  courseFeeAmount: course.courseFeeAmount == null ? '' : String(course.courseFeeAmount),
+  miscFeeAmount: course.miscFeeAmount == null ? '' : String(course.miscFeeAmount),
   enrollmentDeadline: toLocalDateTimeInput(course.enrollmentDeadline),
   startDate: toLocalDateTimeInput(course.startDate),
   endDate: toLocalDateTimeInput(course.endDate),

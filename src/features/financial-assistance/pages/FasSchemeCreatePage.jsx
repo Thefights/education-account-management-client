@@ -15,6 +15,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { getCurrencySymbolBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { showErrorToast } from '@/shared/utils/toastUtil'
 import { maxLen, numberHigherThan } from '@/shared/utils/validateUtil'
@@ -116,6 +117,7 @@ const usesGrossRange = (tier) =>
 
 export const TierEditor = ({ tiers, setTiers }) => {
   const { fasSubsidyTypeOptions, fasTierIncomeBasisOptions } = useEnum()
+  const { t } = useTranslation()
   const currencySymbol = getCurrencySymbolBasedOnCurrentLanguage()
   const derivedTiers = useMemo(() => getDerivedTiers(tiers), [tiers])
   const updateTier = (index, patch) =>
@@ -144,7 +146,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
           <Card
             key={tier.id || index}
             size="small"
-            title={tier.tierName || `Tier ${index + 1}`}
+            title={tier.tierName || t('financial_assistance.admin.text.tier_number', { number: index + 1 })}
             extra={
               <Button
                 danger
@@ -159,15 +161,15 @@ export const TierEditor = ({ tiers, setTiers }) => {
           >
             <Flex vertical gap={16}>
               <Flex gap={12} wrap="wrap">
-                <TierField label="Tier name" minWidth={180}>
+                <TierField label={t('financial_assistance.admin.field.tier_name')} minWidth={180}>
                   <Input
                     value={tier.tierName}
-                    placeholder="Tier name"
+                    placeholder={t('financial_assistance.admin.field.tier_name')}
                     style={FIELD_CONTROL_STYLE}
-                    onChange={(event) => updateTier(index, { tierName: event.target.value })}
+                    disabled
                   />
                 </TierField>
-                <TierField label="Income basis" minWidth={260} flex="1.5 1 260px">
+                <TierField label={t('financial_assistance.admin.field.income_basis')} minWidth={260} flex="1.5 1 260px">
                   <Select
                     value={tier.tierIncomeBasis}
                     options={fasTierIncomeBasisOptions}
@@ -175,7 +177,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                     onChange={(tierIncomeBasis) => updateTier(index, { tierIncomeBasis })}
                   />
                 </TierField>
-                <TierField label="Subsidy type" minWidth={180}>
+                <TierField label={t('financial_assistance.admin.field.subsidy_type')} minWidth={180}>
                   <Select
                     value={tier.subsidyType}
                     options={fasSubsidyTypeOptions}
@@ -184,8 +186,8 @@ export const TierEditor = ({ tiers, setTiers }) => {
                   />
                 </TierField>
                 <TierField
-                  label="Apply subsidy separately"
-                  help="Turn on to set different subsidy values for course fee and misc fee."
+                  label={t('financial_assistance.admin.field.apply_subsidy_separately')}
+                  help={t('financial_assistance.admin.help.apply_subsidy_separately')}
                   minWidth={260}
                   flex="1 1 260px"
                 >
@@ -201,7 +203,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                         })
                       }
                     />
-                    <Typography.Text>Course fee and misc fee</Typography.Text>
+                    <Typography.Text>{t('financial_assistance.admin.text.course_fee_and_misc_fee')}</Typography.Text>
                   </Flex>
                 </TierField>
               </Flex>
@@ -209,11 +211,11 @@ export const TierEditor = ({ tiers, setTiers }) => {
                 {usesPci && (
                   <>
                     <TierField
-                      label="From"
+                      label={t('financial_assistance.admin.field.from')}
                       help={
                         isPerCapitaStartDerived
-                          ? 'Calculated from the previous tier.'
-                          : 'Set where this tier starts.'
+                          ? t('financial_assistance.admin.help.calculated_from_previous_tier')
+                          : t('financial_assistance.admin.help.set_tier_start')
                       }
                       minWidth={220}
                     >
@@ -227,15 +229,15 @@ export const TierEditor = ({ tiers, setTiers }) => {
                       />
                     </TierField>
                     <TierField
-                      label="Up to"
-                      help="This value is not included in the tier. Leave the last tier empty for and above."
+                      label={t('financial_assistance.admin.field.up_to')}
+                      help={t('financial_assistance.admin.help.up_to_exclusive')}
                       minWidth={220}
                     >
                       <InputNumber
                         value={tier.maxPerCapitaIncome}
                         min={0}
                         prefix={currencySymbol}
-                        placeholder="No limit"
+                        placeholder={t('financial_assistance.admin.placeholder.no_limit')}
                         style={FIELD_CONTROL_STYLE}
                         onChange={(value) => updateTier(index, { maxPerCapitaIncome: value ?? '' })}
                       />
@@ -245,11 +247,11 @@ export const TierEditor = ({ tiers, setTiers }) => {
                 {usesGross && (
                   <>
                     <TierField
-                      label="From"
+                      label={t('financial_assistance.admin.field.from')}
                       help={
                         isGrossStartDerived
-                          ? 'Calculated from the previous tier.'
-                          : 'Set where this tier starts.'
+                          ? t('financial_assistance.admin.help.calculated_from_previous_tier')
+                          : t('financial_assistance.admin.help.set_tier_start')
                       }
                       minWidth={240}
                     >
@@ -265,15 +267,15 @@ export const TierEditor = ({ tiers, setTiers }) => {
                       />
                     </TierField>
                     <TierField
-                      label="Up to"
-                      help="This value is not included in the tier. Leave the last tier empty for and above."
+                      label={t('financial_assistance.admin.field.up_to')}
+                      help={t('financial_assistance.admin.help.up_to_exclusive')}
                       minWidth={240}
                     >
                       <InputNumber
                         value={tier.maxGrossHouseholdIncome}
                         min={0}
                         prefix={currencySymbol}
-                        placeholder="No limit"
+                        placeholder={t('financial_assistance.admin.placeholder.no_limit')}
                         style={FIELD_CONTROL_STYLE}
                         onChange={(value) =>
                           updateTier(index, { maxGrossHouseholdIncome: value ?? '' })
@@ -284,7 +286,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                 )}
                 {tier.isPerComponent ? (
                   <>
-                    <TierField label="Course fee subsidy">
+                    <TierField label={t('financial_assistance.admin.field.course_fee_subsidy')}>
                       <InputNumber
                         value={tier.courseFeeSubsidyValue}
                         min={0}
@@ -295,12 +297,12 @@ export const TierEditor = ({ tiers, setTiers }) => {
                             : undefined
                         }
                         suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                        placeholder="Value"
+                        placeholder={t('financial_assistance.admin.placeholder.value')}
                         style={FIELD_CONTROL_STYLE}
                         onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
                       />
                     </TierField>
-                    <TierField label="Misc fee subsidy">
+                    <TierField label={t('financial_assistance.admin.field.misc_fee_subsidy')}>
                       <InputNumber
                         value={tier.miscFeeSubsidyValue}
                         min={0}
@@ -311,14 +313,14 @@ export const TierEditor = ({ tiers, setTiers }) => {
                             : undefined
                         }
                         suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                        placeholder="Value"
+                        placeholder={t('financial_assistance.admin.placeholder.value')}
                         style={FIELD_CONTROL_STYLE}
                         onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
                       />
                     </TierField>
                   </>
                 ) : (
-                  <TierField label="Subsidy">
+                  <TierField label={t('financial_assistance.admin.field.subsidy')}>
                     <InputNumber
                       value={tier.subsidyValue}
                       min={0}
@@ -329,7 +331,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                           : undefined
                       }
                       suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                      placeholder="Value"
+                      placeholder={t('financial_assistance.admin.placeholder.value')}
                       style={FIELD_CONTROL_STYLE}
                       onChange={(value) => updateTier(index, { subsidyValue: value })}
                     />
@@ -344,27 +346,30 @@ export const TierEditor = ({ tiers, setTiers }) => {
         icon={<PlusOutlined />}
         onClick={() => setTiers((current) => [...current, createNextTier(current)])}
       >
-        Add tier
+        {t('financial_assistance.admin.action.add_tier')}
       </Button>
     </Space>
   )
 }
 
-export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
+export const RequiredDocumentsEditor = ({ documents, setDocuments }) => {
+  const { t } = useTranslation()
+
+  return (
   <Space direction="vertical" size={12} style={{ width: '100%' }}>
     <Typography.Text type="secondary">
-      Template files support PDF or Word format only (.pdf, .docx).
+      {t('financial_assistance.admin.help.template_file_format')}
     </Typography.Text>
     {!documents.length && (
       <Typography.Text type="secondary">
-        No documents required yet. Add one when applicants need to upload proof.
+        {t('financial_assistance.admin.empty.no_documents_required_yet')}
       </Typography.Text>
     )}
     {documents.map((document, index) => (
       <Card
         key={document.id || index}
         size="small"
-        title={`Document ${index + 1}`}
+        title={t('financial_assistance.admin.text.document_number', { number: index + 1 })}
         extra={
           <Button
             danger
@@ -378,11 +383,11 @@ export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
       >
         <Row gutter={[16, 12]} align="bottom">
           <Col xs={24} lg={14}>
-            <TierField label="Document name" minWidth="100%">
+            <TierField label={t('financial_assistance.admin.field.document_name')} minWidth="100%">
               <Input
                 value={document.documentName}
                 style={FIELD_CONTROL_STYLE}
-                placeholder="e.g. Household income statement"
+                placeholder={t('financial_assistance.admin.placeholder.document_name')}
                 onChange={(event) =>
                   setDocuments((current) =>
                     current.map((item, itemIndex) =>
@@ -394,7 +399,7 @@ export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
             </TierField>
           </Col>
           <Col xs={24} lg={10}>
-            <TierField label="Template file" minWidth="100%">
+            <TierField label={t('financial_assistance.admin.field.template_file')} minWidth="100%">
               <Flex align="center" gap={10} style={{ minHeight: 40, width: '100%', minWidth: 0 }}>
                 <Upload
                   accept={TEMPLATE_FILE_ACCEPT}
@@ -402,7 +407,7 @@ export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
                   showUploadList={false}
                   beforeUpload={(file) => {
                     if (!isAllowedTemplateFile(file)) {
-                      showErrorToast('Template file must be PDF or Word format (.pdf, .docx).')
+                      showErrorToast(t('financial_assistance.admin.message.template_file_invalid'))
                       return Upload.LIST_IGNORE
                     }
 
@@ -416,7 +421,7 @@ export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
                     return false
                   }}
                 >
-                  <Button style={{ height: 40 }}>Upload template</Button>
+                  <Button style={{ height: 40 }}>{t('financial_assistance.admin.action.upload_template')}</Button>
                 </Upload>
                 <Tooltip
                   title={
@@ -430,7 +435,9 @@ export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
                     ellipsis
                     style={{ flex: '1 1 0', minWidth: 0 }}
                   >
-                    {document.templateFileName || document.templateFileKey || 'No template uploaded'}
+                    {document.templateFileName ||
+                      document.templateFileKey ||
+                      t('financial_assistance.admin.empty.no_template_uploaded')}
                   </Typography.Text>
                 </Tooltip>
               </Flex>
@@ -454,23 +461,27 @@ export const RequiredDocumentsEditor = ({ documents, setDocuments }) => (
         ])
       }
     >
-      Add required document
+      {t('financial_assistance.admin.action.add_required_document')}
     </Button>
   </Space>
-)
+  )
+}
 
-export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
+export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => {
+  const { t } = useTranslation()
+
+  return (
   <Space direction="vertical" size={12} style={{ width: '100%' }}>
     {!questions.length && (
       <Typography.Text type="secondary">
-        No extra questions yet. Add one when reviewers need more applicant details.
+        {t('financial_assistance.admin.empty.no_questions_yet')}
       </Typography.Text>
     )}
     {questions.map((question, index) => (
       <Card
         key={question.id || index}
         size="small"
-        title={`Question ${index + 1}`}
+        title={t('financial_assistance.admin.text.question_number', { number: index + 1 })}
         extra={
           <Button
             danger
@@ -483,11 +494,11 @@ export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
         }
       >
         <Flex gap={12} align="flex-end" wrap="wrap">
-          <TierField label="Question text" minWidth={320} flex="1 1 320px">
+          <TierField label={t('financial_assistance.admin.field.question_text')} minWidth={320} flex="1 1 320px">
             <Input
               value={question.questionText}
               style={FIELD_CONTROL_STYLE}
-              placeholder="e.g. Tell us about your financial circumstances"
+              placeholder={t('financial_assistance.admin.placeholder.question_text')}
               onChange={(event) =>
                 setQuestions((current) =>
                   current.map((item, itemIndex) =>
@@ -497,7 +508,7 @@ export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
               }
             />
           </TierField>
-          <TierField label="Applicant must answer" minWidth={180} flex="0 0 180px">
+          <TierField label={t('financial_assistance.admin.field.applicant_must_answer')} minWidth={180} flex="0 0 180px">
             <Flex align="center" style={{ minHeight: 40 }}>
               <Checkbox
                 checked={question.isRequired}
@@ -509,7 +520,7 @@ export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
                   )
                 }
               >
-                Required
+                {t('financial_assistance.status.required')}
               </Checkbox>
             </Flex>
           </TierField>
@@ -525,13 +536,15 @@ export const AdditionalQuestionsEditor = ({ questions, setQuestions }) => (
         ])
       }
     >
-      Add question
+      {t('financial_assistance.admin.action.add_question')}
     </Button>
   </Space>
-)
+  )
+}
 
 const FasSchemeCreatePage = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const initialScheme = useMemo(() => createEmptyScheme(), [])
   const { values, handleChange, setField, registerRef, validateAll } = useForm({
     schemeName: initialScheme.schemeName,
@@ -569,35 +582,35 @@ const FasSchemeCreatePage = () => {
     () => [
       {
         key: 'schemeName',
-        title: 'Scheme name',
+        title: t('financial_assistance.field.scheme_name'),
         validate: [maxLen(150)],
-        props: { placeholder: 'Enter scheme name' },
+        props: { placeholder: t('financial_assistance.admin.placeholder.enter_scheme_name') },
       },
       {
         key: 'durationInMonths',
-        title: 'Duration',
+        title: t('financial_assistance.admin.field.duration'),
         type: 'input-number',
         minValue: 1,
         validate: [numberHigherThan(0)],
-        placeholder: 'e.g. 12',
-        props: { addonAfter: 'months' },
+        placeholder: t('financial_assistance.admin.placeholder.duration_example'),
+        props: { addonAfter: t('financial_assistance.admin.text.months') },
       },
       {
         key: 'description',
-        title: 'Description',
+        title: t('financial_assistance.admin.field.description'),
         required: false,
         multiple: 3,
         validate: [maxLen(1000)],
-        props: { placeholder: 'Enter description' },
+        props: { placeholder: t('financial_assistance.admin.placeholder.enter_description') },
       },
       {
         key: 'courseIds',
-        title: 'Courses',
+        title: t('financial_assistance.admin.field.courses'),
         type: 'select',
         required: false,
         multiple: true,
         options: courseOptions,
-        placeholder: 'Select courses',
+        placeholder: t('financial_assistance.admin.placeholder.select_courses'),
         props: {
           loading: courses.loading,
           showSearch: true,
@@ -605,7 +618,7 @@ const FasSchemeCreatePage = () => {
         },
       },
     ],
-    [courseOptions, courses.loading]
+    [courseOptions, courses.loading, t]
   )
 
   const handleSubmit = async () => {
@@ -638,16 +651,20 @@ const FasSchemeCreatePage = () => {
   return (
     <div style={{ padding: '20px 28px 28px' }}>
       <Flex align="center" gap={12} wrap="wrap" style={{ marginBottom: 20 }}>
-        <Button aria-label="Back" icon={<ArrowLeftOutlined />} onClick={() => navigate(listRoute)} />
+        <Button
+          aria-label={t('financial_assistance.admin.action.back')}
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(listRoute)}
+        />
         <Typography.Title level={4} style={{ margin: 0 }}>
-          Create FAS scheme
+          {t('financial_assistance.admin.scheme.create_title')}
         </Typography.Title>
       </Flex>
 
       <main>
         <FormSection
-          title="Basic information"
-          help="Name the scheme, set the validity period, and optionally limit it to selected courses."
+          title={t('financial_assistance.admin.section.basic_information')}
+          help={t('financial_assistance.admin.help.basic_information')}
         >
           <Row gutter={[16, 16]}>
             {basicFields.map((field) => (
@@ -669,8 +686,8 @@ const FasSchemeCreatePage = () => {
         </FormSection>
 
         <FormSection
-          title="Eligibility conditions"
-          help="Build one or more scenarios. A student is eligible when any scenario matches."
+          title={t('financial_assistance.admin.section.eligibility_conditions')}
+          help={t('financial_assistance.admin.help.eligibility_conditions')}
         >
           <FasConditionEditor
             value={conditionGroup}
@@ -683,22 +700,22 @@ const FasSchemeCreatePage = () => {
         </FormSection>
 
         <FormSection
-          title="Tiers"
-          help="Build continuous income ranges. From is calculated automatically; only set the upper limit and subsidy."
+          title={t('financial_assistance.admin.section.tiers')}
+          help={t('financial_assistance.admin.help.tiers')}
         >
           <TierEditor tiers={tiers} setTiers={setTiers} />
         </FormSection>
 
         <FormSection
-          title="Required documents"
-          help="Add documents the applicant must upload before submission."
+          title={t('financial_assistance.section.required_documents')}
+          help={t('financial_assistance.admin.help.required_documents')}
         >
           <RequiredDocumentsEditor documents={requiredDocuments} setDocuments={setRequiredDocuments} />
         </FormSection>
 
         <FormSection
-          title="Additional questions"
-          help="Collect extra applicant details needed for review."
+          title={t('financial_assistance.section.additional_questions')}
+          help={t('financial_assistance.admin.help.additional_questions')}
         >
           <AdditionalQuestionsEditor
             questions={additionalQuestions}
@@ -716,9 +733,9 @@ const FasSchemeCreatePage = () => {
           borderTop: '1px solid var(--app-border-color)',
         }}
       >
-        <Button onClick={() => navigate(listRoute)}>Cancel</Button>
+        <Button onClick={() => navigate(listRoute)}>{t('button.cancel')}</Button>
         <Button type="primary" onClick={handleSubmit} loading={save.loading}>
-          Create
+          {t('button.create')}
         </Button>
       </Flex>
     </div>

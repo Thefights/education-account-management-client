@@ -44,7 +44,8 @@
       "total_to_pay": "Số tiền cần đóng",
       "applied_fas": "FAS đang áp dụng",
       "approved_tier": "Mức hỗ trợ đã duyệt",
-      "deduction": "Khoản hỗ trợ"
+      "deduction": "Khoản hỗ trợ",
+      "note": "Ghi chú"
     },
     "action": {
       "publish": "Phát hành",
@@ -85,10 +86,13 @@
       "no_selected_students": "Chưa thêm học sinh nào.",
       "selected_students_count": "Đã thêm {count} học sinh.",
       "number_of_students_count": "Số lượng học sinh: {count}",
+      "active_students_count": "Học sinh đang học: {count}",
+      "withdrawn_students_count": "Học sinh đã rút: {count}",
       "no_pending_students": "Tìm và chọn học sinh để thêm vào khóa học này.",
       "pending_students_count": "{count} học sinh sẽ được thêm khi lưu.",
       "total_to_pay_hint": "Tổng phí sau khi trừ FAS đã được duyệt.",
-      "no_applied_fas": "Hiện chưa có FAS nào giảm phí cho khóa học này."
+      "no_applied_fas": "Hiện chưa có FAS nào giảm phí cho khóa học này.",
+      "withdrawn_course_note": "Đã rút khỏi khóa học này"
     },
     "tab": {
       "upcoming": "Sắp diễn ra",

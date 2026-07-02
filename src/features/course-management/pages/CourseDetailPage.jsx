@@ -14,7 +14,6 @@ import { GenericTablePagination } from '@/shared/components/generals/GenericPagi
 import InlineAsyncMultiSelect from '@/shared/components/generals/InlineAsyncMultiSelect'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
-import useConfirm from '@/shared/hooks/useConfirm'
 import useEnum from '@/shared/hooks/useEnum'
 import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
@@ -55,7 +54,6 @@ const CourseDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const confirm = useConfirm()
   const confirmReason = useReasonConfirm()
   const _enum = useEnum()
   const { token } = theme.useToken()
@@ -451,20 +449,23 @@ const CourseDetailPage = () => {
   }
 
   const handleWithdraw = async (enrollment) => {
-    const accepted = await confirm({
+    const reason = await confirmReason({
       title: t('enrollment_management.confirm.withdraw_title'),
       description: t('enrollment_management.confirm.withdraw_description', {
         name: enrollment.citizenFullName,
       }),
       confirmText: t('enrollment_management.action.withdraw'),
+      confirmColor: 'error',
     })
-    if (!accepted) return
+    if (!reason) return
 
     const response = await withdrawEnrollment.submit({
       overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.WITHDRAW(enrollment.id),
+      overrideData: { reason },
     })
     if (!response) return
 
+    await courseData.fetch()
     await enrollments.fetch()
   }
 
@@ -674,10 +675,16 @@ const CourseDetailPage = () => {
                 {t('course_management.title.manage_students')}
               </Typography.Title>
               <Tag color="blue" style={{ borderRadius: 12 }}>
-                {t('course_management.message.number_of_students_count', {
+                {t('course_management.message.active_students_count', {
                   count: formatCount(
-                    Number(course?.enrollmentCount || 0) + (editing ? studentIdsToAdd.length : 0)
+                    Number(course?.activeEnrollmentCount ?? course?.enrollmentCount ?? 0) +
+                      (editing ? studentIdsToAdd.length : 0)
                   ),
+                })}
+              </Tag>
+              <Tag color="default" style={{ borderRadius: 12 }}>
+                {t('course_management.message.withdrawn_students_count', {
+                  count: formatCount(Number(course?.withdrawnEnrollmentCount || 0)),
                 })}
               </Tag>
             </Space>

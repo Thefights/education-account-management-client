@@ -44,7 +44,8 @@
       "total_to_pay": "应付金额",
       "applied_fas": "已应用FAS",
       "approved_tier": "已批准等级",
-      "deduction": "扣减"
+      "deduction": "扣减",
+      "note": "备注"
     },
     "action": { "publish": "发布", "delete_selected": "删除所选", "save_as_draft": "保存为草稿", "manage_fas": "添加FAS", "add_students": "添加", "add_selected_students": "添加 {count} 名学生", "back_to_courses": "返回课程" },
     "fas": { "per_component": "按费用项", "standard": "标准" },
@@ -74,10 +75,13 @@
       "no_selected_students": "尚未添加学生。",
       "selected_students_count": "已添加 {count} 名学生。",
       "number_of_students_count": "学生人数：{count}",
+      "active_students_count": "在读学生：{count}",
+      "withdrawn_students_count": "已退课学生：{count}",
       "no_pending_students": "搜索并选择要添加到此课程的学生。",
       "pending_students_count": "保存后将添加 {count} 名学生。",
       "total_to_pay_hint": "扣除已批准FAS后的课程总额。",
-      "no_applied_fas": "当前没有FAS用于扣减此课程费用。"
+      "no_applied_fas": "当前没有FAS用于扣减此课程费用。",
+      "withdrawn_course_note": "已退出此课程"
     },
     "tab": {
       "upcoming": "即将开始",

@@ -3,6 +3,7 @@ import GenericImportSection from '@/shared/components/dialogs/commons/GenericImp
 import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { csvImportTemplates } from '@/shared/config/csvImportTemplates'
+import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useApiOptions from '@/shared/hooks/useApiOptions'
 import useAuth from '@/shared/hooks/useAuth'
@@ -10,6 +11,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
 import { showErrorToast } from '@/shared/utils/toastUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
@@ -49,6 +51,26 @@ const AdminManagementPage = () => {
     [sort, filters, page, pageSize]
   )
   const getAdmins = useFetch(ApiUrls.ADMIN_MANAGEMENT.INDEX, queryParams, [queryParams])
+  const activateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: getAdmins.data?.collection,
+        selectedIds,
+        idKey: 'userId',
+        targetStatus: EnumConfig.UserStatus.Active,
+      }),
+    [getAdmins.data?.collection, selectedIds]
+  )
+  const deactivateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: getAdmins.data?.collection,
+        selectedIds,
+        idKey: 'userId',
+        targetStatus: EnumConfig.UserStatus.Inactive,
+      }),
+    [getAdmins.data?.collection, selectedIds]
+  )
   const createAdmin = useAxiosSubmit({
     url: ApiUrls.ADMIN_MANAGEMENT.INDEX,
     method: 'POST',
@@ -76,6 +98,9 @@ const AdminManagementPage = () => {
   }
 
   const handleChangeStatus = async (status) => {
+    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+    if (!actionMeta.hasActionable) return
+
     if (selectedIds.some((id) => String(id) === String(currentUserId))) {
       showErrorToast('You cannot update your own status.')
       setSelectedIds((ids) => ids.filter((id) => String(id) !== String(currentUserId)))
@@ -84,13 +109,13 @@ const AdminManagementPage = () => {
 
     const reason = await confirmReason({
       title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      description: t('text.status_update_selection_description', { count: selectedIds.length }),
       confirmColor: status === 1 ? 'primary' : 'error',
       confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
-      overrideData: { ids: selectedIds, status, reason },
+      overrideData: { ids: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
     setSelectedIds([])
@@ -184,6 +209,7 @@ const AdminManagementPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
+              disabled: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -191,6 +217,7 @@ const AdminManagementPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
+              disabled: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(2),
             },
             {
