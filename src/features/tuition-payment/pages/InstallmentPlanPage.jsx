@@ -1,14 +1,21 @@
 import { ApiUrls } from '@/shared/api/apiUrls'
-import GenericTable from '@/shared/components/tables/GenericTable'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
-import { defaultChargeStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button, Card, Empty, Flex, Select, Skeleton, Steps, Tag, Typography } from 'antd'
+import {
+  ArrowLeftOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  ExclamationCircleOutlined,
+  InfoCircleFilled,
+  UnorderedListOutlined,
+  WalletOutlined,
+} from '@ant-design/icons'
+import { Button, Card, Empty, Flex, Select, Skeleton, Tag, Typography } from 'antd'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -16,10 +23,32 @@ import {
   compareInstallmentDueDateThenNumber,
   isInstallmentDueForPayment,
 } from '../utils/chargeStatusSort'
+import '../styles/tuitionPayment.css'
 
 const PaymentAction = {
   Due: 'due',
   Remaining: 'remaining',
+}
+
+const InstallmentVisualStatus = {
+  Overdue: 'overdue',
+  Due: 'due',
+  Upcoming: 'upcoming',
+  Paid: 'paid',
+}
+
+const getInstallmentVisualStatus = (installment) => {
+  if (installment.status === EnumConfig.ChargeStatus.Paid) return InstallmentVisualStatus.Paid
+  if (installment.status === EnumConfig.ChargeStatus.Overdue) return InstallmentVisualStatus.Overdue
+  if (isInstallmentDueForPayment(installment)) return InstallmentVisualStatus.Due
+  return InstallmentVisualStatus.Upcoming
+}
+
+const getInstallmentStatusIcon = (status) => {
+  if (status === InstallmentVisualStatus.Overdue) return <ExclamationCircleOutlined />
+  if (status === InstallmentVisualStatus.Due) return <ClockCircleOutlined />
+  if (status === InstallmentVisualStatus.Paid) return <CheckCircleOutlined />
+  return null
 }
 
 const InstallmentPlanPage = () => {
@@ -71,40 +100,27 @@ const InstallmentPlanPage = () => {
     0
   )
   const tuitionListRoute = routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX)
-  const getStepStatus = (installment) => {
-    if (installment.status === EnumConfig.ChargeStatus.Paid) return 'finish'
-    if (installment.status === EnumConfig.ChargeStatus.Overdue) return 'error'
-    if (installment.id === oldestDueInstallment?.id) return 'process'
-    return 'wait'
-  }
-  const currentStepIndex = oldestDueInstallment
-    ? installments.findIndex((installment) => installment.id === oldestDueInstallment.id)
-    : installments.length
-
-  const tableFields = [
-    {
-      key: 'installmentNumber',
-      title: t('tuition-payment.installments.number'),
+  const installmentStatusCounts = installments.reduce(
+    (counts, installment) => {
+      const visualStatus = getInstallmentVisualStatus(installment)
+      return { ...counts, [visualStatus]: counts[visualStatus] + 1 }
     },
     {
-      key: 'amount',
-      title: t('tuition-payment.installments.amount'),
-      render: (value) => formatCurrencyBasedOnCurrentLanguage(value),
-    },
-    {
-      key: 'dueDate',
-      title: t('tuition-payment.installments.due_date'),
-      render: (value) => formatDateBasedOnCurrentLanguage(value),
-    },
-    {
-      key: 'status',
-      title: t('tuition-payment.installments.status'),
-      render: (value) => <Tag color={defaultChargeStatusStyle(value)}>{value}</Tag>,
-    },
+      [InstallmentVisualStatus.Overdue]: 0,
+      [InstallmentVisualStatus.Due]: 0,
+      [InstallmentVisualStatus.Upcoming]: 0,
+      [InstallmentVisualStatus.Paid]: 0,
+    }
+  )
+  const timelineLegend = [
+    InstallmentVisualStatus.Overdue,
+    InstallmentVisualStatus.Due,
+    InstallmentVisualStatus.Upcoming,
+    InstallmentVisualStatus.Paid,
   ]
 
   return (
-    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1000, margin: '0 auto' }}>
+    <Flex vertical gap={18} style={{ width: '100%', maxWidth: 1400, margin: '0 auto' }}>
       <Flex align="center" gap={8}>
         <Button
           type="text"
@@ -121,22 +137,33 @@ const InstallmentPlanPage = () => {
         </Flex>
       </Flex>
 
-      <Flex gap={12} wrap="wrap">
-        <Card style={{ flex: '1 1 240px' }}>
-          <Flex vertical gap={4}>
-            <Typography.Text type="secondary">
-              {t('tuition-payment.installments.due_amount')}
-            </Typography.Text>
-            <Typography.Title level={4} style={{ margin: 0 }}>
-              {formatCurrencyBasedOnCurrentLanguage(selectedDueAmount)}
-            </Typography.Title>
+      <Flex gap={20} wrap="wrap">
+        <Card className="installment-summary-card" style={{ flex: '1 1 420px' }}>
+          <Flex vertical gap={18}>
+            <Flex align="center" gap={18}>
+              <div className="installment-summary-card__icon installment-summary-card__icon--wallet">
+                <WalletOutlined />
+              </div>
+              <Flex vertical gap={4}>
+                <Typography.Text type="secondary">
+                  {t('tuition-payment.installments.due_amount')}
+                </Typography.Text>
+                <Typography.Title level={2} className="installment-summary-card__amount">
+                  {formatCurrencyBasedOnCurrentLanguage(selectedDueAmount)}
+                </Typography.Title>
+              </Flex>
+            </Flex>
+            <div className="installment-summary-card__divider" />
             <Typography.Text type="secondary" style={{ fontWeight: 500 }}>
               {t('tuition-payment.charge.installments_to_pay')}
             </Typography.Text>
             <Select
+              size="large"
+              className="installment-summary-card__select"
               aria-label={t('tuition-payment.charge.installments_to_pay')}
               value={oldestDueInstallment ? installmentCount : undefined}
               disabled={!oldestDueInstallment}
+              prefix={<UnorderedListOutlined />}
               placeholder={t('tuition-payment.installments.none_due')}
               options={unlockedInstallments.map((_, index) => ({
                 value: index + 1,
@@ -151,64 +178,120 @@ const InstallmentPlanPage = () => {
             />
           </Flex>
         </Card>
-        <Card style={{ flex: '1 1 240px' }}>
-          <Flex vertical gap={4}>
-            <Typography.Text type="secondary">
-              {t('tuition-payment.installments.remaining_amount')}
-            </Typography.Text>
-            <Typography.Title level={4} style={{ margin: 0 }}>
-              {formatCurrencyBasedOnCurrentLanguage(remainingInstallmentAmount)}
-            </Typography.Title>
+        <Card className="installment-summary-card" style={{ flex: '1 1 420px' }}>
+          <Flex vertical gap={22}>
+            <Flex align="center" gap={18}>
+              <div className="installment-summary-card__icon installment-summary-card__icon--clock">
+                <ClockCircleOutlined />
+              </div>
+              <Flex vertical gap={4}>
+                <Typography.Text type="secondary">
+                  {t('tuition-payment.installments.remaining_amount')}
+                </Typography.Text>
+                <Typography.Title level={2} className="installment-summary-card__amount">
+                  {formatCurrencyBasedOnCurrentLanguage(remainingInstallmentAmount)}
+                </Typography.Title>
+              </Flex>
+            </Flex>
+            <Flex align="center" gap={12} className="installment-summary-card__notice">
+              <InfoCircleFilled />
+              <Typography.Text>
+                {t('tuition-payment.installments.summary_prefix')}{' '}
+                <Typography.Text strong className="installment-summary-card__due-count">
+                  {t('tuition-payment.installments.due_count', {
+                    count: installmentStatusCounts[InstallmentVisualStatus.Due],
+                  })}
+                </Typography.Text>{' '}
+                {t('tuition-payment.installments.summary_and')}{' '}
+                <Typography.Text strong className="installment-summary-card__overdue-count">
+                  {t('tuition-payment.installments.overdue_count', {
+                    count: installmentStatusCounts[InstallmentVisualStatus.Overdue],
+                  })}
+                </Typography.Text>
+              </Typography.Text>
+            </Flex>
           </Flex>
         </Card>
       </Flex>
 
-      <Card title={t('tuition-payment.installments.timeline')}>
-        <Steps
-          responsive
-          current={currentStepIndex}
-          items={installments.map((installment) => ({
-            title: t('tuition-payment.installments.step_title', {
-              number: installment.installmentNumber,
-            }),
-            description: (
-              <Flex vertical gap={2}>
-                <Typography.Text>
-                  {formatCurrencyBasedOnCurrentLanguage(installment.amount)}
-                </Typography.Text>
-                <Typography.Text type="secondary">
-                  {formatDateBasedOnCurrentLanguage(installment.dueDate)}
-                </Typography.Text>
-                <Tag color={defaultChargeStatusStyle(installment.status)}>{installment.status}</Tag>
+      <Card className="installment-timeline-card">
+        <Flex align="start" justify="space-between" gap={16} wrap="wrap">
+          <Flex align="center" gap={16}>
+            <div className="installment-timeline-card__icon">
+              <CalendarOutlined />
+            </div>
+            <Flex vertical gap={2}>
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                {t('tuition-payment.installments.timeline')}
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                {t('tuition-payment.installments.timeline_overview')}
+              </Typography.Text>
+            </Flex>
+          </Flex>
+          <Flex gap={24} wrap="wrap" className="installment-timeline-card__legend">
+            {timelineLegend.map((status) => (
+              <Flex key={status} align="center" gap={8}>
+                <span className={`installment-timeline__legend-dot is-${status}`} />
+                <Typography.Text>{t(`tuition-payment.installments.legend.${status}`)}</Typography.Text>
               </Flex>
-            ),
-            status: getStepStatus(installment),
-          }))}
-        />
-      </Card>
+            ))}
+          </Flex>
+        </Flex>
 
-      <Card>
-        <GenericTable
-          rowKey="id"
-          data={installments}
-          fields={tableFields}
-          loading={charges.loading}
-        />
+        <div
+          className="installment-timeline"
+          style={{ '--installment-count': installments.length }}
+        >
+          <div className="installment-timeline__rail" />
+          {installments.map((installment) => {
+            const visualStatus = getInstallmentVisualStatus(installment)
+            const statusIcon = getInstallmentStatusIcon(visualStatus)
+            return (
+              <div
+                key={installment.id}
+                className={`installment-timeline__item is-${visualStatus}`}
+              >
+                <div className="installment-timeline__node">
+                  {statusIcon || installment.installmentNumber}
+                </div>
+                <div className="installment-timeline__installment-card">
+                  <Typography.Text type="secondary">
+                    {t('tuition-payment.installments.number')}
+                  </Typography.Text>
+                  <Typography.Title level={3} className="installment-timeline__number">
+                    {installment.installmentNumber}
+                  </Typography.Title>
+                  <Typography.Text strong>
+                    {formatCurrencyBasedOnCurrentLanguage(installment.amount)}
+                  </Typography.Text>
+                  <Typography.Text type="secondary">
+                    {formatDateBasedOnCurrentLanguage(installment.dueDate)}
+                  </Typography.Text>
+                  <Tag className={`installment-timeline__status-pill is-${visualStatus}`}>
+                    {statusIcon}
+                    {t(`tuition-payment.installments.legend.${visualStatus}`)}
+                  </Tag>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </Card>
 
       <Flex justify="end" gap={8} wrap="wrap">
+        <Button
+          disabled={!unpaidInstallments.length}
+          onClick={() => openCheckout(PaymentAction.Remaining)}
+        >
+          {t('tuition-payment.action.pay_remaining')}
+        </Button>
         <Button
           type="primary"
           disabled={!oldestDueInstallment}
           onClick={() => openCheckout(PaymentAction.Due)}
         >
           {t('tuition-payment.action.pay_due')}
-        </Button>
-        <Button
-          disabled={!unpaidInstallments.length}
-          onClick={() => openCheckout(PaymentAction.Remaining)}
-        >
-          {t('tuition-payment.action.pay_remaining')}
         </Button>
       </Flex>
     </Flex>

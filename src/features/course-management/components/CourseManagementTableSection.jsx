@@ -5,6 +5,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import { CopyOutlined } from '@ant-design/icons'
+import { Space, Tag } from 'antd'
 
 const isDraft = (course) => course.status === 'Draft'
 
@@ -45,10 +46,23 @@ const CourseManagementTableSection = ({
     {
       key: 'enrollmentCount',
       title: t('course_management.field.enrollment_count'),
-      width: 140,
+      width: 220,
       sortable: true,
       isNumeric: true,
-      render: (value) => Number(value ?? 0).toLocaleString(),
+      render: (value, row) => (
+        <Space size={4} wrap>
+          <Tag color="blue" style={{ marginInlineEnd: 0 }}>
+            {t('course_management.message.active_students_count', {
+              count: Number(row.activeEnrollmentCount ?? value ?? 0).toLocaleString(),
+            })}
+          </Tag>
+          <Tag style={{ marginInlineEnd: 0 }}>
+            {t('course_management.message.withdrawn_students_count', {
+              count: Number(row.withdrawnEnrollmentCount || 0).toLocaleString(),
+            })}
+          </Tag>
+        </Space>
+      ),
     },
     {
       key: 'startDate',

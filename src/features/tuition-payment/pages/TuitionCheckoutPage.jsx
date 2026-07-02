@@ -29,6 +29,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   compareInstallmentDueDateThenNumber,
+  getTuitionStatusLabel,
   isInstallmentDueForPayment,
 } from '../utils/chargeStatusSort'
 
@@ -208,7 +209,9 @@ const TuitionCheckoutPage = () => {
       {
         key: 'status',
         title: t('tuition-payment.installments.status'),
-        render: (value) => <Tag color={defaultChargeStatusStyle(value)}>{value}</Tag>,
+        render: (value) => (
+          <Tag color={defaultChargeStatusStyle(value)}>{getTuitionStatusLabel(value, t)}</Tag>
+        ),
       },
       {
         key: 'paymentTarget',

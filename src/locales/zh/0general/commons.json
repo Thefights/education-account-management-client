@@ -88,6 +88,7 @@
     "select_options": "选择选项",
     "selected": "已选择",
     "singapore_time": "新加坡时间",
+    "status_update_selection_description": "已选择 {count} 项。只会更新需要变更状态的项目，已处于目标状态的项目将保持不变。",
     "total": "全部的"
   },
   "tooltip": {

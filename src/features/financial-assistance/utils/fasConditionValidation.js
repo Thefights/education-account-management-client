@@ -1,15 +1,23 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
+import { getTranslation } from '@/shared/hooks/useTranslation'
 import { getConditionFormValue } from './fasFormUtil'
 
 const { FasConditionField, FasConditionOperator } = EnumConfig
 
+const t = getTranslation
+
 const fieldLabels = {
-  [FasConditionField.StudentAge]: 'Student age',
-  [FasConditionField.StudentNationality]: 'Student nationality',
-  [FasConditionField.GuardianNationality]: 'Guardian nationality',
-  [FasConditionField.GrossHouseholdIncome]: 'Gross household income',
-  [FasConditionField.PerCapitaIncome]: 'Per-capita income',
+  [FasConditionField.StudentAge]: () => t('financial_assistance.admin.condition.field.student_age'),
+  [FasConditionField.StudentNationality]: () =>
+    t('financial_assistance.admin.condition.field.student_nationality'),
+  [FasConditionField.GuardianNationality]: () =>
+    t('financial_assistance.field.guardian_nationality'),
+  [FasConditionField.GrossHouseholdIncome]: () =>
+    t('financial_assistance.field.gross_household_income'),
+  [FasConditionField.PerCapitaIncome]: () => t('financial_assistance.field.per_capita_income'),
 }
+
+const getFieldLabel = (field) => fieldLabels[field]?.() || field
 
 const isNationalityField = (field) =>
   field === FasConditionField.StudentNationality || field === FasConditionField.GuardianNationality
@@ -21,9 +29,11 @@ export const getConditionValidationErrors = (condition) => {
     if (
       ![FasConditionOperator.Equal, FasConditionOperator.NotEqual].includes(normalized.operator)
     ) {
-      errors.operator = 'Nationality only supports equal or not equal.'
+      errors.operator = t('financial_assistance.admin.message.nationality_operator_invalid')
     }
-    if (!normalized.nationality) errors.value = 'Nationality value is required.'
+    if (!normalized.nationality) {
+      errors.value = t('financial_assistance.admin.message.nationality_required')
+    }
     return errors
   }
 
@@ -37,21 +47,23 @@ export const getConditionValidationErrors = (condition) => {
     FasConditionField.PerCapitaIncome,
   ].includes(normalized.field)
   if (!hasValue || !Number.isFinite(value)) {
-    errors.value = `${fieldLabels[normalized.field]} value is required.`
+    errors.value = t('financial_assistance.admin.message.condition_value_required', {
+      field: getFieldLabel(normalized.field),
+    })
   } else if (isAge && (value < 16 || value > 30)) {
-    errors.value = 'Student age must be between 16 and 30.'
+    errors.value = t('financial_assistance.admin.message.student_age_range')
   } else if (isIncome && value < 0) {
-    errors.value = 'Income cannot be negative.'
+    errors.value = t('financial_assistance.admin.message.income_non_negative')
   }
   if (normalized.operator === FasConditionOperator.Between) {
     if (!hasUpper || !Number.isFinite(upper)) {
-      errors.valueTo = 'Between upper value is required.'
+      errors.valueTo = t('financial_assistance.admin.message.between_upper_required')
     } else if (upper < value) {
-      errors.valueTo = 'Between upper value must be greater than or equal to lower value.'
+      errors.valueTo = t('financial_assistance.admin.message.between_upper_gte_lower')
     } else if (isAge && (upper < 16 || upper > 30)) {
-      errors.valueTo = 'Student age must be between 16 and 30.'
+      errors.valueTo = t('financial_assistance.admin.message.student_age_range')
     } else if (isIncome && upper < 0) {
-      errors.valueTo = 'Income cannot be negative.'
+      errors.valueTo = t('financial_assistance.admin.message.income_non_negative')
     }
   }
   return errors
@@ -70,7 +82,11 @@ export const getScenarioConflictErrors = (scenario) => {
       : String(normalized.valueNumber)
     const previous = equalityByField.get(normalized.field)
     if (previous != null && previous !== value) {
-      errors.push(`${fieldLabels[normalized.field]} has conflicting equal conditions.`)
+      errors.push(
+        t('financial_assistance.admin.message.conflicting_equal_conditions', {
+          field: getFieldLabel(normalized.field),
+        })
+      )
     }
     equalityByField.set(normalized.field, value)
   })

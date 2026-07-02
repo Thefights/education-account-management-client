@@ -20,14 +20,21 @@ import {
 import { showErrorToast, showSuccessToast } from '@/shared/utils/toastUtil'
 import {
   ArrowRightOutlined,
+  AuditOutlined,
   CheckCircleFilled,
   DeleteOutlined,
   FileAddOutlined,
+  FileDoneOutlined,
+  FileSearchOutlined,
   FileTextOutlined,
+  HomeOutlined,
   InfoCircleOutlined,
+  QuestionCircleOutlined,
   SendOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import {
+  Alert,
   Button,
   Card,
   Col,
@@ -53,6 +60,8 @@ const NATIONALITY = EnumConfig.NationalityCategory
 
 const getRequiredDocuments = (scheme) => scheme.requiredDocuments || []
 
+const RequiredMark = () => <Typography.Text type="danger"> *</Typography.Text>
+
 const buildFasAutoFillRequest = (payload) => ({
   SessionId: payload.session_id,
   FasSchemeId: payload.fas_scheme_id,
@@ -73,6 +82,12 @@ const buildFasAutoFillRequest = (payload) => ({
 const getAbsoluteApiUrl = (path) => {
   const baseUrl = envConfig.api.baseUrl || window.location.origin
   return new URL(path, baseUrl).toString()
+}
+
+const getCloudFileUrl = (fileKey) => {
+  if (!fileKey) return null
+  if (/^https?:\/\//i.test(fileKey)) return fileKey
+  return `${envConfig.imageCloudUrl.replace(/\/$/, '')}/${fileKey.replace(/^\//, '')}`
 }
 
 const resetFasAutoFillSessionSilently = (sessionId, { keepalive = false } = {}) => {
@@ -100,12 +115,14 @@ const ApplicationSection = ({
   scheme,
   draft,
   household,
+  studentProfile,
   loading,
   onSaveDraft,
   onSubmit,
 }) => {
   const { token } = theme.useToken()
   const { t } = useTranslation()
+  const { fasNationalityOptions } = useEnum()
   const [documents, setDocuments] = useState(() =>
     getRequiredDocuments(scheme).map((document) => {
       const existing = (draft?.documents || []).find(
@@ -115,6 +132,7 @@ const ApplicationSection = ({
       return {
         requiredDocumentId: document.id,
         documentName: document.documentName,
+        templateUrl: document.templateUrl || document.templateFileKey || '',
         file: null,
         fileKey: existing?.fileKey || '',
         fileName: existing?.fileName || '',
@@ -159,6 +177,14 @@ const ApplicationSection = ({
     url: ApiUrls.AI_CHAT.FAS_AUTO_FILL,
     method: 'POST',
   })
+  const studentNationality =
+    studentProfile?.nationality ??
+    draft?.studentProfile?.nationality ??
+    draft?.studentNationalitySnapshot
+  const studentNationalityLabel =
+    fasNationalityOptions.find((option) => option.value === studentNationality)?.label ||
+    studentNationality ||
+    '-'
 
   const updateAnswerByQuestionId = (questionId, answerText) => {
     setAnswers((current) =>
@@ -194,6 +220,166 @@ const ApplicationSection = ({
     return true
   }
 
+  const questionsSection = answers.length ? (
+    <section
+      style={{
+        padding: 16,
+        border: `1px solid ${token.colorBorder}`,
+        borderRadius: token.borderRadiusLG,
+      }}
+    >
+      <Flex align="center" justify="space-between" gap={12} style={{ marginBottom: 14 }}>
+        <div>
+          <Flex align="center" gap={8}>
+            <QuestionCircleOutlined style={{ color: token.colorInfo }} />
+            <Typography.Text strong>{t('financial_assistance.section.questions')}</Typography.Text>
+          </Flex>
+          <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
+            {t('financial_assistance.apply.additional_questions_help')}
+          </Typography.Paragraph>
+        </div>
+        <Typography.Text type="secondary">
+          {t('financial_assistance.text.answered_count', { answered: answeredCount, total: answers.length })}
+        </Typography.Text>
+      </Flex>
+      <Flex vertical gap={16}>
+        {answers.map((answer, index) => (
+          <Flex key={answer.fasSchemeAdditionalQuestionId} vertical gap={6}>
+            <Typography.Text strong>
+              {answer.questionText}
+              {answer.isRequired ? (
+                <RequiredMark />
+              ) : (
+                <Typography.Text type="secondary">
+                  {' '}
+                  ({t('financial_assistance.status.optional')})
+                </Typography.Text>
+              )}
+            </Typography.Text>
+            <Input.TextArea
+              value={answer.answerText}
+              rows={3}
+              placeholder={t('financial_assistance.placeholder.enter_answer')}
+              aria-required={answer.isRequired ? 'true' : undefined}
+              onChange={(event) =>
+                setAnswers((current) =>
+                  current.map((item, itemIndex) =>
+                    itemIndex === index ? { ...item, answerText: event.target.value } : item
+                  )
+                )
+              }
+            />
+          </Flex>
+        ))}
+      </Flex>
+    </section>
+  ) : null
+
+  const requiredDocumentsSection = (
+    <section
+      style={{
+        padding: 16,
+        border: `1px solid ${token.colorBorder}`,
+        borderRadius: token.borderRadiusLG,
+      }}
+    >
+      <Flex align="center" justify="space-between" gap={12} style={{ marginBottom: 14 }}>
+        <div>
+          <Flex align="center" gap={8}>
+            <FileTextOutlined style={{ color: token.colorInfo }} />
+            <Typography.Text strong>{t('financial_assistance.section.required_documents')}</Typography.Text>
+          </Flex>
+          <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
+            {t('financial_assistance.apply.required_documents_help')}
+          </Typography.Paragraph>
+        </div>
+        <Typography.Text type="secondary">
+          {t('financial_assistance.text.uploaded_count', { uploaded: uploadedCount, total: documents.length })}
+        </Typography.Text>
+      </Flex>
+      <Flex vertical gap={10}>
+        {documents.length ? (
+          documents.map((document, index) => {
+            const templateUrl = getCloudFileUrl(document.templateUrl)
+            return (
+              <Flex
+                key={document.requiredDocumentId}
+                align="center"
+                justify="space-between"
+                gap={16}
+                wrap="wrap"
+                style={{
+                  minHeight: 72,
+                  padding: '12px 14px',
+                  background: token.colorFillAlter,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  borderRadius: token.borderRadius,
+                }}
+              >
+                <Flex align="center" gap={12} style={{ minWidth: 0 }}>
+                  <FileTextOutlined style={{ color: token.colorInfo }} />
+                  <Flex vertical gap={2} style={{ minWidth: 0 }}>
+                    <Typography.Text strong>
+                      {document.documentName}
+                      <RequiredMark />
+                    </Typography.Text>
+                    <Typography.Text type="secondary" ellipsis>
+                      {document.file?.name || document.fileName || t('financial_assistance.text.no_file_selected')}
+                    </Typography.Text>
+                  </Flex>
+                </Flex>
+                <Space wrap>
+                  {templateUrl ? (
+                    <Button type="link" href={templateUrl} target="_blank" rel="noreferrer">
+                      {t('financial_assistance.action.view_template')}
+                    </Button>
+                  ) : null}
+                  <Upload
+                    maxCount={1}
+                    showUploadList={false}
+                    beforeUpload={(file) => {
+                      setDocuments((current) =>
+                        current.map((item, itemIndex) =>
+                          itemIndex === index ? { ...item, file, fileName: file.name } : item
+                        )
+                      )
+                      return false
+                    }}
+                  >
+                    <Button icon={<FileAddOutlined />}>
+                      {document.file || document.fileKey
+                        ? t('financial_assistance.action.replace_file')
+                        : t('financial_assistance.action.upload_file')}
+                    </Button>
+                  </Upload>
+                  {document.file || document.fileKey ? (
+                    <Button
+                      danger
+                      type="text"
+                      aria-label={t('financial_assistance.action.remove_document', { name: document.documentName })}
+                      icon={<DeleteOutlined />}
+                      onClick={() =>
+                        setDocuments((current) =>
+                          current.map((item, itemIndex) =>
+                            itemIndex === index
+                              ? { ...item, file: null, fileKey: '', fileName: '' }
+                              : item
+                          )
+                        )
+                      }
+                    />
+                  ) : null}
+                </Space>
+              </Flex>
+            )
+          })
+        ) : (
+          <Typography.Text type="secondary">{t('financial_assistance.empty.no_documents_required')}</Typography.Text>
+        )}
+      </Flex>
+    </section>
+  )
+
   return (
     <Flex vertical gap={24}>
       <section style={{ paddingBlock: 20, borderTop: `1px solid ${token.colorBorder}` }}>
@@ -211,12 +397,54 @@ const ApplicationSection = ({
             <section
               style={{
                 padding: 16,
+                background: token.colorFillAlter,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                borderRadius: token.borderRadiusLG,
+              }}
+            >
+              <Flex vertical gap={14}>
+                <div>
+                  <Flex align="center" gap={8}>
+                    <UserOutlined style={{ color: token.colorInfo }} />
+                    <Typography.Text strong>{t('financial_assistance.section.student_information')}</Typography.Text>
+                  </Flex>
+                  <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
+                    {t('financial_assistance.apply.student_information_help')}
+                  </Typography.Paragraph>
+                </div>
+                <Row gutter={[16, 12]}>
+                  <Col xs={24} md={8}>
+                    <Flex vertical gap={6}>
+                      <Typography.Text type="secondary">{t('financial_assistance.field.student_name')}</Typography.Text>
+                      <Input disabled value={studentProfile?.fullName || draft?.studentProfile?.fullName || '-'} />
+                    </Flex>
+                  </Col>
+                  <Col xs={24} md={8}>
+                    <Flex vertical gap={6}>
+                      <Typography.Text type="secondary">{t('financial_assistance.field.student_age')}</Typography.Text>
+                      <Input disabled value={studentProfile?.age ?? draft?.studentProfile?.age ?? draft?.studentAgeSnapshot ?? '-'} />
+                    </Flex>
+                  </Col>
+                  <Col xs={24} md={8}>
+                    <Flex vertical gap={6}>
+                      <Typography.Text type="secondary">{t('financial_assistance.field.student_nationality')}</Typography.Text>
+                      <Input disabled value={studentNationalityLabel} />
+                    </Flex>
+                  </Col>
+                </Row>
+              </Flex>
+            </section>
+
+            <section
+              style={{
+                padding: 16,
                 border: `1px solid ${token.colorBorder}`,
                 borderRadius: token.borderRadiusLG,
               }}
             >
               <Flex vertical gap={12}>
                 <Flex align="center" gap={8} wrap="wrap">
+                  <AuditOutlined style={{ color: token.colorInfo }} />
                   <Typography.Title level={5} style={{ margin: 0 }}>
                     {scheme.schemeName}
                   </Typography.Title>
@@ -252,140 +480,9 @@ const ApplicationSection = ({
               </Flex>
             </section>
 
-            <section
-              style={{
-                padding: 16,
-                border: `1px solid ${token.colorBorder}`,
-                borderRadius: token.borderRadiusLG,
-              }}
-            >
-              <Flex align="center" justify="space-between" gap={12} style={{ marginBottom: 14 }}>
-                <div>
-                  <Typography.Text strong>{t('financial_assistance.section.required_documents')}</Typography.Text>
-                  <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
-                    {t('financial_assistance.apply.required_documents_help')}
-                  </Typography.Paragraph>
-                </div>
-                <Typography.Text type="secondary">
-                  {t('financial_assistance.text.uploaded_count', { uploaded: uploadedCount, total: documents.length })}
-                </Typography.Text>
-              </Flex>
-              <Flex vertical gap={10}>
-                {documents.length ? (
-                  documents.map((document, index) => (
-                    <Flex
-                      key={document.requiredDocumentId}
-                      align="center"
-                      justify="space-between"
-                      gap={16}
-                      wrap="wrap"
-                      style={{
-                        minHeight: 72,
-                        padding: '12px 14px',
-                        background: token.colorFillAlter,
-                        border: `1px solid ${token.colorBorderSecondary}`,
-                        borderRadius: token.borderRadius,
-                      }}
-                    >
-                      <Flex align="center" gap={12} style={{ minWidth: 0 }}>
-                        <FileTextOutlined style={{ color: token.colorInfo }} />
-                        <Flex vertical gap={2} style={{ minWidth: 0 }}>
-                          <Typography.Text strong>{document.documentName}</Typography.Text>
-                          <Typography.Text type="secondary" ellipsis>
-                            {document.file?.name || document.fileName || t('financial_assistance.text.no_file_selected')}
-                          </Typography.Text>
-                        </Flex>
-                      </Flex>
-                      <Space>
-                        <Upload
-                          maxCount={1}
-                          showUploadList={false}
-                          beforeUpload={(file) => {
-                            setDocuments((current) =>
-                              current.map((item, itemIndex) =>
-                                itemIndex === index ? { ...item, file, fileName: file.name } : item
-                              )
-                            )
-                            return false
-                          }}
-                        >
-                          <Button icon={<FileAddOutlined />}>
-                            {document.file || document.fileKey
-                              ? t('financial_assistance.action.replace_file')
-                              : t('financial_assistance.action.upload_file')}
-                          </Button>
-                        </Upload>
-                        {document.file || document.fileKey ? (
-                          <Button
-                            danger
-                            type="text"
-                            aria-label={t('financial_assistance.action.remove_document', { name: document.documentName })}
-                            icon={<DeleteOutlined />}
-                            onClick={() =>
-                              setDocuments((current) =>
-                                current.map((item, itemIndex) =>
-                                  itemIndex === index
-                                    ? { ...item, file: null, fileKey: '', fileName: '' }
-                                    : item
-                                )
-                              )
-                            }
-                          />
-                        ) : null}
-                      </Space>
-                    </Flex>
-                  ))
-                ) : (
-                  <Typography.Text type="secondary">{t('financial_assistance.empty.no_documents_required')}</Typography.Text>
-                )}
-              </Flex>
-            </section>
+            {questionsSection}
 
-            {answers.length ? (
-              <section
-                style={{
-                  padding: 16,
-                  border: `1px solid ${token.colorBorder}`,
-                  borderRadius: token.borderRadiusLG,
-                }}
-              >
-                <Flex align="center" justify="space-between" gap={12} style={{ marginBottom: 14 }}>
-                  <div>
-                    <Typography.Text strong>{t('financial_assistance.section.additional_questions')}</Typography.Text>
-                    <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
-                      {t('financial_assistance.apply.additional_questions_help')}
-                    </Typography.Paragraph>
-                  </div>
-                  <Typography.Text type="secondary">
-                    {t('financial_assistance.text.answered_count', { answered: answeredCount, total: answers.length })}
-                  </Typography.Text>
-                </Flex>
-                <Flex vertical gap={16}>
-                  {answers.map((answer, index) => (
-                    <Flex key={answer.fasSchemeAdditionalQuestionId} vertical gap={6}>
-                      <Typography.Text strong>
-                        {answer.questionText}
-                        {answer.isRequired ? (
-                          <Typography.Text type="danger"> *</Typography.Text>
-                        ) : null}
-                      </Typography.Text>
-                      <Input.TextArea
-                        value={answer.answerText}
-                        rows={3}
-                        placeholder={t('financial_assistance.placeholder.enter_answer')}
-                        onChange={(event) =>
-                          setAnswers((current) =>
-                            current.map((item, itemIndex) =>
-                              itemIndex === index ? { ...item, answerText: event.target.value } : item
-                            )
-                          )
-                        }
-                      />
-                    </Flex>
-                  ))}
-                </Flex>
-              </section>
-            ) : null}
+            {requiredDocumentsSection}
           </Flex>
         </Col>
 
@@ -484,10 +581,11 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
   const additionalQuestions = scheme.additionalQuestions || []
   const tiers = scheme.tiers || []
   const conditions = scheme.conditionsSummary || []
+  const appliesToCurrentCourses = Boolean(scheme.appliesToCurrentCourses)
   const isApplyDisabled = Boolean(scheme.hasBlockingApplication)
-  const applyUnavailableReason =
-    scheme.applyUnavailableReason ||
-    t('financial_assistance.message.duplicate_application_active')
+  const applyUnavailableReason = scheme.hasBlockingApplication
+    ? scheme.applyUnavailableReason || t('financial_assistance.message.duplicate_application_active')
+    : t('financial_assistance.message.no_current_course_for_scheme')
 
   return (
     <section
@@ -505,7 +603,18 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
                 {scheme.schemeName}
               </Typography.Title>
               <Tag color="success">{t('financial_assistance.status.eligible')}</Tag>
-              {isApplyDisabled ? <Tag color="default">{t('financial_assistance.status.already_applied')}</Tag> : null}
+              {appliesToCurrentCourses ? (
+                <Tag color="processing">
+                  {t('financial_assistance.status.course_applicable')}
+                </Tag>
+              ) : (
+                <Tag color="warning">
+                  {t('financial_assistance.status.no_matching_course')}
+                </Tag>
+              )}
+              {scheme.hasBlockingApplication ? (
+                <Tag color="default">{t('financial_assistance.status.already_applied')}</Tag>
+              ) : null}
             </Flex>
             <Typography.Text type="secondary">
               {scheme.schemeCode} · {t('financial_assistance.text.valid_for_months', { count: scheme.durationInMonths })}
@@ -520,17 +629,12 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
             </Button>
           </Flex>
         </Flex>
-        {isApplyDisabled ? (
-          <div
-            style={{
-              padding: '10px 12px',
-              background: token.colorFillAlter,
-              border: `1px solid ${token.colorBorderSecondary}`,
-              borderRadius: token.borderRadius,
-            }}
-          >
-            <Typography.Text type="secondary">{applyUnavailableReason}</Typography.Text>
-          </div>
+        {isApplyDisabled || !appliesToCurrentCourses ? (
+          <Alert
+            showIcon
+            type={scheme.hasBlockingApplication ? 'info' : 'warning'}
+            message={applyUnavailableReason}
+          />
         ) : null}
         <Typography.Paragraph style={{ margin: 0 }}>
           {scheme.description || t('financial_assistance.text.default_scheme_description')}
@@ -540,10 +644,17 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
             {t('financial_assistance.text.required_documents_count', { count: requiredDocuments.length })}
           </Typography.Text>
           <Typography.Text type="secondary">
-            {t('financial_assistance.text.additional_questions_count', { count: additionalQuestions.length })}
+            {t('financial_assistance.text.questions_count', { count: additionalQuestions.length })}
           </Typography.Text>
           <Typography.Text type="secondary">
             {t('financial_assistance.text.assistance_tiers_count', { count: tiers.length })}
+          </Typography.Text>
+          <Typography.Text type={appliesToCurrentCourses ? 'secondary' : 'warning'}>
+            {appliesToCurrentCourses
+              ? t('financial_assistance.text.applies_to_courses_count', {
+                  count: scheme.matchedCurrentCourseCount || 0,
+                })
+              : t('financial_assistance.text.no_current_course_match')}
           </Typography.Text>
         </Flex>
         {expanded ? (
@@ -614,7 +725,7 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
                 </Col>
                 <Col xs={24} lg={12}>
                   <Flex vertical gap={10}>
-                    <Typography.Text strong>{t('financial_assistance.section.additional_questions')}</Typography.Text>
+                    <Typography.Text strong>{t('financial_assistance.section.questions')}</Typography.Text>
                     {additionalQuestions.length ? (
                       additionalQuestions.map((question, index) => (
                         <Flex
@@ -624,11 +735,13 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
                           gap={10}
                         >
                           <Typography.Text>{question.questionText}</Typography.Text>
-                          <Tag>
-                            {question.isRequired
-                              ? t('financial_assistance.status.required')
-                              : t('financial_assistance.status.optional')}
-                          </Tag>
+                          {question.isRequired ? (
+                            <Tag>{t('financial_assistance.status.required')}</Tag>
+                          ) : (
+                            <Typography.Text type="secondary">
+                              ({t('financial_assistance.status.optional')})
+                            </Typography.Text>
+                          )}
                         </Flex>
                       ))
                     ) : (
@@ -637,6 +750,23 @@ const SchemeOption = ({ scheme, expanded, onToggle, onApply }) => {
                   </Flex>
                 </Col>
               </Row>
+
+              <section>
+                <Typography.Text strong>{t('financial_assistance.section.current_courses')}</Typography.Text>
+                <Flex gap={8} wrap="wrap" style={{ marginTop: 8 }}>
+                  {(scheme.matchedCurrentCourses || []).length ? (
+                    scheme.matchedCurrentCourses.map((course) => (
+                      <Tag key={course.id}>
+                        {course.courseCode} · {course.courseName}
+                      </Tag>
+                    ))
+                  ) : (
+                    <Typography.Text type="secondary">
+                      {t('financial_assistance.empty.no_matching_current_courses')}
+                    </Typography.Text>
+                  )}
+                </Flex>
+              </section>
 
               <section>
                 <Typography.Text strong>{t('financial_assistance.section.why_eligible')}</Typography.Text>
@@ -698,10 +828,16 @@ const MyFasApplyPage = () => {
   const availableSchemes = useMemo(
     () =>
       [...(availableData.schemes || [])].sort(
-        (left, right) => Number(Boolean(left.hasBlockingApplication)) - Number(Boolean(right.hasBlockingApplication))
+        (left, right) =>
+          Number(Boolean(left.hasBlockingApplication)) -
+            Number(Boolean(right.hasBlockingApplication)) ||
+          Number(Boolean(right.appliesToCurrentCourses)) -
+            Number(Boolean(left.appliesToCurrentCourses))
       ),
     [availableData.schemes]
   )
+  const applicableSchemeCount = availableSchemes.filter((scheme) => scheme.appliesToCurrentCourses)
+    .length
   const draftDetail = useAxiosSubmit({ method: 'GET' })
   const saveDraft = useAxiosSubmit({ method: 'POST' })
   const updateDraft = useAxiosSubmit({ method: 'PUT' })
@@ -773,9 +909,12 @@ const MyFasApplyPage = () => {
     <Card>
       <Flex vertical gap={20}>
         <div>
-          <Typography.Title level={3} style={{ margin: 0 }}>
-            {t('financial_assistance.apply.title')}
-          </Typography.Title>
+          <Flex align="center" gap={10} wrap="wrap">
+            <FileDoneOutlined style={{ color: token.colorInfo, fontSize: 24 }} />
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {t('financial_assistance.apply.title')}
+            </Typography.Title>
+          </Flex>
           <Typography.Text type="secondary">
             {t('financial_assistance.apply.description')}
           </Typography.Text>
@@ -785,9 +924,18 @@ const MyFasApplyPage = () => {
           size="small"
           onChange={handleStepChange}
           items={[
-            { title: t('financial_assistance.step.household_details') },
-            { title: t('financial_assistance.step.select_scheme') },
-            { title: t('financial_assistance.step.application') },
+            {
+              title: t('financial_assistance.step.household_details'),
+              icon: <HomeOutlined />,
+            },
+            {
+              title: t('financial_assistance.step.select_scheme'),
+              icon: <FileSearchOutlined />,
+            },
+            {
+              title: t('financial_assistance.step.application'),
+              icon: <FileDoneOutlined />,
+            },
           ]}
         />
         {currentStep > 0 ? (
@@ -821,6 +969,7 @@ const MyFasApplyPage = () => {
             scheme={selectedScheme}
             draft={draft}
             household={household}
+            studentProfile={draft?.studentProfile || availableData.studentProfile}
             loading={applicationLoading}
             onSaveDraft={async (payload) => {
               const response = draft?.id
@@ -855,7 +1004,10 @@ const MyFasApplyPage = () => {
               <section style={{ paddingBlock: 20, borderTop: `1px solid ${token.colorBorder}` }}>
                 <Flex vertical gap={16}>
                   <div>
-                    <Typography.Text strong>{t('financial_assistance.step.household_details')}</Typography.Text>
+                    <Flex align="center" gap={8}>
+                      <HomeOutlined style={{ color: token.colorInfo }} />
+                      <Typography.Text strong>{t('financial_assistance.step.household_details')}</Typography.Text>
+                    </Flex>
                     <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
                       {t('financial_assistance.apply.household_help')}
                     </Typography.Paragraph>
@@ -863,11 +1015,16 @@ const MyFasApplyPage = () => {
                   <Row gutter={[16, 16]} align="bottom">
                     <Col xs={24} md={8}>
                       <Flex vertical gap={6}>
-                        <Typography.Text strong>{t('financial_assistance.field.gross_household_income')}</Typography.Text>
+                        <Typography.Text strong>
+                          {t('financial_assistance.field.gross_household_income')}
+                          <RequiredMark />
+                        </Typography.Text>
                         <InputNumber
                           value={household.grossHouseholdIncome}
                           min={0}
                           prefix={currencySymbol}
+                          placeholder={t('financial_assistance.placeholder.gross_household_income')}
+                          aria-required="true"
                           style={{ width: '100%', height: 40 }}
                           onChange={(grossHouseholdIncome) => {
                             setChecked(false)
@@ -878,11 +1035,16 @@ const MyFasApplyPage = () => {
                     </Col>
                     <Col xs={24} md={8}>
                       <Flex vertical gap={6}>
-                        <Typography.Text strong>{t('financial_assistance.field.household_members')}</Typography.Text>
+                        <Typography.Text strong>
+                          {t('financial_assistance.field.household_members')}
+                          <RequiredMark />
+                        </Typography.Text>
                         <InputNumber
                           value={household.householdMemberCount}
                           min={1}
                           precision={0}
+                          placeholder={t('financial_assistance.placeholder.household_members')}
+                          aria-required="true"
                           style={{ width: '100%', height: 40 }}
                           onChange={(householdMemberCount) => {
                             setChecked(false)
@@ -893,10 +1055,15 @@ const MyFasApplyPage = () => {
                     </Col>
                     <Col xs={24} md={8}>
                       <Flex vertical gap={6}>
-                        <Typography.Text strong>{t('financial_assistance.field.guardian_nationality')}</Typography.Text>
+                        <Typography.Text strong>
+                          {t('financial_assistance.field.guardian_nationality')}
+                          <RequiredMark />
+                        </Typography.Text>
                         <Select
                           value={household.guardianNationality}
                           options={fasNationalityOptions}
+                          placeholder={t('financial_assistance.placeholder.guardian_nationality')}
+                          aria-required="true"
                           style={{ width: '100%', height: 40 }}
                           onChange={(guardianNationality) => {
                             setChecked(false)
@@ -1026,7 +1193,10 @@ const MyFasApplyPage = () => {
               <section>
                 <Flex align="end" justify="space-between" gap={12} style={{ marginBottom: 12 }}>
                   <div>
-                    <Typography.Text strong>{t('financial_assistance.apply.eligible_schemes')}</Typography.Text>
+                    <Flex align="center" gap={8}>
+                      <FileSearchOutlined style={{ color: token.colorInfo }} />
+                      <Typography.Text strong>{t('financial_assistance.apply.eligible_schemes')}</Typography.Text>
+                    </Flex>
                     <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
                       {t('financial_assistance.apply.compare_schemes')}
                     </Typography.Paragraph>
@@ -1035,6 +1205,17 @@ const MyFasApplyPage = () => {
                     {t('financial_assistance.text.available_count', { count: availableSchemes.length })}
                   </Typography.Text>
                 </Flex>
+                {applicableSchemeCount === 0 ? (
+                  <Alert
+                    showIcon
+                    type="warning"
+                    style={{ marginBottom: 12 }}
+                    message={t('financial_assistance.message.no_applicable_scheme_for_current_courses')}
+                    description={t(
+                      'financial_assistance.message.no_applicable_scheme_for_current_courses_help'
+                    )}
+                  />
+                ) : null}
                 <Flex vertical gap={12}>
                   {availableSchemes.map((scheme) => (
                     <SchemeOption
@@ -1045,7 +1226,9 @@ const MyFasApplyPage = () => {
                         setExpandedSchemeId((current) => (current === scheme.id ? null : scheme.id))
                       }
                       onApply={() => {
-                        if (!scheme.hasBlockingApplication) setSelectedScheme(scheme)
+                        if (!scheme.hasBlockingApplication) {
+                          setSelectedScheme(scheme)
+                        }
                       }}
                     />
                   ))}

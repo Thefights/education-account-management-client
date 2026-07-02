@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import '../styles/tuitionPayment.css'
 import {
   compareInstallmentDueDateThenNumber,
+  getTuitionStatusLabel,
   isInstallmentDueForPayment,
 } from '../utils/chargeStatusSort'
 
@@ -171,7 +172,9 @@ const TuitionChargeList = ({
                       <Typography.Text type="secondary" className="tuition-charge-card__code">
                         {charge.courseCode}
                       </Typography.Text>
-                      <Tag color={defaultChargeStatusStyle(charge.status)}>{charge.status}</Tag>
+                      <Tag color={defaultChargeStatusStyle(charge.status)}>
+                        {getTuitionStatusLabel(charge.status, t)}
+                      </Tag>
                       {selected && (
                         <Tag color="blue" icon={<CheckCircleFilled />}>
                           {t('tuition-payment.charge.selected')}

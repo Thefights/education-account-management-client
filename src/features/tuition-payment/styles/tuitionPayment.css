@@ -9,13 +9,13 @@
 .tuition-charge-card:hover:not([aria-disabled='true']) {
   transform: translateY(-2px);
   border-color: var(--app-primary);
-  box-shadow: 0 8px 24px rgba(30, 58, 138, 0.14);
+  box-shadow: var(--app-shell-shadow);
 }
 
 .tuition-charge-card--selected {
   border-color: var(--app-primary);
   background: var(--app-primary-soft-bg);
-  box-shadow: 0 6px 20px rgba(30, 58, 138, 0.14);
+  box-shadow: var(--app-shell-shadow);
 }
 
 .tuition-charge-card:focus-visible {
@@ -50,6 +50,274 @@
   width: auto;
   min-width: 0;
   margin: 0 8px;
+}
+
+.installment-summary-card {
+  min-height: 220px;
+  box-shadow: var(--app-card-shadow);
+}
+
+.installment-summary-card .ant-card-body {
+  height: 100%;
+  padding: 32px;
+}
+
+.installment-summary-card__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 30px;
+}
+
+.installment-summary-card__icon--wallet {
+  color: var(--app-primary);
+  background: var(--app-primary-soft-bg);
+}
+
+.installment-summary-card__icon--clock {
+  color: var(--app-success);
+  background: var(--app-success-soft-bg);
+}
+
+.installment-summary-card__amount {
+  margin: 0 !important;
+  font-size: 30px !important;
+  line-height: 1.15 !important;
+}
+
+.installment-summary-card__divider {
+  height: 1px;
+  background: var(--app-border-color);
+}
+
+.installment-summary-card__select {
+  width: 100%;
+}
+
+.installment-summary-card__select .ant-select-selector {
+  min-height: 52px;
+  border-color: var(--app-primary) !important;
+}
+
+.installment-summary-card__notice {
+  margin-top: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--app-success-soft-border);
+  border-radius: 8px;
+  background: var(--app-success-soft-bg);
+}
+
+.installment-summary-card__notice > .anticon {
+  color: var(--app-success);
+  font-size: 22px;
+}
+
+.installment-summary-card__due-count {
+  color: var(--app-warning);
+}
+
+.installment-summary-card__overdue-count {
+  color: var(--app-error);
+}
+
+.installment-timeline-card {
+  box-shadow: var(--app-card-shadow);
+}
+
+.installment-timeline-card .ant-card-body {
+  padding: 28px 32px;
+}
+
+.installment-timeline-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 26px;
+  color: var(--app-primary);
+  background: var(--app-primary-soft-bg);
+}
+
+.installment-timeline-card__legend {
+  padding-top: 14px;
+}
+
+.installment-timeline__legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.installment-timeline {
+  --timeline-node-top: 38px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--installment-count), minmax(150px, 1fr));
+  gap: 38px;
+  margin-top: 32px;
+  padding-top: 68px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.installment-timeline__rail {
+  position: absolute;
+  top: var(--timeline-node-top);
+  left: 68px;
+  right: 68px;
+  border-top: 3px dashed var(--app-text-disabled);
+}
+
+.installment-timeline__item {
+  min-width: 150px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.installment-timeline__node {
+  position: absolute;
+  top: -53px;
+  z-index: 1;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--app-text-disabled);
+  background: var(--app-paper-bg);
+  color: var(--app-text-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.installment-timeline__installment-card {
+  width: 100%;
+  min-height: 180px;
+  padding: 20px 18px;
+  border: 1px solid var(--app-border-color);
+  border-radius: 8px;
+  background: var(--app-paper-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--app-shell-shadow);
+}
+
+.installment-timeline__number {
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+.installment-timeline__status-pill {
+  min-width: 118px;
+  margin-top: 10px;
+  margin-inline-end: 0;
+  border: 0;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.installment-timeline__status-pill .anticon {
+  margin-inline-end: 6px;
+}
+
+.installment-timeline__legend-dot.is-overdue,
+.installment-timeline__item.is-overdue .installment-timeline__node {
+  color: var(--app-error);
+  border-color: var(--app-error);
+  background: var(--app-paper-bg);
+}
+
+.installment-timeline__item.is-overdue .installment-timeline__installment-card {
+  border-color: var(--app-error-soft-border);
+  background: var(--app-error-soft-bg);
+}
+
+.installment-timeline__item.is-overdue .installment-timeline__number {
+  color: var(--app-error);
+}
+
+.installment-timeline__status-pill.is-overdue {
+  color: var(--app-error);
+  background: var(--app-error-soft-bg);
+}
+
+.installment-timeline__legend-dot.is-overdue {
+  background: var(--app-error);
+}
+
+.installment-timeline__legend-dot.is-due {
+  background: var(--app-warning);
+}
+
+.installment-timeline__item.is-due .installment-timeline__node {
+  color: var(--app-warning);
+  border-color: var(--app-warning);
+  background: var(--app-warning-soft-bg);
+}
+
+.installment-timeline__status-pill.is-due {
+  color: var(--app-warning);
+  background: var(--app-warning-soft-bg);
+}
+
+.installment-timeline__legend-dot.is-upcoming {
+  background: var(--app-text-disabled);
+}
+
+.installment-timeline__item.is-upcoming .installment-timeline__node {
+  color: var(--app-text-secondary);
+  border-color: var(--app-text-disabled);
+  background: var(--app-muted-bg);
+}
+
+.installment-timeline__status-pill.is-upcoming {
+  color: var(--app-text-secondary);
+  background: var(--app-muted-bg);
+}
+
+.installment-timeline__legend-dot.is-paid {
+  background: var(--app-primary);
+}
+
+.installment-timeline__item.is-paid .installment-timeline__node {
+  color: var(--app-primary);
+  border-color: var(--app-primary);
+  background: var(--app-primary-soft-bg);
+}
+
+.installment-timeline__item.is-paid .installment-timeline__installment-card {
+  border-color: var(--app-primary-soft-border);
+}
+
+.installment-timeline__status-pill.is-paid {
+  color: var(--app-primary);
+  background: var(--app-primary-soft-bg);
+}
+
+@media (max-width: 768px) {
+  .installment-summary-card .ant-card-body,
+  .installment-timeline-card .ant-card-body {
+    padding: 20px;
+  }
+
+  .installment-timeline {
+    grid-template-columns: repeat(var(--installment-count), minmax(140px, 160px));
+    gap: 24px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

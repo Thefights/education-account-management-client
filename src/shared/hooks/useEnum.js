@@ -155,6 +155,7 @@ export default function useEnum() {
       { value: EnumConfig.ManagementAction.Delete, label: 'Delete' },
       { value: EnumConfig.ManagementAction.Publish, label: 'Publish' },
       { value: EnumConfig.ManagementAction.Close, label: 'Close' },
+      { value: EnumConfig.ManagementAction.Withdraw, label: 'Withdraw' },
     ],
 
     sweepActionOptions: [
@@ -183,40 +184,97 @@ export default function useEnum() {
     ],
 
     fasSchemeStatusOptions: [
-      { value: EnumConfig.FasSchemeStatus.Active, label: 'Active' },
-      { value: EnumConfig.FasSchemeStatus.Inactive, label: 'Inactive' },
-      { value: EnumConfig.FasSchemeStatus.Draft, label: 'Draft' },
+      {
+        value: EnumConfig.FasSchemeStatus.Active,
+        label: t('financial_assistance.enum.status.active'),
+      },
+      {
+        value: EnumConfig.FasSchemeStatus.Inactive,
+        label: t('financial_assistance.enum.status.inactive'),
+      },
+      {
+        value: EnumConfig.FasSchemeStatus.Draft,
+        label: t('financial_assistance.enum.status.draft'),
+      },
     ],
 
     fasApplicationStatusOptions: [
-      { value: EnumConfig.FasApplicationStatus.Pending, label: 'Pending' },
-      { value: EnumConfig.FasApplicationStatus.Approved, label: 'Approved' },
-      { value: EnumConfig.FasApplicationStatus.Rejected, label: 'Rejected' },
-      { value: EnumConfig.FasApplicationStatus.Withdrawn, label: 'Withdrawn' },
-      { value: EnumConfig.FasApplicationStatus.Draft, label: 'Draft' },
-      { value: EnumConfig.FasApplicationStatus.Expired, label: 'Expired' },
+      {
+        value: EnumConfig.FasApplicationStatus.Pending,
+        label: t('financial_assistance.enum.status.pending'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Approved,
+        label: t('financial_assistance.enum.status.approved'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Rejected,
+        label: t('financial_assistance.enum.status.rejected'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Withdrawn,
+        label: t('financial_assistance.enum.status.withdrawn'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Draft,
+        label: t('financial_assistance.enum.status.draft'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Expired,
+        label: t('financial_assistance.enum.status.expired'),
+      },
+    ],
+
+    fasAdminApplicationStatusOptions: [
+      {
+        value: EnumConfig.FasApplicationStatus.Pending,
+        label: t('financial_assistance.enum.status.pending'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Approved,
+        label: t('financial_assistance.enum.status.approved'),
+      },
+      {
+        value: EnumConfig.FasApplicationStatus.Rejected,
+        label: t('financial_assistance.enum.status.rejected'),
+      },
     ],
 
     fasSubsidyTypeOptions: [
-      { value: EnumConfig.FasSubsidyType.Percent, label: 'Percent' },
-      { value: EnumConfig.FasSubsidyType.FixedAmount, label: 'Fixed amount' },
+      {
+        value: EnumConfig.FasSubsidyType.Percent,
+        label: t('financial_assistance.enum.subsidy_type.percent'),
+      },
+      {
+        value: EnumConfig.FasSubsidyType.FixedAmount,
+        label: t('financial_assistance.enum.subsidy_type.fixed_amount'),
+      },
     ],
 
     fasTierIncomeBasisOptions: [
-      { value: EnumConfig.FasTierIncomeBasis.PerCapitaIncome, label: 'Per-capita income' },
+      {
+        value: EnumConfig.FasTierIncomeBasis.PerCapitaIncome,
+        label: t('financial_assistance.enum.income_basis.per_capita_income'),
+      },
       {
         value: EnumConfig.FasTierIncomeBasis.GrossHouseholdIncome,
-        label: 'Gross household income',
+        label: t('financial_assistance.enum.income_basis.gross_household_income'),
       },
       {
         value: EnumConfig.FasTierIncomeBasis.PerCapitaOrGrossHouseholdIncome,
-        label: 'PCI or gross income',
+        label: t('financial_assistance.enum.income_basis.pci_or_gross_income'),
       },
     ],
 
     fasNationalityOptions: [
-      { value: EnumConfig.NationalityCategory.SingaporeCitizen, label: 'Singapore Citizen' },
-      { value: EnumConfig.NationalityCategory.Other, label: 'Foreigner' },
+      {
+        value: EnumConfig.NationalityCategory.SingaporeCitizen,
+        label: t('financial_assistance.enum.nationality.singapore_citizen'),
+      },
+      {
+        value: EnumConfig.NationalityCategory.Other,
+        label: t('financial_assistance.enum.nationality.foreigner'),
+      },
     ],
 
     topupExecutionSourceTypeOptions: [

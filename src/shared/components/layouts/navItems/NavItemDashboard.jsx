@@ -144,7 +144,7 @@ const NavItemDashboard = ({
         <span
           style={{
             display: 'flex',
-            fontSize: 18,
+            fontSize: 24,
             flexShrink: 0,
           }}
         >
