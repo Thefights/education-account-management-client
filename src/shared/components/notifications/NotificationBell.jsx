@@ -4,6 +4,7 @@ import { getAccessToken } from '@/shared/api/authTokenStore'
 import { envConfig } from '@/shared/config/envConfig'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
+import { useLocalStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import {
@@ -100,6 +101,8 @@ const NotificationBell = ({ profile }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { token } = theme.useToken()
+  const [themeMode] = useLocalStorage('theme', 'light')
+  const isDarkMode = themeMode === 'dark'
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [notifications, setNotifications] = useState([])
@@ -297,6 +300,12 @@ const NotificationBell = ({ profile }) => {
           <Flex vertical style={{ maxHeight: 420, overflowY: 'auto' }}>
             {notifications.map((item) => {
               const severity = getSeverityMeta(item.severity, token)
+              const unreadBackground = isDarkMode
+                ? 'rgba(59, 130, 246, 0.14)'
+                : 'rgba(59, 130, 246, 0.08)'
+              const unreadBorder = isDarkMode
+                ? 'rgba(96, 165, 250, 0.3)'
+                : 'rgba(59, 130, 246, 0.18)'
 
               return (
                 <div
@@ -304,10 +313,15 @@ const NotificationBell = ({ profile }) => {
                   onClick={() => handleItemClick(item)}
                   style={{
                     cursor: 'pointer',
-                    padding: '12px 4px',
-                    background: item.isRead ? 'transparent' : token.colorPrimaryBg,
+                    padding: '12px 10px',
+                    background: item.isRead ? 'transparent' : unreadBackground,
                     borderRadius: 8,
-                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                    border: item.isRead
+                      ? `1px solid ${token.colorBorderSecondary}`
+                      : `1px solid ${unreadBorder}`,
+                    borderLeft: item.isRead
+                      ? `1px solid ${token.colorBorderSecondary}`
+                      : `3px solid ${token.colorPrimary}`,
                   }}
                 >
                   <Flex align="flex-start" gap={10}>
@@ -351,6 +365,7 @@ const NotificationBell = ({ profile }) => {
     [
       deleteNotification,
       handleItemClick,
+      isDarkMode,
       loading,
       markAllAsRead,
       notifications,
