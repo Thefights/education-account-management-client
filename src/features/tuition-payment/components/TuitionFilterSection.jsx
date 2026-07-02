@@ -6,9 +6,9 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import { useMemo } from 'react'
 
 const defaultFilters = {
+  Year: new Date().getFullYear(),
   Search: '',
   Statuses: [],
-  Sort: 'createdAt desc',
 }
 
 const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
@@ -27,6 +27,17 @@ const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
 
   const fields = useMemo(
     () => [
+      {
+        key: 'Year',
+        title: t('tuition-payment.filter.year'),
+        label: t('tuition-payment.filter.year'),
+        type: 'select',
+        options: Array.from({ length: 81 }, (_, index) => ({
+          value: 2100 - index,
+          label: String(2100 - index),
+        })),
+        required: true,
+      },
       {
         key: 'Search',
         title: t('tuition-payment.filter.search_label'),
@@ -48,17 +59,6 @@ const TuitionFilterSection = ({ filters, loading, onFilter, onReset }) => {
         cancelText: t('general.cancel'),
         okText: t('general.ok'),
         selectedText: (count) => `${count} ${t('text.items')}`,
-        required: false,
-      },
-      {
-        key: 'Sort',
-        title: t('tuition-payment.filter.sort'),
-        label: t('tuition-payment.filter.sort'),
-        type: 'select',
-        options: [
-          { value: 'createdAt desc', label: t('tuition-payment.filter.newest') },
-          { value: 'createdAt asc', label: t('tuition-payment.filter.oldest') },
-        ],
         required: false,
       },
     ],

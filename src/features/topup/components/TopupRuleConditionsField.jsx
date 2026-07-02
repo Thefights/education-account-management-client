@@ -1,6 +1,7 @@
 import { EnumConfig } from '@/shared/config/enumConfig'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import {
   ApartmentOutlined,
   DeleteOutlined,
@@ -379,6 +380,11 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                     : undefined
                 }
                 style={{ width: '100%', height: 32 }}
+                onFocus={
+                  condition.field === EnumConfig.TopupConditionField.Balance
+                    ? selectInputNumberTextOnFocus
+                    : undefined
+                }
                 onChange={(valueNumber) => onChange({ ...condition, valueNumber })}
               />
             )}
@@ -407,6 +413,11 @@ const ConditionRow = ({ condition, index, onChange, onDelete, t, token, showVali
                     : undefined
                 }
                 style={{ width: '100%', height: 32 }}
+                onFocus={
+                  condition.field === EnumConfig.TopupConditionField.Balance
+                    ? selectInputNumberTextOnFocus
+                    : undefined
+                }
                 onChange={(valueNumberTo) => onChange({ ...condition, valueNumberTo })}
               />
               {upperValueError && (

@@ -27,6 +27,7 @@ import { showErrorToast } from '@/shared/utils/toastUtil'
 import { ApartmentOutlined, ArrowLeftOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons'
 import {
   Button,
+  Checkbox,
   Col,
   Empty,
   Flex,
@@ -427,6 +428,17 @@ const FasSchemeDetailPage = () => {
                     optionFilterProp="label"
                     placeholder={t('financial_assistance.admin.placeholder.select_courses')}
                     style={controlStyle}
+                    optionRender={(option) => (
+                      <Checkbox
+                        checked={selectedCourseIds.some(
+                          (courseId) => String(courseId) === String(option.value)
+                        )}
+                        disabled={option.data.disabled}
+                        style={{ pointerEvents: 'none' }}
+                      >
+                        {option.label}
+                      </Checkbox>
+                    )}
                     onChange={(courseIds) =>
                       setFormField('schemeCourses', courseIds.map((courseId) => ({ courseId })))
                     }

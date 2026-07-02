@@ -16,7 +16,11 @@
     },
     "hero": {
       "outstanding": "Outstanding",
+      "amount_you_owe": "Amount you owe",
+      "account_balance": "Account balance",
+      "action_needed": "Action needed",
       "invoice_attention": "{count} invoices require your attention",
+      "available_in_account": "Available in your Education Account",
       "pay_now": "Pay now",
       "balance_coverage": "Can cover {percent}% of outstanding"
     },
@@ -28,6 +32,7 @@
     },
     "filter": {
       "search_label": "Search by course code or course name",
+      "year": "Year",
       "status": "Status",
       "sort": "Sort",
       "newest": "Newest first",
@@ -37,7 +42,8 @@
       "All": "All",
       "Due": "Due",
       "Overdue": "Overdue",
-      "Paid": "Paid"
+      "Paid": "Paid",
+      "Upcoming": "Upcoming"
     },
     "charge": {
       "course": "Course",
@@ -74,12 +80,34 @@
       "clear_selection": "Clear selection",
       "pay_amount": "Pay {amount}"
     },
+    "timeline": {
+      "empty_month": "No obligations this month",
+      "select_month": "Select all payable obligations in {month}",
+      "obligations_count": "{count} obligations",
+      "installment": "installment",
+      "payment_type": "Payment type",
+      "amount": "Amount",
+      "status": "Status",
+      "full_payment": "Full payment",
+      "previous_overdue": "{count} previous installment(s) overdue",
+      "payable_in_days": "Payable in {count} day(s)",
+      "show_future_months": "Show {count} future month(s)",
+      "future_months_hint": "{count} upcoming obligation(s) are hidden to keep this view focused",
+      "hide_future_months": "Hide future months",
+      "pay_selected": "Pay selected",
+      "debt_warning_title": "Previous installments are overdue",
+      "debt_warning_description": "This course has earlier unpaid installments. Add them to this payment or continue with only the selected installment.",
+      "add_overdue": "Add overdue",
+      "continue_current": "Continue",
+      "installment_number": "Installment {number}"
+    },
     "checkout": {
       "action": {
         "full": "Pay in full",
         "installment-plan": "Create installment plan",
         "due": "Pay due installments",
-        "remaining": "Pay all remaining installments"
+        "remaining": "Pay all remaining installments",
+        "obligations": "Pay selected obligations"
       },
       "invalid_request": "The checkout request is invalid",
       "charges_not_eligible": "One or more selected charges are missing or are not eligible for this payment action.",

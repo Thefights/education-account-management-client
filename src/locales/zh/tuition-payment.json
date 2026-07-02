@@ -16,7 +16,11 @@
     },
     "hero": {
       "outstanding": "待支付",
+      "amount_you_owe": "当前欠款",
+      "account_balance": "账户余额",
+      "action_needed": "需要处理",
       "invoice_attention": "{count} 张账单需要处理",
+      "available_in_account": "教育账户可用余额",
       "pay_now": "立即支付",
       "balance_coverage": "可覆盖待支付总额的 {percent}%"
     },
@@ -28,6 +32,7 @@
     },
     "filter": {
       "search_label": "按课程代码或课程名称搜索",
+      "year": "年份",
       "status": "状态",
       "sort": "排序",
       "newest": "最新优先",
@@ -37,7 +42,8 @@
       "All": "全部",
       "Due": "待付款",
       "Overdue": "已逾期",
-      "Paid": "已付款"
+      "Paid": "已付款",
+      "Upcoming": "即将到期"
     },
     "charge": {
       "course": "课程",
@@ -74,12 +80,34 @@
       "clear_selection": "清除选择",
       "pay_amount": "支付 {amount}"
     },
+    "timeline": {
+      "empty_month": "本月没有应付款项",
+      "select_month": "选择 {month} 的所有可付款项目",
+      "obligations_count": "{count} 个项目",
+      "installment": "分期",
+      "payment_type": "付款类型",
+      "amount": "金额",
+      "status": "状态",
+      "full_payment": "全额付款",
+      "previous_overdue": "有 {count} 笔之前的分期逾期",
+      "payable_in_days": "{count} 天后可付款",
+      "show_future_months": "显示未来 {count} 个月",
+      "future_months_hint": "已隐藏 {count} 个即将到来的付款项目，以便聚焦当前视图",
+      "hide_future_months": "隐藏未来月份",
+      "pay_selected": "支付所选项目",
+      "debt_warning_title": "之前的分期已逾期",
+      "debt_warning_description": "此课程有较早的未付分期。可将其加入本次付款，或仅继续支付当前所选分期。",
+      "add_overdue": "添加逾期款项",
+      "continue_current": "继续",
+      "installment_number": "第 {number} 期"
+    },
     "checkout": {
       "action": {
         "full": "全额支付",
         "installment-plan": "创建分期计划",
         "due": "支付到期分期",
-        "remaining": "支付所有剩余分期"
+        "remaining": "支付所有剩余分期",
+        "obligations": "支付所选项目"
       },
       "invalid_request": "付款请求无效",
       "charges_not_eligible": "一个或多个所选收费不存在或不适用于此付款操作。",

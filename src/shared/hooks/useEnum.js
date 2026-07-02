@@ -312,6 +312,10 @@ export default function useEnum() {
       { value: EnumConfig.StudentTuitionFilterStatus.Overdue, label: t('text.overdue') },
       { value: EnumConfig.StudentTuitionFilterStatus.Due, label: t('text.due') },
       { value: EnumConfig.StudentTuitionFilterStatus.Paid, label: t('text.paid') },
+      {
+        value: EnumConfig.StudentTuitionFilterStatus.Upcoming,
+        label: t('tuition-payment.status.Upcoming'),
+      },
     ],
 
     educationAccountStatusOptions: [

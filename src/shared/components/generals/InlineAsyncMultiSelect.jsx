@@ -1,4 +1,4 @@
-import { Select } from 'antd'
+import { Checkbox, Select } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
 const mergeOptions = (...optionGroups) => {
@@ -47,19 +47,23 @@ const InlineAsyncMultiSelect = ({
   }, [loadOptions, open, pageSize, search])
 
   const displayOptions = useMemo(() => {
-    const selectedValues = new Set([
-      ...(Array.isArray(value) ? value : []).map(String),
-      ...(Array.isArray(excludedValues) ? excludedValues : []).map(String),
-    ])
+    const excludedValueSet = new Set(
+      (Array.isArray(excludedValues) ? excludedValues : []).map(String)
+    )
 
     if (search.trim()) {
-      return loadedOptions.filter((option) => !selectedValues.has(String(option.value)))
+      return loadedOptions.filter((option) => !excludedValueSet.has(String(option.value)))
     }
 
     return mergeOptions(options, loadedOptions).filter(
-      (option) => !selectedValues.has(String(option.value))
+      (option) => !excludedValueSet.has(String(option.value))
     )
-  }, [excludedValues, loadedOptions, options, search, value])
+  }, [excludedValues, loadedOptions, options, search])
+
+  const selectedValueSet = useMemo(
+    () => new Set((Array.isArray(value) ? value : []).map(String)),
+    [value]
+  )
 
   const keepOpen = () => {
     queueMicrotask(() => setOpen(true))
@@ -97,6 +101,16 @@ const InlineAsyncMultiSelect = ({
       }}
       onChange={(nextValue) => onChange?.(nextValue)}
       onSelect={handleSelect}
+      onDeselect={handleSelect}
+      optionRender={(option) => (
+        <Checkbox
+          checked={selectedValueSet.has(String(option.value))}
+          disabled={option.data.disabled}
+          style={{ pointerEvents: 'none' }}
+        >
+          {option.label}
+        </Checkbox>
+      )}
       labelRender={({ value: selectedValue, label }) =>
         renderSelectedLabel?.(selectedValue, label) ?? label
       }

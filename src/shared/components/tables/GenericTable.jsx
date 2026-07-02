@@ -105,6 +105,7 @@ const GenericTable = ({
     () =>
       canSelectRows
         ? {
+            type: 'checkbox',
             selectedRowKeys: selectedRows,
             onChange: (selectedKeys) => {
               setSelectedRows(selectedKeys)

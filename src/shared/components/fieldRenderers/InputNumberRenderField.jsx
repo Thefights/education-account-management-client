@@ -1,4 +1,5 @@
 import useTranslation from '@/shared/hooks/useTranslation'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import { Form, InputNumber } from 'antd'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
 
@@ -12,6 +13,8 @@ const InputNumberRenderField = (
     validate,
     validationContext,
     style,
+    onFocus,
+    selectOnFocus,
     ...props
   },
   ref
@@ -54,6 +57,8 @@ const InputNumberRenderField = (
   )
 
   const run = useCallback(() => runWith(value), [runWith, value])
+  const shouldSelectOnFocus =
+    selectOnFocus ?? (Boolean(props.prefix) && props.suffix !== '%')
 
   useImperativeHandle(
     ref,
@@ -82,6 +87,10 @@ const InputNumberRenderField = (
         onChange={(nextValue) => {
           if (error) runWith(nextValue, { skipEmpty: true })
           onChange?.({ target: { name, value: nextValue } })
+        }}
+        onFocus={(event) => {
+          onFocus?.(event)
+          if (shouldSelectOnFocus) selectInputNumberTextOnFocus(event)
         }}
         style={{ width: '100%', height: 40, ...style }}
         {...props}

@@ -17,6 +17,7 @@ import {
   formatCurrencyBasedOnCurrentLanguage,
   getCurrencySymbolBasedOnCurrentLanguage,
 } from '@/shared/utils/formatCurrencyUtil'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/toastUtil'
 import {
   ArrowRightOutlined,
@@ -1051,6 +1052,7 @@ const MyFasApplyPage = () => {
                           placeholder={t('financial_assistance.placeholder.gross_household_income')}
                           aria-required="true"
                           style={{ width: '100%', height: 40 }}
+                          onFocus={selectInputNumberTextOnFocus}
                           onChange={(grossHouseholdIncome) => {
                             setChecked(false)
                             setHousehold((current) => ({ ...current, grossHouseholdIncome }))

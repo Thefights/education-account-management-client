@@ -699,11 +699,13 @@ const CourseDetailPage = () => {
                   ),
                 })}
               </Tag>
-              <Tag color="default" style={{ borderRadius: 12 }}>
-                {t('course_management.message.withdrawn_students_count', {
-                  count: formatCount(Number(course?.withdrawnEnrollmentCount || 0)),
-                })}
-              </Tag>
+              {Number(course?.withdrawnEnrollmentCount || 0) > 0 && (
+                <Tag color="default" style={{ borderRadius: 12 }}>
+                  {t('course_management.message.withdrawn_students_count', {
+                    count: formatCount(Number(course.withdrawnEnrollmentCount)),
+                  })}
+                </Tag>
+              )}
             </Space>
           </Flex>
 

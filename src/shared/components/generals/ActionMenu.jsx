@@ -1,5 +1,5 @@
 import useTranslation from '@/shared/hooks/useTranslation'
-import { EllipsisOutlined } from '@ant-design/icons'
+import { MoreOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Tooltip } from 'antd'
 
 /**
@@ -30,7 +30,7 @@ const ActionMenu = ({ actions = [], menuTooltip }) => {
 				<Button
 					type='text'
 					size='small'
-					icon={<EllipsisOutlined />}
+					icon={<MoreOutlined />}
 					style={{ cursor: 'pointer' }}
 				/>
 			</Dropdown>

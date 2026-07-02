@@ -30,7 +30,7 @@ const sortFields = {
 const FasApplicationQueuePage = () => {
   const { t } = useTranslation()
   const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'submittedAt', direction: 'desc' })
+  const [sort, setSort] = useState({ key: 'status', direction: 'asc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [application, setApplication] = useState(null)
@@ -41,7 +41,10 @@ const FasApplicationQueuePage = () => {
       statuses: filters.statuses?.length ? filters.statuses : undefined,
       submittedFrom: filters.submittedFrom || undefined,
       submittedTo: filters.submittedTo || undefined,
-      sort: `${sortFields[sort.key] || sort.key} ${sort.direction}`,
+      sort:
+        sort.key === 'status' && sort.direction === 'asc'
+          ? 'status asc,createdAt desc'
+          : `${sortFields[sort.key] || sort.key} ${sort.direction}`,
       page,
       pageSize,
     }),

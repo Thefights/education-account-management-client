@@ -54,6 +54,10 @@ export const platformLightTheme = {
       defaultHoverColor: lightPalette.primary.dark,
     },
 
+    Checkbox: {
+      borderRadiusSM: 3,
+    },
+
     Input: {
       borderRadius: 8,
       controlHeight: 40,
@@ -131,6 +135,10 @@ export const platformDarkTheme = {
       borderRadius: 10,
       controlHeight: 40,
       primaryShadow: '0 6px 18px rgba(59, 130, 246, 0.24)',
+    },
+
+    Checkbox: {
+      borderRadiusSM: 3,
     },
 
     Input: {

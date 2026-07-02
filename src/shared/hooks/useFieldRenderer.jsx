@@ -402,6 +402,10 @@ export default function useFieldRenderer(
   }
 
   const renderRadio = (field, context = baseRenderContext) => {
+    if (field.multiple === true) {
+      return renderCheckboxGroup(field, context)
+    }
+
     const value = getObjectValueFromStringPath(context.values, field.key) ?? ''
     const options = normalizeOptions(field.options || [])
     const required = field.required ?? true
