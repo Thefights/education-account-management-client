@@ -20,6 +20,10 @@ export const routeUrls = {
     INDEX: '/',
   },
 
+  DASHBOARD: {
+    INDEX: '/dashboard',
+  },
+
   SCHOOL_MANAGEMENT: {
     INDEX: '/school-management',
     DETAIL: (id = ':id') => `/school-management/${id}`,

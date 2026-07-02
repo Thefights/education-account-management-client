@@ -4,6 +4,7 @@ import useTranslation from '@/shared/hooks/useTranslation'
 import {
   AuditOutlined,
   BankOutlined,
+  DashboardOutlined,
   IdcardOutlined,
   ProfileOutlined,
   ScheduleOutlined,
@@ -16,6 +17,12 @@ const SystemAdminLayout = () => {
   const menuSections = [
     {
       items: [
+        {
+          key: 'dashboard',
+          label: t('dashboard.navigation.label'),
+          icon: DashboardOutlined,
+          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.DASHBOARD.INDEX),
+        },
         {
           key: 'school-management',
           label: t('school_management.menu_label'),

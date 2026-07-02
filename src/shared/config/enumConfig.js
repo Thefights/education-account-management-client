@@ -22,6 +22,11 @@ export const EnumConfig = {
     AccountHolder: 'AccountHolder',
   },
 
+  DashboardRangeDays: {
+    LastSevenDays: 7,
+    LastThirtyDays: 30,
+  },
+
   SchoolStatus: {
     Active: 'Active',
     Inactive: 'Inactive',

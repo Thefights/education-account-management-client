@@ -1,13 +1,19 @@
 import RoleDashboardLayout from '@/app/layouts/RoleDashboardLayout'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { BookOutlined, FileDoneOutlined, TeamOutlined } from '@ant-design/icons'
+import { BookOutlined, DashboardOutlined, FileDoneOutlined, TeamOutlined } from '@ant-design/icons'
 
 const SchoolAdminLayout = () => {
   const { t } = useTranslation()
   const menuSections = [
     {
       items: [
+        {
+          key: 'dashboard',
+          label: t('dashboard.navigation.label'),
+          icon: DashboardOutlined,
+          url: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.DASHBOARD.INDEX),
+        },
         {
           key: 'course-management',
           label: t('course_management.menu_label'),
