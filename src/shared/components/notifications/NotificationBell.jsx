@@ -19,7 +19,8 @@ import { Badge, Button, Empty, Flex, Popover, Space, Spin, Tag, Tooltip, Typogra
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const notificationListParams = { page: 1, pageSize: 10, sort: 'createdAt desc' }
+const notificationPageSize = 10
+const notificationListParams = { pageSize: notificationPageSize, sort: 'createdAt desc' }
 
 const normalizeBaseUrl = (baseUrl = '') => baseUrl.replace(/\/+$/, '')
 
@@ -32,7 +33,7 @@ const mergeNotification = (items, notification) => {
   if (!notification?.id) return items
   const exists = items.some((item) => item.id === notification.id)
   if (exists) return items.map((item) => (item.id === notification.id ? notification : item))
-  return [notification, ...items].slice(0, notificationListParams.pageSize)
+  return [notification, ...items].slice(0, Math.max(items.length, notificationPageSize))
 }
 
 const getSeverityMeta = (severity, token) => {
@@ -105,9 +106,12 @@ const NotificationBell = ({ profile }) => {
   const isDarkMode = themeMode === 'dark'
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [notifications, setNotifications] = useState([])
+  const [notificationTotal, setNotificationTotal] = useState(0)
   const [unreadCount, setUnreadCount] = useState(0)
-  const knownNotificationIdsRef = useRef(new Set())
+  const notificationPageRef = useRef(1)
+  const loadingMoreRef = useRef(false)
   const unreadCountRef = useRef(0)
   const accessToken = getAccessToken()
 
@@ -115,23 +119,40 @@ const NotificationBell = ({ profile }) => {
     unreadCountRef.current = unreadCount
   }, [unreadCount])
 
-  const applyNotifications = useCallback((nextNotifications) => {
+  const applyNotifications = useCallback((nextNotifications, { append = false } = {}) => {
     const nextItems = Array.isArray(nextNotifications) ? nextNotifications : []
 
-    setNotifications(nextItems)
-    knownNotificationIdsRef.current = new Set(nextItems.map((item) => item?.id).filter(Boolean))
+    setNotifications((current) => {
+      const currentIds = new Set(current.map((item) => item?.id).filter(Boolean))
+      const mergedItems = append
+        ? [...current, ...nextItems.filter((item) => item?.id && !currentIds.has(item.id))]
+        : nextItems
+
+      return mergedItems
+    })
   }, [])
 
   const fetchNotifications = useCallback(
-    async ({ showLoading = true } = {}) => {
+    async ({ showLoading = true, page = 1, append = false } = {}) => {
       if (showLoading) setLoading(true)
+      if (append) {
+        loadingMoreRef.current = true
+        setLoadingMore(true)
+      }
       try {
         const response = await axiosConfig.get(ApiUrls.NOTIFICATION.INDEX, {
-          params: notificationListParams,
+          params: { ...notificationListParams, page },
         })
-        applyNotifications(response?.data?.collection || [])
+        const nextItems = response?.data?.collection || []
+        setNotificationTotal(Number(response?.data?.totalCount || nextItems.length))
+        notificationPageRef.current = page
+        applyNotifications(nextItems, { append })
       } finally {
         if (showLoading) setLoading(false)
+        if (append) {
+          loadingMoreRef.current = false
+          setLoadingMore(false)
+        }
       }
     },
     [applyNotifications]
@@ -173,11 +194,9 @@ const NotificationBell = ({ profile }) => {
     connection.on('notificationCreated', (notification) => {
       setNotifications((current) => {
         const nextNotifications = mergeNotification(current, notification)
-        knownNotificationIdsRef.current = new Set(
-          nextNotifications.map((item) => item?.id).filter(Boolean)
-        )
         return nextNotifications
       })
+      setNotificationTotal((current) => current + 1)
       setUnreadCount((current) => current + 1)
       fetchUnreadCount()
     })
@@ -230,6 +249,28 @@ const NotificationBell = ({ profile }) => {
     fetchUnreadCount()
   }, [fetchUnreadCount])
 
+  const loadMoreNotifications = useCallback(() => {
+    if (loadingMoreRef.current || notifications.length >= notificationTotal) return
+
+    fetchNotifications({
+      showLoading: false,
+      page: notificationPageRef.current + 1,
+      append: true,
+    })
+  }, [fetchNotifications, notificationTotal, notifications.length])
+
+  const handleNotificationScroll = useCallback(
+    (event) => {
+      const target = event.currentTarget
+      const remainingScroll = target.scrollHeight - target.scrollTop - target.clientHeight
+
+      if (remainingScroll < 80) {
+        loadMoreNotifications()
+      }
+    },
+    [loadMoreNotifications]
+  )
+
   const deleteNotification = useCallback(
     async (notification) => {
       if (!notification?.id) return
@@ -237,11 +278,9 @@ const NotificationBell = ({ profile }) => {
       await axiosConfig.delete(ApiUrls.NOTIFICATION.DELETE(notification.id))
       setNotifications((current) => {
         const nextNotifications = current.filter((item) => item.id !== notification.id)
-        knownNotificationIdsRef.current = new Set(
-          nextNotifications.map((item) => item?.id).filter(Boolean)
-        )
         return nextNotifications
       })
+      setNotificationTotal((current) => Math.max(current - 1, 0))
       fetchUnreadCount()
     },
     [fetchUnreadCount]
@@ -297,7 +336,11 @@ const NotificationBell = ({ profile }) => {
         ) : notifications.length === 0 ? (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('notification.empty')} />
         ) : (
-          <Flex vertical style={{ maxHeight: 420, overflowY: 'auto' }}>
+          <Flex
+            vertical
+            onScroll={handleNotificationScroll}
+            style={{ maxHeight: 420, overflowY: 'auto' }}
+          >
             {notifications.map((item) => {
               const severity = getSeverityMeta(item.severity, token)
               const unreadBackground = isDarkMode
@@ -358,6 +401,11 @@ const NotificationBell = ({ profile }) => {
                 </div>
               )
             })}
+            {loadingMore ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 12 }}>
+                <Spin size="small" />
+              </div>
+            ) : null}
           </Flex>
         )}
       </div>
@@ -365,8 +413,10 @@ const NotificationBell = ({ profile }) => {
     [
       deleteNotification,
       handleItemClick,
+      handleNotificationScroll,
       isDarkMode,
       loading,
+      loadingMore,
       markAllAsRead,
       notifications,
       t,
