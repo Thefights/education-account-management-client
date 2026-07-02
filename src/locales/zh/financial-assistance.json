@@ -24,6 +24,7 @@
       "eligible_schemes": "符合条件的计划",
       "compare_schemes": "申请前请比较可用的援助计划。",
       "required_documents_help": "提交申请前请上传所有文件。",
+      "document_file_type_note": "支持的文件类型：Word（.docx）和 PDF（.pdf）。",
       "additional_questions_help": "请提供评估所需的其他信息。"
     },
     "management": {
@@ -151,6 +152,7 @@
       "confirm_required_details": "请确认必填的申请信息",
       "duplicate_application": "您已为此计划提交了待审核或已批准的申请。",
       "duplicate_application_active": "您已为此计划提交了待审核或仍有效的已批准申请。",
+      "document_file_invalid": "仅支持 Word（.docx）和 PDF（.pdf）文件。",
       "document_required": "{name} 为必填项。",
       "draft_deleted": "草稿已删除。",
       "draft_saved": "草稿已保存。",

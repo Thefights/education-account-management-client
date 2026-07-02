@@ -24,6 +24,7 @@
       "eligible_schemes": "Chương trình phù hợp",
       "compare_schemes": "So sánh các chương trình hỗ trợ trước khi nộp.",
       "required_documents_help": "Tải đầy đủ tài liệu trước khi nộp hồ sơ.",
+      "document_file_type_note": "Loại tệp hỗ trợ: Word (.docx) và PDF (.pdf).",
       "additional_questions_help": "Cung cấp thêm thông tin cần thiết cho việc xét duyệt."
     },
     "management": {
@@ -151,6 +152,7 @@
       "confirm_required_details": "Vui lòng xác nhận đầy đủ thông tin bắt buộc",
       "duplicate_application": "Bạn đã có hồ sơ đang chờ duyệt hoặc đã được duyệt cho chương trình này.",
       "duplicate_application_active": "Bạn đã có hồ sơ đang chờ duyệt hoặc hồ sơ đã duyệt còn hiệu lực cho chương trình này.",
+      "document_file_invalid": "Chỉ hỗ trợ tệp Word (.docx) và PDF (.pdf).",
       "document_required": "{name} là bắt buộc.",
       "draft_deleted": "Đã xóa bản nháp.",
       "draft_saved": "Đã lưu bản nháp.",
