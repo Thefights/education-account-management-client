@@ -253,6 +253,12 @@ const FasFormAiChat = ({
     }
   }
 
+  const handleComposerKeyDown = (event) => {
+    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent?.isComposing) return
+    event.preventDefault()
+    handleSend(event)
+  }
+
   const submitPendingDecision = async (decision) => {
     if (!pendingUpdate || reviewDecision || isSending) return
 
@@ -641,12 +647,33 @@ const FasFormAiChat = ({
       padding: 12px;
     }
 
+    .fas-ai-composer {
+      align-items: flex-end;
+      background: ${token.colorBgContainer};
+      border: 1px solid ${token.colorBorder};
+      border-radius: 24px;
+      gap: 8px;
+      padding: 6px 6px 6px 14px;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .fas-ai-composer:focus-within {
+      border-color: ${token.colorPrimary};
+      box-shadow: 0 0 0 2px ${token.colorPrimaryBg};
+    }
+
     .fas-ai-composer .ant-input {
+      background: transparent;
+      line-height: 1.5;
       min-width: 0;
+      padding: 7px 0;
+      resize: none;
     }
 
     .fas-ai-composer .ant-btn {
       flex: 0 0 auto;
+      height: 38px;
+      width: 38px;
     }
 
     .fas-ai-confirmation {
@@ -932,7 +959,8 @@ const FasFormAiChat = ({
             placement="top"
           >
             <div className={`fas-ai-composer${isComposerLocked ? ' is-review-locked' : ''}`}>
-              <Input
+              <Input.TextArea
+                autoSize={{ minRows: 1, maxRows: 6 }}
                 aria-label="Message FAS Form Assistant"
                 value={inputValue}
                 placeholder={
@@ -942,7 +970,8 @@ const FasFormAiChat = ({
                 }
                 disabled={isComposerDisabled}
                 onChange={(event) => setInputValue(event.target.value)}
-                onPressEnter={handleSend}
+                onKeyDown={handleComposerKeyDown}
+                variant="borderless"
               />
               <Button
                 type="primary"

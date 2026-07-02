@@ -5,26 +5,37 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { Button, Flex, Space, Typography } from 'antd'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Space, Typography } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ActiveAiSupportRequestSection from '../components/ActiveAiSupportRequestSection'
+import AiSupportRequestDetailModal from '../components/AiSupportRequestDetailModal'
+import AiSupportRequestFilterSection from '../components/AiSupportRequestFilterSection'
 import AiSupportRequestFormSection from '../components/AiSupportRequestFormSection'
 import AiSupportRequestHistorySection from '../components/AiSupportRequestHistorySection'
 
 const emptyDraft = { title: '', questionMessage: '' }
+const defaultHistoryFilters = {
+  search: '',
+  createdFrom: '',
+  createdTo: '',
+  resolvedFrom: '',
+  resolvedTo: '',
+  sort: 'resolvedAt desc',
+}
 
 const MyAiSupportRequestsPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
-  const activeRequestRef = useRef(null)
   const prefilledDraft = location.state?.aiSupportRequestDraft
   const draft = useMemo(
     () => ({ ...emptyDraft, ...(prefilledDraft || {}) }),
     [prefilledDraft]
   )
   const [openCreate, setOpenCreate] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState(null)
+  const [historyFilters, setHistoryFilters] = useState(defaultHistoryFilters)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -33,8 +44,8 @@ const MyAiSupportRequestsPage = () => {
     []
   )
   const historyParams = useMemo(
-    () => ({ statuses: [2], sort: 'resolvedAt desc', page, pageSize }),
-    [page, pageSize]
+    () => ({ statuses: [2], ...historyFilters, page, pageSize }),
+    [historyFilters, page, pageSize]
   )
   const pendingRequests = useFetch(
     ApiUrls.AI_SUPPORT_REQUESTS.INDEX,
@@ -85,36 +96,59 @@ const MyAiSupportRequestsPage = () => {
     await Promise.all([pendingRequests.fetch(), requestHistory.fetch()])
   }
 
-  const scrollToActiveRequest = () => {
-    activeRequestRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const handleHistoryFilter = (values) => {
+    setHistoryFilters(values)
+    setPage(1)
+  }
+
+  const handleHistoryReset = () => {
+    setHistoryFilters(defaultHistoryFilters)
+    setPage(1)
   }
 
   return (
-    <Space orientation="vertical" size={16} style={{ width: '100%' }}>
-      <Flex justify="space-between" align="center" wrap gap={12}>
+    <Space
+      orientation="vertical"
+      size={20}
+      style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}
+    >
+      <div>
         <Typography.Title level={3} style={{ margin: 0 }}>
           {t('ai_support_request.title.my_requests')}
         </Typography.Title>
-        {activeRequest ? (
-          <Button onClick={scrollToActiveRequest}>
-            {t('ai_support_request.action.view_pending')}
-          </Button>
-        ) : canCreate ? (
-          <Button type="primary" onClick={() => setOpenCreate(true)}>
-            {t('ai_support_request.action.create')}
-          </Button>
-        ) : null}
-      </Flex>
+        <Typography.Paragraph type="secondary" style={{ margin: '6px 0 0' }}>
+          {t('ai_support_request.text.page_description')}
+        </Typography.Paragraph>
+      </div>
 
-      <ActiveAiSupportRequestSection ref={activeRequestRef} request={activeRequest} />
+      <ActiveAiSupportRequestSection
+        request={activeRequest}
+        loading={pendingRequests.loading}
+        error={pendingRequests.error}
+        onRetry={pendingRequests.fetch}
+        onCreate={() => setOpenCreate(true)}
+      />
 
       <AiSupportRequestHistorySection
         requests={requestHistory.data}
         loading={requestHistory.loading}
+        error={requestHistory.error}
+        onRetry={requestHistory.fetch}
+        onView={setSelectedRequest}
         page={page}
         setPage={setPage}
         pageSize={pageSize}
         setPageSize={setPageSize}
+        filterSection={
+          <AiSupportRequestFilterSection
+            mode="resolved"
+            filters={historyFilters}
+            defaultFilters={defaultHistoryFilters}
+            loading={requestHistory.loading}
+            onFilter={handleHistoryFilter}
+            onReset={handleHistoryReset}
+          />
+        }
       />
 
       <AiSupportRequestFormSection
@@ -123,6 +157,12 @@ const MyAiSupportRequestsPage = () => {
         initialValues={hasPrefilledDraft ? draft : emptyDraft}
         onClose={handleCloseCreate}
         onSubmit={handleCreate}
+      />
+
+      <AiSupportRequestDetailModal
+        request={selectedRequest}
+        open={Boolean(selectedRequest)}
+        onClose={() => setSelectedRequest(null)}
       />
     </Space>
   )

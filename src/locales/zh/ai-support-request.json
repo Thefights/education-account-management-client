@@ -6,13 +6,20 @@
       "active": "当前请求",
       "history": "请求历史",
       "create": "创建 AI 支持请求",
-      "respond": "回复 AI 支持请求"
+      "respond": "审核 AI 支持请求",
+      "detail": "AI 支持请求详情"
     },
     "action": {
       "create": "创建 AI 支持请求",
       "view_pending": "查看待处理请求",
+      "view_details": "查看详情",
+      "view_response": "查看回复",
       "send_to_admin": "发送给系统管理员",
-      "submit_response": "提交回复"
+      "submit_request": "提交请求",
+      "submit_response": "提交回复",
+      "review": "审核",
+      "view": "查看",
+      "retry": "重试"
     },
     "field": {
       "id": "ID",
@@ -20,6 +27,7 @@
       "title": "标题",
       "question": "问题",
       "admin_response": "系统管理员回复",
+      "responded_by": "回复人",
       "created_at": "创建时间",
       "resolved_at": "解决时间",
       "status": "状态"
@@ -29,11 +37,47 @@
       "resolved": "已解决"
     },
     "text": {
+      "page_description": "提交 AI 无法回答的问题，并查看系统管理员的回复。",
+      "admin_description": "审核待处理请求、提供一次系统管理员回复，并查看已解决请求历史。",
       "waiting": "正在等待系统管理员回复",
+      "waiting_short": "正在等待系统管理员回复。",
       "waiting_description": "您的请求正在处理中。系统管理员回复后，您可以创建新的请求。",
+      "answered": "此请求已得到回复。",
       "no_history": "您还没有已解决的 AI 支持请求。",
-      "create_help": "请提供足够的背景信息，帮助系统管理员理解问题。提交前您可以检查并编辑两个字段。",
-      "response_final": "提交此回复将解决该请求。系统管理员只能提供一次回复。"
+      "request_count": "{count} 个请求",
+      "pending_queue": "待处理队列",
+      "pending_exists": "待处理请求正在处理中",
+      "pending_cta_help": "等待系统管理员回复时，可查看当前请求。",
+      "fallback_cta_help": "提交 AI 支持请求前，请检查问题并补充相关背景信息。",
+      "create_help": "请提供足够的背景信息，以便系统管理员理解您的问题。",
+      "response_final": "提交此回复将解决该请求。"
+    },
+    "empty": {
+      "no_active_title": "没有当前请求",
+      "no_active_description": "当 AI 无法回答您的问题时，可创建 AI 支持请求。",
+      "no_active_note": "您一次只能有一个待处理请求，并可在此跟踪回复。",
+      "no_history_title": "暂无请求历史",
+      "no_pending_title": "没有待处理请求",
+      "no_pending_description": "账户持有人的新请求将在此处显示以供审核。",
+      "no_resolved_title": "暂无已解决的 AI 支持请求",
+      "no_resolved_description": "系统管理员已回复的请求将在此处显示为只读历史。"
+    },
+    "error": {
+      "load_active": "无法加载您的当前请求。",
+      "load_history": "无法加载您的请求历史。",
+      "load_admin": "无法加载待处理的 AI 支持请求。"
+    },
+    "filter": {
+      "search": "搜索请求",
+      "created_range": "创建时间范围",
+      "resolved_range": "解决时间范围",
+      "from_date": "开始日期和时间",
+      "to_date": "结束日期和时间",
+      "sort": "排序方式",
+      "newest_created": "最新创建优先",
+      "oldest_created": "最早创建优先",
+      "newest_resolved": "最新解决优先",
+      "oldest_resolved": "最早解决优先"
     },
     "placeholder": {
       "title": "简要概括您的问题",

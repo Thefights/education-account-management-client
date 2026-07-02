@@ -1,6 +1,7 @@
 import GenericFormDialog from '@/shared/components/dialogs/commons/GenericFormDialog'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { maxLen } from '@/shared/utils/validateUtil'
+import { InfoCircleOutlined } from '@ant-design/icons'
 import { Alert } from 'antd'
 import { useMemo } from 'react'
 
@@ -9,10 +10,24 @@ const AiSupportRequestFormSection = ({ open, initialValues, onClose, onSubmit })
   const fields = useMemo(
     () => [
       {
+        key: 'requestGuidance',
+        type: 'custom',
+        required: false,
+        render: () => (
+          <Alert
+            type="info"
+            showIcon
+            icon={<InfoCircleOutlined />}
+            message={t('ai_support_request.text.create_help')}
+          />
+        ),
+      },
+      {
         key: 'title',
         title: t('ai_support_request.field.title'),
         placeholder: t('ai_support_request.placeholder.title'),
         validate: [maxLen(255)],
+        props: { maxLength: 255, showCount: true },
       },
       {
         key: 'questionMessage',
@@ -20,6 +35,7 @@ const AiSupportRequestFormSection = ({ open, initialValues, onClose, onSubmit })
         placeholder: t('ai_support_request.placeholder.question'),
         multiple: 5,
         validate: [maxLen(1000)],
+        props: { maxLength: 1000, showCount: true },
       },
     ],
     [t]
@@ -30,14 +46,12 @@ const AiSupportRequestFormSection = ({ open, initialValues, onClose, onSubmit })
       open={open}
       onClose={onClose}
       title={t('ai_support_request.title.create')}
-      submitLabel={t('button.submit')}
+      submitLabel={t('ai_support_request.action.submit_request')}
       initialValues={initialValues}
       fields={fields}
       destroyOnHidden
       onSubmit={onSubmit}
-    >
-      <Alert type="info" showIcon message={t('ai_support_request.text.create_help')} />
-    </GenericFormDialog>
+    />
   )
 }
 

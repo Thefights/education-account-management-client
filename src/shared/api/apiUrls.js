@@ -178,6 +178,7 @@ export const ApiUrls = {
   AI_SUPPORT_REQUESTS: {
     INDEX: '/account-holder/ai-support-requests',
     CREATE: '/account-holder/ai-support-requests',
+    MANAGEMENT: '/ai-support-request-management',
     PENDING: '/ai-support-request-management/pending',
     RESPOND: (id) => `/ai-support-request-management/${id}/response`,
   },

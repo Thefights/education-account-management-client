@@ -6,13 +6,20 @@
       "active": "Active Request",
       "history": "Request History",
       "create": "Create AI Support Request",
-      "respond": "Respond to AI Support Request"
+      "respond": "Review AI Support Request",
+      "detail": "AI Support Request Details"
     },
     "action": {
       "create": "Create AI Support Request",
       "view_pending": "View Pending Request",
+      "view_details": "View Details",
+      "view_response": "View Response",
       "send_to_admin": "Send to System Admin",
-      "submit_response": "Submit Response"
+      "submit_request": "Submit Request",
+      "submit_response": "Submit Response",
+      "review": "Review",
+      "view": "View",
+      "retry": "Retry"
     },
     "field": {
       "id": "ID",
@@ -20,6 +27,7 @@
       "title": "Title",
       "question": "Question",
       "admin_response": "System Admin Response",
+      "responded_by": "Responded By",
       "created_at": "Created At",
       "resolved_at": "Resolved At",
       "status": "Status"
@@ -29,16 +37,52 @@
       "resolved": "Resolved"
     },
     "text": {
+      "page_description": "Submit questions the AI could not answer and review responses from the System Admin.",
+      "admin_description": "Review Pending requests, provide one System Admin Response, and view Resolved request history.",
       "waiting": "Waiting for System Admin Response",
+      "waiting_short": "Waiting for System Admin response.",
       "waiting_description": "Your request is pending. You can create another request after the System Admin responds.",
+      "answered": "This request has been answered.",
       "no_history": "You do not have any resolved AI Support Requests yet.",
-      "create_help": "Add enough context for the System Admin to understand the issue. You can review and edit both fields before submitting.",
-      "response_final": "Submitting this response will resolve the request. Only one System Admin response can be provided."
+      "request_count": "{count} requests",
+      "pending_queue": "Pending queue",
+      "pending_exists": "Pending request in progress",
+      "pending_cta_help": "View your active request while waiting for the System Admin Response.",
+      "fallback_cta_help": "Review the question and add context before submitting it as an AI Support Request.",
+      "create_help": "Please add enough context so the System Admin can understand your issue.",
+      "response_final": "Submitting this response will resolve the request."
+    },
+    "empty": {
+      "no_active_title": "No active request",
+      "no_active_description": "Create an AI Support Request when the AI cannot answer your question.",
+      "no_active_note": "You can have one Pending request at a time and track the response here.",
+      "no_history_title": "No request history",
+      "no_pending_title": "No Pending AI Support Requests",
+      "no_pending_description": "New Account Holder requests will appear here for review.",
+      "no_resolved_title": "No Resolved AI Support Requests yet",
+      "no_resolved_description": "Requests answered by a System Admin will appear here as readonly history."
+    },
+    "error": {
+      "load_active": "We could not load your Active Request.",
+      "load_history": "We could not load your Request History.",
+      "load_admin": "We could not load the Pending AI Support Requests."
+    },
+    "filter": {
+      "search": "Search requests",
+      "created_range": "Created date range",
+      "resolved_range": "Resolved date range",
+      "from_date": "From date and time",
+      "to_date": "To date and time",
+      "sort": "Sort order",
+      "newest_created": "Newest created first",
+      "oldest_created": "Oldest created first",
+      "newest_resolved": "Newest resolved first",
+      "oldest_resolved": "Oldest resolved first"
     },
     "placeholder": {
       "title": "Briefly summarize your question",
       "question": "Describe your question and include the context the System Admin needs",
-      "admin_response": "Enter the System Admin response"
+      "admin_response": "Enter the System Admin Response"
     }
   }
 }

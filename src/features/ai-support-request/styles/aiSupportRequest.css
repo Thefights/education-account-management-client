@@ -1,0 +1,115 @@
+.ai-support-history-list {
+  overflow: hidden;
+  border: 1px solid var(--app-border-color);
+  border-radius: 12px;
+  background: var(--app-surface-color, #fff);
+}
+
+.ai-support-history-item.ant-list-item {
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.ai-support-history-item.ant-list-item:hover {
+  background: var(--history-hover-bg);
+  box-shadow: inset 3px 0 0 var(--history-focus-color);
+}
+
+.ai-support-history-item.ant-list-item:focus-visible {
+  outline: 2px solid var(--history-focus-color);
+  outline-offset: -2px;
+  background: var(--history-hover-bg);
+}
+
+.ai-support-history-row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+}
+
+.ai-support-history-icon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+
+.ai-support-history-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.ai-support-history-title {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.ai-support-history-response.ant-typography {
+  margin: 3px 0 0;
+}
+
+.ai-support-history-date {
+  display: flex;
+  flex: 0 0 205px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-support-history-date-label {
+  font-size: 12px;
+}
+
+.ai-support-history-chevron {
+  flex: 0 0 auto;
+  transition: transform 160ms ease;
+}
+
+.ai-support-history-item:hover .ai-support-history-chevron {
+  transform: translateX(3px);
+}
+
+@media (max-width: 768px) {
+  .ai-support-history-row {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .ai-support-history-date {
+    flex-basis: auto;
+    align-self: center;
+  }
+
+  .ai-support-history-date-label {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .ai-support-history-row {
+    flex-wrap: wrap;
+  }
+
+  .ai-support-history-content {
+    flex-basis: calc(100% - 88px);
+  }
+
+  .ai-support-history-date {
+    margin-left: 48px;
+  }
+
+  .ai-support-history-chevron {
+    margin-left: auto;
+    align-self: center;
+  }
+}
