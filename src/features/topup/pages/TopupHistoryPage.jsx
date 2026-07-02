@@ -2,10 +2,11 @@ import { ApiUrls } from '@/shared/api/apiUrls'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useFetch from '@/shared/hooks/useFetch'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button, Card, Flex, Typography } from 'antd'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopupHistoryFilterSection from '../components/TopupHistoryFilterSection'
 import TopupHistoryTableSection from '../components/TopupHistoryTableSection'
@@ -17,14 +18,18 @@ const defaultFilters = {
   createdFrom: '',
   createdTo: '',
 }
+const listStateKey = 'topup-history:list-state'
 
 const TopupHistoryPage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
-  const [filters, setFilters] = useState(defaultFilters)
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, {
+    key: 'createdAt',
+    direction: 'desc',
+  })
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
 
   const params = useMemo(
     () => ({

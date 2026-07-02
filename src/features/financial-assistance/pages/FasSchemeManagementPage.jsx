@@ -13,6 +13,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import {
@@ -28,6 +29,7 @@ import { useNavigate } from 'react-router-dom'
 
 const FAS_STATUS = EnumConfig.FasSchemeStatus
 const defaultFilters = { search: '', statuses: [] }
+const listStateKey = 'fas-scheme-management:list-state'
 
 const sortFields = {
   schemeCode: 'schemeCode',
@@ -88,10 +90,13 @@ const FasSchemeManagementPage = () => {
   const navigate = useNavigate()
   const confirmReason = useReasonConfirm()
   const { t } = useTranslation()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, {
+    key: 'createdAt',
+    direction: 'desc',
+  })
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [selectedIds, setSelectedIds] = useState([])
 
   const params = useMemo(

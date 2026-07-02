@@ -7,6 +7,7 @@ import { EnumConfig } from '@/shared/config/enumConfig'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -19,14 +20,15 @@ import SchoolStudentTableSection from '../components/SchoolStudentTableSection'
 import SchoolStudentToolbarSection from '../components/SchoolStudentToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
+const listStateKey = 'school-student-management:list-state'
 
 const SchoolStudentManagementPage = () => {
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'id', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, { key: 'id', direction: 'desc' })
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [openCreate, setOpenCreate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)

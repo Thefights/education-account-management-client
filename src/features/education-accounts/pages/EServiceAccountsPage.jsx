@@ -12,6 +12,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -25,16 +26,20 @@ import EServiceAccountsTableSection from '../components/EServiceAccountsTableSec
 import EServiceAccountsToolbarSection from '../components/EServiceAccountsToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
+const listStateKey = 'education-accounts:list-state'
 
 const EServiceAccountsPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, {
+    key: 'createdAt',
+    direction: 'desc',
+  })
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
   const [openImport, setOpenImport] = useState(false)
   const [createInitialValues, setCreateInitialValues] = useState(() => ({

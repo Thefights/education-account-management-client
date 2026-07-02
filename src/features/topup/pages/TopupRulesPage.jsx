@@ -6,6 +6,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
@@ -18,15 +19,16 @@ import TopupRuleTableSection from '../components/TopupRuleTableSection'
 
 const defaultFilters = { name: '', statuses: [] }
 const defaultSort = { key: 'id', direction: 'desc' }
+const listStateKey = 'topup-rules:list-state'
 
 const TopupRulesPage = () => {
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
   const navigate = useNavigate()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState(defaultSort)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, defaultSort)
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [selectedIds, setSelectedIds] = useState([])
   const queryParams = useMemo(
     () => ({

@@ -10,6 +10,7 @@ import useAuth from '@/shared/hooks/useAuth'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -25,6 +26,7 @@ import AdminManagementToolbarSection from '../components/AdminManagementToolbarS
 
 const defaultFilters = { search: '', roles: [], statuses: [], schoolIds: [] }
 const defaultSort = { key: 'id', direction: 'desc' }
+const listStateKey = 'admin-management:list-state'
 
 const AdminManagementPage = () => {
   const { t } = useTranslation()
@@ -32,10 +34,10 @@ const AdminManagementPage = () => {
   const navigate = useNavigate()
   const { auth } = useAuth()
   const currentUserId = auth?.id
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState(defaultSort)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, defaultSort)
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [openCreate, setOpenCreate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)

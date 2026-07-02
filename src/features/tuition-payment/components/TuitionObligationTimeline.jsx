@@ -58,7 +58,14 @@ const TuitionObligationTimeline = ({
     <div className="tuition-timeline">
       {months.map((month) => {
         const monthName = dayjs().month(month.month - 1).format('MMMM')
+        const monthShortName = dayjs().month(month.month - 1).format('MMM').toUpperCase()
         const hasOverdue = month.items.some((item) => item.status === 'Overdue')
+        const hasDue = month.items.some((item) => item.status === 'Due')
+        const featuredStatus = hasOverdue
+          ? 'Overdue'
+          : hasDue
+            ? 'Due'
+            : month.items.find((item) => item.status !== 'Paid')?.status
         const isCurrentMonth = year === currentYear && month.month === currentMonth
         const isOpen = openMonths.has(month.month)
         const payableItems = month.items.filter((item) => item.isPayable)
@@ -70,9 +77,12 @@ const TuitionObligationTimeline = ({
             key={month.month}
             className={`tuition-month${hasOverdue ? ' tuition-month--attention' : ''}${
               isCurrentMonth ? ' tuition-month--current' : ''
+            }${isOpen ? ' tuition-month--open' : ''}${
+              month.items.length > 0 ? ' tuition-month--has-items' : ' tuition-month--empty'
             }`}
           >
             <header className="tuition-month__header">
+              <span className="tuition-month__node" />
               <Checkbox
                 checked={payableItems.length > 0 && selectedPayableCount === payableItems.length}
                 indeterminate={
@@ -88,29 +98,43 @@ const TuitionObligationTimeline = ({
                 aria-expanded={isOpen}
                 onClick={() => toggleMonth(month.month)}
               >
-                <Flex align="center" gap={10}>
-                <span className="tuition-month__node" />
+                <span className="tuition-month__badge" aria-hidden="true">
+                  <span className="tuition-month__badge-month">{monthShortName}</span>
+                  <span className="tuition-month__badge-year">{year}</span>
+                </span>
                 <span className="tuition-month__calendar"><CalendarOutlined /></span>
-                <Flex vertical gap={0}>
-                <Typography.Title level={4} style={{ margin: 0 }}>
-                  {monthName} {year}
-                </Typography.Title>
-                <Typography.Text type="secondary" className="tuition-month__count">
-                  {t('tuition-payment.timeline.obligations_count', { count: month.items.length })}
-                </Typography.Text>
-                </Flex>
-                {hasOverdue && <Tag color="error">{t('tuition-payment.status.Overdue')}</Tag>}
-                </Flex>
-                <Flex align="center" gap={12}>
-                  <Typography.Text strong>
+                <span className="tuition-month__main">
+                  <Typography.Title level={4} className="tuition-month__title">
+                    {monthName} {year}
+                  </Typography.Title>
+                  <span className="tuition-month__meta">
+                    <span className="tuition-month__mini-chip tuition-month__mini-chip--count">
+                      {t('tuition-payment.timeline.obligations_count', {
+                        count: month.items.length,
+                      })}
+                    </span>
+                    {featuredStatus && (
+                      <Tag
+                        color={statusColor[featuredStatus]}
+                        className="tuition-month__status-chip"
+                      >
+                        {t(`tuition-payment.status.${featuredStatus}`)}
+                      </Tag>
+                    )}
+                  </span>
+                </span>
+                <span className="tuition-month__summary">
+                  <span className="tuition-month__amount-pill">
                     {formatCurrencyBasedOnCurrentLanguage(month.totalAmount)}
-                  </Typography.Text>
-                  {isOpen ? (
-                    <DownOutlined className="tuition-month__chevron" />
-                  ) : (
-                    <RightOutlined className="tuition-month__chevron" />
-                  )}
-                </Flex>
+                  </span>
+                  <span className="tuition-month__chevron-wrap">
+                    {isOpen ? (
+                      <DownOutlined className="tuition-month__chevron" />
+                    ) : (
+                      <RightOutlined className="tuition-month__chevron" />
+                    )}
+                  </span>
+                </span>
               </button>
             </header>
 

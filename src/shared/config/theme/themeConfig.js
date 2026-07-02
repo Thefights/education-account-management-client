@@ -84,6 +84,8 @@ export const platformLightTheme = {
       headerColor: '#0F172A',
       headerSplitColor: 'transparent',
       rowHoverBg: '#F3F8FF',
+      rowSelectedBg: '#F1F7FF',
+      rowSelectedHoverBg: '#EAF3FF',
     },
 
     Tag: {
@@ -164,6 +166,8 @@ export const platformDarkTheme = {
       headerBg: '#273449',
       headerSplitColor: 'transparent',
       rowHoverBg: darkPalette.primary.softBg,
+      rowSelectedBg: '#1B355F',
+      rowSelectedHoverBg: '#1E3D70',
     },
   },
 }

@@ -75,6 +75,21 @@ const InlineAsyncMultiSelect = ({
     keepOpen()
   }
 
+  const handleChange = (nextValue = []) => {
+    const currentValueSet = new Set((Array.isArray(value) ? value : []).map(String))
+    const addedValues = nextValue.filter((item) => !currentValueSet.has(String(item)))
+
+    if (!addedValues.length) {
+      onChange?.(nextValue)
+      return
+    }
+
+    onChange?.([
+      ...addedValues.reverse(),
+      ...nextValue.filter((item) => currentValueSet.has(String(item))),
+    ])
+  }
+
   return (
     <Select
       mode="multiple"
@@ -89,7 +104,6 @@ const InlineAsyncMultiSelect = ({
       searchValue={search}
       placeholder={placeholder}
       autoClearSearchValue
-      maxTagCount="responsive"
       style={{ width: '100%' }}
       onSearch={(nextSearch) => {
         setSearch(nextSearch)
@@ -99,7 +113,7 @@ const InlineAsyncMultiSelect = ({
         setOpen(nextOpen)
         if (!nextOpen) setSearch('')
       }}
-      onChange={(nextValue) => onChange?.(nextValue)}
+      onChange={handleChange}
       onSelect={handleSelect}
       onDeselect={handleSelect}
       optionRender={(option) => (

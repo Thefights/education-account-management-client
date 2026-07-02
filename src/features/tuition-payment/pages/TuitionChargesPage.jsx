@@ -3,7 +3,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
-import { ExclamationCircleOutlined, WalletOutlined } from '@ant-design/icons'
+import { CalendarOutlined, ExclamationCircleOutlined, WalletOutlined } from '@ant-design/icons'
 import {
   Button,
   Card,
@@ -368,6 +368,7 @@ const TuitionChargesPage = () => {
       <Segmented
         block
         size="large"
+        className="tuition-payment-tabs"
         value={activeTab}
         options={[
           {
@@ -387,6 +388,30 @@ const TuitionChargesPage = () => {
         }}
       />
 
+      {filters.Year === currentYear && futureMonths.length > 0 && (
+        <div className="tuition-future-months-note">
+          <Typography.Text type="secondary" className="tuition-future-months-note__hint">
+            {t('tuition-payment.timeline.future_months_hint', {
+              count: futureObligationCount,
+            })}
+          </Typography.Text>
+          <button
+            type="button"
+            className="tuition-future-months-toggle"
+            onClick={() => setShowFutureMonths((current) => !current)}
+          >
+            <CalendarOutlined />
+            <span>
+              {showFutureMonths
+                ? t('tuition-payment.timeline.hide_future_months')
+                : t('tuition-payment.timeline.show_future_months', {
+                    count: futureMonths.length,
+                  })}
+            </span>
+          </button>
+        </div>
+      )}
+
       {obligations.loading && !obligations.data ? (
         <Skeleton active paragraph={{ rows: 10 }} />
       ) : (
@@ -398,34 +423,6 @@ const TuitionChargesPage = () => {
           onToggle={toggleObligation}
           onToggleMonth={toggleMonth}
         />
-      )}
-
-      {filters.Year === currentYear && futureMonths.length > 0 && !showFutureMonths && (
-        <button
-          type="button"
-          className="tuition-future-months-toggle"
-          onClick={() => setShowFutureMonths(true)}
-        >
-          <Typography.Text strong>
-            {t('tuition-payment.timeline.show_future_months', {
-              count: futureMonths.length,
-            })}
-          </Typography.Text>
-          <Typography.Text type="secondary">
-            {t('tuition-payment.timeline.future_months_hint', {
-              count: futureObligationCount,
-            })}
-          </Typography.Text>
-        </button>
-      )}
-
-      {filters.Year === currentYear && showFutureMonths && futureMonths.length > 0 && (
-        <Button
-          className="tuition-future-months-collapse"
-          onClick={() => setShowFutureMonths(false)}
-        >
-          {t('tuition-payment.timeline.hide_future_months')}
-        </Button>
       )}
 
       {selectedItems.length > 0 && (
