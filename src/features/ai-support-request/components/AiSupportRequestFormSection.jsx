@@ -35,7 +35,13 @@ const AiSupportRequestFormSection = ({ open, initialValues, onClose, onSubmit })
         placeholder: t('ai_support_request.placeholder.question'),
         multiple: 5,
         validate: [maxLen(1000)],
-        props: { maxLength: 1000, showCount: true },
+        props: { maxLength: 1000, showCount: true, style: { resize: 'none' } },
+      },
+      {
+        key: 'questionFooterSpacer',
+        type: 'custom',
+        required: false,
+        render: () => <div style={{ height: 8 }} />,
       },
     ],
     [t]

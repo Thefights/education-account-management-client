@@ -68,6 +68,11 @@ const getRoleBaseRoute = (role) => {
 const resolveNotificationRoute = (notification, role) => {
   const entityType = notification?.relatedEntityType
   const entityId = notification?.relatedEntityId
+  const notificationType = notification?.type
+
+  if (notificationType === 'AiSupportRequestReply') {
+    return routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.AI_SUPPORT_REQUESTS.INDEX)
+  }
 
   if (entityType === 'EducationAccountSweepReport') {
     return routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ACCOUNT_CREATION_REPORT.INDEX)
