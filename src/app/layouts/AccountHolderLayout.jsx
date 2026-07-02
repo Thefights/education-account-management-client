@@ -58,10 +58,10 @@ const AccountHolderLayout = () => {
                 ],
               },
               {
-                key: 'support-ticket',
-                label: 'Support Tickets',
+                key: 'ai-support-request',
+                label: t('ai_support_request.title.plural'),
                 icon: MessageOutlined,
-                url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.SUPPORT_TICKETS.INDEX),
+                url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.AI_SUPPORT_REQUESTS.INDEX),
               },
             ],
           },

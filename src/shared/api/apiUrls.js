@@ -175,10 +175,10 @@ export const ApiUrls = {
     SUCCESS: '/payment/success',
     CANCEL: '/payment/cancel',
   },
-  SUPPORT_TICKETS: {
-    INDEX: '/account-holder/support-tickets',
-    CREATE: '/account-holder/support-tickets',
-    PENDING: '/support-ticket-management/pending',
-    REPLY: (id) => `/support-ticket-management/${id}/reply`,
+  AI_SUPPORT_REQUESTS: {
+    INDEX: '/account-holder/ai-support-requests',
+    CREATE: '/account-holder/ai-support-requests',
+    PENDING: '/ai-support-request-management/pending',
+    RESPOND: (id) => `/ai-support-request-management/${id}/response`,
   },
 }

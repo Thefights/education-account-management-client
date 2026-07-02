@@ -36,8 +36,8 @@ import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPag
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import TuitionPaymentPage from '@/features/tuition-payment/pages/TuitionPaymentPage'
-import SupportTicketManagement from '@/features/support-ticket/SupportTicketManagement'
-import MySupportTicketsPage from '@/features/support-ticket/pages/MySupportTicketsPage'
+import AiSupportRequestManagement from '@/features/ai-support-request/AiSupportRequestManagement'
+import MyAiSupportRequestsPage from '@/features/ai-support-request/pages/MyAiSupportRequestsPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -101,8 +101,8 @@ const roleRouteGroups = [
         element: <ManagementActionLogDetailPage />,
       },
       {
-        path: routeUrls.SUPPORT_TICKETS.INDEX,
-        element: <SupportTicketManagement />,
+        path: routeUrls.AI_SUPPORT_REQUESTS.INDEX,
+        element: <AiSupportRequestManagement />,
       },
     ],
   },
@@ -228,8 +228,8 @@ const roleRouteGroups = [
         element: <TuitionPaymentPage />,
       },
       {
-        path: routeUrls.SUPPORT_TICKETS.INDEX,
-        element: <MySupportTicketsPage />,
+        path: routeUrls.AI_SUPPORT_REQUESTS.INDEX,
+        element: <MyAiSupportRequestsPage />,
       },
     ],
   },

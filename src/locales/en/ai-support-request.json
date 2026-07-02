@@ -1,0 +1,44 @@
+{
+  "ai_support_request": {
+    "title": {
+      "plural": "AI Support Requests",
+      "my_requests": "My AI Support Requests",
+      "active": "Active Request",
+      "history": "Request History",
+      "create": "Create AI Support Request",
+      "respond": "Respond to AI Support Request"
+    },
+    "action": {
+      "create": "Create AI Support Request",
+      "view_pending": "View Pending Request",
+      "send_to_admin": "Send to System Admin",
+      "submit_response": "Submit Response"
+    },
+    "field": {
+      "id": "ID",
+      "account_holder": "Account Holder",
+      "title": "Title",
+      "question": "Question",
+      "admin_response": "System Admin Response",
+      "created_at": "Created At",
+      "resolved_at": "Resolved At",
+      "status": "Status"
+    },
+    "status": {
+      "pending": "Pending",
+      "resolved": "Resolved"
+    },
+    "text": {
+      "waiting": "Waiting for System Admin Response",
+      "waiting_description": "Your request is pending. You can create another request after the System Admin responds.",
+      "no_history": "You do not have any resolved AI Support Requests yet.",
+      "create_help": "Add enough context for the System Admin to understand the issue. You can review and edit both fields before submitting.",
+      "response_final": "Submitting this response will resolve the request. Only one System Admin response can be provided."
+    },
+    "placeholder": {
+      "title": "Briefly summarize your question",
+      "question": "Describe your question and include the context the System Admin needs",
+      "admin_response": "Enter the System Admin response"
+    }
+  }
+}

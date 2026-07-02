@@ -9,6 +9,7 @@ import {
   ScheduleOutlined,
   SettingOutlined,
   TeamOutlined,
+  CustomerServiceOutlined,
 } from '@ant-design/icons'
 
 const SystemAdminLayout = () => {
@@ -58,6 +59,12 @@ const SystemAdminLayout = () => {
               matchPrefix: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.LOGS.MANAGEMENT_ACTIONS),
             },
           ],
+        },
+        {
+          key: 'ai-support-requests',
+          label: t('ai_support_request.title.plural'),
+          icon: CustomerServiceOutlined,
+          url: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.AI_SUPPORT_REQUESTS.INDEX),
         },
       ],
     },

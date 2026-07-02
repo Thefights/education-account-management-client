@@ -1,0 +1,44 @@
+{
+  "ai_support_request": {
+    "title": {
+      "plural": "AI 支持请求",
+      "my_requests": "我的 AI 支持请求",
+      "active": "当前请求",
+      "history": "请求历史",
+      "create": "创建 AI 支持请求",
+      "respond": "回复 AI 支持请求"
+    },
+    "action": {
+      "create": "创建 AI 支持请求",
+      "view_pending": "查看待处理请求",
+      "send_to_admin": "发送给系统管理员",
+      "submit_response": "提交回复"
+    },
+    "field": {
+      "id": "ID",
+      "account_holder": "账户持有人",
+      "title": "标题",
+      "question": "问题",
+      "admin_response": "系统管理员回复",
+      "created_at": "创建时间",
+      "resolved_at": "解决时间",
+      "status": "状态"
+    },
+    "status": {
+      "pending": "待处理",
+      "resolved": "已解决"
+    },
+    "text": {
+      "waiting": "正在等待系统管理员回复",
+      "waiting_description": "您的请求正在处理中。系统管理员回复后，您可以创建新的请求。",
+      "no_history": "您还没有已解决的 AI 支持请求。",
+      "create_help": "请提供足够的背景信息，帮助系统管理员理解问题。提交前您可以检查并编辑两个字段。",
+      "response_final": "提交此回复将解决该请求。系统管理员只能提供一次回复。"
+    },
+    "placeholder": {
+      "title": "简要概括您的问题",
+      "question": "描述您的问题，并提供系统管理员所需的背景信息",
+      "admin_response": "输入系统管理员回复"
+    }
+  }
+}

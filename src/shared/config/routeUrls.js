@@ -90,8 +90,8 @@ export const routeUrls = {
     APPLY: '/fas/apply',
     MANAGEMENT: '/fas/management',
   },
-  SUPPORT_TICKETS: {
-    INDEX: '/support-tickets',
+  AI_SUPPORT_REQUESTS: {
+    INDEX: '/ai-support-requests',
   },
 }
 

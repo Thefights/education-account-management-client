@@ -12,8 +12,13 @@ import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import { useNavigate } from 'react-router-dom'
 import { routeUrls } from '@/shared/config/routeUrls'
+import useTranslation from '@/shared/hooks/useTranslation'
+
+const AI_SUPPORT_REQUEST_MARKER = '[AI_SUPPORT_REQUEST_PROMPT]'
+const pendingRequestParams = { statuses: [1], sort: 'createdAt desc', page: 1, pageSize: 1 }
 
 const ChatbotWidget = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState(() => {
@@ -51,6 +56,12 @@ const ChatbotWidget = () => {
   }, [messages])
 
   const statusFetch = useFetch(isOpen ? ApiUrls.AI_CHAT.STATUS : '', {}, [isOpen], isOpen)
+  const pendingRequestFetch = useFetch(
+    isOpen ? ApiUrls.AI_SUPPORT_REQUESTS.INDEX : '',
+    pendingRequestParams,
+    [isOpen],
+    isOpen
+  )
   const chatSubmit = useAxiosSubmit({
     url: ApiUrls.AI_CHAT.CHAT,
     method: 'POST',
@@ -97,7 +108,7 @@ const ChatbotWidget = () => {
     // Prepare history payload for API (excluding the current user message)
     const historyPayload = messages.map((m) => ({
       role: m.role,
-      content: m.content,
+      content: m.content?.replace(AI_SUPPORT_REQUEST_MARKER, '').trim(),
     }))
 
     const response = await chatSubmit.submit({
@@ -116,6 +127,7 @@ const ChatbotWidget = () => {
 
   const isChatSending = chatSubmit.loading
   const isComposerDisabled = statusFetch.loading || isChatSending || !isAiEnabled
+  const pendingRequest = pendingRequestFetch.data?.collection?.[0]
 
   return (
     <>
@@ -177,8 +189,8 @@ const ChatbotWidget = () => {
             style={{ background: token.colorBgLayout }}
           >
             {messages.map((msg, idx) => {
-              const hasSupportPrompt = msg.content?.includes('[SUPPORT_TICKET_PROMPT]')
-              const cleanContent = msg.content?.replace('[SUPPORT_TICKET_PROMPT]', '').trim()
+              const hasSupportPrompt = msg.content?.includes(AI_SUPPORT_REQUEST_MARKER)
+              const cleanContent = msg.content?.replace(AI_SUPPORT_REQUEST_MARKER, '').trim()
 
               return (
               <div
@@ -209,22 +221,37 @@ const ChatbotWidget = () => {
                       color: msg.role === 'user' ? '#fff' : token.colorText,
                     }}
                   >
-                    {cleanContent || msg.content}
+                    {cleanContent}
                   </div>
                   
                   {hasSupportPrompt && msg.role === 'assistant' && (
                     <Button 
                       type="primary" 
                       size="small" 
+                      disabled={pendingRequestFetch.loading}
                       onClick={() => {
                         const previousUserMsg = messages[idx - 1]
-                        if (previousUserMsg && previousUserMsg.role === 'user') {
-                           navigate(`${routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.SUPPORT_TICKETS.INDEX)}?question=${encodeURIComponent(previousUserMsg.content)}`)
+                        const target = routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
+                          routeUrls.AI_SUPPORT_REQUESTS.INDEX
+                        )
+                        if (pendingRequest) {
+                          navigate(target)
+                        } else if (previousUserMsg && previousUserMsg.role === 'user') {
+                          navigate(target, {
+                            state: {
+                              aiSupportRequestDraft: {
+                                questionMessage: previousUserMsg.content,
+                              },
+                            },
+                          })
                         }
+                        setIsOpen(false)
                       }}
                       className="self-start mt-1"
                     >
-                      Please click here to send a support ticket
+                      {pendingRequest
+                        ? t('ai_support_request.action.view_pending')
+                        : t('ai_support_request.action.send_to_admin')}
                     </Button>
                   )}
                 </div>

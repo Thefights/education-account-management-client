@@ -1,0 +1,44 @@
+{
+  "ai_support_request": {
+    "title": {
+      "plural": "Yêu cầu hỗ trợ AI",
+      "my_requests": "Yêu cầu hỗ trợ AI của tôi",
+      "active": "Yêu cầu đang xử lý",
+      "history": "Lịch sử yêu cầu",
+      "create": "Tạo yêu cầu hỗ trợ AI",
+      "respond": "Phản hồi yêu cầu hỗ trợ AI"
+    },
+    "action": {
+      "create": "Tạo yêu cầu hỗ trợ AI",
+      "view_pending": "Xem yêu cầu đang chờ",
+      "send_to_admin": "Gửi đến Quản trị viên hệ thống",
+      "submit_response": "Gửi phản hồi"
+    },
+    "field": {
+      "id": "ID",
+      "account_holder": "Chủ tài khoản",
+      "title": "Tiêu đề",
+      "question": "Câu hỏi",
+      "admin_response": "Phản hồi của Quản trị viên hệ thống",
+      "created_at": "Ngày tạo",
+      "resolved_at": "Ngày giải quyết",
+      "status": "Trạng thái"
+    },
+    "status": {
+      "pending": "Đang chờ",
+      "resolved": "Đã giải quyết"
+    },
+    "text": {
+      "waiting": "Đang chờ Quản trị viên hệ thống phản hồi",
+      "waiting_description": "Yêu cầu của bạn đang chờ xử lý. Bạn có thể tạo yêu cầu khác sau khi Quản trị viên hệ thống phản hồi.",
+      "no_history": "Bạn chưa có yêu cầu hỗ trợ AI nào đã được giải quyết.",
+      "create_help": "Cung cấp đủ thông tin để Quản trị viên hệ thống hiểu vấn đề. Bạn có thể xem lại và chỉnh sửa cả hai trường trước khi gửi.",
+      "response_final": "Gửi phản hồi này sẽ giải quyết yêu cầu. Chỉ có thể cung cấp một phản hồi của Quản trị viên hệ thống."
+    },
+    "placeholder": {
+      "title": "Tóm tắt câu hỏi của bạn",
+      "question": "Mô tả câu hỏi và cung cấp thông tin cần thiết cho Quản trị viên hệ thống",
+      "admin_response": "Nhập phản hồi của Quản trị viên hệ thống"
+    }
+  }
+}
