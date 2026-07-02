@@ -166,7 +166,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                     value={tier.tierName}
                     placeholder={t('financial_assistance.admin.field.tier_name')}
                     style={FIELD_CONTROL_STYLE}
-                    onChange={(event) => updateTier(index, { tierName: event.target.value })}
+                    disabled
                   />
                 </TierField>
                 <TierField label={t('financial_assistance.admin.field.income_basis')} minWidth={260} flex="1.5 1 260px">
