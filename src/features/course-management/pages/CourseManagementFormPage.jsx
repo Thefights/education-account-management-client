@@ -200,7 +200,6 @@ const CourseManagementFormPage = () => {
         title: t('course_management.field.enrollment_deadline'),
         type: 'datetime-local',
         placeholder: 'Select enrollment deadline',
-        props: { disabled: basicInfoOnly },
       },
       {
         key: 'startDate',
@@ -212,7 +211,6 @@ const CourseManagementFormPage = () => {
             !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
             t('course_management.validation.date_order'),
         ],
-        props: { disabled: basicInfoOnly },
       },
       {
         key: 'endDate',
@@ -224,7 +222,6 @@ const CourseManagementFormPage = () => {
             !isDateTimeBefore(value, currentValues.startDate) ||
             t('course_management.validation.date_order'),
         ],
-        props: { disabled: basicInfoOnly },
       },
       ...(isEdit
         ? []

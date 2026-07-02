@@ -364,36 +364,36 @@ const CourseDetailPage = () => {
               validate: [numberHigherThanOrEqual(0)],
               props: amountProps,
             },
-            {
-              key: 'enrollmentDeadline',
-              title: t('course_management.field.enrollment_deadline'),
-              type: 'datetime-local',
-              placeholder: 'Select enrollment deadline',
-            },
-            {
-              key: 'startDate',
-              title: t('course_management.field.start_date'),
-              type: 'datetime-local',
-              placeholder: 'Select start date',
-              validate: [
-                (value, currentValues) =>
-                  !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
-                  t('course_management.validation.date_order'),
-              ],
-            },
-            {
-              key: 'endDate',
-              title: t('course_management.field.end_date'),
-              type: 'datetime-local',
-              placeholder: 'Select end date',
-              validate: [
-                (value, currentValues) =>
-                  !isDateTimeBefore(value, currentValues.startDate) ||
-                  t('course_management.validation.date_order'),
-              ],
-            },
           ]
         : []),
+      {
+        key: 'enrollmentDeadline',
+        title: t('course_management.field.enrollment_deadline'),
+        type: 'datetime-local',
+        placeholder: 'Select enrollment deadline',
+      },
+      {
+        key: 'startDate',
+        title: t('course_management.field.start_date'),
+        type: 'datetime-local',
+        placeholder: 'Select start date',
+        validate: [
+          (value, currentValues) =>
+            !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
+            t('course_management.validation.date_order'),
+        ],
+      },
+      {
+        key: 'endDate',
+        title: t('course_management.field.end_date'),
+        type: 'datetime-local',
+        placeholder: 'Select end date',
+        validate: [
+          (value, currentValues) =>
+            !isDateTimeBefore(value, currentValues.startDate) ||
+            t('course_management.validation.date_order'),
+        ],
+      },
       fasField,
     ]
   }, [currencySymbol, fasField, isDraft, t])
