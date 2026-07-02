@@ -1,11 +1,41 @@
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { Descriptions, Divider, Flex, Modal, Table, Typography } from 'antd'
+import {
+  BankOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CopyOutlined,
+  CreditCardOutlined,
+  DownloadOutlined,
+  FileDoneOutlined,
+  FileProtectOutlined,
+  InfoCircleOutlined,
+  ReadOutlined,
+  SafetyCertificateFilled,
+  UserOutlined,
+} from '@ant-design/icons'
+import { Button, Flex, Modal, Table, Typography, message } from 'antd'
+import './transactionReceipt.css'
+
+const ReceiptDetail = ({ icon, label, children, wide = false }) => (
+  <div className={`transaction-receipt__detail${wide ? ' is-wide' : ''}`}>
+    <span className="transaction-receipt__detail-icon">{icon}</span>
+    <div className="transaction-receipt__detail-content">
+      <Typography.Text className="transaction-receipt__detail-label">{label}</Typography.Text>
+      <div className="transaction-receipt__detail-value">{children}</div>
+    </div>
+  </div>
+)
 
 const TransactionReceiptDialog = ({ transaction, onClose }) => {
   const { t } = useTranslation()
   const receipt = transaction?.receipt
+
+  const copyTransactionCode = async () => {
+    await navigator.clipboard.writeText(transaction.transactionCode)
+    message.success(t('transaction.receipt.copied'))
+  }
 
   const columns = [
     {
@@ -22,14 +52,15 @@ const TransactionReceiptDialog = ({ transaction, onClose }) => {
       title: t('transaction.receipt.installment'),
       dataIndex: 'installmentNumber',
       key: 'installmentNumber',
-      width: 120,
+      width: 130,
+      align: 'center',
       render: (value) => value ?? t('transaction.receipt.full_payment'),
     },
     {
       title: t('transaction.amount'),
       dataIndex: 'amount',
       key: 'amount',
-      width: 140,
+      width: 150,
       align: 'right',
       render: formatCurrencyBasedOnCurrentLanguage,
     },
@@ -38,70 +69,129 @@ const TransactionReceiptDialog = ({ transaction, onClose }) => {
   return (
     <Modal
       open={Boolean(transaction)}
-      title={t('transaction.receipt.title')}
-      width={880}
+      width={1080}
       footer={null}
+      title={null}
+      centered
       destroyOnHidden
+      className="transaction-receipt-modal"
       onCancel={onClose}
     >
       {receipt && (
-        <Flex vertical gap={16}>
-          <Flex vertical align="center" gap={4}>
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              {t('transaction.receipt.system_name')}
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              {t('transaction.receipt.system_receipt')}
-            </Typography.Text>
-          </Flex>
+        <article className="transaction-receipt">
+          <header className="transaction-receipt__eyebrow">
+            <FileProtectOutlined />
+            <Typography.Text strong>{t('transaction.receipt.title')}</Typography.Text>
+          </header>
 
-          <Divider style={{ margin: 0 }} />
+          <section className="transaction-receipt__brand">
+            <span className="transaction-receipt__brand-mark">
+              <SafetyCertificateFilled />
+              <ReadOutlined className="transaction-receipt__brand-book" />
+            </span>
+            <div>
+              <Typography.Title level={2}>{t('transaction.receipt.system_name')}</Typography.Title>
+              <Typography.Text>{t('transaction.receipt.system_receipt')}</Typography.Text>
+            </div>
+          </section>
 
-          <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
-            <Descriptions.Item label={t('transaction.code')} span={2}>
-              <Typography.Text copyable>{transaction.transactionCode}</Typography.Text>
-            </Descriptions.Item>
-            <Descriptions.Item label={t('transaction.receipt.paid_at')}>
+          <section className="transaction-receipt__code-row">
+            <div>
+              <Typography.Text className="transaction-receipt__detail-label">
+                {t('transaction.code')}
+              </Typography.Text>
+              <Flex align="center" gap={10} wrap="wrap">
+                <Typography.Text strong className="transaction-receipt__code">
+                  {transaction.transactionCode}
+                </Typography.Text>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CopyOutlined />}
+                  aria-label={t('transaction.receipt.copy_code')}
+                  onClick={copyTransactionCode}
+                />
+              </Flex>
+            </div>
+            <span className="transaction-receipt__paid-badge">
+              <CheckCircleOutlined /> {t('transaction.receipt.paid')}
+            </span>
+          </section>
+
+          <section className="transaction-receipt__details-grid">
+            <ReceiptDetail icon={<ClockCircleOutlined />} label={t('transaction.receipt.paid_at')}>
               {formatDatetimeStringBasedOnCurrentLanguage(receipt.paidAt || transaction.createdAt)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('transaction.receipt.payment_method')}>
+            </ReceiptDetail>
+            <ReceiptDetail
+              icon={<CreditCardOutlined />}
+              label={t('transaction.receipt.payment_method')}
+            >
               {t(`transaction.receipt.payment_methods.${receipt.paymentMethod}`)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('transaction.receipt.paid_by')}>
+            </ReceiptDetail>
+            <ReceiptDetail icon={<UserOutlined />} label={t('transaction.receipt.paid_by')}>
               {receipt.citizenFullName}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('transaction.receipt.nric')}>
+            </ReceiptDetail>
+            <ReceiptDetail icon={<BankOutlined />} label={t('transaction.receipt.nric')}>
               {receipt.citizenNric}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('transaction.receipt.account_number')}>
+            </ReceiptDetail>
+            <ReceiptDetail
+              icon={<ReadOutlined />}
+              label={t('transaction.receipt.account_number')}
+            >
               {receipt.accountNumber}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('transaction.receipt.external_reference')}>
-              {receipt.externalReference || '-'}
-            </Descriptions.Item>
-          </Descriptions>
+            </ReceiptDetail>
+            <ReceiptDetail
+              icon={<FileDoneOutlined />}
+              label={t('transaction.receipt.external_reference')}
+              wide
+            >
+              <span className="transaction-receipt__reference">
+                {receipt.externalReference || '-'}
+              </span>
+            </ReceiptDetail>
+          </section>
 
-          <Table
-            rowKey={(item, index) => `${item.courseName}-${item.installmentNumber ?? 'full'}-${index}`}
-            columns={columns}
-            dataSource={receipt.items || []}
-            pagination={false}
-            size="small"
-            scroll={{ x: 680 }}
-            summary={() => (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={3} align="right">
-                  <Typography.Text strong>{t('transaction.receipt.total_paid')}</Typography.Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={3} align="right">
-                  <Typography.Text strong>
-                    {formatCurrencyBasedOnCurrentLanguage(receipt.totalAmount)}
-                  </Typography.Text>
-                </Table.Summary.Cell>
-              </Table.Summary.Row>
-            )}
-          />
-        </Flex>
+          <section className="transaction-receipt__table">
+            <Table
+              rowKey={(item, index) =>
+                `${item.courseName}-${item.installmentNumber ?? 'full'}-${index}`
+              }
+              columns={columns}
+              dataSource={receipt.items || []}
+              pagination={false}
+              scroll={{ x: 720 }}
+              summary={() => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0} colSpan={3} align="right">
+                    <Typography.Text strong>{t('transaction.receipt.total_paid')}</Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={3} align="right">
+                    <Typography.Title level={3} className="transaction-receipt__total">
+                      {formatCurrencyBasedOnCurrentLanguage(receipt.totalAmount)}
+                    </Typography.Title>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              )}
+            />
+          </section>
+
+          <section className="transaction-receipt__notice no-print">
+            <InfoCircleOutlined />
+            <div>
+              <Typography.Text strong>{t('transaction.receipt.thank_you')}</Typography.Text>
+              <Typography.Text>{t('transaction.receipt.keep_record')}</Typography.Text>
+            </div>
+            <Button
+              className="transaction-receipt__download"
+              icon={<DownloadOutlined />}
+              onClick={() => window.print()}
+            >
+              {t('transaction.receipt.download_pdf')}
+            </Button>
+          </section>
+
+          <footer className="no-print">{t('transaction.receipt.signature_note')}</footer>
+        </article>
       )}
     </Modal>
   )

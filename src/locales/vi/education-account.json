@@ -33,6 +33,13 @@
       "installment": "Kỳ thanh toán",
       "full_payment": "Thanh toán toàn bộ",
       "total_paid": "Tổng đã thanh toán",
+      "paid": "Đã thanh toán",
+      "copy_code": "Sao chép mã giao dịch",
+      "copied": "Đã sao chép mã giao dịch",
+      "thank_you": "Cảm ơn bạn đã thanh toán.",
+      "keep_record": "Vui lòng lưu hóa đơn này để đối chiếu. Đây là hóa đơn chính thức được tạo bởi hệ thống.",
+      "download_pdf": "Tải PDF",
+      "signature_note": "Đây là hóa đơn được tạo tự động. Không yêu cầu chữ ký.",
       "payment_methods": {
         "EducationBalance": "Số dư tín dụng giáo dục",
         "OnlinePayment": "Thẻ trực tuyến"
