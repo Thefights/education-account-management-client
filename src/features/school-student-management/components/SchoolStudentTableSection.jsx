@@ -1,3 +1,4 @@
+import ActionMenu from '@/shared/components/generals/ActionMenu'
 import MaskedNric from '@/shared/components/generals/MaskedNric'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { routeUrls } from '@/shared/config/routeUrls'
@@ -5,6 +6,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { DeleteOutlined } from '@ant-design/icons'
 import { Popover, Space, Tag } from 'antd'
 import { Link } from 'react-router-dom'
 
@@ -15,6 +17,7 @@ const SchoolStudentTableSection = ({
   setSort,
   selectedIds,
   setSelectedIds,
+  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -100,6 +103,14 @@ const SchoolStudentTableSection = ({
       width: 180,
       sortable: true,
       render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 70,
+      render: (_, row) => (
+        <ActionMenu actions={[{ title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete(row) }]} />
+      ),
     },
   ]
 

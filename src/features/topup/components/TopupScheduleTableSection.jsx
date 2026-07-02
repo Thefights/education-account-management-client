@@ -8,7 +8,7 @@ import {
   formatDateBasedOnCurrentLanguage,
   formatDatetimeStringBasedOnCurrentLanguage,
 } from '@/shared/utils/formatDateUtil'
-import { EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { Space, Typography } from 'antd'
 
 const TopupScheduleTableSection = ({
@@ -20,6 +20,7 @@ const TopupScheduleTableSection = ({
   setSelectedIds,
   onDetail,
   onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -80,7 +81,10 @@ const TopupScheduleTableSection = ({
       title: '',
       width: 70,
       render: (_, row) => (
-        <ActionMenu actions={[{ title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit?.(row) }]} />
+        <ActionMenu actions={[
+          { title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit?.(row) },
+          { title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete?.(row) },
+        ]} />
       ),
     },
   ]

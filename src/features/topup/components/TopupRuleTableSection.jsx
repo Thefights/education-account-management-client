@@ -5,7 +5,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { Space, Typography } from 'antd'
 
 const TopupRuleTableSection = ({
@@ -17,6 +17,7 @@ const TopupRuleTableSection = ({
   setSelectedIds,
   onDetail,
   onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -63,7 +64,10 @@ const TopupRuleTableSection = ({
       title: '',
       width: 70,
       render: (_, row) => (
-        <ActionMenu actions={[{ title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit?.(row) }]} />
+        <ActionMenu actions={[
+          { title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit?.(row) },
+          { title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete?.(row) },
+        ]} />
       ),
     },
   ]

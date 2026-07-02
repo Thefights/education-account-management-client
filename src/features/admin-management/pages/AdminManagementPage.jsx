@@ -145,6 +145,25 @@ const AdminManagementPage = () => {
     await getAdmins.fetch()
   }
 
+  const handleDelete = async (admin) => {
+    if (String(admin.userId) === String(currentUserId)) {
+      showErrorToast('You cannot delete your own account.')
+      return
+    }
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: admin.fullName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteSelectedAdmins.submit({
+      overrideUrl: ApiUrls.ADMIN_MANAGEMENT.DETAIL(admin.userId),
+      overrideData: { ids: [admin.userId], reason },
+    })
+    if (response) await getAdmins.fetch()
+  }
+
   const mutationLoading = updateStatus.loading || deleteSelectedAdmins.loading
 
   const handleImport = async (values) => {
@@ -185,6 +204,7 @@ const AdminManagementPage = () => {
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           currentUserId={currentUserId}
+          onDelete={handleDelete}
           onDetail={(row) => {
             navigate(
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.DETAIL(row.userId))

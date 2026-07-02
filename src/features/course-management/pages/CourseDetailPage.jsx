@@ -242,6 +242,23 @@ const CourseDetailPage = () => {
     await courseData.fetch()
   }
 
+  const handleDeleteEnrollment = async (enrollment) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: enrollment.citizenFullName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await removeSelectedEnrollments.submit({
+      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id),
+      overrideData: { ids: [enrollment.id], reason },
+    })
+    if (!response) return
+    await enrollments.fetch()
+    await courseData.fetch()
+  }
+
   const loadFasOptions = useCallback(
     async ({ search, page, pageSize }) => {
       const response = await axiosConfig.get(ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX, {
@@ -724,6 +741,7 @@ const CourseDetailPage = () => {
                 selectedIds={selectedIds}
                 setSelectedIds={setSelectedIds}
                 onWithdraw={handleWithdraw}
+                onDelete={handleDeleteEnrollment}
                 showCourse={false}
                 showGrossAmount={false}
                 readOnly={readOnly}

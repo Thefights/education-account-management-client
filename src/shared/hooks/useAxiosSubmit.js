@@ -17,7 +17,7 @@ const defaultErrorHandler = async (error) => Promise.resolve(error)
  * @param {(response) => Promise<any>} [config.onSuccess=async (response) => Promise.resolve(response)]
  * @param {(error) => Promise<any>} [config.onError=async (error) => Promise.resolve(error)]
  * @param {'form'|'json'} [config.contentType='form']
- * @returns {{loading: boolean, error: Error|null, response: any|null, submit: function({ overrideData, overrideUrl, overrideParam }): Promise<any>}}
+ * @returns {{loading: boolean, error: Error|null, response: any|null, submit: function({ overrideData, overrideUrl, overrideParam, overrideHeaders }): Promise<any>}}
  */
 export default function useAxiosSubmit({
   url = '',
@@ -38,7 +38,7 @@ export default function useAxiosSubmit({
   }, [loading])
 
   const submit = useCallback(
-    async ({ overrideData, overrideUrl, overrideParam } = {}) => {
+    async ({ overrideData, overrideUrl, overrideParam, overrideHeaders } = {}) => {
       if (loadingRef.current) return undefined
 
       loadingRef.current = true
@@ -59,7 +59,7 @@ export default function useAxiosSubmit({
 
       try {
         let payload = undefined
-        const headers = {}
+        const headers = { ...overrideHeaders }
         if (!queryOnly) {
           if (contentType === 'json') {
             payload = bodySource === undefined ? {} : bodySource
