@@ -95,6 +95,7 @@
     "select_options": "Chọn tùy chọn",
     "selected": "Đã chọn",
     "singapore_time": "Giờ Singapore",
+    "status_update_selection_description": "{count} đã chọn. Chỉ các mục cần đổi trạng thái mới được cập nhật. Các mục đã ở đúng trạng thái sẽ được giữ nguyên.",
     "total": "Tổng"
   },
   "tooltip": {

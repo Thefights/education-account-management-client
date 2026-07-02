@@ -1,18 +1,20 @@
 import FasStatusTag from '@/features/financial-assistance/components/FasStatusTag'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import GenericFilterSection from '@/shared/components/filters/GenericFilterSection'
+import ActionMenu from '@/shared/components/generals/ActionMenu'
 import BulkActionBar from '@/shared/components/generals/BulkActionBar'
 import { GenericTablePagination } from '@/shared/components/generals/GenericPagination'
-import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useEnum from '@/shared/hooks/useEnum'
-import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useFetch from '@/shared/hooks/useFetch'
+import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import useTranslation from '@/shared/hooks/useTranslation'
+import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import {
   CheckCircleOutlined,
   CopyOutlined,
@@ -37,33 +39,32 @@ const sortFields = {
 
 const SchemeFilters = ({ value, loading, onApply }) => {
   const { fasSchemeStatusOptions } = useEnum()
+  const { t } = useTranslation()
   const { values, handleChange, setField, registerRef, reset } = useForm(value)
   const { renderField } = useFieldRenderer(values, setField, handleChange, registerRef)
   const fields = useMemo(
     () => [
       {
         key: 'search',
-        title: 'Search by scheme code or scheme name',
-        label: 'Search by scheme code or scheme name',
+        title: t('financial_assistance.admin.scheme.search_label'),
+        label: t('financial_assistance.admin.scheme.search_label'),
         type: 'search',
         required: false,
         reserveLabelSpace: true,
       },
       {
         key: 'statuses',
-        title: 'Status',
+        title: t('financial_assistance.field.status'),
         type: 'multi-check-dropdown',
         options: fasSchemeStatusOptions,
         required: false,
-        placeholder: 'All',
-        selectAllText: 'Select all',
-        searchPlaceholder: 'Input keyword',
-        cancelText: 'Cancel',
-        okText: 'OK',
-        selectedText: (count) => `${count} items`,
+        placeholder: t('text.all'),
+        selectAllText: t('general.select_all'),
+        searchPlaceholder: t('general.input_keyword'),
+        selectedText: (count) => `${count} ${t('text.items')}`,
       },
     ],
-    [fasSchemeStatusOptions]
+    [fasSchemeStatusOptions, t]
   )
 
   return (
@@ -86,6 +87,7 @@ const SchemeFilters = ({ value, loading, onApply }) => {
 const FasSchemeManagementPage = () => {
   const navigate = useNavigate()
   const confirmReason = useReasonConfirm()
+  const { t } = useTranslation()
   const [filters, setFilters] = useState(defaultFilters)
   const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
   const [page, setPage] = useState(1)
@@ -104,9 +106,30 @@ const FasSchemeManagementPage = () => {
   )
   const schemes = useFetch(ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX, params, [params])
   const pageData = schemes.data || { collection: [], totalCount: 0, totalPage: 0 }
+  const activateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: pageData.collection,
+        selectedIds,
+        targetStatus: FAS_STATUS.Active,
+      }),
+    [pageData.collection, selectedIds]
+  )
+  const deactivateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: pageData.collection,
+        selectedIds,
+        targetStatus: FAS_STATUS.Inactive,
+      }),
+    [pageData.collection, selectedIds]
+  )
 
   const duplicate = useAxiosSubmit({ method: 'POST' })
-  const updateStatus = useAxiosSubmit({ url: ApiUrls.FAS_SCHEME_MANAGEMENT.UPDATE_STATUS, method: 'PUT' })
+  const updateStatus = useAxiosSubmit({
+    url: ApiUrls.FAS_SCHEME_MANAGEMENT.UPDATE_STATUS,
+    method: 'PUT',
+  })
   const deleteSelected = useAxiosSubmit({
     url: ApiUrls.FAS_SCHEME_MANAGEMENT.DELETE_SELECTED,
     method: 'DELETE',
@@ -116,17 +139,19 @@ const FasSchemeManagementPage = () => {
 
   const handleChangeStatus = async (status, actionLabel) => {
     if (!selectedIds.length) return
+    const actionMeta = status === FAS_STATUS.Active ? activateMeta : deactivateMeta
+    if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
       title: actionLabel,
-      description: `${selectedIds.length} selected`,
+      description: t('text.status_update_selection_description', { count: selectedIds.length }),
       confirmColor: status === FAS_STATUS.Inactive ? 'error' : 'primary',
       confirmText: actionLabel,
     })
     if (!reason) return
 
     const response = await updateStatus.submit({
-      overrideData: { ids: selectedIds, status, reason },
+      overrideData: { ids: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
     clearSelection()
@@ -137,10 +162,12 @@ const FasSchemeManagementPage = () => {
     if (!selectedIds.length) return
 
     const reason = await confirmReason({
-      title: 'Delete selected FAS schemes?',
-      description: `${selectedIds.length} selected`,
+      title: t('financial_assistance.admin.scheme.delete_selected_title'),
+      description: t('financial_assistance.admin.text.selected_count', {
+        count: selectedIds.length,
+      }),
       confirmColor: 'error',
-      confirmText: 'Delete',
+      confirmText: t('button.delete'),
     })
     if (!reason) return
 
@@ -168,14 +195,19 @@ const FasSchemeManagementPage = () => {
   const mutationLoading = duplicate.loading || updateStatus.loading || deleteSelected.loading
 
   const fields = [
-    { key: 'schemeCode', title: 'Scheme code', sortable: true },
-    { key: 'schemeName', title: 'Scheme name', sortable: true },
-    { key: 'durationInMonths', title: 'Duration (months)', sortable: true, isNumeric: true },
-    { key: 'status', title: 'Status', sortable: true, render: (value) => <FasStatusTag status={value} /> },
+    { key: 'schemeCode', title: t('financial_assistance.admin.field.scheme_code'), sortable: true },
+    { key: 'schemeName', title: t('financial_assistance.field.scheme_name'), sortable: true },
     {
-      key: 'tiers',
-      title: 'Tiers',
-      render: (value) => (value || []).map((tier) => tier.tierName).join(', '),
+      key: 'durationInMonths',
+      title: t('financial_assistance.admin.field.duration_months'),
+      sortable: true,
+      isNumeric: true,
+    },
+    {
+      key: 'status',
+      title: t('financial_assistance.field.status'),
+      sortable: true,
+      render: (value) => <FasStatusTag status={value} />,
     },
     {
       key: 'actions',
@@ -185,7 +217,7 @@ const FasSchemeManagementPage = () => {
         <ActionMenu
           actions={[
             {
-              title: 'Duplicate',
+              title: t('button.duplicate'),
               icon: <CopyOutlined />,
               onClick: async () => {
                 const response = await duplicate.submit({
@@ -204,7 +236,9 @@ const FasSchemeManagementPage = () => {
     <Card>
       <Flex vertical gap={16}>
         <Flex justify="space-between" align="center">
-          <Typography.Title level={4} style={{ margin: 0 }}>FAS Scheme Management</Typography.Title>
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            {t('financial_assistance.admin.scheme.title')}
+          </Typography.Title>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -212,7 +246,7 @@ const FasSchemeManagementPage = () => {
               navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.FAS_ADMIN.SCHEME_CREATE))
             }
           >
-            Create scheme
+            {t('financial_assistance.admin.scheme.create_scheme')}
           </Button>
         </Flex>
         <SchemeFilters
@@ -235,9 +269,7 @@ const FasSchemeManagementPage = () => {
           setSelectedRows={setSelectedIds}
           loading={schemes.loading || mutationLoading}
           onRowClick={(row) =>
-            navigate(
-              routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.FAS_ADMIN.SCHEME_DETAIL(row.id))
-            )
+            navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.FAS_ADMIN.SCHEME_DETAIL(row.id)))
           }
         />
         <GenericTablePagination
@@ -256,19 +288,29 @@ const FasSchemeManagementPage = () => {
           actions={[
             {
               key: 'activate',
-              label: 'Activate',
+              label: t('financial_assistance.admin.action.activate'),
               icon: <CheckCircleOutlined />,
-              onClick: () => handleChangeStatus(FAS_STATUS.Active, 'Activate'),
+              disabled: !activateMeta.hasActionable,
+              onClick: () =>
+                handleChangeStatus(
+                  FAS_STATUS.Active,
+                  t('financial_assistance.admin.action.activate')
+                ),
             },
             {
               key: 'deactivate',
-              label: 'Deactivate',
+              label: t('financial_assistance.admin.action.deactivate'),
               icon: <StopOutlined />,
-              onClick: () => handleChangeStatus(FAS_STATUS.Inactive, 'Deactivate'),
+              disabled: !deactivateMeta.hasActionable,
+              onClick: () =>
+                handleChangeStatus(
+                  FAS_STATUS.Inactive,
+                  t('financial_assistance.admin.action.deactivate')
+                ),
             },
             {
               key: 'delete',
-              label: 'Delete',
+              label: t('button.delete'),
               icon: <DeleteOutlined />,
               danger: true,
               onClick: handleDeleteSelected,

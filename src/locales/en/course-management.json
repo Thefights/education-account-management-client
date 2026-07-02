@@ -44,7 +44,8 @@
       "total_to_pay": "Total to pay",
       "applied_fas": "Applied FAS",
       "approved_tier": "Approved tier",
-      "deduction": "Deduction"
+      "deduction": "Deduction",
+      "note": "Note"
     },
     "action": {
       "publish": "Publish",
@@ -85,10 +86,13 @@
       "no_selected_students": "No students added yet.",
       "selected_students_count": "{count} students added.",
       "number_of_students_count": "Number Of Students: {count}",
+      "active_students_count": "Active students: {count}",
+      "withdrawn_students_count": "Withdrawn students: {count}",
       "no_pending_students": "Search and select students to add to this course.",
       "pending_students_count": "{count} students will be added when you save.",
       "total_to_pay_hint": "Gross amount after approved FAS deduction.",
-      "no_applied_fas": "No FAS is currently reducing this course fee."
+      "no_applied_fas": "No FAS is currently reducing this course fee.",
+      "withdrawn_course_note": "Withdrawn from this course"
     },
     "tab": {
       "upcoming": "Upcoming",

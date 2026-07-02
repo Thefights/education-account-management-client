@@ -20,6 +20,7 @@ import { envConfig } from '@/shared/config/envConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
+import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { renderEmptyFallback } from '@/shared/utils/handleStringUtil'
 import { showErrorToast } from '@/shared/utils/toastUtil'
@@ -46,36 +47,49 @@ import {
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-const fieldLabels = {
-  [EnumConfig.FasConditionField.StudentAge]: 'Student age',
-  [EnumConfig.FasConditionField.StudentNationality]: 'Student nationality',
-  [EnumConfig.FasConditionField.GuardianNationality]: 'Guardian nationality',
-  [EnumConfig.FasConditionField.GrossHouseholdIncome]: 'Gross household income',
-  [EnumConfig.FasConditionField.PerCapitaIncome]: 'Per-capita income',
-}
+const getFieldLabels = (t) => ({
+  [EnumConfig.FasConditionField.StudentAge]: t('financial_assistance.admin.condition.field.student_age'),
+  [EnumConfig.FasConditionField.StudentNationality]: t(
+    'financial_assistance.admin.condition.field.student_nationality'
+  ),
+  [EnumConfig.FasConditionField.GuardianNationality]: t('financial_assistance.field.guardian_nationality'),
+  [EnumConfig.FasConditionField.GrossHouseholdIncome]: t('financial_assistance.field.gross_household_income'),
+  [EnumConfig.FasConditionField.PerCapitaIncome]: t('financial_assistance.field.per_capita_income'),
+})
 
-const operatorLabels = {
-  [EnumConfig.FasConditionOperator.Equal]: 'is equal to',
-  [EnumConfig.FasConditionOperator.NotEqual]: 'is not equal to',
-  [EnumConfig.FasConditionOperator.LessThan]: 'is less than',
-  [EnumConfig.FasConditionOperator.LessThanOrEqual]: 'is at most',
-  [EnumConfig.FasConditionOperator.GreaterThan]: 'is greater than',
-  [EnumConfig.FasConditionOperator.GreaterThanOrEqual]: 'is at least',
-  [EnumConfig.FasConditionOperator.Between]: 'is between',
-}
+const getOperatorLabels = (t) => ({
+  [EnumConfig.FasConditionOperator.Equal]: t('financial_assistance.admin.condition.operator_text.equal'),
+  [EnumConfig.FasConditionOperator.NotEqual]: t('financial_assistance.admin.condition.operator_text.not_equal'),
+  [EnumConfig.FasConditionOperator.LessThan]: t('financial_assistance.admin.condition.operator_text.less_than'),
+  [EnumConfig.FasConditionOperator.LessThanOrEqual]: t(
+    'financial_assistance.admin.condition.operator_text.less_than_or_equal'
+  ),
+  [EnumConfig.FasConditionOperator.GreaterThan]: t(
+    'financial_assistance.admin.condition.operator_text.greater_than'
+  ),
+  [EnumConfig.FasConditionOperator.GreaterThanOrEqual]: t(
+    'financial_assistance.admin.condition.operator_text.greater_than_or_equal'
+  ),
+  [EnumConfig.FasConditionOperator.Between]: t('financial_assistance.admin.condition.operator_text.between'),
+})
 
-const nationalityLabels = {
-  [EnumConfig.NationalityCategory.SingaporeCitizen]: 'Singapore Citizen',
-  [EnumConfig.NationalityCategory.Other]: 'Foreigner',
-}
+const getNationalityLabels = (t) => ({
+  [EnumConfig.NationalityCategory.SingaporeCitizen]: t(
+    'financial_assistance.enum.nationality.singapore_citizen'
+  ),
+  [EnumConfig.NationalityCategory.Other]: t('financial_assistance.enum.nationality.foreigner'),
+})
 
 const controlStyle = { width: '100%', minHeight: 40 }
 const valueStyle = { minHeight: 40, display: 'flex', alignItems: 'center' }
 
-const formatConditionValue = (condition) => {
+const formatConditionValue = (condition, t) => {
+  const nationalityLabels = getNationalityLabels(t)
   if (condition.nationality) return nationalityLabels[condition.nationality] || condition.nationality
   if (condition.operator === EnumConfig.FasConditionOperator.Between) {
-    return `${condition.valueNumber ?? '-'} and ${condition.valueNumberTo ?? '-'}`
+    return `${condition.valueNumber ?? '-'} ${t('financial_assistance.admin.text.and')} ${
+      condition.valueNumberTo ?? '-'
+    }`
   }
   return condition.valueNumber ?? '-'
 }
@@ -101,20 +115,31 @@ const ViewField = ({ label, children }) => (
 )
 
 const EligibilityView = ({ value }) => {
-  const scenarios = value?.groups || []
+  const { t } = useTranslation()
+  const scenarios =
+    value?.groups?.length || !value?.conditions?.length
+      ? value?.groups || []
+      : [{ ...value, groups: [] }]
   const { token } = theme.useToken()
-  if (!scenarios.length) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+  const visibleScenarios = scenarios.filter((scenario) => (scenario.conditions || []).length)
+  if (!visibleScenarios.length) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 
+  const fieldLabels = getFieldLabels(t)
+  const operatorLabels = getOperatorLabels(t)
   const getConditionText = (condition) =>
-    `${fieldLabels[condition.field] || condition.field} ${operatorLabels[condition.operator] || condition.operator} ${formatConditionValue(condition)}`
-  const treeData = scenarios.map((scenario, scenarioIndex) => ({
+    `${fieldLabels[condition.field] || condition.field} ${operatorLabels[condition.operator] || condition.operator} ${formatConditionValue(condition, t)}`
+  const treeData = visibleScenarios.map((scenario, scenarioIndex) => ({
     key: `scenario-${scenarioIndex}`,
     icon: <ApartmentOutlined />,
     title: (
       <Space size={8} wrap>
-        <Typography.Text strong>Scenario {scenarioIndex + 1}</Typography.Text>
+        <Typography.Text strong>
+          {t('financial_assistance.admin.text.scenario_number', { number: scenarioIndex + 1 })}
+        </Typography.Text>
         <Tag color="blue">AND</Tag>
-        <Typography.Text type="secondary">All conditions must match</Typography.Text>
+        <Typography.Text type="secondary">
+          {t('financial_assistance.admin.condition.all_conditions_match')}
+        </Typography.Text>
       </Space>
     ),
     children: (scenario.conditions || []).map((condition, conditionIndex) => ({
@@ -123,7 +148,7 @@ const EligibilityView = ({ value }) => {
         <Typography.Text>
           <Typography.Text strong>{fieldLabels[condition.field] || condition.field}</Typography.Text>{' '}
           {operatorLabels[condition.operator] || condition.operator}{' '}
-          <Typography.Text strong>{formatConditionValue(condition)}</Typography.Text>
+          <Typography.Text strong>{formatConditionValue(condition, t)}</Typography.Text>
         </Typography.Text>
       ),
     })),
@@ -139,14 +164,17 @@ const EligibilityView = ({ value }) => {
           border: `1px solid ${token.colorInfoBorder}`,
         }}
       >
-        <Typography.Text type="secondary">Eligibility summary</Typography.Text>
+        <Typography.Text type="secondary">
+          {t('financial_assistance.admin.condition.eligibility_summary')}
+        </Typography.Text>
         <Typography.Paragraph strong style={{ margin: '4px 0 0' }}>
-          A student is eligible if:
+          {t('financial_assistance.admin.condition.student_eligible_if')}
         </Typography.Paragraph>
         <Flex vertical gap={4}>
-          {scenarios.map((scenario, index) => (
+          {visibleScenarios.map((scenario, index) => (
             <Typography.Text key={scenario.id ?? index}>
-              Scenario {index + 1}: {(scenario.conditions || []).map(getConditionText).join(' AND ')}
+              {t('financial_assistance.admin.text.scenario_number', { number: index + 1 })}:{' '}
+              {(scenario.conditions || []).map(getConditionText).join(' AND ')}
             </Typography.Text>
           ))}
         </Flex>
@@ -168,6 +196,7 @@ const EligibilityView = ({ value }) => {
 }
 
 const FasSchemeDetailPage = () => {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const detail = useFetch(ApiUrls.FAS_SCHEME_MANAGEMENT.DETAIL(id), {}, [id])
@@ -181,6 +210,7 @@ const FasSchemeDetailPage = () => {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState(null)
   const [showConditionErrors, setShowConditionErrors] = useState(false)
+  const canUpdateScheme = scheme?.status === EnumConfig.FasSchemeStatus.Draft
 
   const courseOptions = useMemo(
     () =>
@@ -218,13 +248,13 @@ const FasSchemeDetailPage = () => {
   }
 
   const handleSave = async () => {
-    if (!form.schemeName?.trim()) return showErrorToast('Scheme name is required.')
-    if (form.schemeName.length > 150) return showErrorToast('Scheme name cannot exceed 150 characters.')
+    if (!form.schemeName?.trim()) return showErrorToast(t('financial_assistance.admin.message.scheme_name_required'))
+    if (form.schemeName.length > 150) return showErrorToast(t('financial_assistance.admin.message.scheme_name_max'))
     if (!form.durationInMonths || Number(form.durationInMonths) <= 0) {
-      return showErrorToast('Duration must be greater than 0.')
+      return showErrorToast(t('financial_assistance.admin.message.duration_positive'))
     }
     if ((form.description || '').length > 1000) {
-      return showErrorToast('Description cannot exceed 1000 characters.')
+      return showErrorToast(t('financial_assistance.admin.message.description_max'))
     }
 
     const conditionErrors = (form.rootConditionGroup?.groups || []).flatMap(getScenarioErrors)
@@ -247,15 +277,15 @@ const FasSchemeDetailPage = () => {
   }
 
   const tierColumns = [
-    { title: 'Tier', dataIndex: 'tierName', key: 'tierName' },
+    { title: t('financial_assistance.section.tier'), dataIndex: 'tierName', key: 'tierName' },
     {
-      title: 'Income basis',
+      title: t('financial_assistance.admin.field.income_basis'),
       dataIndex: 'tierIncomeBasis',
       key: 'tierIncomeBasis',
       render: (value) => String(value || '-').replace(/([a-z])([A-Z])/g, '$1 $2'),
     },
     {
-      title: 'Income range',
+      title: t('financial_assistance.admin.field.income_range'),
       key: 'incomeRange',
       render: (_, tier) => (
         <Flex vertical gap={2}>
@@ -266,11 +296,14 @@ const FasSchemeDetailPage = () => {
       ),
     },
     {
-      title: 'Subsidy',
+      title: t('financial_assistance.admin.field.subsidy'),
       key: 'subsidy',
       render: (_, tier) =>
         tier.isPerComponent
-          ? `Course fee: ${formatSubsidy(tier.courseFeeSubsidyValue, tier.subsidyType)} · Misc. fee: ${formatSubsidy(tier.miscFeeSubsidyValue, tier.subsidyType)}`
+          ? t('financial_assistance.admin.text.per_component_subsidy', {
+              course: formatSubsidy(tier.courseFeeSubsidyValue, tier.subsidyType),
+              misc: formatSubsidy(tier.miscFeeSubsidyValue, tier.subsidyType),
+            })
           : formatSubsidy(tier.subsidyValue, tier.subsidyType),
     },
   ]
@@ -282,8 +315,8 @@ const FasSchemeDetailPage = () => {
     return (
       <Result
         status="404"
-        title="FAS scheme not found"
-        extra={<Button onClick={() => navigate(listRoute)}>Back to schemes</Button>}
+        title={t('financial_assistance.admin.scheme.not_found')}
+        extra={<Button onClick={() => navigate(listRoute)}>{t('financial_assistance.admin.action.back_to_schemes')}</Button>}
       />
     )
   }
@@ -292,10 +325,16 @@ const FasSchemeDetailPage = () => {
     <div style={{ padding: '20px 28px 28px' }}>
       <Flex align="center" justify="space-between" gap={12} wrap="wrap" style={{ marginBottom: 20 }}>
         <Flex align="center" gap={12}>
-          <Button aria-label="Back" icon={<ArrowLeftOutlined />} onClick={() => navigate(listRoute)} />
+          <Button
+            aria-label={t('financial_assistance.admin.action.back')}
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(listRoute)}
+          />
           <div>
             <Flex align="center" gap={8} wrap="wrap">
-              <Typography.Title level={4} style={{ margin: 0 }}>FAS scheme details</Typography.Title>
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                {t('financial_assistance.admin.scheme.detail_title')}
+              </Typography.Title>
               <FasStatusTag status={scheme.status} />
             </Flex>
             <Typography.Text type="secondary">{scheme.schemeCode}</Typography.Text>
@@ -303,10 +342,10 @@ const FasSchemeDetailPage = () => {
         </Flex>
         {editing ? (
           <Space>
-            <Button onClick={handleCancel} disabled={update.loading}>Cancel</Button>
-            <Button type="primary" onClick={handleSave} loading={update.loading}>Save</Button>
+            <Button onClick={handleCancel} disabled={update.loading}>{t('button.cancel')}</Button>
+            <Button type="primary" onClick={handleSave} loading={update.loading}>{t('button.save')}</Button>
           </Space>
-        ) : (
+        ) : canUpdateScheme ? (
           <Button
             type="primary"
             onClick={() => {
@@ -314,58 +353,62 @@ const FasSchemeDetailPage = () => {
               setEditing(true)
             }}
           >
-            Update
+            {t('button.update')}
           </Button>
-        )}
+        ) : null}
       </Flex>
 
       <main>
         <FormSection
-          title="Basic information"
-          help="Name the scheme, set the validity period, and optionally limit it to selected courses."
+          title={t('financial_assistance.admin.section.basic_information')}
+          help={t('financial_assistance.admin.help.basic_information')}
         >
           <Row gutter={[16, 16]}>
             <Col xs={24} md={16}>
               {editing ? (
-                <ViewField label="Scheme name">
+                <ViewField label={t('financial_assistance.field.scheme_name')}>
                   <Input
                     value={form.schemeName}
                     style={controlStyle}
-                    placeholder="Enter scheme name"
+                    placeholder={t('financial_assistance.admin.placeholder.enter_scheme_name')}
                     onChange={(event) => setFormField('schemeName', event.target.value)}
                   />
                 </ViewField>
               ) : (
-                <ViewField label="Scheme name"><Typography.Text>{scheme.schemeName}</Typography.Text></ViewField>
+                <ViewField label={t('financial_assistance.field.scheme_name')}><Typography.Text>{scheme.schemeName}</Typography.Text></ViewField>
               )}
             </Col>
             <Col xs={24} md={8}>
               {editing ? (
-                <ViewField label="Duration">
+                <ViewField label={t('financial_assistance.admin.field.duration')}>
                   <InputNumber
                     value={form.durationInMonths}
                     min={1}
-                    addonAfter="months"
+                    addonAfter={t('financial_assistance.admin.text.months')}
                     style={controlStyle}
                     onChange={(value) => setFormField('durationInMonths', value)}
                   />
                 </ViewField>
               ) : (
-                <ViewField label="Duration"><Typography.Text>{scheme.durationInMonths} months</Typography.Text></ViewField>
+                <ViewField label={t('financial_assistance.admin.field.duration')}>
+                  <Typography.Text>
+                    {t('financial_assistance.text.months', { count: scheme.durationInMonths })}
+                  </Typography.Text>
+                </ViewField>
               )}
             </Col>
             <Col span={24}>
               {editing ? (
-                <ViewField label="Description">
+                <ViewField label={t('financial_assistance.admin.field.description')}>
                   <Input.TextArea
                     value={form.description}
                     rows={3}
-                    placeholder="Enter description"
+                    placeholder={t('financial_assistance.admin.placeholder.enter_description')}
                     onChange={(event) => setFormField('description', event.target.value)}
                   />
                 </ViewField>
               ) : (
-                <ViewField label="Description">
+                <ViewField label={t('financial_assistance.admin.field.description')}>
                   <Typography.Paragraph style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
                     {scheme.description || renderEmptyFallback(null)}
                   </Typography.Paragraph>
@@ -374,7 +417,7 @@ const FasSchemeDetailPage = () => {
             </Col>
             <Col span={24}>
               {editing ? (
-                <ViewField label="Courses">
+                <ViewField label={t('financial_assistance.admin.field.courses')}>
                   <Select
                     mode="multiple"
                     value={selectedCourseIds}
@@ -382,7 +425,7 @@ const FasSchemeDetailPage = () => {
                     loading={courses.loading}
                     showSearch
                     optionFilterProp="label"
-                    placeholder="Select courses"
+                    placeholder={t('financial_assistance.admin.placeholder.select_courses')}
                     style={controlStyle}
                     onChange={(courseIds) =>
                       setFormField('schemeCourses', courseIds.map((courseId) => ({ courseId })))
@@ -390,7 +433,7 @@ const FasSchemeDetailPage = () => {
                   />
                 </ViewField>
               ) : (
-                <ViewField label="Courses">
+                <ViewField label={t('financial_assistance.admin.field.courses')}>
                   <Flex gap={8} wrap="wrap">
                     {(scheme.schemeCourses || []).length
                       ? scheme.schemeCourses.map((course) => (
@@ -407,8 +450,8 @@ const FasSchemeDetailPage = () => {
         </FormSection>
 
         <FormSection
-          title="Eligibility conditions"
-          help="Build one or more scenarios. A student is eligible when any scenario matches."
+          title={t('financial_assistance.admin.section.eligibility_conditions')}
+          help={t('financial_assistance.admin.help.eligibility_conditions')}
         >
           {editing ? (
             <FasConditionEditor
@@ -425,8 +468,8 @@ const FasSchemeDetailPage = () => {
         </FormSection>
 
         <FormSection
-          title="Tiers"
-          help="Build continuous income ranges. From is calculated automatically; only set the upper limit and subsidy."
+          title={t('financial_assistance.admin.section.tiers')}
+          help={t('financial_assistance.admin.help.tiers')}
         >
           {editing ? (
             <TierEditor tiers={form.tiers} setTiers={setTiers} />
@@ -435,7 +478,10 @@ const FasSchemeDetailPage = () => {
           )}
         </FormSection>
 
-        <FormSection title="Required documents" help="Add documents the applicant must upload before submission.">
+        <FormSection
+          title={t('financial_assistance.section.required_documents')}
+          help={t('financial_assistance.admin.help.required_documents')}
+        >
           {editing ? (
             <RequiredDocumentsEditor documents={form.requiredDocuments} setDocuments={setRequiredDocuments} />
           ) : (
@@ -453,10 +499,10 @@ const FasSchemeDetailPage = () => {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        View template
+                        {t('financial_assistance.admin.action.view_template')}
                       </Button>
                     ) : (
-                      <Typography.Text type="secondary">No template</Typography.Text>
+                      <Typography.Text type="secondary">{t('financial_assistance.admin.empty.no_template')}</Typography.Text>
                     )
                   }
                 >
@@ -471,7 +517,10 @@ const FasSchemeDetailPage = () => {
           )}
         </FormSection>
 
-        <FormSection title="Additional questions" help="Collect extra applicant details needed for review.">
+        <FormSection
+          title={t('financial_assistance.section.additional_questions')}
+          help={t('financial_assistance.admin.help.additional_questions')}
+        >
           {editing ? (
             <AdditionalQuestionsEditor questions={form.additionalQuestions} setQuestions={setAdditionalQuestions} />
           ) : (
@@ -479,7 +528,15 @@ const FasSchemeDetailPage = () => {
               dataSource={scheme.additionalQuestions || []}
               locale={{ emptyText: renderEmptyFallback(null) }}
               renderItem={(question, index) => (
-                <List.Item extra={<Tag>{question.isRequired ? 'Required' : 'Optional'}</Tag>}>
+                <List.Item
+                  extra={
+                    <Tag>
+                      {question.isRequired
+                        ? t('financial_assistance.status.required')
+                        : t('financial_assistance.status.optional')}
+                    </Tag>
+                  }
+                >
                   <Typography.Text>{index + 1}. {question.questionText}</Typography.Text>
                 </List.Item>
               )}

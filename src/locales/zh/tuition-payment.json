@@ -11,8 +11,8 @@
     "tabs": {
       "without_plan": "未设分期计划的收费",
       "with_plan": "已设分期计划的收费",
-      "without_plan_count": "未分期 ({count})",
-      "with_plan_count": "分期 ({count})"
+      "without_plan_count": "全额付款费用 ({count})",
+      "with_plan_count": "每月付款费用 ({count})"
     },
     "hero": {
       "outstanding": "待支付",
@@ -123,7 +123,18 @@
       "none_due": "暂无到期分期",
       "remaining_amount": "剩余分期",
       "timeline": "付款时间线",
-      "step_title": "第 {number} 期"
+      "timeline_overview": "分期付款计划概览",
+      "step_title": "第 {number} 期",
+      "summary_prefix": "您有",
+      "due_count": "{count} 期到期",
+      "summary_and": "和",
+      "overdue_count": "{count} 期逾期。",
+      "legend": {
+        "overdue": "已逾期",
+        "due": "待付款",
+        "upcoming": "即将到期",
+        "paid": "已付款"
+      }
     },
     "callback": {
       "processing": "正在确认付款",

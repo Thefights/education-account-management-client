@@ -12,7 +12,6 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
-import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import {
   isDateTimeBefore,
@@ -72,7 +71,6 @@ const getArrayLength = (value) => (Array.isArray(value) ? value.length : 0)
 const CourseManagementFormPage = () => {
   const { id } = useParams()
   const { t } = useTranslation()
-  const confirmReason = useReasonConfirm()
   const navigate = useNavigate()
   const { token } = theme.useToken()
   const isEdit = Boolean(id)
@@ -318,14 +316,8 @@ const CourseManagementFormPage = () => {
     if (!response) return
     const courseId = response.data?.id || id
     if (publish) {
-      const reason = await confirmReason({
-        title: t('course_management.confirm.publish_title'),
-        description: t('course_management.confirm.publish_description', { count: 1 }),
-        confirmText: t('course_management.action.publish'),
-      })
-      if (!reason) return
       const publishResponse = await publishCourse.submit({
-        overrideData: { ids: [courseId], reason },
+        overrideData: { ids: [courseId] },
       })
       if (!publishResponse) return
     }

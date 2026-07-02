@@ -97,6 +97,7 @@ export const EnumConfig = {
     Delete: 'Delete',
     Publish: 'Publish',
     Close: 'Close',
+    Withdraw: 'Withdraw',
   },
 
   SweepAction: {

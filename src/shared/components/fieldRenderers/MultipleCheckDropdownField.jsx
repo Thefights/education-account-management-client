@@ -11,13 +11,10 @@ const MultipleCheckDropdownField = ({
   onApply,
   selectAllText,
   searchPlaceholder,
-  cancelText,
-  okText,
   selectedText,
 }) => {
   const { token } = theme.useToken()
   const [open, setOpen] = useState(false)
-  const [draftValue, setDraftValue] = useState(value)
   const [keyword, setKeyword] = useState('')
 
   const filteredOptions = useMemo(
@@ -29,38 +26,33 @@ const MultipleCheckDropdownField = ({
   const allValues = useMemo(() => options.map((item) => item.value), [options])
   const filteredValues = useMemo(() => filteredOptions.map((item) => item.value), [filteredOptions])
   const allFilteredChecked =
-    filteredValues.length > 0 && filteredValues.every((item) => draftValue.includes(item))
-  const someFilteredChecked = filteredValues.some((item) => draftValue.includes(item))
+    filteredValues.length > 0 && filteredValues.every((item) => value.includes(item))
+  const someFilteredChecked = filteredValues.some((item) => value.includes(item))
   const displayText =
     value.length === 0 || value.length === allValues.length
       ? placeholder
       : selectedText(value.length)
 
+  const normalizeValue = (nextValue) => (nextValue.length === allValues.length ? [] : nextValue)
+
+  const applyValue = (nextValue) => {
+    onApply(normalizeValue(nextValue))
+  }
+
   const toggleFilteredOptions = (checked) => {
-    setDraftValue((current) =>
-      checked
-        ? Array.from(new Set([...current, ...filteredValues]))
-        : current.filter((item) => !filteredValues.includes(item))
-    )
+    const nextValue = checked
+      ? Array.from(new Set([...value, ...filteredValues]))
+      : value.filter((item) => !filteredValues.includes(item))
+
+    applyValue(nextValue)
   }
 
   const handleOpenChange = (nextOpen) => {
     setOpen(nextOpen)
 
     if (nextOpen) {
-      setDraftValue(value)
       setKeyword('')
     }
-  }
-
-  const handleCancel = () => {
-    setDraftValue(value)
-    setOpen(false)
-  }
-
-  const handleOk = () => {
-    onApply(draftValue.length === allValues.length ? [] : draftValue)
-    setOpen(false)
   }
 
   const dropdownContent = (
@@ -95,7 +87,7 @@ const MultipleCheckDropdownField = ({
           >
             {selectAllText}
           </Checkbox>
-          <Checkbox.Group value={draftValue} onChange={setDraftValue}>
+          <Checkbox.Group value={value} onChange={applyValue}>
             <Space orientation="vertical" size={12}>
               {filteredOptions.map((item) => (
                 <Checkbox key={String(item.value)} value={item.value} disabled={item.disabled}>
@@ -105,22 +97,6 @@ const MultipleCheckDropdownField = ({
             </Space>
           </Checkbox.Group>
         </Space>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 8,
-          padding: 12,
-          borderTop: `1px solid ${token.colorBorderSecondary}`,
-          background: token.colorBgElevated,
-        }}
-      >
-        <Button onClick={handleCancel}>{cancelText}</Button>
-        <Button type="primary" loading={loading} onClick={handleOk}>
-          {okText}
-        </Button>
       </div>
     </div>
   )

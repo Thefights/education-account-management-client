@@ -7,6 +7,7 @@ import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
 import useTranslation from '@/shared/hooks/useTranslation'
+import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { Flex } from 'antd'
 import { useMemo, useState } from 'react'
@@ -54,6 +55,24 @@ const TopupSchedulesPage = () => {
     const selected = new Set(selectedIds)
     return (schedules.data?.collection || []).filter((schedule) => selected.has(schedule.id))
   }, [schedules.data?.collection, selectedIds])
+  const activateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: schedules.data?.collection,
+        selectedIds,
+        targetStatus: EnumConfig.ScheduleTopupStatus.Active,
+      }),
+    [schedules.data?.collection, selectedIds]
+  )
+  const deactivateMeta = useMemo(
+    () =>
+      getStatusActionMeta({
+        records: schedules.data?.collection,
+        selectedIds,
+        targetStatus: EnumConfig.ScheduleTopupStatus.Inactive,
+      }),
+    [schedules.data?.collection, selectedIds]
+  )
   const hasCompletedSelection = selectedSchedules.some(
     (schedule) => schedule.status === EnumConfig.ScheduleTopupStatus.Completed
   )
@@ -78,15 +97,18 @@ const TopupSchedulesPage = () => {
   }
   const handleChangeStatus = async (status) => {
     const isActive = status === EnumConfig.ScheduleTopupStatus.Active
+    const actionMeta = isActive ? activateMeta : deactivateMeta
+    if (!actionMeta.hasActionable) return
+
     const reason = await confirmReason({
       title: isActive ? t('button.activate') : t('button.deactivate'),
-      description: `${selectedIds.length} ${t('text.selected').toLowerCase()}`,
+      description: t('text.status_update_selection_description', { count: selectedIds.length }),
       confirmColor: isActive ? 'primary' : 'error',
       confirmText: isActive ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
-      overrideData: { ids: selectedIds, status, reason },
+      overrideData: { ids: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
     clearSelection()
@@ -162,13 +184,14 @@ const TopupSchedulesPage = () => {
             key: 'activate',
             label: t('button.activate'),
             icon: <CheckCircleOutlined />,
-            disabled: hasCompletedSelection,
+            disabled: hasCompletedSelection || !activateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.ScheduleTopupStatus.Active),
           },
           {
             key: 'deactivate',
             label: t('button.deactivate'),
             icon: <StopOutlined />,
+            disabled: !deactivateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.ScheduleTopupStatus.Inactive),
           },
           {

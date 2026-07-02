@@ -10,6 +10,7 @@ import {
   getScenarioErrors,
 } from '@/features/financial-assistance/utils/fasConditionValidation'
 import { EnumConfig } from '@/shared/config/enumConfig'
+import useTranslation from '@/shared/hooks/useTranslation'
 import {
   formatCurrencyBasedOnCurrentLanguage,
   getCurrencySymbolBasedOnCurrentLanguage,
@@ -39,28 +40,49 @@ const OPERATORS = EnumConfig.FasConditionOperator
 const LOGICAL_OPERATORS = EnumConfig.FasLogicalOperator
 const FIELD_CONTROL_STYLE = { width: '100%', height: 40 }
 
-const nationalityOptions = [
-  { value: EnumConfig.NationalityCategory.SingaporeCitizen, label: 'Singapore Citizen' },
-  { value: EnumConfig.NationalityCategory.Other, label: 'Foreigner' },
+const getNationalityOptions = (t) => [
+  {
+    value: EnumConfig.NationalityCategory.SingaporeCitizen,
+    label: t('financial_assistance.enum.nationality.singapore_citizen'),
+  },
+  { value: EnumConfig.NationalityCategory.Other, label: t('financial_assistance.enum.nationality.foreigner') },
 ]
 
-const getFieldOptions = () => [
-  { value: FIELDS.StudentAge, label: 'Student age' },
-  { value: FIELDS.StudentNationality, label: 'Student nationality' },
-  { value: FIELDS.GuardianNationality, label: 'Guardian nationality' },
-  { value: FIELDS.GrossHouseholdIncome, label: 'Gross household income' },
-  { value: FIELDS.PerCapitaIncome, label: 'Per-capita income' },
+const getFieldOptions = (t) => [
+  { value: FIELDS.StudentAge, label: t('financial_assistance.admin.condition.field.student_age') },
+  {
+    value: FIELDS.StudentNationality,
+    label: t('financial_assistance.admin.condition.field.student_nationality'),
+  },
+  {
+    value: FIELDS.GuardianNationality,
+    label: t('financial_assistance.field.guardian_nationality'),
+  },
+  {
+    value: FIELDS.GrossHouseholdIncome,
+    label: t('financial_assistance.field.gross_household_income'),
+  },
+  { value: FIELDS.PerCapitaIncome, label: t('financial_assistance.field.per_capita_income') },
 ]
 
-const getOperatorOptions = (isText = false) => {
+const getOperatorOptions = (t, isText = false) => {
   const options = [
-    { value: OPERATORS.Equal, label: '= (is)' },
-    { value: OPERATORS.NotEqual, label: '≠ (is not)' },
-    { value: OPERATORS.GreaterThan, label: '> (greater than)' },
-    { value: OPERATORS.GreaterThanOrEqual, label: '≥ (at least)' },
-    { value: OPERATORS.LessThan, label: '< (less than)' },
-    { value: OPERATORS.LessThanOrEqual, label: '≤ (at most)' },
-    { value: OPERATORS.Between, label: '↔ (between)' },
+    { value: OPERATORS.Equal, label: t('financial_assistance.admin.condition.operator.equal') },
+    { value: OPERATORS.NotEqual, label: t('financial_assistance.admin.condition.operator.not_equal') },
+    {
+      value: OPERATORS.GreaterThan,
+      label: t('financial_assistance.admin.condition.operator.greater_than'),
+    },
+    {
+      value: OPERATORS.GreaterThanOrEqual,
+      label: t('financial_assistance.admin.condition.operator.greater_than_or_equal'),
+    },
+    { value: OPERATORS.LessThan, label: t('financial_assistance.admin.condition.operator.less_than') },
+    {
+      value: OPERATORS.LessThanOrEqual,
+      label: t('financial_assistance.admin.condition.operator.less_than_or_equal'),
+    },
+    { value: OPERATORS.Between, label: t('financial_assistance.admin.condition.operator.between') },
   ]
   return isText ? options.slice(0, 2) : options
 }
@@ -71,47 +93,61 @@ const isAgeField = (field) => field === FIELDS.StudentAge
 const isIncomeField = (field) =>
   field === FIELDS.GrossHouseholdIncome || field === FIELDS.PerCapitaIncome
 
-const getOptionLabel = (options, value) =>
-  options.find((option) => option.value === value)?.label || value || '—'
+const getOptionLabel = (options, value, fallback) =>
+  options.find((option) => option.value === value)?.label || value || fallback
 
-const getConditionValueText = (condition) => {
+const getConditionValueText = (condition, t) => {
   const normalized = getConditionFormValue(condition)
   if (isNationalityField(normalized.field)) {
-    return getOptionLabel(nationalityOptions, normalized.nationality) || 'Value missing'
+    return (
+      getOptionLabel(getNationalityOptions(t), normalized.nationality, '') ||
+      t('financial_assistance.admin.message.value_missing')
+    )
   }
-  if (normalized.valueNumber === '' || normalized.valueNumber == null) return 'Value missing'
+  if (normalized.valueNumber === '' || normalized.valueNumber == null) {
+    return t('financial_assistance.admin.message.value_missing')
+  }
   const formatValue = (value) => {
-    if (isAgeField(normalized.field)) return `${Number(value).toLocaleString()} years`
+    if (isAgeField(normalized.field)) {
+      return t('financial_assistance.admin.text.years_count', {
+        count: Number(value).toLocaleString(),
+      })
+    }
     if (isIncomeField(normalized.field)) return formatCurrencyBasedOnCurrentLanguage(value)
     return Number(value).toLocaleString()
   }
   if (normalized.operator !== OPERATORS.Between) return formatValue(normalized.valueNumber)
-  return `${formatValue(normalized.valueNumber)} and ${
+  return `${formatValue(normalized.valueNumber)} ${t('financial_assistance.admin.text.and')} ${
     normalized.valueNumberTo === '' || normalized.valueNumberTo == null
-      ? 'Value missing'
+      ? t('financial_assistance.admin.message.value_missing')
       : formatValue(normalized.valueNumberTo)
   }`
 }
 
 const FasConditionSentence = ({ condition }) => {
+  const { t } = useTranslation()
   const normalized = getConditionFormValue(condition)
   return (
     <Typography.Text>
-      <Typography.Text strong>{getOptionLabel(getFieldOptions(), normalized.field)}</Typography.Text>{' '}
-      {getOptionLabel(getOperatorOptions(isNationalityField(normalized.field)), normalized.operator)}{' '}
-      <Typography.Text strong>{getConditionValueText(normalized)}</Typography.Text>
+      <Typography.Text strong>{getOptionLabel(getFieldOptions(t), normalized.field, '-')}</Typography.Text>{' '}
+      {getOptionLabel(getOperatorOptions(t, isNationalityField(normalized.field)), normalized.operator, '-')}{' '}
+      <Typography.Text strong>{getConditionValueText(normalized, t)}</Typography.Text>
     </Typography.Text>
   )
 }
 
-const buildScenarioTreeNode = (scenario, index) => ({
+const buildScenarioTreeNode = (scenario, index, t) => ({
   key: `scenario-${index}`,
   icon: <ApartmentOutlined />,
   title: (
     <Space size={8} wrap>
-      <Typography.Text strong>Scenario {index + 1}</Typography.Text>
+      <Typography.Text strong>
+        {t('financial_assistance.admin.text.scenario_number', { number: index + 1 })}
+      </Typography.Text>
       <Tag color="blue">AND</Tag>
-      <Typography.Text type="secondary">All conditions below must match</Typography.Text>
+      <Typography.Text type="secondary">
+        {t('financial_assistance.admin.condition.all_conditions_below_match')}
+      </Typography.Text>
     </Space>
   ),
   children: (scenario.conditions || []).map((condition, conditionIndex) => ({
@@ -120,7 +156,10 @@ const buildScenarioTreeNode = (scenario, index) => ({
   })),
 })
 
-const SectionShell = ({ title, subtitle, accentColor, onDelete, children, token }) => (
+const SectionShell = ({ title, subtitle, accentColor, onDelete, children, token }) => {
+  const { t } = useTranslation()
+
+  return (
   <div
     style={{
       border: `1px solid ${token.colorBorder}`,
@@ -147,16 +186,18 @@ const SectionShell = ({ title, subtitle, accentColor, onDelete, children, token 
         </Typography.Text>
       </Flex>
       {onDelete ? (
-        <Tooltip title="Delete group">
-          <Button danger type="text" icon={<DeleteOutlined />} onClick={onDelete} />
-        </Tooltip>
+        <Button danger type="text" onClick={onDelete}>
+          {t('financial_assistance.admin.action.remove_group')}
+        </Button>
       ) : null}
     </Flex>
     <div style={{ padding: 16 }}>{children}</div>
   </div>
-)
+  )
+}
 
 const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidationErrors }) => {
+  const { t } = useTranslation()
   const normalized = getConditionFormValue(condition)
   const isText = isNationalityField(normalized.field)
   const isBetween = !isText && normalized.operator === OPERATORS.Between
@@ -179,10 +220,10 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
     >
       <Flex align="center" gap={8} style={{ marginBottom: 8 }}>
         <Tag>{index + 1}</Tag>
-        <Typography.Text type="secondary">Rule</Typography.Text>
+        <Typography.Text type="secondary">{t('financial_assistance.admin.condition.rule')}</Typography.Text>
       </Flex>
       {onDelete ? (
-        <Tooltip title="Delete condition">
+        <Tooltip title={t('financial_assistance.admin.action.delete_condition')}>
           <Button
             danger
             type="text"
@@ -196,9 +237,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
         <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
             aria-label="Field"
-            placeholder="Select field"
+            placeholder={t('financial_assistance.admin.placeholder.select_field')}
             value={normalized.field}
-            options={getFieldOptions()}
+            options={getFieldOptions(t)}
             style={FIELD_CONTROL_STYLE}
             onChange={(field) =>
               onChange({
@@ -217,9 +258,9 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
         <Col xs={24} md={12} xl={isBetween ? 6 : 8}>
           <Select
             aria-label="Operator"
-            placeholder="Select operator"
+            placeholder={t('financial_assistance.admin.placeholder.select_operator')}
             value={normalized.operator}
-            options={getOperatorOptions(isText)}
+            options={getOperatorOptions(t, isText)}
             status={operatorError ? 'error' : undefined}
             style={FIELD_CONTROL_STYLE}
             onChange={(operator) =>
@@ -238,8 +279,8 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
                 aria-label="Value"
                 status={valueError ? 'error' : undefined}
                 value={normalized.nationality}
-                placeholder="Select value"
-                options={nationalityOptions}
+                placeholder={t('financial_assistance.admin.placeholder.select_value')}
+                options={getNationalityOptions(t)}
                 style={FIELD_CONTROL_STYLE}
                 onChange={(nationality) => onChange({ ...normalized, nationality })}
               />
@@ -248,12 +289,20 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
                 aria-label="Value"
                 status={valueError ? 'error' : undefined}
                 value={normalized.valueNumber}
-                placeholder={isAgeField(normalized.field) ? `e.g. ${AGE_MIN}` : 'e.g. 100.00'}
+                placeholder={
+                  isAgeField(normalized.field)
+                    ? t('financial_assistance.admin.placeholder.age_example', { value: AGE_MIN })
+                    : t('financial_assistance.admin.placeholder.amount_example')
+                }
                 min={isAgeField(normalized.field) ? AGE_MIN : 0}
                 max={isAgeField(normalized.field) ? AGE_MAX : undefined}
                 precision={isAgeField(normalized.field) ? 0 : 2}
                 prefix={isIncomeField(normalized.field) ? currencySymbol : undefined}
-                suffix={isAgeField(normalized.field) ? 'years' : undefined}
+                suffix={
+                  isAgeField(normalized.field)
+                    ? t('financial_assistance.admin.text.years')
+                    : undefined
+                }
                 style={FIELD_CONTROL_STYLE}
                 onChange={(valueNumber) => onChange({ ...normalized, valueNumber })}
               />
@@ -272,12 +321,20 @@ const ConditionRow = ({ condition, index, onChange, onDelete, token, showValidat
                 aria-label="To value"
                 status={valueToError ? 'error' : undefined}
                 value={normalized.valueNumberTo}
-                placeholder={isAgeField(normalized.field) ? `e.g. ${AGE_MAX}` : 'e.g. 500.00'}
+                placeholder={
+                  isAgeField(normalized.field)
+                    ? t('financial_assistance.admin.placeholder.age_example', { value: AGE_MAX })
+                    : t('financial_assistance.admin.placeholder.amount_to_example')
+                }
                 min={isAgeField(normalized.field) ? AGE_MIN : 0}
                 max={isAgeField(normalized.field) ? AGE_MAX : undefined}
                 precision={isAgeField(normalized.field) ? 0 : 2}
                 prefix={isIncomeField(normalized.field) ? currencySymbol : undefined}
-                suffix={isAgeField(normalized.field) ? 'years' : undefined}
+                suffix={
+                  isAgeField(normalized.field)
+                    ? t('financial_assistance.admin.text.years')
+                    : undefined
+                }
                 style={FIELD_CONTROL_STYLE}
                 onChange={(valueNumberTo) => onChange({ ...normalized, valueNumberTo })}
               />
@@ -304,6 +361,7 @@ const GroupEditor = ({
   showValidationErrors = false,
   canDelete = true,
 }) => {
+  const { t } = useTranslation()
   const conditions = group.conditions || []
   const updateCondition = (index, nextCondition) =>
     onChange({
@@ -317,33 +375,49 @@ const GroupEditor = ({
 
   return (
     <SectionShell
-      title={`Scenario ${groupNumber}`}
-      subtitle="Student is eligible when all rules in this scenario match."
+      title={t('financial_assistance.admin.text.eligibility_group_number', { number: groupNumber })}
+      subtitle={t('financial_assistance.admin.condition.scenario_subtitle')}
       accentColor={token.colorInfo}
       onDelete={canDelete ? onDelete : null}
       token={token}
     >
       <Flex vertical gap={12}>
         {conditions.map((condition, index) => (
-          <ConditionRow
-            key={condition.id ?? `condition-${index}`}
-            condition={condition}
-            index={index}
-            token={token}
-            showValidationErrors={showValidationErrors}
-            onChange={(nextCondition) => updateCondition(index, nextCondition)}
-            onDelete={
-              conditions.length > 1
-                ? () =>
-                    onChange({
-                      ...group,
-                      logicalOperator: LOGICAL_OPERATORS.And,
-                      groups: [],
-                      conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
-                    })
-                : null
-            }
-          />
+          <Flex key={condition.id ?? `condition-${index}`} vertical gap={12}>
+            {index > 0 && (
+              <Flex align="center" gap={12} role="separator">
+                <div style={{ flex: 1, borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+                <Typography.Text
+                  style={{
+                    color: token.colorWarningText,
+                    fontSize: 12,
+                    fontWeight: token.fontWeightStrong,
+                  }}
+                >
+                  AND
+                </Typography.Text>
+                <div style={{ flex: 1, borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+              </Flex>
+            )}
+            <ConditionRow
+              condition={condition}
+              index={index}
+              token={token}
+              showValidationErrors={showValidationErrors}
+              onChange={(nextCondition) => updateCondition(index, nextCondition)}
+              onDelete={
+                conditions.length > 1
+                  ? () =>
+                      onChange({
+                        ...group,
+                        logicalOperator: LOGICAL_OPERATORS.And,
+                        groups: [],
+                        conditions: conditions.filter((_, itemIndex) => itemIndex !== index),
+                      })
+                  : null
+              }
+            />
+          </Flex>
         ))}
         <Button
           type="dashed"
@@ -358,13 +432,13 @@ const GroupEditor = ({
             })
           }
         >
-          Add scenario condition
+          {t('financial_assistance.admin.action.add_rule')}
         </Button>
         {showValidationErrors && !!errors.length && (
           <Alert
             type="error"
             showIcon
-            message="Scenario has invalid conditions"
+            message={t('financial_assistance.admin.message.scenario_invalid_conditions')}
             description={
               <Flex vertical gap={2}>
                 {errors.map((error) => (
@@ -382,6 +456,7 @@ const GroupEditor = ({
 }
 
 const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) => {
+  const { t } = useTranslation()
   const { token } = theme.useToken()
   const group = getConditionGroupFormValue(value)
   const scenarios = useMemo(
@@ -410,13 +485,24 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
 
   return (
     <Flex vertical gap={12}>
+      <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
+        {t('financial_assistance.admin.condition.any_one_group_description')}
+      </Typography.Paragraph>
       {scenarios.map((scenario, index) => (
         <Flex key={scenario.id ?? `scenario-${index}`} vertical gap={12}>
           {index > 0 && (
             <Flex align="center" gap={12} role="separator">
               <div style={{ flex: 1, borderTop: `1px solid ${token.colorBorderSecondary}` }} />
-              <Tag color="blue" style={{ margin: 0, fontWeight: token.fontWeightStrong }}>
-                OR
+              <Tag
+                color="cyan"
+                style={{
+                  margin: 0,
+                  borderRadius: token.borderRadius,
+                  fontWeight: token.fontWeightStrong,
+                  paddingInline: 16,
+                }}
+              >
+                {t('financial_assistance.admin.condition.or_group_separator')}
               </Tag>
               <div style={{ flex: 1, borderTop: `1px solid ${token.colorBorderSecondary}` }} />
             </Flex>
@@ -441,7 +527,7 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
         style={{ height: 40 }}
         onClick={() => emitScenarioRoot([...scenarios, createEmptyScenario()])}
       >
-        Add scenario
+        {t('financial_assistance.admin.action.add_another_group')}
       </Button>
       {hasCondition && !hasErrors && (
         <div
@@ -452,13 +538,13 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
             background: token.colorBgContainer,
           }}
         >
-          <Typography.Text strong>Readable preview</Typography.Text>
+          <Typography.Text strong>{t('financial_assistance.admin.condition.readable_preview')}</Typography.Text>
           <Tree
             showIcon
             showLine
             selectable={false}
             defaultExpandAll
-            treeData={scenarios.map((scenario, index) => buildScenarioTreeNode(scenario, index))}
+            treeData={scenarios.map((scenario, index) => buildScenarioTreeNode(scenario, index, t))}
             style={{
               marginTop: 12,
               padding: 12,
@@ -469,7 +555,9 @@ const FasConditionEditor = ({ value, onChange, showValidationErrors = false }) =
         </div>
       )}
       {showValidationErrors && hasErrors && (
-        <Typography.Text type="danger">Fix eligibility conditions before submitting.</Typography.Text>
+        <Typography.Text type="danger">
+          {t('financial_assistance.admin.message.fix_eligibility_conditions')}
+        </Typography.Text>
       )}
     </Flex>
   )

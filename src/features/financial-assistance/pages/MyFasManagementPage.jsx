@@ -37,6 +37,7 @@ const statusTabs = [
   FAS_APPLICATION_STATUS.Pending,
   FAS_APPLICATION_STATUS.Approved,
   FAS_APPLICATION_STATUS.Rejected,
+  FAS_APPLICATION_STATUS.Withdrawn,
   FAS_APPLICATION_STATUS.Expired,
 ]
 
@@ -163,7 +164,9 @@ const MyFasApplicationDetailDialog = ({
   const isDraft = status === FAS_APPLICATION_STATUS.Draft
   const isPending = status === FAS_APPLICATION_STATUS.Pending
   const canReapply =
-    status === FAS_APPLICATION_STATUS.Rejected || status === FAS_APPLICATION_STATUS.Expired
+    status === FAS_APPLICATION_STATUS.Rejected ||
+    status === FAS_APPLICATION_STATUS.Withdrawn ||
+    status === FAS_APPLICATION_STATUS.Expired
   const showTier =
     status === FAS_APPLICATION_STATUS.Approved || status === FAS_APPLICATION_STATUS.Expired
   const title = t('financial_assistance.management.detail_title', {
