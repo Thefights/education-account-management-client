@@ -54,6 +54,10 @@ export const platformLightTheme = {
       defaultHoverColor: lightPalette.primary.dark,
     },
 
+    Checkbox: {
+      borderRadiusSM: 3,
+    },
+
     Input: {
       borderRadius: 8,
       controlHeight: 40,
@@ -80,6 +84,8 @@ export const platformLightTheme = {
       headerColor: '#0F172A',
       headerSplitColor: 'transparent',
       rowHoverBg: '#F3F8FF',
+      rowSelectedBg: '#F1F7FF',
+      rowSelectedHoverBg: '#EAF3FF',
     },
 
     Tag: {
@@ -133,6 +139,10 @@ export const platformDarkTheme = {
       primaryShadow: '0 6px 18px rgba(59, 130, 246, 0.24)',
     },
 
+    Checkbox: {
+      borderRadiusSM: 3,
+    },
+
     Input: {
       borderRadius: 10,
       controlHeight: 40,
@@ -156,6 +166,8 @@ export const platformDarkTheme = {
       headerBg: '#273449',
       headerSplitColor: 'transparent',
       rowHoverBg: darkPalette.primary.softBg,
+      rowSelectedBg: '#1B355F',
+      rowSelectedHoverBg: '#1E3D70',
     },
   },
 }

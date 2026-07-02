@@ -12,6 +12,7 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -25,16 +26,20 @@ import EServiceAccountsTableSection from '../components/EServiceAccountsTableSec
 import EServiceAccountsToolbarSection from '../components/EServiceAccountsToolbarSection'
 
 const defaultFilters = { search: '', statuses: [] }
+const listStateKey = 'education-accounts:list-state'
 
 const EServiceAccountsPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const confirmReason = useReasonConfirm()
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState({ key: 'createdAt', direction: 'desc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, {
+    key: 'createdAt',
+    direction: 'desc',
+  })
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.openCreate))
   const [openImport, setOpenImport] = useState(false)
   const [createInitialValues, setCreateInitialValues] = useState(() => ({
@@ -143,15 +148,29 @@ const EServiceAccountsPage = () => {
     if (result?.succeeded) await accounts.fetch()
   }
 
-  const handleChangeStatus = async (status) => {
-    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+  const handleChangeStatus = async (status, account) => {
+    const isActivate = status === 1
+    const actionMeta = account
+      ? {
+          hasActionable:
+            account.status !==
+            (isActivate
+              ? EnumConfig.EducationAccountStatus.Active
+              : EnumConfig.EducationAccountStatus.Closed),
+          actionableIds: [account.id],
+        }
+      : isActivate
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
-      title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
-      confirmColor: status === 1 ? 'primary' : 'error',
-      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+      title: isActivate ? t('button.activate') : t('button.deactivate'),
+      description: t('text.status_update_selection_description', {
+        count: account ? 1 : selectedIds.length,
+      }),
+      confirmColor: isActivate ? 'primary' : 'error',
+      confirmText: isActivate ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
@@ -219,6 +238,7 @@ const EServiceAccountsPage = () => {
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.EDUCATION_ACCOUNTS.DETAIL(account.id))
             )
           }
+          onChangeStatus={handleChangeStatus}
         />
         <GenericTablePagination
           totalCount={accounts.data?.totalCount}
@@ -237,7 +257,7 @@ const EServiceAccountsPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
-              disabled: !activateMeta.hasActionable,
+              hidden: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -245,7 +265,7 @@ const EServiceAccountsPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
-              disabled: !deactivateMeta.hasActionable,
+              hidden: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(3),
             },
           ]}

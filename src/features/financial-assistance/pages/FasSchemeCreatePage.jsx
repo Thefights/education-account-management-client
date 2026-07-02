@@ -17,6 +17,7 @@ import useFieldRenderer from '@/shared/hooks/useFieldRenderer'
 import useForm from '@/shared/hooks/useForm'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getCurrencySymbolBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import { showErrorToast } from '@/shared/utils/toastUtil'
 import { maxLen, numberHigherThan } from '@/shared/utils/validateUtil'
 import {
@@ -115,6 +116,26 @@ const usesGrossRange = (tier) =>
   tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.GrossHouseholdIncome ||
   tier.tierIncomeBasis === FAS_TIER_INCOME_BASIS.PerCapitaOrGrossHouseholdIncome
 
+const IncomeRangeGroup = ({ title, children }) => (
+  <Flex
+    vertical
+    gap={8}
+    style={{
+      padding: 12,
+      border: '1px solid var(--app-border-color)',
+      borderRadius: 10,
+      background: 'var(--ant-color-fill-quaternary)',
+    }}
+  >
+    <Typography.Text strong style={{ fontSize: 13 }}>
+      {title}
+    </Typography.Text>
+    <Flex gap={12} wrap="wrap">
+      {children}
+    </Flex>
+  </Flex>
+)
+
 export const TierEditor = ({ tiers, setTiers }) => {
   const { fasSubsidyTypeOptions, fasTierIncomeBasisOptions } = useEnum()
   const { t } = useTranslation()
@@ -207,11 +228,12 @@ export const TierEditor = ({ tiers, setTiers }) => {
                   </Flex>
                 </TierField>
               </Flex>
-              <Flex gap={12} wrap="wrap">
+              <Row gutter={[12, 12]} align="bottom">
                 {usesPci && (
-                  <>
+                  <Col xs={24} xl={usesGross ? 12 : 16}>
+                    <IncomeRangeGroup title={t('financial_assistance.enum.income_basis.per_capita_income')}>
                     <TierField
-                      label={`${t('financial_assistance.enum.income_basis.per_capita_income')} — ${t('financial_assistance.admin.field.from')}`}
+                      label={t('financial_assistance.admin.field.from')}
                       help={
                         isPerCapitaStartDerived
                           ? t('financial_assistance.admin.help.calculated_from_previous_tier')
@@ -225,11 +247,12 @@ export const TierEditor = ({ tiers, setTiers }) => {
                         prefix={currencySymbol}
                         disabled={isPerCapitaStartDerived}
                         style={FIELD_CONTROL_STYLE}
+                        onFocus={selectInputNumberTextOnFocus}
                         onChange={(value) => updateTier(index, { minPerCapitaIncome: value ?? '' })}
                       />
                     </TierField>
                     <TierField
-                      label={`${t('financial_assistance.enum.income_basis.per_capita_income')} — ${t('financial_assistance.admin.field.up_to')}`}
+                      label={t('financial_assistance.admin.field.up_to')}
                       help={t('financial_assistance.admin.help.up_to_exclusive')}
                       minWidth={220}
                     >
@@ -239,15 +262,18 @@ export const TierEditor = ({ tiers, setTiers }) => {
                         prefix={currencySymbol}
                         placeholder={t('financial_assistance.admin.placeholder.no_limit')}
                         style={FIELD_CONTROL_STYLE}
+                        onFocus={selectInputNumberTextOnFocus}
                         onChange={(value) => updateTier(index, { maxPerCapitaIncome: value ?? '' })}
                       />
                     </TierField>
-                  </>
+                    </IncomeRangeGroup>
+                  </Col>
                 )}
                 {usesGross && (
-                  <>
+                  <Col xs={24} xl={usesPci ? 12 : 16}>
+                    <IncomeRangeGroup title={t('financial_assistance.enum.income_basis.gross_household_income')}>
                     <TierField
-                      label={`${t('financial_assistance.enum.income_basis.gross_household_income')} — ${t('financial_assistance.admin.field.from')}`}
+                      label={t('financial_assistance.admin.field.from')}
                       help={
                         isGrossStartDerived
                           ? t('financial_assistance.admin.help.calculated_from_previous_tier')
@@ -261,13 +287,14 @@ export const TierEditor = ({ tiers, setTiers }) => {
                         prefix={currencySymbol}
                         disabled={isGrossStartDerived}
                         style={FIELD_CONTROL_STYLE}
+                        onFocus={selectInputNumberTextOnFocus}
                         onChange={(value) =>
                           updateTier(index, { minGrossHouseholdIncome: value ?? '' })
                         }
                       />
                     </TierField>
                     <TierField
-                      label={`${t('financial_assistance.enum.income_basis.gross_household_income')} — ${t('financial_assistance.admin.field.up_to')}`}
+                      label={t('financial_assistance.admin.field.up_to')}
                       help={t('financial_assistance.admin.help.up_to_exclusive')}
                       minWidth={240}
                     >
@@ -277,18 +304,58 @@ export const TierEditor = ({ tiers, setTiers }) => {
                         prefix={currencySymbol}
                         placeholder={t('financial_assistance.admin.placeholder.no_limit')}
                         style={FIELD_CONTROL_STYLE}
+                        onFocus={selectInputNumberTextOnFocus}
                         onChange={(value) =>
                           updateTier(index, { maxGrossHouseholdIncome: value ?? '' })
                         }
                       />
                     </TierField>
-                  </>
+                    </IncomeRangeGroup>
+                  </Col>
                 )}
-                {tier.isPerComponent ? (
-                  <>
-                    <TierField label={t('financial_assistance.admin.field.course_fee_subsidy')}>
+                <Col xs={24} xl={usesPci && usesGross ? 24 : 8}>
+                  <Flex gap={12} wrap="wrap">
+                    {tier.isPerComponent ? (
+                      <>
+                        <TierField label={t('financial_assistance.admin.field.course_fee_subsidy')}>
+                          <InputNumber
+                            value={tier.courseFeeSubsidyValue}
+                            min={0}
+                            max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                            prefix={
+                              tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
+                                ? currencySymbol
+                                : undefined
+                            }
+                            suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                            placeholder={t('financial_assistance.admin.placeholder.value')}
+                            style={FIELD_CONTROL_STYLE}
+                            onFocus={selectInputNumberTextOnFocus}
+                            onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
+                          />
+                        </TierField>
+                        <TierField label={t('financial_assistance.admin.field.misc_fee_subsidy')}>
+                          <InputNumber
+                            value={tier.miscFeeSubsidyValue}
+                            min={0}
+                            max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
+                            prefix={
+                              tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
+                                ? currencySymbol
+                                : undefined
+                            }
+                            suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
+                            placeholder={t('financial_assistance.admin.placeholder.value')}
+                            style={FIELD_CONTROL_STYLE}
+                            onFocus={selectInputNumberTextOnFocus}
+                            onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
+                          />
+                        </TierField>
+                      </>
+                    ) : (
+                      <TierField label={t('financial_assistance.admin.field.subsidy')}>
                       <InputNumber
-                        value={tier.courseFeeSubsidyValue}
+                        value={tier.subsidyValue}
                         min={0}
                         max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
                         prefix={
@@ -299,45 +366,14 @@ export const TierEditor = ({ tiers, setTiers }) => {
                         suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
                         placeholder={t('financial_assistance.admin.placeholder.value')}
                         style={FIELD_CONTROL_STYLE}
-                        onChange={(value) => updateTier(index, { courseFeeSubsidyValue: value })}
+                        onFocus={selectInputNumberTextOnFocus}
+                        onChange={(value) => updateTier(index, { subsidyValue: value })}
                       />
-                    </TierField>
-                    <TierField label={t('financial_assistance.admin.field.misc_fee_subsidy')}>
-                      <InputNumber
-                        value={tier.miscFeeSubsidyValue}
-                        min={0}
-                        max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                        prefix={
-                          tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
-                            ? currencySymbol
-                            : undefined
-                        }
-                        suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                        placeholder={t('financial_assistance.admin.placeholder.value')}
-                        style={FIELD_CONTROL_STYLE}
-                        onChange={(value) => updateTier(index, { miscFeeSubsidyValue: value })}
-                      />
-                    </TierField>
-                  </>
-                ) : (
-                  <TierField label={t('financial_assistance.admin.field.subsidy')}>
-                    <InputNumber
-                      value={tier.subsidyValue}
-                      min={0}
-                      max={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? 100 : undefined}
-                      prefix={
-                        tier.subsidyType === FAS_SUBSIDY_TYPE.FixedAmount
-                          ? currencySymbol
-                          : undefined
-                      }
-                      suffix={tier.subsidyType === FAS_SUBSIDY_TYPE.Percent ? '%' : undefined}
-                      placeholder={t('financial_assistance.admin.placeholder.value')}
-                      style={FIELD_CONTROL_STYLE}
-                      onChange={(value) => updateTier(index, { subsidyValue: value })}
-                    />
-                  </TierField>
-                )}
-              </Flex>
+                      </TierField>
+                    )}
+                  </Flex>
+                </Col>
+              </Row>
             </Flex>
           </Card>
         )

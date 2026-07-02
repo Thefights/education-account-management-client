@@ -57,11 +57,13 @@ const CourseManagementTableSection = ({
               count: Number(row.activeEnrollmentCount ?? value ?? 0).toLocaleString(),
             })}
           </Tag>
-          <Tag style={{ marginInlineEnd: 0 }}>
-            {t('course_management.message.withdrawn_students_count', {
-              count: Number(row.withdrawnEnrollmentCount || 0).toLocaleString(),
-            })}
-          </Tag>
+          {Number(row.withdrawnEnrollmentCount || 0) > 0 && (
+            <Tag style={{ marginInlineEnd: 0 }}>
+              {t('course_management.message.withdrawn_students_count', {
+                count: Number(row.withdrawnEnrollmentCount).toLocaleString(),
+              })}
+            </Tag>
+          )}
         </Space>
       ),
     },

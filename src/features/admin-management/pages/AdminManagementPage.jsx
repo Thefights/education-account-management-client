@@ -10,6 +10,7 @@ import useAuth from '@/shared/hooks/useAuth'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
 import useFetch from '@/shared/hooks/useFetch'
 import useReasonConfirm from '@/shared/hooks/useReasonConfirm'
+import { useSessionStorage } from '@/shared/hooks/useStorage'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { getStatusActionMeta } from '@/shared/utils/bulkStatusActionUtil'
 import { getImportErrorResult } from '@/shared/utils/importResultUtil'
@@ -25,6 +26,7 @@ import AdminManagementToolbarSection from '../components/AdminManagementToolbarS
 
 const defaultFilters = { search: '', roles: [], statuses: [], schoolIds: [] }
 const defaultSort = { key: 'id', direction: 'desc' }
+const listStateKey = 'admin-management:list-state'
 
 const AdminManagementPage = () => {
   const { t } = useTranslation()
@@ -32,10 +34,10 @@ const AdminManagementPage = () => {
   const navigate = useNavigate()
   const { auth } = useAuth()
   const currentUserId = auth?.id
-  const [filters, setFilters] = useState(defaultFilters)
-  const [sort, setSort] = useState(defaultSort)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [filters, setFilters] = useSessionStorage(`${listStateKey}:filters`, defaultFilters)
+  const [sort, setSort] = useSessionStorage(`${listStateKey}:sort`, defaultSort)
+  const [page, setPage] = useSessionStorage(`${listStateKey}:page`, 1)
+  const [pageSize, setPageSize] = useSessionStorage(`${listStateKey}:page-size`, 10)
   const [openCreate, setOpenCreate] = useState(false)
   const [openImport, setOpenImport] = useState(false)
   const [importResult, setImportResult] = useState(null)
@@ -97,21 +99,34 @@ const AdminManagementPage = () => {
     setSelectedIds([])
   }
 
-  const handleChangeStatus = async (status) => {
-    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+  const handleChangeStatus = async (status, admin) => {
+    const isActivate = status === 1
+    const targetIds = admin ? [admin.userId] : selectedIds
+    const actionMeta = admin
+      ? {
+          hasActionable:
+            admin.status !==
+            (isActivate ? EnumConfig.UserStatus.Active : EnumConfig.UserStatus.Inactive),
+          actionableIds: [admin.userId],
+        }
+      : isActivate
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
-    if (selectedIds.some((id) => String(id) === String(currentUserId))) {
+    if (targetIds.some((id) => String(id) === String(currentUserId))) {
       showErrorToast('You cannot update your own status.')
       setSelectedIds((ids) => ids.filter((id) => String(id) !== String(currentUserId)))
       return
     }
 
     const reason = await confirmReason({
-      title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
-      confirmColor: status === 1 ? 'primary' : 'error',
-      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+      title: isActivate ? t('button.activate') : t('button.deactivate'),
+      description: t('text.status_update_selection_description', {
+        count: admin ? 1 : selectedIds.length,
+      }),
+      confirmColor: isActivate ? 'primary' : 'error',
+      confirmText: isActivate ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
@@ -205,6 +220,7 @@ const AdminManagementPage = () => {
           setSelectedIds={setSelectedIds}
           currentUserId={currentUserId}
           onDelete={handleDelete}
+          onChangeStatus={handleChangeStatus}
           onDetail={(row) => {
             navigate(
               routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ADMIN_MANAGEMENT.DETAIL(row.userId))
@@ -229,7 +245,7 @@ const AdminManagementPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
-              disabled: !activateMeta.hasActionable,
+              hidden: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -237,7 +253,7 @@ const AdminManagementPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
-              disabled: !deactivateMeta.hasActionable,
+              hidden: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(2),
             },
             {

@@ -4,7 +4,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { DeleteOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 
 const SchoolManagementTableSection = ({
   schools,
@@ -15,6 +15,7 @@ const SchoolManagementTableSection = ({
   setSelectedIds,
   onDetail,
   onDelete,
+  onChangeStatus,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -61,7 +62,23 @@ const SchoolManagementTableSection = ({
       title: '',
       width: 70,
       render: (_, row) => (
-        <ActionMenu actions={[{ title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete(row) }]} />
+        <ActionMenu
+          actions={[
+            {
+              title: t('button.activate'),
+              icon: <CheckCircleOutlined />,
+              hidden: row.status === 'Active',
+              onClick: () => onChangeStatus?.(1, row),
+            },
+            {
+              title: t('button.deactivate'),
+              icon: <StopOutlined />,
+              hidden: row.status === 'Inactive',
+              onClick: () => onChangeStatus?.(2, row),
+            },
+            { title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete(row) },
+          ]}
+        />
       ),
     },
   ]

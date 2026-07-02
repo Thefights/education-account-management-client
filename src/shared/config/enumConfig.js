@@ -179,6 +179,7 @@ export const EnumConfig = {
     Due: 'Due',
     Overdue: 'Overdue',
     Paid: 'Paid',
+    Upcoming: 'Upcoming',
   },
   EducationAccountStatus: {
     Active: 'Active',

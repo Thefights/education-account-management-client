@@ -9,6 +9,7 @@ import useFetch from '@/shared/hooks/useFetch'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDateBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { selectInputNumberTextOnFocus } from '@/shared/utils/inputNumberFocusUtil'
 import { showErrorToast, showSuccessToast } from '@/shared/utils/toastUtil'
 import { ArrowLeftOutlined, BankOutlined, WalletOutlined } from '@ant-design/icons'
 import {
@@ -27,6 +28,7 @@ import {
 } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import ObligationCheckoutPage from './ObligationCheckoutPage'
 import {
   compareInstallmentDueDateThenNumber,
   getTuitionStatusLabel,
@@ -97,7 +99,7 @@ const getPaymentTargetText = (charge, action, installmentCounts, t) => {
 const getInstallmentPlanAmount = (charge, months) =>
   Math.round((Number(charge.remainingAmount) / months) * 100) / 100
 
-const TuitionCheckoutPage = () => {
+const LegacyTuitionCheckoutPage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { paymentPlanOptions } = useEnum()
@@ -250,9 +252,13 @@ const TuitionCheckoutPage = () => {
             {planOptions.map((option) => {
               const selected = option.value === selectedMonth
               return (
-                <Button
+                <button
                   key={option.value}
-                  type={selected ? 'primary' : 'default'}
+                  type="button"
+                  className={`tuition-plan-option${
+                    selected ? ' tuition-plan-option--selected' : ''
+                  }`}
+                  aria-pressed={selected}
                   onClick={() =>
                     setPaymentPlanMonths((current) => ({
                       ...current,
@@ -260,9 +266,11 @@ const TuitionCheckoutPage = () => {
                     }))
                   }
                 >
-                  <Flex vertical gap={2} align="center">
-                    <Typography.Text>{option.label}</Typography.Text>
-                    <Typography.Text type={selected ? undefined : 'secondary'}>
+                  <Flex vertical gap={4} align="center">
+                    <Typography.Text className="tuition-plan-option__label">
+                      {option.label}
+                    </Typography.Text>
+                    <Typography.Text className="tuition-plan-option__amount">
                       {t('tuition-payment.checkout.per_month', {
                         amount: formatCurrencyBasedOnCurrentLanguage(
                           getInstallmentPlanAmount(charge, option.value)
@@ -270,7 +278,7 @@ const TuitionCheckoutPage = () => {
                       })}
                     </Typography.Text>
                   </Flex>
-                </Button>
+                </button>
               )
             })}
           </Flex>
@@ -436,6 +444,7 @@ const TuitionCheckoutPage = () => {
             placeholder="e.g. 100.00"
             prefix={<WalletOutlined />}
             style={{ width: '100%' }}
+            onFocus={selectInputNumberTextOnFocus}
             onChange={setCreditBalanceApplied}
           />
           <Flex justify="space-between" align="center" gap={8} wrap="wrap">
@@ -486,6 +495,15 @@ const TuitionCheckoutPage = () => {
         </Flex>
       </Card>
     </Flex>
+  )
+}
+
+const TuitionCheckoutPage = () => {
+  const [searchParams] = useSearchParams()
+  return searchParams.get('action') === 'obligations' ? (
+    <ObligationCheckoutPage />
+  ) : (
+    <LegacyTuitionCheckoutPage />
   )
 }
 
