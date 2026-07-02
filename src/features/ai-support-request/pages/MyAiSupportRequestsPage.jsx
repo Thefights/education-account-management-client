@@ -19,11 +19,12 @@ const MyAiSupportRequestsPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const activeRequestRef = useRef(null)
-  const [draft] = useState(() => ({
-    ...emptyDraft,
-    ...(location.state?.aiSupportRequestDraft || {}),
-  }))
-  const [openCreate, setOpenCreate] = useState(() => Boolean(location.state?.aiSupportRequestDraft))
+  const prefilledDraft = location.state?.aiSupportRequestDraft
+  const draft = useMemo(
+    () => ({ ...emptyDraft, ...(prefilledDraft || {}) }),
+    [prefilledDraft]
+  )
+  const [openCreate, setOpenCreate] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -51,14 +52,21 @@ const MyAiSupportRequestsPage = () => {
   })
 
   const activeRequest = pendingRequests.data?.collection?.[0]
-  const hasPrefilledDraft = Boolean(draft.questionMessage)
+  const hasPrefilledDraft = Boolean(prefilledDraft?.questionMessage)
   const canCreate = !pendingRequests.loading && !pendingRequests.error && !activeRequest
 
   useEffect(() => {
-    if (!hasPrefilledDraft || pendingRequests.loading || !pendingRequests.data) return
+    if (!hasPrefilledDraft || !activeRequest) return
 
     navigate(location.pathname, { replace: true, state: null })
-  }, [hasPrefilledDraft, location.pathname, navigate, pendingRequests.data, pendingRequests.loading])
+  }, [activeRequest, hasPrefilledDraft, location.pathname, navigate])
+
+  const handleCloseCreate = () => {
+    setOpenCreate(false)
+    if (hasPrefilledDraft) {
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }
 
   const handleCreate = async ({ values, closeDialog }) => {
     const response = await createRequest.submit({
@@ -110,9 +118,10 @@ const MyAiSupportRequestsPage = () => {
       />
 
       <AiSupportRequestFormSection
-        open={openCreate && canCreate}
+        key={hasPrefilledDraft ? location.key : 'manual-create'}
+        open={(openCreate || hasPrefilledDraft) && canCreate}
         initialValues={hasPrefilledDraft ? draft : emptyDraft}
-        onClose={() => setOpenCreate(false)}
+        onClose={handleCloseCreate}
         onSubmit={handleCreate}
       />
     </Space>
