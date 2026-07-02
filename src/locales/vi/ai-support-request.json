@@ -1,0 +1,88 @@
+{
+  "ai_support_request": {
+    "title": {
+      "plural": "Yêu cầu hỗ trợ AI",
+      "my_requests": "Yêu cầu hỗ trợ AI của tôi",
+      "active": "Yêu cầu đang xử lý",
+      "history": "Lịch sử yêu cầu",
+      "create": "Tạo yêu cầu hỗ trợ AI",
+      "respond": "Xem xét yêu cầu hỗ trợ AI",
+      "detail": "Chi tiết yêu cầu hỗ trợ AI"
+    },
+    "action": {
+      "create": "Tạo yêu cầu hỗ trợ AI",
+      "view_pending": "Xem yêu cầu đang chờ",
+      "view_details": "Xem chi tiết",
+      "view_response": "Xem phản hồi",
+      "send_to_admin": "Gửi đến Quản trị viên hệ thống",
+      "submit_request": "Gửi yêu cầu",
+      "submit_response": "Gửi phản hồi",
+      "review": "Xem xét",
+      "view": "Xem",
+      "retry": "Thử lại"
+    },
+    "field": {
+      "id": "ID",
+      "account_holder": "Chủ tài khoản",
+      "title": "Tiêu đề",
+      "question": "Câu hỏi",
+      "admin_response": "Phản hồi của Quản trị viên hệ thống",
+      "responded_by": "Người phản hồi",
+      "created_at": "Ngày tạo",
+      "resolved_at": "Ngày giải quyết",
+      "status": "Trạng thái"
+    },
+    "status": {
+      "pending": "Đang chờ",
+      "resolved": "Đã giải quyết"
+    },
+    "text": {
+      "page_description": "Gửi những câu hỏi AI chưa thể trả lời và xem phản hồi từ Quản trị viên hệ thống.",
+      "admin_description": "Xem xét yêu cầu đang chờ, cung cấp một phản hồi và xem lịch sử yêu cầu đã giải quyết.",
+      "waiting": "Đang chờ Quản trị viên hệ thống phản hồi",
+      "waiting_short": "Đang chờ Quản trị viên hệ thống phản hồi.",
+      "waiting_description": "Yêu cầu của bạn đang chờ xử lý. Bạn có thể tạo yêu cầu khác sau khi Quản trị viên hệ thống phản hồi.",
+      "answered": "Yêu cầu này đã được trả lời.",
+      "no_history": "Bạn chưa có yêu cầu hỗ trợ AI nào đã được giải quyết.",
+      "request_count": "{count} yêu cầu",
+      "pending_queue": "Danh sách đang chờ",
+      "pending_exists": "Yêu cầu đang được xử lý",
+      "pending_cta_help": "Xem yêu cầu hiện tại trong khi chờ phản hồi từ Quản trị viên hệ thống.",
+      "fallback_cta_help": "Xem lại câu hỏi và bổ sung thông tin trước khi gửi yêu cầu hỗ trợ AI.",
+      "create_help": "Vui lòng cung cấp đủ thông tin để Quản trị viên hệ thống hiểu vấn đề của bạn.",
+      "response_final": "Gửi phản hồi này sẽ giải quyết yêu cầu."
+    },
+    "empty": {
+      "no_active_title": "Không có yêu cầu đang xử lý",
+      "no_active_description": "Tạo yêu cầu hỗ trợ AI khi AI không thể trả lời câu hỏi của bạn.",
+      "no_active_note": "Bạn có thể có một yêu cầu đang chờ tại một thời điểm và theo dõi phản hồi tại đây.",
+      "no_history_title": "Chưa có lịch sử yêu cầu",
+      "no_pending_title": "Không có yêu cầu đang chờ",
+      "no_pending_description": "Yêu cầu mới của Chủ tài khoản sẽ xuất hiện tại đây để xem xét.",
+      "no_resolved_title": "Chưa có yêu cầu đã giải quyết",
+      "no_resolved_description": "Yêu cầu đã được Quản trị viên hệ thống trả lời sẽ xuất hiện tại đây dưới dạng lịch sử chỉ đọc."
+    },
+    "error": {
+      "load_active": "Không thể tải yêu cầu đang xử lý của bạn.",
+      "load_history": "Không thể tải lịch sử yêu cầu của bạn.",
+      "load_admin": "Không thể tải các yêu cầu hỗ trợ AI đang chờ."
+    },
+    "filter": {
+      "search": "Tìm kiếm yêu cầu",
+      "created_range": "Khoảng thời gian tạo",
+      "resolved_range": "Khoảng thời gian giải quyết",
+      "from_date": "Từ ngày và giờ",
+      "to_date": "Đến ngày và giờ",
+      "sort": "Thứ tự sắp xếp",
+      "newest_created": "Tạo mới nhất trước",
+      "oldest_created": "Tạo cũ nhất trước",
+      "newest_resolved": "Giải quyết mới nhất trước",
+      "oldest_resolved": "Giải quyết cũ nhất trước"
+    },
+    "placeholder": {
+      "title": "Tóm tắt ngắn gọn câu hỏi của bạn",
+      "question": "Mô tả câu hỏi và cung cấp thông tin cần thiết cho Quản trị viên hệ thống",
+      "admin_response": "Nhập phản hồi của Quản trị viên hệ thống"
+    }
+  }
+}

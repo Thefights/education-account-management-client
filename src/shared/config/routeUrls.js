@@ -94,6 +94,9 @@ export const routeUrls = {
     APPLY: '/fas/apply',
     MANAGEMENT: '/fas/management',
   },
+  AI_SUPPORT_REQUESTS: {
+    INDEX: '/ai-support-requests',
+  },
 }
 
 export const publicRouteUrls = [

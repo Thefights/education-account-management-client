@@ -6,12 +6,23 @@ import {
   SendOutlined,
   RobotOutlined,
   UserOutlined,
+  ArrowRightOutlined,
+  ClockCircleOutlined,
+  CustomerServiceOutlined,
 } from '@ant-design/icons'
 import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import { useNavigate } from 'react-router-dom'
+import { routeUrls } from '@/shared/config/routeUrls'
+import useTranslation from '@/shared/hooks/useTranslation'
+
+const AI_SUPPORT_REQUEST_MARKER = '[AI_SUPPORT_REQUEST_PROMPT]'
+const pendingRequestParams = { statuses: [1], sort: 'createdAt desc', page: 1, pageSize: 1 }
 
 const ChatbotWidget = () => {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState(() => {
     const saved = sessionStorage.getItem('sfs_chatbot_history')
@@ -48,6 +59,12 @@ const ChatbotWidget = () => {
   }, [messages])
 
   const statusFetch = useFetch(isOpen ? ApiUrls.AI_CHAT.STATUS : '', {}, [isOpen], isOpen)
+  const pendingRequestFetch = useFetch(
+    isOpen ? ApiUrls.AI_SUPPORT_REQUESTS.INDEX : '',
+    pendingRequestParams,
+    [isOpen],
+    isOpen
+  )
   const chatSubmit = useAxiosSubmit({
     url: ApiUrls.AI_CHAT.CHAT,
     method: 'POST',
@@ -94,7 +111,7 @@ const ChatbotWidget = () => {
     // Prepare history payload for API (excluding the current user message)
     const historyPayload = messages.map((m) => ({
       role: m.role,
-      content: m.content,
+      content: m.content?.replace(AI_SUPPORT_REQUEST_MARKER, '').trim(),
     }))
 
     const response = await chatSubmit.submit({
@@ -109,10 +126,17 @@ const ChatbotWidget = () => {
     }
   }
 
+  const handleComposerKeyDown = (event) => {
+    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent?.isComposing) return
+    event.preventDefault()
+    handleSend()
+  }
+
   const toggleChat = () => setIsOpen(!isOpen)
 
   const isChatSending = chatSubmit.loading
   const isComposerDisabled = statusFetch.loading || isChatSending || !isAiEnabled
+  const pendingRequest = pendingRequestFetch.data?.collection?.[0]
 
   return (
     <>
@@ -173,7 +197,11 @@ const ChatbotWidget = () => {
             className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
             style={{ background: token.colorBgLayout }}
           >
-            {messages.map((msg, idx) => (
+            {messages.map((msg, idx) => {
+              const hasSupportPrompt = msg.content?.includes(AI_SUPPORT_REQUEST_MARKER)
+              const cleanContent = msg.content?.replace(AI_SUPPORT_REQUEST_MARKER, '').trim()
+
+              return (
               <div
                 key={idx}
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -187,21 +215,116 @@ const ChatbotWidget = () => {
                   </div>
                 )}
 
-                <div
-                  className={`px-4 py-2.5 max-w-[75%] whitespace-pre-wrap text-[14px] leading-relaxed shadow ${
-                    msg.role === 'user'
-                      ? 'rounded-2xl rounded-br-sm'
-                      : 'rounded-2xl rounded-bl-sm border border-slate-300 dark:border-slate-600'
-                  }`}
-                  style={{
-                    background:
+                <div className="flex flex-col gap-2 max-w-[75%]">
+                  <div
+                    className={`px-4 py-2.5 whitespace-pre-wrap text-[14px] leading-relaxed shadow ${
                       msg.role === 'user'
-                        ? 'linear-gradient(135deg, var(--app-primary), var(--app-secondary))'
-                        : token.colorBgElevated,
-                    color: msg.role === 'user' ? '#fff' : token.colorText,
-                  }}
-                >
-                  {msg.content}
+                        ? 'rounded-2xl rounded-br-sm'
+                        : 'rounded-2xl rounded-bl-sm border border-slate-300 dark:border-slate-600'
+                    }`}
+                    style={{
+                      background:
+                        msg.role === 'user'
+                          ? 'linear-gradient(135deg, var(--app-primary), var(--app-secondary))'
+                          : token.colorBgElevated,
+                      color: msg.role === 'user' ? '#fff' : token.colorText,
+                    }}
+                  >
+                    {cleanContent}
+                  </div>
+                  
+                  {hasSupportPrompt && msg.role === 'assistant' && (
+                    <div
+                      style={{
+                        padding: 12,
+                        borderRadius: token.borderRadiusLG,
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        background: pendingRequest
+                          ? token.colorBgElevated
+                          : token.colorPrimaryBg,
+                        boxShadow: pendingRequest ? token.boxShadowTertiary : 'none',
+                      }}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <div
+                          className="flex items-center justify-center flex-shrink-0"
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: token.borderRadiusLG,
+                            background: pendingRequest
+                              ? token.colorWarningBg
+                              : token.colorBgContainer,
+                          }}
+                        >
+                          {pendingRequest ? (
+                            <ClockCircleOutlined style={{ color: token.colorWarning }} />
+                          ) : (
+                            <CustomerServiceOutlined style={{ color: token.colorPrimary }} />
+                          )}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div className="font-medium" style={{ color: token.colorText }}>
+                            {pendingRequest
+                              ? t('ai_support_request.text.pending_exists')
+                              : t('ai_support_request.action.send_to_admin')}
+                          </div>
+                          <div
+                            className="text-xs mt-1 leading-relaxed"
+                            style={{ color: token.colorTextSecondary }}
+                          >
+                            {pendingRequest
+                              ? t('ai_support_request.text.pending_cta_help')
+                              : t('ai_support_request.text.fallback_cta_help')}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        type={pendingRequest ? 'default' : 'primary'}
+                        size="small"
+                        block
+                        disabled={pendingRequestFetch.loading || Boolean(pendingRequestFetch.error)}
+                        style={
+                          pendingRequest
+                            ? {
+                                marginTop: 10,
+                                color: token.colorPrimary,
+                                borderColor: token.colorPrimaryBorder,
+                                background: token.colorBgContainer,
+                                boxShadow: 'none',
+                              }
+                            : { marginTop: 10 }
+                        }
+                        onClick={() => {
+                          const previousUserMsg = messages[idx - 1]
+                          const target = routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
+                            routeUrls.AI_SUPPORT_REQUESTS.INDEX
+                          )
+                          if (pendingRequest) {
+                            navigate(target)
+                          } else if (previousUserMsg && previousUserMsg.role === 'user') {
+                            navigate(target, {
+                              state: {
+                                aiSupportRequestDraft: {
+                                  questionMessage: previousUserMsg.content,
+                                },
+                              },
+                            })
+                          }
+                          setIsOpen(false)
+                        }}
+                      >
+                        <span className="flex items-center justify-between w-full">
+                          <span>
+                            {pendingRequest
+                              ? t('ai_support_request.action.view_pending')
+                              : t('ai_support_request.action.send_to_admin')}
+                          </span>
+                          <ArrowRightOutlined />
+                        </span>
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {msg.role === 'user' && (
@@ -213,8 +336,8 @@ const ChatbotWidget = () => {
                   </div>
                 )}
               </div>
-            ))}
-            {isChatSending && (
+            )})}
+            {isChatSending && !chatSubmit.loading && (
               <div className="flex gap-3 justify-start">
                 <div
                   className="w-[42px] h-[42px] rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
@@ -241,38 +364,53 @@ const ChatbotWidget = () => {
 
           {/* Input Area */}
           <div
-            className="p-3 border-t flex gap-2.5 items-center flex-shrink-0 relative"
+            className="p-3 border-t flex-shrink-0 relative"
             style={{
               background: token.colorBgElevated,
               borderTopColor: token.colorBorderSecondary,
             }}
           >
-            <Input
-              placeholder={isAiEnabled ? 'Ask a question...' : 'Assistant is currently disabled'}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onPressEnter={handleSend}
-              disabled={isComposerDisabled}
-              className="rounded-full px-4 py-2 transition-all"
-              variant="outlined"
-              aria-label="Chat input"
-            />
-            <Button
-              type="primary"
-              shape="circle"
-              icon={
-                <SendOutlined
-                  className={inputValue.trim() && !isChatSending ? '-mt-0.5 ml-0.5' : ''}
-                />
-              }
-              onClick={handleSend}
-              loading={isChatSending}
-              disabled={!inputValue.trim() || isComposerDisabled}
-              aria-label="Send message"
-              className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-transform ${
-                inputValue.trim() ? 'shadow-md hover:scale-105' : ''
-              }`}
-            />
+            <div
+              className="flex items-end gap-2 rounded-[24px] border px-2 py-1.5 transition-all focus-within:shadow-sm"
+              style={{
+                background: token.colorBgContainer,
+                borderColor: token.colorBorder,
+              }}
+            >
+              <Input.TextArea
+                autoSize={{ minRows: 1, maxRows: 5 }}
+                placeholder={isAiEnabled ? 'Ask a question...' : 'Assistant is currently disabled'}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleComposerKeyDown}
+                disabled={isComposerDisabled}
+                variant="borderless"
+                aria-label="Assistant question input"
+                style={{
+                  minWidth: 0,
+                  padding: '7px 8px',
+                  lineHeight: 1.5,
+                  resize: 'none',
+                  background: 'transparent',
+                }}
+              />
+              <Button
+                type="primary"
+                shape="circle"
+                icon={
+                  <SendOutlined
+                    className={inputValue.trim() && !isChatSending ? '-mt-0.5 ml-0.5' : ''}
+                  />
+                }
+                onClick={handleSend}
+                loading={isChatSending}
+                disabled={!inputValue.trim() || isComposerDisabled}
+                aria-label="Send message"
+                className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-transform ${
+                  inputValue.trim() ? 'shadow-md hover:scale-105' : ''
+                }`}
+              />
+            </div>
           </div>
         </div>
       )}

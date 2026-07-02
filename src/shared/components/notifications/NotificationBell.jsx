@@ -68,6 +68,11 @@ const getRoleBaseRoute = (role) => {
 const resolveNotificationRoute = (notification, role) => {
   const entityType = notification?.relatedEntityType
   const entityId = notification?.relatedEntityId
+  const notificationType = notification?.type
+
+  if (notificationType === 'AiSupportRequestReply') {
+    return routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.AI_SUPPORT_REQUESTS.INDEX)
+  }
 
   if (entityType === 'EducationAccountSweepReport') {
     return routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.ACCOUNT_CREATION_REPORT.INDEX)
@@ -110,6 +115,7 @@ const NotificationBell = ({ profile }) => {
   const [notifications, setNotifications] = useState([])
   const [notificationTotal, setNotificationTotal] = useState(0)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [hoveredNotificationId, setHoveredNotificationId] = useState(null)
   const notificationPageRef = useRef(1)
   const loadingMoreRef = useRef(false)
   const unreadCountRef = useRef(0)
@@ -308,95 +314,165 @@ const NotificationBell = ({ profile }) => {
 
   const content = useMemo(
     () => (
-      <div style={{ width: 380, maxWidth: 'calc(100vw - 32px)' }}>
-        <Space
+      <div style={{ width: 420, maxWidth: 'calc(100vw - 32px)' }}>
+        <Flex
           align="center"
+          justify="space-between"
           style={{
-            width: '100%',
-            justifyContent: 'space-between',
-            marginBottom: 8,
+            paddingBottom: 12,
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <Typography.Text strong>{t('notification.title')}</Typography.Text>
+          <Space size={8}>
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              {t('notification.title')}
+            </Typography.Title>
+            <Tag color={unreadCount > 0 ? 'processing' : 'default'} style={{ marginInlineEnd: 0 }}>
+              {unreadCount > 0 ? `${unreadCount} unread` : 'All read'}
+            </Tag>
+          </Space>
           <Button
             type="link"
             size="small"
             disabled={unreadCount === 0}
             onClick={markAllAsRead}
-            style={{ paddingInline: 0 }}
+            style={{ paddingInline: 0, fontWeight: 500 }}
           >
             {t('notification.mark_all_read')}
           </Button>
-        </Space>
+        </Flex>
 
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 32 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
             <Spin />
           </div>
         ) : notifications.length === 0 ? (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('notification.empty')} />
+          <div style={{ padding: '28px 0 12px' }}>
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('notification.empty')} />
+          </div>
         ) : (
           <Flex
             vertical
             onScroll={handleNotificationScroll}
-            style={{ maxHeight: 420, overflowY: 'auto' }}
+            gap={10}
+            style={{
+              maxHeight: 440,
+              overflowY: 'auto',
+              paddingTop: 12,
+              paddingRight: 4,
+            }}
           >
             {notifications.map((item) => {
               const severity = getSeverityMeta(item.severity, token)
+              const isUnread = !item.isRead
+              const isHovered = hoveredNotificationId === item.id
               const unreadBackground = isDarkMode
-                ? 'rgba(59, 130, 246, 0.14)'
-                : 'rgba(59, 130, 246, 0.08)'
+                ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(14, 165, 233, 0.08))'
+                : 'linear-gradient(135deg, rgba(239, 246, 255, 0.98), rgba(248, 251, 255, 0.98))'
+              const readBackground = isDarkMode
+                ? 'rgba(255, 255, 255, 0.03)'
+                : token.colorBgContainer
               const unreadBorder = isDarkMode
-                ? 'rgba(96, 165, 250, 0.3)'
-                : 'rgba(59, 130, 246, 0.18)'
+                ? 'rgba(96, 165, 250, 0.36)'
+                : 'rgba(37, 99, 235, 0.18)'
+              const cardBorder = isUnread ? unreadBorder : token.colorBorderSecondary
 
               return (
                 <div
                   key={item.id}
                   onClick={() => handleItemClick(item)}
+                  onMouseEnter={() => setHoveredNotificationId(item.id)}
+                  onMouseLeave={() => setHoveredNotificationId(null)}
                   style={{
                     cursor: 'pointer',
-                    padding: '12px 10px',
-                    background: item.isRead ? 'transparent' : unreadBackground,
-                    borderRadius: 8,
-                    border: item.isRead
-                      ? `1px solid ${token.colorBorderSecondary}`
-                      : `1px solid ${unreadBorder}`,
-                    borderLeft: item.isRead
-                      ? `1px solid ${token.colorBorderSecondary}`
-                      : `3px solid ${token.colorPrimary}`,
+                    padding: 14,
+                    background: isUnread ? unreadBackground : readBackground,
+                    borderRadius: 14,
+                    border: `1px solid ${cardBorder}`,
+                    boxShadow: isHovered
+                      ? '0 14px 34px rgba(15, 23, 42, 0.12)'
+                      : isUnread
+                        ? '0 8px 22px rgba(37, 99, 235, 0.08)'
+                        : '0 4px 14px rgba(15, 23, 42, 0.04)',
+                    transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
+                    transition: 'all 160ms ease',
                   }}
                 >
-                  <Flex align="flex-start" gap={10}>
-                    <div style={{ paddingTop: 2 }}>
-                      <span style={{ color: severity.iconColor, fontSize: 18 }}>
+                  <Flex align="flex-start" gap={12}>
+                    <Flex
+                      align="center"
+                      justify="center"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        flex: '0 0 34px',
+                        borderRadius: 12,
+                        color: severity.iconColor,
+                        background: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.08)'
+                          : `${severity.iconColor}16`,
+                      }}
+                    >
+                      <span style={{ fontSize: 18, lineHeight: 1 }}>
                         {severity.icon}
                       </span>
-                    </div>
-                    <Flex vertical gap={4} style={{ flex: 1, minWidth: 0 }}>
-                      <Space size={6} wrap>
-                        <Typography.Text strong={!item.isRead}>{item.title}</Typography.Text>
-                        <Tag color={severity.color} style={{ marginInlineEnd: 0 }}>
-                          {item.severity || 'Info'}
-                        </Tag>
-                      </Space>
-                      <Flex vertical gap={4} style={{ width: '100%' }}>
-                        <Typography.Text type="secondary">{item.message}</Typography.Text>
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                          {formatDatetimeStringBasedOnCurrentLanguage(item.createdAt)}
-                        </Typography.Text>
-                      </Flex>
                     </Flex>
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        deleteNotification(item)
-                      }}
-                    />
+                    <Flex vertical gap={8} style={{ flex: 1, minWidth: 0 }}>
+                      <Flex align="flex-start" justify="space-between" gap={8}>
+                        <Flex vertical gap={4} style={{ flex: 1, minWidth: 0 }}>
+                          <Typography.Text
+                            strong={isUnread}
+                            ellipsis
+                            style={{ color: token.colorText, lineHeight: 1.35 }}
+                          >
+                            {item.title}
+                          </Typography.Text>
+                          <Space size={6} wrap>
+                            <Tag
+                              color={severity.color}
+                              bordered={false}
+                              style={{ marginInlineEnd: 0, borderRadius: 999 }}
+                            >
+                              {item.severity || 'Info'}
+                            </Tag>
+                            {isUnread ? (
+                              <Tag
+                                color="blue"
+                                bordered={false}
+                                style={{ marginInlineEnd: 0, borderRadius: 999 }}
+                              >
+                                New
+                              </Tag>
+                            ) : null}
+                          </Space>
+                        </Flex>
+                        <Button
+                          type="text"
+                          size="small"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            deleteNotification(item)
+                          }}
+                          style={{
+                            opacity: isHovered ? 1 : 0.72,
+                            borderRadius: 8,
+                            flex: '0 0 auto',
+                          }}
+                        />
+                      </Flex>
+                      <Typography.Paragraph
+                        type="secondary"
+                        ellipsis={{ rows: 2 }}
+                        style={{ margin: 0, lineHeight: 1.5 }}
+                      >
+                        {item.message}
+                      </Typography.Paragraph>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        {formatDatetimeStringBasedOnCurrentLanguage(item.createdAt)}
+                      </Typography.Text>
+                    </Flex>
                   </Flex>
                 </div>
               )
@@ -414,6 +490,7 @@ const NotificationBell = ({ profile }) => {
       deleteNotification,
       handleItemClick,
       handleNotificationScroll,
+      hoveredNotificationId,
       isDarkMode,
       loading,
       loadingMore,

@@ -6,6 +6,7 @@ import {
   CreditCardOutlined,
   FileProtectOutlined,
   HistoryOutlined,
+  MessageOutlined,
 } from '@ant-design/icons'
 
 import ChatbotWidget from '@/shared/components/ChatbotWidget/ChatbotWidget'
@@ -58,6 +59,12 @@ const AccountHolderLayout = () => {
                     url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.MY_FAS.MANAGEMENT),
                   },
                 ],
+              },
+              {
+                key: 'ai-support-request',
+                label: t('ai_support_request.title.plural'),
+                icon: MessageOutlined,
+                url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.AI_SUPPORT_REQUESTS.INDEX),
               },
             ],
           },
