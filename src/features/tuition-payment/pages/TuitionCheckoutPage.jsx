@@ -126,7 +126,7 @@ const TuitionCheckoutPage = () => {
     return counts
   }, [searchParams])
   const [paymentPlanMonths, setPaymentPlanMonths] = useState({})
-  const [creditBalanceApplied, setCreditBalanceApplied] = useState(0)
+  const [creditBalanceApplied, setCreditBalanceApplied] = useState(null)
   const [completedPayment, setCompletedPayment] = useState(null)
 
   const chargeQuery = useMemo(
@@ -432,10 +432,11 @@ const TuitionCheckoutPage = () => {
             min={0}
             max={maxCreditBalance}
             precision={2}
-            value={appliedCreditBalance}
+            value={creditBalanceApplied}
+            placeholder="e.g. 100.00"
             prefix={<WalletOutlined />}
             style={{ width: '100%' }}
-            onChange={(value) => setCreditBalanceApplied(value ?? 0)}
+            onChange={setCreditBalanceApplied}
           />
           <Flex justify="space-between" align="center" gap={8} wrap="wrap">
             <Typography.Text type="secondary">

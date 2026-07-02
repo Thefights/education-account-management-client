@@ -122,6 +122,20 @@ const TopupRulesPage = () => {
     clearSelection()
     await rules.fetch()
   }
+  const handleDelete = async (rule) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: rule.name,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await remove.submit({
+      overrideUrl: ApiUrls.SYSTEM_TOPUP.DETAIL(rule.id),
+      overrideData: { reason },
+    })
+    if (response) await rules.fetch()
+  }
   const mutationLoading = updateStatus.loading || remove.loading
 
   return (
@@ -150,6 +164,7 @@ const TopupRulesPage = () => {
             routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.SYSTEM_DETAIL(row.id))
           )
         }
+        onDelete={handleDelete}
       />
       <GenericTablePagination
         totalCount={rules.data?.totalCount}

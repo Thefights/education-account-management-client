@@ -120,6 +120,21 @@ const SchoolManagementPage = () => {
     await schools.fetch()
   }
 
+  const handleDelete = async (school) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: school.schoolName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteSelectedSchools.submit({
+      overrideUrl: ApiUrls.SCHOOL_MANAGEMENT.DETAIL(school.id),
+      overrideData: { reason },
+    })
+    if (response) await schools.fetch()
+  }
+
   const handleImport = async (values) => {
     if (!values.file?.name?.toLowerCase().endsWith('.csv')) return
 
@@ -158,6 +173,7 @@ const SchoolManagementPage = () => {
           onDetail={(row) =>
             navigate(routeUrls.BASE_ROUTE.SYSTEM_ADMIN(routeUrls.SCHOOL_MANAGEMENT.DETAIL(row.id)))
           }
+          onDelete={handleDelete}
         />
         <GenericTablePagination
           totalCount={schools.data?.totalCount}

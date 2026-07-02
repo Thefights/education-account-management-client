@@ -16,6 +16,12 @@ export const ApiUrls = {
     DELETE: (id) => `/notification/${id}`,
   },
 
+  DASHBOARD_MANAGEMENT: {
+    SYSTEM_ADMIN: '/dashboard-management/system-admin',
+    FINANCE_ADMIN: '/dashboard-management/finance-admin',
+    SCHOOL_ADMIN: '/dashboard-management/school-admin',
+  },
+
   AI_CHAT: {
     STATUS: '/ai-chat/status',
     CHAT: '/ai-chat',

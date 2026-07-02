@@ -4,13 +4,13 @@ import { Navigate } from 'react-router-dom'
 
 const defaultRouteByRole = {
   [EnumConfig.RoleEnum.SystemAdmin]: routeUrls.BASE_ROUTE.SYSTEM_ADMIN(
-    routeUrls.SCHOOL_MANAGEMENT.INDEX
+    routeUrls.DASHBOARD.INDEX
   ),
   [EnumConfig.RoleEnum.FinanceAdmin]: routeUrls.BASE_ROUTE.FINANCE_ADMIN(
-    routeUrls.TOPUP_MANAGEMENT.INDEX
+    routeUrls.DASHBOARD.INDEX
   ),
   [EnumConfig.RoleEnum.SchoolAdmin]: routeUrls.BASE_ROUTE.SCHOOL_ADMIN(
-    routeUrls.COURSE_MANAGEMENT.INDEX
+    routeUrls.DASHBOARD.INDEX
   ),
   [EnumConfig.RoleEnum.AccountHolder]: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
     routeUrls.COURSE_MANAGEMENT.INDEX

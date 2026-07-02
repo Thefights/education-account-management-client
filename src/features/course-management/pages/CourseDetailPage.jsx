@@ -242,6 +242,23 @@ const CourseDetailPage = () => {
     await courseData.fetch()
   }
 
+  const handleDeleteEnrollment = async (enrollment) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: enrollment.citizenFullName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await removeSelectedEnrollments.submit({
+      overrideUrl: ApiUrls.ENROLLMENT_MANAGEMENT.DETAIL(enrollment.id),
+      overrideData: { ids: [enrollment.id], reason },
+    })
+    if (!response) return
+    await enrollments.fetch()
+    await courseData.fetch()
+  }
+
   const loadFasOptions = useCallback(
     async ({ search, page, pageSize }) => {
       const response = await axiosConfig.get(ApiUrls.FAS_SCHEME_MANAGEMENT.INDEX, {
@@ -347,36 +364,36 @@ const CourseDetailPage = () => {
               validate: [numberHigherThanOrEqual(0)],
               props: amountProps,
             },
-            {
-              key: 'enrollmentDeadline',
-              title: t('course_management.field.enrollment_deadline'),
-              type: 'datetime-local',
-              placeholder: 'Select enrollment deadline',
-            },
-            {
-              key: 'startDate',
-              title: t('course_management.field.start_date'),
-              type: 'datetime-local',
-              placeholder: 'Select start date',
-              validate: [
-                (value, currentValues) =>
-                  !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
-                  t('course_management.validation.date_order'),
-              ],
-            },
-            {
-              key: 'endDate',
-              title: t('course_management.field.end_date'),
-              type: 'datetime-local',
-              placeholder: 'Select end date',
-              validate: [
-                (value, currentValues) =>
-                  !isDateTimeBefore(value, currentValues.startDate) ||
-                  t('course_management.validation.date_order'),
-              ],
-            },
           ]
         : []),
+      {
+        key: 'enrollmentDeadline',
+        title: t('course_management.field.enrollment_deadline'),
+        type: 'datetime-local',
+        placeholder: 'Select enrollment deadline',
+      },
+      {
+        key: 'startDate',
+        title: t('course_management.field.start_date'),
+        type: 'datetime-local',
+        placeholder: 'Select start date',
+        validate: [
+          (value, currentValues) =>
+            !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
+            t('course_management.validation.date_order'),
+        ],
+      },
+      {
+        key: 'endDate',
+        title: t('course_management.field.end_date'),
+        type: 'datetime-local',
+        placeholder: 'Select end date',
+        validate: [
+          (value, currentValues) =>
+            !isDateTimeBefore(value, currentValues.startDate) ||
+            t('course_management.validation.date_order'),
+        ],
+      },
       fasField,
     ]
   }, [currencySymbol, fasField, isDraft, t])
@@ -724,6 +741,7 @@ const CourseDetailPage = () => {
                 selectedIds={selectedIds}
                 setSelectedIds={setSelectedIds}
                 onWithdraw={handleWithdraw}
+                onDelete={handleDeleteEnrollment}
                 showCourse={false}
                 showGrossAmount={false}
                 readOnly={readOnly}

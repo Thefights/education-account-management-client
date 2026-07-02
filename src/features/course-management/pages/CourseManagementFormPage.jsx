@@ -33,8 +33,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 const normalizeInitialValues = (course = {}) => ({
   courseName: course.courseName ?? '',
-  courseFeeAmount: course.courseFeeAmount ?? 0,
-  miscFeeAmount: course.miscFeeAmount ?? 0,
+  courseFeeAmount: course.courseFeeAmount ?? null,
+  miscFeeAmount: course.miscFeeAmount ?? null,
   enrollmentDeadline: toLocalDateTimeInput(course.enrollmentDeadline),
   startDate: toLocalDateTimeInput(course.startDate),
   endDate: toLocalDateTimeInput(course.endDate),
@@ -200,7 +200,6 @@ const CourseManagementFormPage = () => {
         title: t('course_management.field.enrollment_deadline'),
         type: 'datetime-local',
         placeholder: 'Select enrollment deadline',
-        props: { disabled: basicInfoOnly },
       },
       {
         key: 'startDate',
@@ -212,7 +211,6 @@ const CourseManagementFormPage = () => {
             !isDateTimeBefore(value, currentValues.enrollmentDeadline) ||
             t('course_management.validation.date_order'),
         ],
-        props: { disabled: basicInfoOnly },
       },
       {
         key: 'endDate',
@@ -224,7 +222,6 @@ const CourseManagementFormPage = () => {
             !isDateTimeBefore(value, currentValues.startDate) ||
             t('course_management.validation.date_order'),
         ],
-        props: { disabled: basicInfoOnly },
       },
       ...(isEdit
         ? []

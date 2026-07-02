@@ -166,7 +166,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                     value={tier.tierName}
                     placeholder={t('financial_assistance.admin.field.tier_name')}
                     style={FIELD_CONTROL_STYLE}
-                    onChange={(event) => updateTier(index, { tierName: event.target.value })}
+                    disabled
                   />
                 </TierField>
                 <TierField label={t('financial_assistance.admin.field.income_basis')} minWidth={260} flex="1.5 1 260px">
@@ -211,7 +211,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                 {usesPci && (
                   <>
                     <TierField
-                      label={t('financial_assistance.admin.field.from')}
+                      label={`${t('financial_assistance.enum.income_basis.per_capita_income')} — ${t('financial_assistance.admin.field.from')}`}
                       help={
                         isPerCapitaStartDerived
                           ? t('financial_assistance.admin.help.calculated_from_previous_tier')
@@ -229,7 +229,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                       />
                     </TierField>
                     <TierField
-                      label={t('financial_assistance.admin.field.up_to')}
+                      label={`${t('financial_assistance.enum.income_basis.per_capita_income')} — ${t('financial_assistance.admin.field.up_to')}`}
                       help={t('financial_assistance.admin.help.up_to_exclusive')}
                       minWidth={220}
                     >
@@ -247,7 +247,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                 {usesGross && (
                   <>
                     <TierField
-                      label={t('financial_assistance.admin.field.from')}
+                      label={`${t('financial_assistance.enum.income_basis.gross_household_income')} — ${t('financial_assistance.admin.field.from')}`}
                       help={
                         isGrossStartDerived
                           ? t('financial_assistance.admin.help.calculated_from_previous_tier')
@@ -267,7 +267,7 @@ export const TierEditor = ({ tiers, setTiers }) => {
                       />
                     </TierField>
                     <TierField
-                      label={t('financial_assistance.admin.field.up_to')}
+                      label={`${t('financial_assistance.enum.income_basis.gross_household_income')} — ${t('financial_assistance.admin.field.up_to')}`}
                       help={t('financial_assistance.admin.help.up_to_exclusive')}
                       minWidth={240}
                     >

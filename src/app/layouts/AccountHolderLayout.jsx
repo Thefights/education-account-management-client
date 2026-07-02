@@ -39,6 +39,9 @@ const AccountHolderLayout = () => {
                 label: t('tuition-payment.title'),
                 icon: CreditCardOutlined,
                 url: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.TUITION_PAYMENT.INDEX),
+                matchPrefix: routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(
+                  `${routeUrls.TUITION_PAYMENT.INDEX}/`
+                ),
               },
               {
                 key: 'my-fas',
