@@ -24,6 +24,7 @@
       "eligible_schemes": "Eligible schemes",
       "compare_schemes": "Compare the available assistance before applying.",
       "required_documents_help": "Upload every document before submitting your application.",
+      "document_file_type_note": "Supported file types: Word (.docx) and PDF (.pdf).",
       "additional_questions_help": "Provide any extra information needed for assessment."
     },
     "management": {
@@ -395,6 +396,7 @@
       "confirm_required_details": "Confirm the required application details",
       "duplicate_application": "You already have a pending or approved application for this scheme.",
       "duplicate_application_active": "You already have a pending or active approved application for this scheme.",
+      "document_file_invalid": "Only Word (.docx) and PDF (.pdf) files are supported.",
       "document_required": "{name} is required.",
       "draft_deleted": "Draft deleted.",
       "draft_saved": "Draft saved.",

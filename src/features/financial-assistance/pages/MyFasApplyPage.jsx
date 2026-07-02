@@ -61,6 +61,22 @@ const NATIONALITY = EnumConfig.NationalityCategory
 const getRequiredDocuments = (scheme) => scheme.requiredDocuments || []
 
 const RequiredMark = () => <Typography.Text type="danger"> *</Typography.Text>
+const APPLICATION_DOCUMENT_ACCEPT = '.pdf,.docx'
+const APPLICATION_DOCUMENT_EXTENSIONS = new Set(['.pdf', '.docx'])
+const APPLICATION_DOCUMENT_MIME_TYPES = new Set([
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+])
+
+const getFileExtension = (fileName = '') => {
+  const dotIndex = fileName.lastIndexOf('.')
+  return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : ''
+}
+
+const isAllowedApplicationDocument = (file) => {
+  const extension = getFileExtension(file?.name)
+  return APPLICATION_DOCUMENT_EXTENSIONS.has(extension) || APPLICATION_DOCUMENT_MIME_TYPES.has(file?.type)
+}
 
 const buildFasAutoFillRequest = (payload) => ({
   SessionId: payload.session_id,
@@ -292,6 +308,9 @@ const ApplicationSection = ({
           <Typography.Paragraph type="secondary" style={{ margin: '2px 0 0' }}>
             {t('financial_assistance.apply.required_documents_help')}
           </Typography.Paragraph>
+          <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
+            {t('financial_assistance.apply.document_file_type_note')}
+          </Typography.Paragraph>
         </div>
         <Typography.Text type="secondary">
           {t('financial_assistance.text.uploaded_count', { uploaded: uploadedCount, total: documents.length })}
@@ -335,9 +354,15 @@ const ApplicationSection = ({
                     </Button>
                   ) : null}
                   <Upload
+                    accept={APPLICATION_DOCUMENT_ACCEPT}
                     maxCount={1}
                     showUploadList={false}
                     beforeUpload={(file) => {
+                      if (!isAllowedApplicationDocument(file)) {
+                        showErrorToast(t('financial_assistance.message.document_file_invalid'))
+                        return Upload.LIST_IGNORE
+                      }
+
                       setDocuments((current) =>
                         current.map((item, itemIndex) =>
                           itemIndex === index ? { ...item, file, fileName: file.name } : item
