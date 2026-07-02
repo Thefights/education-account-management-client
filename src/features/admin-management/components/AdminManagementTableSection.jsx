@@ -6,7 +6,7 @@ import {
 } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
-import { DeleteOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
 import { useMemo } from 'react'
 
 const AdminManagementTableSection = ({
@@ -19,6 +19,7 @@ const AdminManagementTableSection = ({
   onDetail,
   currentUserId,
   onDelete,
+  onChangeStatus,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -68,6 +69,18 @@ const AdminManagementTableSection = ({
           <ActionMenu
             actions={[
               {
+                title: t('button.activate'),
+                icon: <CheckCircleOutlined />,
+                hidden: row.status === 'Active' || String(row.userId) === String(currentUserId),
+                onClick: () => onChangeStatus?.(1, row),
+              },
+              {
+                title: t('button.deactivate'),
+                icon: <StopOutlined />,
+                hidden: row.status === 'Inactive' || String(row.userId) === String(currentUserId),
+                onClick: () => onChangeStatus?.(2, row),
+              },
+              {
                 title: t('button.delete'),
                 icon: <DeleteOutlined />,
                 disabled: String(row.userId) === String(currentUserId),
@@ -78,7 +91,7 @@ const AdminManagementTableSection = ({
         ),
       },
     ],
-    [t, _enum.authAccountStatusOptions, _enum.roleOptions, currentUserId, onDelete]
+    [t, _enum.authAccountStatusOptions, _enum.roleOptions, currentUserId, onDelete, onChangeStatus]
   )
 
   return (

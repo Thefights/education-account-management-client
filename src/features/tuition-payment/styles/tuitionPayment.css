@@ -394,14 +394,16 @@
 }
 
 .tuition-summary {
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .tuition-summary-card {
-  flex: 1 1 360px;
-  min-height: 118px;
+  min-width: 0;
+  min-height: 126px;
   border: 1px solid var(--app-border-color);
-  border-radius: 16px;
+  border-radius: 14px;
   background:
     radial-gradient(
       circle at 16% 18%,
@@ -414,30 +416,39 @@
 
 .tuition-summary-card .ant-card-body {
   height: 100%;
-  padding: 18px 20px;
+  padding: 24px;
 }
 
 .tuition-summary-card__content {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
   height: 100%;
-}
-
-.tuition-summary-card__leading {
-  align-self: flex-start;
-  flex: 0 0 auto;
 }
 
 .tuition-summary-card__main {
   min-width: 0;
+  display: grid;
+  gap: 5px;
 }
 
 .tuition-summary-card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   font-size: 18px;
   border-radius: 50%;
+}
+
+.tuition-summary-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  min-width: 0;
 }
 
 .tuition-summary-card__icon--owed {
@@ -453,6 +464,7 @@
 .tuition-summary-card__chip {
   display: inline-flex;
   align-items: center;
+  max-width: 100%;
   min-height: 24px;
   padding: 2px 9px;
   color: var(--app-error);
@@ -464,6 +476,7 @@
 }
 
 .tuition-summary-card__label {
+  min-width: 0;
   color: var(--app-text-secondary);
   font-size: 14px;
   line-height: 1.35;
@@ -472,16 +485,163 @@
 .tuition-summary-card__amount.ant-typography {
   margin: 0;
   color: var(--app-text-primary);
-  font-size: clamp(26px, 2.45vw, 34px);
+  font-size: clamp(28px, 3vw, 40px);
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .tuition-summary-card__helper {
+  display: block;
   color: var(--app-text-secondary);
   font-size: 13px;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.tuition-year-scroll-shell {
+  position: relative;
+  width: 100%;
+}
+
+.tuition-year-scroll {
+  position: relative;
+  width: 100%;
+  height: 76px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--app-border-color) 76%, #9ca3af);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-border-color) 58%, var(--app-paper-bg));
+  box-shadow: inset 0 1px 4px color-mix(in srgb, #111827 8%, transparent);
+}
+
+.tuition-year-scroll__list {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 16px calc(50% - 48px);
+  cursor: grab;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.tuition-year-scroll__list:active {
+  cursor: grabbing;
+}
+
+.tuition-year-scroll__list--dragging {
+  scroll-behavior: auto;
+  scroll-snap-type: none;
+}
+
+.tuition-year-scroll__list::-webkit-scrollbar {
+  display: none;
+}
+
+.tuition-year-scroll__item {
+  flex: 0 0 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0;
+  color: var(--app-text-secondary);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  scroll-snap-align: center;
+  transition:
+    background-color .16s ease,
+    color .16s ease,
+    font-size .16s ease,
+    font-weight .16s ease,
+    transform .16s ease;
+}
+
+.tuition-year-scroll__item--selected {
+  color: var(--app-text-primary);
+  font-size: 22px;
+  font-weight: 800;
+  transform: scale(1.04);
+}
+
+.tuition-year-scroll__selection {
+  position: absolute;
+  z-index: 1;
+  top: 15px;
+  left: calc(50% - 48px);
+  width: 96px;
+  height: 46px;
+  border: 1px solid color-mix(in srgb, var(--app-primary-soft-border) 68%, #64748b);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-paper-bg) 54%, transparent);
+}
+
+.tuition-year-scroll__shade {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  width: 64px;
+  pointer-events: none;
+}
+
+.tuition-year-scroll__shade--left {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--app-border-color) 58%, var(--app-paper-bg)),
+    transparent
+  );
+}
+
+.tuition-year-scroll__shade--right {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--app-border-color) 58%, var(--app-paper-bg)),
+    transparent
+  );
+}
+
+@media (max-width: 900px) {
+  .tuition-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .tuition-summary-card .ant-card-body {
+    padding: 18px;
+  }
+
+  .tuition-summary-card__content {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .tuition-summary-card__icon {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .tuition-summary-card__amount.ant-typography {
+    font-size: 28px;
+  }
+
+  .tuition-year-scroll__shade {
+    width: 36px;
+  }
 }
 
 .tuition-timeline {

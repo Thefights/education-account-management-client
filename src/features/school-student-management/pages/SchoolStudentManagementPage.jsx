@@ -89,18 +89,33 @@ const SchoolStudentManagementPage = () => {
     setSelectedIds([])
   }
 
-  const handleChangeStatus = async (status) => {
-    const actionMeta = status === 1 ? activateMeta : deactivateMeta
+  const handleChangeStatus = async (status, student) => {
+    const isActivate = status === 1
+    const actionMeta = student
+      ? {
+          hasActionable:
+            student.status !==
+            (isActivate
+              ? EnumConfig.SchoolStudentStatus.Active
+              : EnumConfig.SchoolStudentStatus.Inactive),
+          actionableIds: [student.id],
+        }
+      : isActivate
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
-      title: status === 1 ? t('button.activate') : t('button.deactivate'),
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
-      confirmColor: status === 1 ? 'primary' : 'error',
-      confirmText: status === 1 ? t('button.activate') : t('button.deactivate'),
+      title: isActivate ? t('button.activate') : t('button.deactivate'),
+      description: t('text.status_update_selection_description', {
+        count: student ? 1 : selectedIds.length,
+      }),
+      confirmColor: isActivate ? 'primary' : 'error',
+      confirmText: isActivate ? t('button.activate') : t('button.deactivate'),
     })
     if (!reason) return
     const response = await updateStatus.submit({
+      overrideUrl: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.DETAIL(student?.id || selectedIds[0] || 0),
       overrideData: { listIds: actionMeta.actionableIds, status, reason },
     })
     if (!response) return
@@ -178,6 +193,7 @@ const SchoolStudentManagementPage = () => {
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           onDelete={handleDelete}
+          onChangeStatus={handleChangeStatus}
         />
         <GenericTablePagination
           totalCount={getStudents.data?.totalCount}
@@ -197,7 +213,7 @@ const SchoolStudentManagementPage = () => {
               key: 'activate',
               label: t('button.activate'),
               icon: <CheckCircleOutlined />,
-              disabled: !activateMeta.hasActionable,
+              hidden: !activateMeta.hasActionable,
               onClick: () => handleChangeStatus(1),
             },
             {
@@ -205,7 +221,7 @@ const SchoolStudentManagementPage = () => {
               label: t('button.deactivate'),
               icon: <StopOutlined />,
               danger: true,
-              disabled: !deactivateMeta.hasActionable,
+              hidden: !deactivateMeta.hasActionable,
               onClick: () => handleChangeStatus(2),
             },
             {

@@ -137,14 +137,23 @@ const FasSchemeManagementPage = () => {
 
   const clearSelection = () => setSelectedIds([])
 
-  const handleChangeStatus = async (status, actionLabel) => {
-    if (!selectedIds.length) return
-    const actionMeta = status === FAS_STATUS.Active ? activateMeta : deactivateMeta
+  const handleChangeStatus = async (status, actionLabel, scheme) => {
+    if (!scheme && !selectedIds.length) return
+    const actionMeta = scheme
+      ? {
+          hasActionable: scheme.status !== status,
+          actionableIds: [scheme.id],
+        }
+      : status === FAS_STATUS.Active
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
       title: actionLabel,
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
+      description: t('text.status_update_selection_description', {
+        count: scheme ? 1 : selectedIds.length,
+      }),
       confirmColor: status === FAS_STATUS.Inactive ? 'error' : 'primary',
       confirmText: actionLabel,
     })
@@ -232,6 +241,28 @@ const FasSchemeManagementPage = () => {
         <ActionMenu
           actions={[
             {
+              title: t('financial_assistance.admin.action.activate'),
+              icon: <CheckCircleOutlined />,
+              hidden: row.status === FAS_STATUS.Active,
+              onClick: () =>
+                handleChangeStatus(
+                  FAS_STATUS.Active,
+                  t('financial_assistance.admin.action.activate'),
+                  row
+                ),
+            },
+            {
+              title: t('financial_assistance.admin.action.deactivate'),
+              icon: <StopOutlined />,
+              hidden: row.status === FAS_STATUS.Inactive,
+              onClick: () =>
+                handleChangeStatus(
+                  FAS_STATUS.Inactive,
+                  t('financial_assistance.admin.action.deactivate'),
+                  row
+                ),
+            },
+            {
               title: t('button.duplicate'),
               icon: <CopyOutlined />,
               onClick: async () => {
@@ -311,7 +342,7 @@ const FasSchemeManagementPage = () => {
               key: 'activate',
               label: t('financial_assistance.admin.action.activate'),
               icon: <CheckCircleOutlined />,
-              disabled: !activateMeta.hasActionable,
+              hidden: !activateMeta.hasActionable,
               onClick: () =>
                 handleChangeStatus(
                   FAS_STATUS.Active,
@@ -322,7 +353,7 @@ const FasSchemeManagementPage = () => {
               key: 'deactivate',
               label: t('financial_assistance.admin.action.deactivate'),
               icon: <StopOutlined />,
-              disabled: !deactivateMeta.hasActionable,
+              hidden: !deactivateMeta.hasActionable,
               onClick: () =>
                 handleChangeStatus(
                   FAS_STATUS.Inactive,

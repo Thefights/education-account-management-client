@@ -5,7 +5,7 @@ import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatCurrencyBasedOnCurrentLanguage } from '@/shared/utils/formatCurrencyUtil'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, StopOutlined } from '@ant-design/icons'
 import { Space, Typography } from 'antd'
 
 const TopupRuleTableSection = ({
@@ -18,6 +18,7 @@ const TopupRuleTableSection = ({
   onDetail,
   onEdit,
   onDelete,
+  onChangeStatus,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -65,6 +66,18 @@ const TopupRuleTableSection = ({
       width: 70,
       render: (_, row) => (
         <ActionMenu actions={[
+          {
+            title: t('button.activate'),
+            icon: <CheckCircleOutlined />,
+            hidden: row.status === 'Active',
+            onClick: () => onChangeStatus?.('Active', row),
+          },
+          {
+            title: t('button.deactivate'),
+            icon: <StopOutlined />,
+            hidden: row.status === 'Inactive',
+            onClick: () => onChangeStatus?.('Inactive', row),
+          },
           { title: t('button.update'), icon: <EditOutlined />, onClick: () => onEdit?.(row) },
           { title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete?.(row) },
         ]} />

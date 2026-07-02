@@ -85,14 +85,23 @@ const TopupRulesPage = () => {
     setPageSize(value)
     clearSelection()
   }
-  const handleChangeStatus = async (status) => {
+  const handleChangeStatus = async (status, rule) => {
     const isActive = status === EnumConfig.SystemTopupStatus.Active
-    const actionMeta = isActive ? activateMeta : deactivateMeta
+    const actionMeta = rule
+      ? {
+          hasActionable: rule.status !== status,
+          actionableIds: [rule.id],
+        }
+      : isActive
+        ? activateMeta
+        : deactivateMeta
     if (!actionMeta.hasActionable) return
 
     const reason = await confirmReason({
       title: isActive ? t('button.activate') : t('button.deactivate'),
-      description: t('text.status_update_selection_description', { count: selectedIds.length }),
+      description: t('text.status_update_selection_description', {
+        count: rule ? 1 : selectedIds.length,
+      }),
       confirmColor: isActive ? 'primary' : 'error',
       confirmText: isActive ? t('button.activate') : t('button.deactivate'),
     })
@@ -165,6 +174,7 @@ const TopupRulesPage = () => {
           )
         }
         onDelete={handleDelete}
+        onChangeStatus={handleChangeStatus}
       />
       <GenericTablePagination
         totalCount={rules.data?.totalCount}
@@ -184,14 +194,14 @@ const TopupRulesPage = () => {
             key: 'activate',
             label: t('button.activate'),
             icon: <CheckCircleOutlined />,
-            disabled: !activateMeta.hasActionable,
+            hidden: !activateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.SystemTopupStatus.Active),
           },
           {
             key: 'deactivate',
             label: t('button.deactivate'),
             icon: <StopOutlined />,
-            disabled: !deactivateMeta.hasActionable,
+            hidden: !deactivateMeta.hasActionable,
             onClick: () => handleChangeStatus(EnumConfig.SystemTopupStatus.Inactive),
           },
           {

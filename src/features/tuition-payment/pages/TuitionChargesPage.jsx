@@ -13,18 +13,122 @@ import {
   Skeleton,
   Typography,
 } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import TuitionFilterSection from '../components/TuitionFilterSection'
 import TuitionObligationTimeline from '../components/TuitionObligationTimeline'
 import '../styles/tuitionPayment.css'
 
 const currentYear = new Date().getFullYear()
-const defaultFilters = { Year: currentYear, Search: '', Statuses: [] }
+const defaultFilters = { Year: currentYear }
+const yearOptions = Array.from({ length: 81 }, (_, index) => 2020 + index)
 const TuitionTab = { WithoutPlan: 'withoutPlan', WithPlan: 'withPlan' }
 const statusPriority = { Overdue: 0, Due: 1, Paid: 2, Upcoming: 3 }
 const obligationKey = (item) =>
   item.installmentId ? `installment:${item.installmentId}` : `charge:${item.chargeId}`
+
+const YearScrollPicker = ({ value, years, onChange }) => {
+  const listRef = useRef(null)
+  const scrollTimerRef = useRef(null)
+  const animationFrameRef = useRef(null)
+  const dragRef = useRef({ active: false, moved: false, x: 0, scrollLeft: 0 })
+  const itemWidth = 96
+
+  useEffect(() => {
+    const index = years.indexOf(value)
+    if (index < 0 || !listRef.current) return
+
+    if (dragRef.current.active) return
+
+    listRef.current.scrollTo({ left: index * itemWidth, behavior: 'smooth' })
+  }, [value, years])
+
+  const commitNearestYear = (behavior = 'smooth') => {
+    if (!listRef.current) return
+
+    const nextIndex = Math.round(listRef.current.scrollLeft / itemWidth)
+    const nextYear = years[Math.min(Math.max(nextIndex, 0), years.length - 1)]
+    listRef.current.scrollTo({ left: nextIndex * itemWidth, behavior })
+    if (nextYear !== value) onChange(nextYear)
+  }
+
+  const handleScroll = () => {
+    if (dragRef.current.active) return
+
+    if (scrollTimerRef.current) window.clearTimeout(scrollTimerRef.current)
+    scrollTimerRef.current = window.setTimeout(commitNearestYear, 120)
+  }
+
+  const handlePointerDown = (event) => {
+    if (!listRef.current) return
+    if (scrollTimerRef.current) window.clearTimeout(scrollTimerRef.current)
+
+    dragRef.current = {
+      active: true,
+      moved: false,
+      x: event.clientX,
+      scrollLeft: listRef.current.scrollLeft,
+    }
+    listRef.current.classList.add('tuition-year-scroll__list--dragging')
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event) => {
+    if (!dragRef.current.active || !listRef.current) return
+
+    const deltaX = event.clientX - dragRef.current.x
+    if (Math.abs(deltaX) > 4) dragRef.current.moved = true
+    if (animationFrameRef.current) window.cancelAnimationFrame(animationFrameRef.current)
+    animationFrameRef.current = window.requestAnimationFrame(() => {
+      if (!listRef.current) return
+      listRef.current.scrollLeft = dragRef.current.scrollLeft - deltaX
+    })
+  }
+
+  const handlePointerUp = (event) => {
+    if (!listRef.current) return
+
+    dragRef.current.active = false
+    listRef.current.classList.remove('tuition-year-scroll__list--dragging')
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    commitNearestYear()
+  }
+
+  return (
+    <div className="tuition-year-scroll" aria-label="Year picker">
+      <div className="tuition-year-scroll__shade tuition-year-scroll__shade--left" />
+      <div className="tuition-year-scroll__selection" />
+      <div className="tuition-year-scroll__shade tuition-year-scroll__shade--right" />
+      <div
+        ref={listRef}
+        className="tuition-year-scroll__list"
+        onScroll={handleScroll}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
+        {years.map((year) => (
+          <button
+            key={year}
+            type="button"
+            className={
+              year === value
+                ? 'tuition-year-scroll__item tuition-year-scroll__item--selected'
+                : 'tuition-year-scroll__item'
+            }
+            onClick={() => {
+              if (!dragRef.current.moved) onChange(year)
+            }}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 const TuitionChargesPage = () => {
   const { t } = useTranslation()
@@ -38,8 +142,6 @@ const TuitionChargesPage = () => {
   const queryParams = useMemo(
     () => ({
       Year: filters.Year,
-      Search: filters.Search,
-      ...(filters.Statuses?.length ? { Statuses: filters.Statuses } : {}),
     }),
     [filters]
   )
@@ -100,6 +202,12 @@ const TuitionChargesPage = () => {
     selectedFullCharges.length === selectedItems.length
   const outstandingAmount = Number(summary.data?.totalOutstandingAmount ?? 0)
   const availableBalance = Number(summary.data?.educationAccountBalance ?? 0)
+
+  const updateYear = (year) => {
+    setFilters({ Year: year })
+    setSelected(new Map())
+    setShowFutureMonths(false)
+  }
 
   const commitSelection = (items) => {
     setSelected((current) => {
@@ -191,12 +299,6 @@ const TuitionChargesPage = () => {
     )
   }
 
-  const applyFilters = (nextFilters) => {
-    setFilters(nextFilters)
-    setSelected(new Map())
-    setShowFutureMonths(false)
-  }
-
   return (
     <Flex vertical gap={18} className="tuition-page">
       <Typography.Title level={3} style={{ margin: 0 }}>
@@ -206,21 +308,21 @@ const TuitionChargesPage = () => {
       {summary.loading && !summary.data ? (
         <Skeleton active paragraph={{ rows: 3 }} />
       ) : (
-        <Flex gap={12} wrap="wrap" className="tuition-summary">
+        <div className="tuition-summary">
           <Card className="tuition-summary-card tuition-summary-card--owed">
-            <Flex align="center" gap={14} className="tuition-summary-card__content">
-              <Flex align="center" gap={10} className="tuition-summary-card__leading">
-                <span className="tuition-summary-card__icon tuition-summary-card__icon--owed">
-                  <ExclamationCircleOutlined />
-                </span>
-                <span className="tuition-summary-card__chip">
-                  {t('tuition-payment.hero.action_needed')}
-                </span>
-              </Flex>
-              <Flex vertical gap={4} className="tuition-summary-card__main">
-                <Typography.Text className="tuition-summary-card__label">
-                  {t('tuition-payment.hero.amount_you_owe')}
-                </Typography.Text>
+            <div className="tuition-summary-card__content">
+              <span className="tuition-summary-card__icon tuition-summary-card__icon--owed">
+                <ExclamationCircleOutlined />
+              </span>
+              <div className="tuition-summary-card__main">
+                <div className="tuition-summary-card__header">
+                  <Typography.Text className="tuition-summary-card__label">
+                    {t('tuition-payment.hero.amount_you_owe')}
+                  </Typography.Text>
+                  <span className="tuition-summary-card__chip">
+                    {t('tuition-payment.hero.action_needed')}
+                  </span>
+                </div>
                 <Typography.Title level={1} className="tuition-summary-card__amount">
                   {formatCurrencyBasedOnCurrentLanguage(outstandingAmount)}
                 </Typography.Title>
@@ -229,36 +331,39 @@ const TuitionChargesPage = () => {
                     count: summary.data?.pendingPaymentInvoicesCount ?? 0,
                   })}
                 </Typography.Text>
-              </Flex>
-            </Flex>
+              </div>
+            </div>
           </Card>
           <Card className="tuition-summary-card tuition-summary-card--balance">
-            <Flex align="center" gap={14} className="tuition-summary-card__content">
+            <div className="tuition-summary-card__content">
               <span className="tuition-summary-card__icon tuition-summary-card__icon--balance">
                 <WalletOutlined />
               </span>
-              <Flex vertical gap={4} className="tuition-summary-card__main">
-                <Typography.Text className="tuition-summary-card__label">
-                  {t('tuition-payment.hero.account_balance')}
-                </Typography.Text>
+              <div className="tuition-summary-card__main">
+                <div className="tuition-summary-card__header">
+                  <Typography.Text className="tuition-summary-card__label">
+                    {t('tuition-payment.hero.account_balance')}
+                  </Typography.Text>
+                </div>
                 <Typography.Title level={1} className="tuition-summary-card__amount">
                   {formatCurrencyBasedOnCurrentLanguage(availableBalance)}
                 </Typography.Title>
                 <Typography.Text className="tuition-summary-card__helper">
                   {t('tuition-payment.hero.available_in_account')}
                 </Typography.Text>
-              </Flex>
-            </Flex>
+              </div>
+            </div>
           </Card>
-        </Flex>
+        </div>
       )}
 
-      <TuitionFilterSection
-        filters={filters}
-        loading={obligations.loading}
-        onFilter={applyFilters}
-        onReset={() => applyFilters(defaultFilters)}
-      />
+      <div className="tuition-year-scroll-shell">
+        <YearScrollPicker
+          value={filters.Year}
+          years={yearOptions}
+          onChange={updateYear}
+        />
+      </div>
 
       <Segmented
         block
