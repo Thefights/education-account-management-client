@@ -10,8 +10,11 @@ import {
 import { ApiUrls } from '@/shared/api/apiUrls'
 import useFetch from '@/shared/hooks/useFetch'
 import useAxiosSubmit from '@/shared/hooks/useAxiosSubmit'
+import { useNavigate } from 'react-router-dom'
+import { routeUrls } from '@/shared/config/routeUrls'
 
 const ChatbotWidget = () => {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState(() => {
     const saved = sessionStorage.getItem('sfs_chatbot_history')
@@ -173,7 +176,11 @@ const ChatbotWidget = () => {
             className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
             style={{ background: token.colorBgLayout }}
           >
-            {messages.map((msg, idx) => (
+            {messages.map((msg, idx) => {
+              const hasSupportPrompt = msg.content?.includes('[SUPPORT_TICKET_PROMPT]')
+              const cleanContent = msg.content?.replace('[SUPPORT_TICKET_PROMPT]', '').trim()
+
+              return (
               <div
                 key={idx}
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -187,21 +194,39 @@ const ChatbotWidget = () => {
                   </div>
                 )}
 
-                <div
-                  className={`px-4 py-2.5 max-w-[75%] whitespace-pre-wrap text-[14px] leading-relaxed shadow ${
-                    msg.role === 'user'
-                      ? 'rounded-2xl rounded-br-sm'
-                      : 'rounded-2xl rounded-bl-sm border border-slate-300 dark:border-slate-600'
-                  }`}
-                  style={{
-                    background:
+                <div className="flex flex-col gap-2 max-w-[75%]">
+                  <div
+                    className={`px-4 py-2.5 whitespace-pre-wrap text-[14px] leading-relaxed shadow ${
                       msg.role === 'user'
-                        ? 'linear-gradient(135deg, var(--app-primary), var(--app-secondary))'
-                        : token.colorBgElevated,
-                    color: msg.role === 'user' ? '#fff' : token.colorText,
-                  }}
-                >
-                  {msg.content}
+                        ? 'rounded-2xl rounded-br-sm'
+                        : 'rounded-2xl rounded-bl-sm border border-slate-300 dark:border-slate-600'
+                    }`}
+                    style={{
+                      background:
+                        msg.role === 'user'
+                          ? 'linear-gradient(135deg, var(--app-primary), var(--app-secondary))'
+                          : token.colorBgElevated,
+                      color: msg.role === 'user' ? '#fff' : token.colorText,
+                    }}
+                  >
+                    {cleanContent || msg.content}
+                  </div>
+                  
+                  {hasSupportPrompt && msg.role === 'assistant' && (
+                    <Button 
+                      type="primary" 
+                      size="small" 
+                      onClick={() => {
+                        const previousUserMsg = messages[idx - 1]
+                        if (previousUserMsg && previousUserMsg.role === 'user') {
+                           navigate(`${routeUrls.BASE_ROUTE.ACCOUNT_HOLDER(routeUrls.SUPPORT_TICKETS.INDEX)}?question=${encodeURIComponent(previousUserMsg.content)}`)
+                        }
+                      }}
+                      className="self-start mt-1"
+                    >
+                      Please click here to send a support ticket
+                    </Button>
+                  )}
                 </div>
 
                 {msg.role === 'user' && (
@@ -213,8 +238,8 @@ const ChatbotWidget = () => {
                   </div>
                 )}
               </div>
-            ))}
-            {isChatSending && (
+            )})}
+            {isChatSending && !chatSubmit.loading && ( // We only show typing when chat is sending, not when ticket is submitting
               <div className="flex gap-3 justify-start">
                 <div
                   className="w-[42px] h-[42px] rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"

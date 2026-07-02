@@ -36,6 +36,8 @@ import TopupHistoryDetailPage from '@/features/topup/pages/TopupHistoryDetailPag
 import TopupHistoryPage from '@/features/topup/pages/TopupHistoryPage'
 import TopupManagementPage from '@/features/topup/pages/TopupManagementPage'
 import TuitionPaymentPage from '@/features/tuition-payment/pages/TuitionPaymentPage'
+import SupportTicketManagement from '@/features/support-ticket/SupportTicketManagement'
+import MySupportTicketsPage from '@/features/support-ticket/pages/MySupportTicketsPage'
 import { EnumConfig } from '@/shared/config/enumConfig'
 import { routeUrls } from '@/shared/config/routeUrls'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -97,6 +99,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.LOGS.MANAGEMENT_ACTION_DETAIL(),
         element: <ManagementActionLogDetailPage />,
+      },
+      {
+        path: routeUrls.SUPPORT_TICKETS.INDEX,
+        element: <SupportTicketManagement />,
       },
     ],
   },
@@ -220,6 +226,10 @@ const roleRouteGroups = [
       {
         path: routeUrls.TUITION_PAYMENT.INDEX + '/*',
         element: <TuitionPaymentPage />,
+      },
+      {
+        path: routeUrls.SUPPORT_TICKETS.INDEX,
+        element: <MySupportTicketsPage />,
       },
     ],
   },
