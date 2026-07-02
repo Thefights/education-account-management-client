@@ -1,8 +1,10 @@
+import ActionMenu from '@/shared/components/generals/ActionMenu'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStylesConfig'
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
+import { DeleteOutlined } from '@ant-design/icons'
 
 const SchoolManagementTableSection = ({
   schools,
@@ -12,6 +14,7 @@ const SchoolManagementTableSection = ({
   selectedIds,
   setSelectedIds,
   onDetail,
+  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -52,6 +55,14 @@ const SchoolManagementTableSection = ({
       width: 180,
       sortable: true,
       render: formatDatetimeStringBasedOnCurrentLanguage,
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 70,
+      render: (_, row) => (
+        <ActionMenu actions={[{ title: t('button.delete'), icon: <DeleteOutlined />, onClick: () => onDelete(row) }]} />
+      ),
     },
   ]
 

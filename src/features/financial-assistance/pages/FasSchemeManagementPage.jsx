@@ -179,6 +179,21 @@ const FasSchemeManagementPage = () => {
     await schemes.fetch()
   }
 
+  const handleDelete = async (scheme) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: scheme.schemeName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteSelected.submit({
+      overrideUrl: ApiUrls.FAS_SCHEME_MANAGEMENT.DETAIL(scheme.id),
+      overrideData: { reason },
+    })
+    if (response) await schemes.fetch()
+  }
+
   const handleSort = (value) => {
     setSort(value)
     clearSelection()
@@ -225,6 +240,12 @@ const FasSchemeManagementPage = () => {
                 })
                 if (response) await schemes.fetch()
               },
+            },
+            {
+              title: t('button.delete'),
+              icon: <DeleteOutlined />,
+              disabled: row.status !== 'Draft',
+              onClick: () => handleDelete(row),
             },
           ]}
         />

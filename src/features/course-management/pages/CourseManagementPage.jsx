@@ -106,6 +106,22 @@ const CourseManagementPage = () => {
     await courses.fetch()
   }
 
+  const handleDelete = async (course) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: course.courseName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteSelectedCourses.submit({
+      overrideUrl: ApiUrls.COURSE_MANAGEMENT.DETAIL(course.id),
+      overrideData: { reason },
+      overrideHeaders: { 'If-Match': `"${course.rowVersion}"` },
+    })
+    if (response) await courses.fetch()
+  }
+
   const handlePublish = async () => {
     if (!selectedCourses.length) return
     const hasExpiredFasDeadline = selectedCourses.some((course) => {
@@ -181,6 +197,7 @@ const CourseManagementPage = () => {
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
           onDetail={(row) =>
             navigate(routeUrls.BASE_ROUTE.SCHOOL_ADMIN(routeUrls.COURSE_MANAGEMENT.DETAIL(row.id)))
           }

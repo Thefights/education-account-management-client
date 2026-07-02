@@ -4,7 +4,7 @@ import { defaultManagementStatusStyle } from '@/shared/config/theme/defaultStyle
 import useEnum from '@/shared/hooks/useEnum'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
-import { CopyOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined } from '@ant-design/icons'
 import { Space, Tag } from 'antd'
 
 const isDraft = (course) => course.status === 'Draft'
@@ -18,6 +18,7 @@ const CourseManagementTableSection = ({
   setSelectedIds,
   onDetail,
   onDuplicate,
+  onDelete,
 }) => {
   const { t } = useTranslation()
   const _enum = useEnum()
@@ -96,6 +97,12 @@ const CourseManagementTableSection = ({
               title: t('button.duplicate', 'Duplicate'),
               icon: <CopyOutlined />,
               onClick: () => onDuplicate(row),
+            },
+            {
+              title: t('button.delete'),
+              icon: <DeleteOutlined />,
+              disabled: !isDraft(row),
+              onClick: () => onDelete(row),
             },
           ]}
         />

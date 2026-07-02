@@ -125,6 +125,21 @@ const SchoolStudentManagementPage = () => {
     await getStudents.fetch()
   }
 
+  const handleDelete = async (student) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: student.fullName,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await deleteStudent.submit({
+      overrideUrl: ApiUrls.SCHOOL_STUDENT_MANAGEMENT.DETAIL(student.id),
+      overrideData: { reason },
+    })
+    if (response) await getStudents.fetch()
+  }
+
   const mutationLoading = updateStatus.loading || deleteStudent.loading
 
   const handleImport = async (values) => {
@@ -162,7 +177,7 @@ const SchoolStudentManagementPage = () => {
           setSort={setSort}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
-
+          onDelete={handleDelete}
         />
         <GenericTablePagination
           totalCount={getStudents.data?.totalCount}

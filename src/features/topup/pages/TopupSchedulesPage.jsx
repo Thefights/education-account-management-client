@@ -132,6 +132,20 @@ const TopupSchedulesPage = () => {
     clearSelection()
     await schedules.fetch()
   }
+  const handleDelete = async (schedule) => {
+    const reason = await confirmReason({
+      title: t('button.delete'),
+      description: schedule.name,
+      confirmColor: 'error',
+      confirmText: t('button.delete'),
+    })
+    if (!reason) return
+    const response = await remove.submit({
+      overrideUrl: ApiUrls.SCHEDULE_TOPUP.DETAIL(schedule.id),
+      overrideData: { reason },
+    })
+    if (response) await schedules.fetch()
+  }
   const mutationLoading = updateStatus.loading || remove.loading
 
   return (
@@ -165,6 +179,7 @@ const TopupSchedulesPage = () => {
             routeUrls.BASE_ROUTE.FINANCE_ADMIN(routeUrls.TOPUP_MANAGEMENT.SCHEDULE_EDIT(row.id))
           )
         }
+        onDelete={handleDelete}
       />
       <GenericTablePagination
         totalCount={schedules.data?.totalCount}
