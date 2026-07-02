@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Space, message, Popconfirm, Typography, Modal } from 'antd'
+import { Button, Space, message, Popconfirm, Typography, Modal, theme } from 'antd'
 import { UploadOutlined, DeleteOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons'
 import GenericTable from '@/shared/components/tables/GenericTable'
 import { ApiUrls } from '@/shared/api/apiUrls'
@@ -10,6 +10,7 @@ import AiDocumentUploadDialog from './AiDocumentUploadDialog'
 
 const AiDocumentTableSection = () => {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
   const { data, loading, fetch: refresh } = useFetch(ApiUrls.AI_DOCUMENT_MANAGEMENT.INDEX)
   const [isUploadOpen, setIsUploadOpen] = useState(false)
 
@@ -167,21 +168,31 @@ const AiDocumentTableSection = () => {
       />
 
       <Modal
-        title={viewerTitle}
+        title={<Typography.Title level={4} style={{ margin: 0, color: token.colorText, fontSize: 18 }}>{viewerTitle}</Typography.Title>}
         open={viewerOpen}
         onCancel={handleCloseViewer}
         footer={null}
         width={1000}
         destroyOnClose
         style={{ top: 20 }}
-        styles={{ body: { height: '80vh', padding: 0 } }}
+        styles={{ body: { height: '80vh', padding: '16px 24px 24px 24px' } }}
       >
         {viewerUrl && (
-          <iframe
-            src={viewerUrl}
-            title="PDF Viewer"
-            style={{ width: '100%', height: '100%', border: 'none' }}
-          />
+          <div style={{ 
+            width: '100%', 
+            height: '100%', 
+            borderRadius: 12, 
+            overflow: 'hidden', 
+            border: `1px solid ${token.colorBorderSecondary}`,
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)',
+            background: token.colorBgContainer
+          }}>
+            <iframe
+              src={viewerUrl}
+              title="PDF Viewer"
+              style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+            />
+          </div>
         )}
       </Modal>
     </div>
