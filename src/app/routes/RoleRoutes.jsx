@@ -14,6 +14,9 @@ import AuditLogManagementPage from '@/features/audit-log/pages/AuditLogManagemen
 import CourseDetailPage from '@/features/course-management/pages/CourseDetailPage'
 import CourseManagementFormPage from '@/features/course-management/pages/CourseManagementFormPage'
 import CourseManagementPage from '@/features/course-management/pages/CourseManagementPage'
+import FinanceAdminDashboardPage from '@/features/dashboard/pages/FinanceAdminDashboardPage'
+import SchoolAdminDashboardPage from '@/features/dashboard/pages/SchoolAdminDashboardPage'
+import SystemAdminDashboardPage from '@/features/dashboard/pages/SystemAdminDashboardPage'
 import EServiceAccountsPage from '@/features/education-accounts/pages/EServiceAccountsPage'
 import EducationAccountDetailPage from '@/features/education-accounts/pages/EducationAccountDetailPage'
 import FasApplicationQueuePage from '@/features/financial-assistance/pages/FasApplicationQueuePage'
@@ -46,6 +49,10 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.SystemAdmin,
     Layout: SystemAdminLayout,
     routes: [
+      {
+        path: routeUrls.DASHBOARD.INDEX,
+        element: <SystemAdminDashboardPage />,
+      },
       {
         path: routeUrls.SCHOOL_MANAGEMENT.INDEX,
         element: <SchoolManagementPage />,
@@ -105,6 +112,7 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.FinanceAdmin,
     Layout: FinanceAdminLayout,
     routes: [
+      { path: routeUrls.DASHBOARD.INDEX, element: <FinanceAdminDashboardPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
       { path: routeUrls.TOPUP_MANAGEMENT.INDEX, element: <TopupManagementPage /> },
       {
@@ -167,6 +175,7 @@ const roleRouteGroups = [
     role: EnumConfig.RoleEnum.SchoolAdmin,
     Layout: SchoolAdminLayout,
     routes: [
+      { path: routeUrls.DASHBOARD.INDEX, element: <SchoolAdminDashboardPage /> },
       { path: routeUrls.PROFILE.INDEX, element: <AdminProfilePage /> },
       {
         path: routeUrls.FAS_ADMIN.INDEX,
