@@ -7,12 +7,6 @@ import { routeUrls } from '@/shared/config/routeUrls'
 import useTranslation from '@/shared/hooks/useTranslation'
 import { formatDatetimeStringBasedOnCurrentLanguage } from '@/shared/utils/formatDateUtil'
 import {
-  showErrorToast,
-  showInfoToast,
-  showSuccessToast,
-  showWarningToast,
-} from '@/shared/utils/toastUtil'
-import {
   BellOutlined,
   CheckOutlined,
   DeleteOutlined,
@@ -51,27 +45,6 @@ const getSeverityMeta = (severity, token) => {
     case 'Info':
     default:
       return { color: 'processing', iconColor: token.colorInfo, icon: <InfoCircleOutlined /> }
-  }
-}
-
-const showRealtimeToast = (notification) => {
-  const message = notification?.title || notification?.message
-  if (!message) return
-
-  switch (notification?.severity) {
-    case 'Success':
-      showSuccessToast(message)
-      break
-    case 'Warning':
-      showWarningToast(message)
-      break
-    case 'Error':
-      showErrorToast(message)
-      break
-    case 'Info':
-    default:
-      showInfoToast(message)
-      break
   }
 }
 
@@ -139,29 +112,21 @@ const NotificationBell = ({ profile }) => {
     unreadCountRef.current = unreadCount
   }, [unreadCount])
 
-  const applyNotifications = useCallback((nextNotifications, { toastNew = false } = {}) => {
+  const applyNotifications = useCallback((nextNotifications) => {
     const nextItems = Array.isArray(nextNotifications) ? nextNotifications : []
-    const currentIds = knownNotificationIdsRef.current
-    const newUnreadNotification = nextItems.find(
-      (item) => item?.id && !currentIds.has(item.id) && !item.isRead
-    )
 
     setNotifications(nextItems)
     knownNotificationIdsRef.current = new Set(nextItems.map((item) => item?.id).filter(Boolean))
-
-    if (toastNew && newUnreadNotification) {
-      showRealtimeToast(newUnreadNotification)
-    }
   }, [])
 
   const fetchNotifications = useCallback(
-    async ({ showLoading = true, toastNew = false } = {}) => {
+    async ({ showLoading = true } = {}) => {
       if (showLoading) setLoading(true)
       try {
         const response = await axiosConfig.get(ApiUrls.NOTIFICATION.INDEX, {
           params: notificationListParams,
         })
-        applyNotifications(response?.data?.collection || [], { toastNew })
+        applyNotifications(response?.data?.collection || [])
       } finally {
         if (showLoading) setLoading(false)
       }
@@ -169,13 +134,13 @@ const NotificationBell = ({ profile }) => {
     [applyNotifications]
   )
 
-  const fetchUnreadCount = useCallback(async ({ toastOnIncrease = false } = {}) => {
+  const fetchUnreadCount = useCallback(async ({ refreshOnIncrease = false } = {}) => {
     try {
       const response = await axiosConfig.get(ApiUrls.NOTIFICATION.UNREAD_COUNT)
       const nextCount = Number(response?.data?.count || 0)
 
-      if (toastOnIncrease && nextCount > unreadCountRef.current) {
-        fetchNotifications({ showLoading: false, toastNew: true })
+      if (refreshOnIncrease && nextCount > unreadCountRef.current) {
+        fetchNotifications({ showLoading: false })
       }
 
       setUnreadCount(nextCount)
@@ -211,21 +176,20 @@ const NotificationBell = ({ profile }) => {
         return nextNotifications
       })
       setUnreadCount((current) => current + 1)
-      showRealtimeToast(notification)
       fetchUnreadCount()
     })
 
     connection.on('notificationUnreadCountChanged', (payload) => {
       const nextCount = Number(payload?.count || 0)
       if (nextCount > unreadCountRef.current) {
-        fetchNotifications({ showLoading: false, toastNew: true })
+        fetchNotifications({ showLoading: false })
       }
       setUnreadCount(nextCount)
     })
 
     connection.onreconnected(() => {
-      fetchNotifications({ showLoading: false, toastNew: true })
-      fetchUnreadCount({ toastOnIncrease: true })
+      fetchNotifications({ showLoading: false })
+      fetchUnreadCount()
     })
 
     connection.start().catch(() => undefined)
@@ -237,7 +201,7 @@ const NotificationBell = ({ profile }) => {
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      fetchUnreadCount({ toastOnIncrease: true })
+      fetchUnreadCount({ refreshOnIncrease: true })
     }, 15000)
 
     return () => window.clearInterval(intervalId)
